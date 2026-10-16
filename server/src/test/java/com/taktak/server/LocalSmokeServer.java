@@ -14,6 +14,8 @@ public final class LocalSmokeServer {
     public static void main(String[] args) throws Exception {
         Path root = Files.createDirectories(Path.of("target", "smoke-postgres"));
         int port = Integer.parseInt(System.getProperty("taktak.smoke.port", "0"));
+        byte[] testKey = new byte[32];
+        new java.security.SecureRandom().nextBytes(testKey);
         try (EmbeddedPostgres postgres = EmbeddedPostgres.builder()
                 .setDataDirectory(Files.createTempDirectory(root, "cluster-"))
                 .setOverrideWorkingDirectory(root.resolve("binaries").toFile())
@@ -21,6 +23,8 @@ public final class LocalSmokeServer {
                 .setPort(0).start();
              ServletWebServerApplicationContext context =
                      (ServletWebServerApplicationContext) SpringApplication.run(TaktakApplication.class,
+                             "--taktak.jwt.access-secret=" + java.util.Base64.getEncoder().encodeToString(testKey),
+                             "--taktak.jwt.access-minutes=15", "--taktak.jwt.refresh-days=30",
                              "--spring.datasource.url=" + postgres.getJdbcUrl("postgres", "postgres"),
                              "--spring.datasource.username=postgres",
                              "--spring.datasource.password=",

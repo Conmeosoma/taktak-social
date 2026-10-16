@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+<androidx.core.widget.NestedScrollView
+    android:id="@+id/authScroll"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fillViewport="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="vertical"
+        android:padding="24dp">
+
+        <TextView android:id="@+id/authBrand" style="@style/Taktak.Auth.Brand" android:text="@string/app_name" />
+        <TextView android:id="@+id/authTitle" style="@style/Taktak.Auth.Title" android:text="@string/auth_register_title" />
+        <TextView style="@style/Taktak.Auth.Subtitle" android:text="@string/auth_register_subtitle" />
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/displayNameLayout"
+            style="@style/Taktak.Auth.Field"
+            android:hint="@string/auth_display_name">
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/displayNameInput"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:autofillHints="personName"
+                android:imeOptions="actionNext"
+                android:inputType="textPersonName|textCapWords"
+                android:singleLine="true" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/usernameLayout"
+            style="@style/Taktak.Auth.Field"
+            android:hint="@string/auth_username"
+            app:helperText="@string/auth_username_help">
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/usernameInput"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:autofillHints="newUsername"
+                android:imeOptions="actionNext"
+                android:inputType="textVisiblePassword"
+                android:singleLine="true" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/emailLayout"
+            style="@style/Taktak.Auth.Field"
+            android:hint="@string/auth_email">
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/emailInput"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:autofillHints="emailAddress"
+                android:imeOptions="actionNext"
+                android:inputType="textEmailAddress"
+                android:singleLine="true" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/passwordLayout"
+            style="@style/Taktak.Auth.Field"
+            android:hint="@string/auth_password"
+            app:helperText="@string/auth_password_help"
+            app:endIconMode="password_toggle">
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/passwordInput"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:autofillHints="newPassword"
+                android:imeOptions="actionNext|flagNoPersonalizedLearning"
+                android:inputType="textPassword"
+                android:saveEnabled="false"
+                android:singleLine="true" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/confirmPasswordLayout"
+            style="@style/Taktak.Auth.Field"
+            android:hint="@string/auth_confirm_password"
+            app:endIconMode="password_toggle">
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/confirmPasswordInput"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:autofillHints="newPassword"
+                android:imeOptions="actionDone|flagNoPersonalizedLearning"
+                android:inputType="textPassword"
+                android:saveEnabled="false"
+                android:singleLine="true" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.progressindicator.LinearProgressIndicator
+            android:id="@+id/loadingIndicator"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:contentDescription="@string/auth_processing"
+            android:indeterminate="true"
+            android:visibility="gone" />
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/submitButton"
+            style="@style/Taktak.Auth.Button"
+            android:text="@string/auth_register" />
+        <TextView
+            android:id="@+id/formNotice"
+            style="@style/Taktak.Auth.Subtitle"
+            android:accessibilityLiveRegion="polite"
+            android:visibility="gone" />
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/switchButton"
+            style="@style/Taktak.Auth.TextButton"
+            android:text="@string/auth_go_login" />
+    </LinearLayout>
+</androidx.core.widget.NestedScrollView>
+</FrameLayout>

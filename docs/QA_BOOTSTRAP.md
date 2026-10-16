@@ -42,3 +42,46 @@ ADB unauthorized đã được xử lý trên emulator test bằng console scree
 1A **PASS local**. 1B đã triển khai, build/lint và UI emulator **PASS local**, nhưng nghiệm thu liên kết Firebase còn phụ thuộc 0B. 0C/1C **IN PROGRESS / chờ môi trường**: có đường reverse chạy được nhưng chưa máy thật và alias còn lỗi. Bước 0 và giai đoạn 1 **chưa DONE**. Không có căn cứ chuyển sang giai đoạn 2.
 
 Cleanup cuối phiên: smoke server kết thúc bình thường (exit 0), cluster PostgreSQL test riêng được thu hồi; không còn listener test port 52312. Đã gỡ đúng ADB reverse và dừng emulator do phiên này tạo. Giữ tools/cache/artifact để tái sử dụng và đối chiếu, không xóa dữ liệu người dùng.
+
+## Lần AUTO CONTINUE tiếp theo — sửa alias Android 17
+
+Các bảng ở trên là bằng chứng lịch sử. Kết quả mới dưới đây thay kết luận alias còn lỗi, không thay các điều kiện nghiệm thu Firebase/máy thật.
+
+| Kiểm tra vừa chạy | Kết quả thực tế |
+|---|---|
+| Git trước sửa | `main` / `96d2311`, working tree sạch; bootstrap và README đã commit theo yêu cầu riêng trước đó |
+| Backend smoke | App thật với PostgreSQL test riêng, bind `127.0.0.1:8080`; host health UP |
+| Alias trước sửa | 4 test, 1 failure `SocketTimeoutException` qua `10.0.2.2:8080`, 0 skipped; ba test khác PASS |
+| Alias sau sửa | **PASS 4/4**, 0 failures/errors/skipped; health 200/UP và protected API 401, `adb reverse --list` rỗng |
+| Build/lint | `connectedDebugAndroidTest assembleRelease lintDebug lintRelease -PTAKTAK_RELEASE_BASE_URL=https://api.example.invalid/`: BUILD SUCCESSFUL; lint debug/release 0 errors; release unsigned với URL QA |
+| Manifest isolation | PASS: debug có `ACCESS_LOCAL_NETWORK`; release không có quyền local network/debug network XML reference và cleartext=false |
+| Launch | Cài APK Success, cold launch `MainActivity` Status ok |
+| Firebase local | PASS kiểm tra JSON/package, trường private credentials, ignore và tên file credential không tracked; không chứng minh Console |
+
+Nguyên nhân: target SDK 37 trên Android 17 cần quyền runtime `ACCESS_LOCAL_NETWORK`. Thêm khai báo chỉ trong debug manifest; test harness cấp quyền bằng UiAutomation và kiểm tra trạng thái trước request. Không đổi firewall, target SDK, TLS hoặc địa chỉ backend. UI bootstrap chưa gọi API; flow xin quyền khi UI truy cập local phải được xử lý cùng tính năng mạng ở bước sau. Xem [Android local network permission](https://developer.android.com/privacy-and-security/local-network-permission?hl=en).
+
+Artifact mới được ignore: `.local/artifacts/android-alias-before-local-permission.xml` (4 test / 1 fail) và `.local/artifacts/android-alias-local-permission-results.xml` (4/4 PASS). Bằng chứng alias thất bại cũ được giữ nguyên. Không chạy lại server integration/unit test vì source server không đổi; sáu server test và unit arithmetic phía trên là kết quả phiên trước.
+
+UI dump mới `.local/artifacts/taktak-resume-view.xml` có text Taktak; screenshot `.local/artifacts/taktak-resume.png` đã được xem theo skill android_ui_verification. Kiểm tra cuối: `git diff --check` PASS; quét 8 file thay đổi không phát hiện mẫu private key/API key hoặc conflict, 25 link local hợp lệ; hash JSON Firebase giữ nguyên. HEAD vẫn `96d2311`, index rỗng. Smoke server kết thúc exit 0, không còn listener HTTP 8080/PostgreSQL test 51141/AVD 5554–5555; không có reverse được tạo trong phiên. Không commit/push hoặc sửa migration.
+
+Cập nhật nghiệm thu 0B cùng ngày: ảnh General trên Console đã được đối chiếu JSON local bằng PowerShell, cả Project ID/project number/App ID/package đều khớp; ảnh Cloud Messaging cho thấy API V1 Enabled. Người dùng xác nhận chưa thiết lập Auth/Firestore/Storage/Functions. **0B PASS đăng ký/cấu hình**, 1B PASS bootstrap; bằng chứng dịch vụ là ảnh/xác nhận thủ công, không phải API quản trị hoặc FCM runtime. Lệnh `adb devices -l` khi cập nhật không có thiết bị; 0C/1C vẫn chờ điện thoại thật. Không chạy lại build/test trong lần cập nhật hồ sơ này.
+
+## Máy thật 0C/1C — 16/10/2026
+
+| Kiểm tra vừa chạy | Kết quả |
+|---|---|
+| Thiết bị | ADB device đã cấp quyền; 23129RAA4G / Android 15 API 35, màn hình 1080×2400; ban đầu không có package Taktak/reverse mapping |
+| Backend smoke | App Spring Boot thật, PostgreSQL test cluster riêng, bind 127.0.0.1:8080; host health 200 |
+| Instrumentation | `connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.taktakHealthUrl=http://127.0.0.1:8080/actuator/health` với reverse USB: **BUILD SUCCESSFUL**, 4 test, 0 failures/errors/skipped |
+| HTTP từ máy thật | PASS trong instrumentation: health 200/UP; protected /api/users/me 401 |
+| UI/package/policy | Ba test còn lại PASS: package com.taktak.app, MainActivity có text Taktak, allowlist local/chặn cleartext example.com |
+| Cài/mở riêng | Install Success, cold launch Status ok, TotalTime 3041 ms; foreground đúng MainActivity |
+| Kiểm tra trực quan | UI dump có Taktak; đã xem screenshot theo skill android_ui_verification, placeholder sáng trên emulator và tối trên máy thật đều hiển thị |
+
+UI test lần đầu chậm 103,718 giây nhưng không fail; đã thu SIGQUIT riêng tiến trình Taktak trong lúc chờ, không thay animation/security trên điện thoại. Chưa chứng minh nguyên nhân chậm; lần mở app riêng khoảng 3 giây đã được ghi nhận độc lập. Không bỏ test, không thay kỳ vọng.
+
+Artifact local bị ignore: `.local/artifacts/android-physical-usb-results.xml`, `taktak-physical-view.xml`, `taktak-physical.png`. Báo cáo Gradle instrumentation mặc định hiện là lần máy thật; bằng chứng emulator alias/reverse vẫn được giữ ở artifact riêng.
+
+Kết luận mới nhất: **Bước 0/giai đoạn 1 PASS bootstrap local**, bao gồm 0C/1C qua kịch bản emulator alias và máy thật USB reverse. LAN/tunnel, FCM runtime, auth, signing/deploy chưa chạy và không nằm trong nghiệm thu này. Server 6 integration test, unit mẫu và lint/release là kết quả các phiên trước, không tính là vừa chạy lại. Chưa chuyển giai đoạn 2.
+
+Cleanup/review máy thật: reverse 8080 đã gỡ; smoke server exit 0, không còn listener 8080/49887. App debug được giữ trên điện thoại; dữ liệu/cài đặt cá nhân không bị xóa/thay đổi. XML 4/4 đã parse, 5 hồ sơ và 24 link local được kiểm tra, git diff --check PASS; artifact được ignore, hash JSON Firebase giữ nguyên, HEAD 96d2311/index rỗng.

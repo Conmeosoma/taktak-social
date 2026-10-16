@@ -1,6 +1,8 @@
 package com.taktak.app;
 
 import android.content.Context;
+import android.content.pm.PackageManager;
+import android.os.Build;
 import android.security.NetworkSecurityPolicy;
 import android.widget.TextView;
 
@@ -55,6 +57,15 @@ public class ExampleInstrumentedTest {
 
     @Test
     public void androidReachesRealBackendHealthAndProtectedEndpoint() throws Exception {
+        // Chỉ test harness cấp quyền; UI chưa thực hiện request mạng ở bootstrap.
+        if (Build.VERSION.SDK_INT >= 37) {
+            var instrumentation = InstrumentationRegistry.getInstrumentation();
+            Context context = instrumentation.getTargetContext();
+            instrumentation.getUiAutomation().grantRuntimePermission(
+                    context.getPackageName(), "android.permission.ACCESS_LOCAL_NETWORK");
+            assertEquals(PackageManager.PERMISSION_GRANTED,
+                    context.checkSelfPermission("android.permission.ACCESS_LOCAL_NETWORK"));
+        }
         String healthUrl = InstrumentationRegistry.getArguments().getString(
                 "taktakHealthUrl", BuildConfig.BASE_URL + "actuator/health");
         HttpURLConnection health = connect(healthUrl);

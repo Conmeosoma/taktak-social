@@ -64,7 +64,7 @@ Set-Location android-client
 
 ### Backend
 
-Backend yêu cầu JDK 17 và PostgreSQL. Sao chép `server/.env.example` thành cấu hình local, thiết lập các biến `DB_URL`, `DB_USERNAME` và `DB_PASSWORD`, sau đó chạy:
+Backend yêu cầu JDK 17 và PostgreSQL. Thiết lập các biến môi trường `DB_URL`, `DB_USERNAME`, `DB_PASSWORD` và `JWT_ACCESS_SECRET` theo `server/.env.example`, sau đó chạy. JWT secret phải là Base64 của ít nhất 32 byte ngẫu nhiên; Spring Boot không tự nạp `.env`.
 
 ```powershell
 Set-Location server

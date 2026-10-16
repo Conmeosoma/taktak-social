@@ -2,19 +2,45 @@ package com.taktak.server.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
+import java.util.Set;
+import org.springframework.core.annotation.Order;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 
 @Configuration
 public class SecurityConfig {
     @Bean
-    SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        // Chưa triển khai auth; chỉ mở health và từ chối mọi request khác.
+    PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder(12);
+    }
+
+    @Bean
+    @Order(1)
+    SecurityFilterChain publicAuthChain(HttpSecurity http, SecurityErrorHandler errors) throws Exception {
+        Set<String> endpoints = Set.of("/api/auth/register", "/api/auth/login", "/api/auth/refresh", "/api/auth/logout");
+        // Không chạy bearer filter ở auth endpoints: refresh dùng credential trong body,
+        // kể cả khi interceptor client gửi kèm access JWT đã hết hạn.
+        return defaults(http, errors).securityMatcher(request ->
+                ("GET".equals(request.getMethod()) && "/actuator/health".equals(request.getServletPath()))
+                || ("POST".equals(request.getMethod()) && endpoints.contains(request.getServletPath())))
+                .authorizeHttpRequests(requests -> requests.anyRequest().permitAll()).build();
+    }
+
+    @Bean
+    @Order(2)
+    SecurityFilterChain protectedApiChain(HttpSecurity http, SecurityErrorHandler errors) throws Exception {
+        return defaults(http, errors)
+                .oauth2ResourceServer(resource -> resource.jwt(jwt -> { })
+                        .authenticationEntryPoint(errors).accessDeniedHandler(errors))
+                .authorizeHttpRequests(requests -> requests.requestMatchers("/api/**").authenticated()
+                        .anyRequest().denyAll()).build();
+    }
+
+    private HttpSecurity defaults(HttpSecurity http, SecurityErrorHandler errors) throws Exception {
         return http
                 .csrf(AbstractHttpConfigurer::disable)
                 .httpBasic(AbstractHttpConfigurer::disable)
@@ -22,11 +48,6 @@ public class SecurityConfig {
                 .logout(AbstractHttpConfigurer::disable)
                 .requestCache(AbstractHttpConfigurer::disable)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .exceptionHandling(errors -> errors.authenticationEntryPoint(
-                        new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED)))
-                .authorizeHttpRequests(requests -> requests
-                        .requestMatchers(HttpMethod.GET, "/actuator/health").permitAll()
-                        .anyRequest().denyAll())
-                .build();
+                .exceptionHandling(handler -> handler.authenticationEntryPoint(errors).accessDeniedHandler(errors));
     }
 }

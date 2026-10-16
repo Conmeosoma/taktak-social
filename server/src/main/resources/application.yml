@@ -36,7 +36,7 @@ management:
       show-details: never
       show-components: never
 
-# Chỉ giữ tên cấu hình cho bước sau, chưa tạo auth/storage/FCM service.
+# Secret JWT bắt buộc hợp lệ khi khởi động; không có khóa dev mặc định.
 taktak:
   jwt:
     access-secret: ${JWT_ACCESS_SECRET:}

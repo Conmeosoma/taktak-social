@@ -1,6 +1,6 @@
 # Taktak — 0B: Firebase Android chỉ dùng FCM
 
-Cập nhật: 16/10/2026. **Đã duyệt 0B** bằng yêu cầu “continue”. Trạng thái: **BLOCKED ở nghiệm thu Console**; phần kiểm tra local đã đạt, chưa có bằng chứng từ tài khoản Firebase.
+Cập nhật: 16/10/2026. **0B PASS — đăng ký/cấu hình Firebase**, dựa trên kiểm tra local, ảnh Console do người dùng cung cấp và xác nhận thủ công về phạm vi dịch vụ. Chưa kiểm thử gửi/nhận FCM.
 
 Quyền mới nhất AUTO CONTINUE đã mở toàn Bước 0 và giai đoạn 1, bao gồm phần độc lập khi 0B bị chặn. Các kết quả local 0B dưới đây là của phiên 0B trước; phần build/runtime giai đoạn 1 được ghi riêng trong QA_BOOTSTRAP. JSON local được giữ nguyên.
 
@@ -40,13 +40,13 @@ Có thể thực hiện qua plugin Firebase chính thức sau khi người dùng
 
 Package Firebase phân biệt hoa/thường và không đổi được cho app đã đăng ký. File cấu hình nằm tại app-module root khi tích hợp Android. Google Analytics là tùy chọn trong quy trình tạo project, không phải điều kiện để đăng ký app ở 0B. Các điểm này dựa trên [hướng dẫn Android chính thức](https://firebase.google.com/docs/android/setup); không làm theo ví dụ thêm Auth/Firestore trong trang đó vì ngoài stack Taktak.
 
-## Bằng chứng còn thiếu để nghiệm thu
+## Bằng chứng nghiệm thu
 
-- [ ] Console xác nhận project ID/project number khớp JSON local và đây là project dùng cho Taktak.
-- [ ] Android app tồn tại, package `com.taktak.app` và Firebase App ID khớp JSON.
-- [ ] Xác nhận nguồn JSON và chỉ dùng FCM, không thiết lập các sản phẩm bị loại trừ ở trên.
+- [x] Ảnh Project settings → General cho thấy project/app Taktak. Đã đối chiếu Project ID/project number với JSON local bằng PowerShell: đều khớp.
+- [x] Package `com.taktak.app` và Firebase App ID trong ảnh khớp đúng một Android client trong JSON local. Ảnh workspace xác nhận file ở `android-client/app/google-services.json`; đây là đối chiếu định danh, không phải audit lịch sử tải file.
+- [x] Ảnh Cloud Messaging cho thấy API V1 Enabled, Legacy Disabled. Người dùng xác nhận “tôi chưa thiết lập” sau hướng dẫn kiểm tra Auth/Firestore/Storage/Functions; ghi nhận là xác nhận thủ công rằng các dịch vụ này chưa được thiết lập, không phải truy vấn tài khoản tự động.
 
-Agent ghi rõ nguồn bằng chứng: kết quả truy vấn qua tài khoản được kết nối hoặc xác nhận đối chiếu của người dùng; không trình bày xác nhận thủ công như kiểm tra tự động. Có thể xác nhận bằng văn bản rằng ba mục trên đã khớp, không cần gửi API key/private key. Nếu chưa khớp, tiếp tục xử lý trong 0B, chưa sang 0C.
+Nguồn bằng chứng là ảnh và xác nhận của người dùng trong cuộc trò chuyện ngày 16/10/2026 cùng phép đối chiếu JSON local đã chạy. Agent chưa có phiên đăng nhập Firebase, chưa tự truy vấn API quản trị hoặc kiểm tra hiệu lực/restrictions của API key. Những giới hạn này không được coi là kiểm thử FCM runtime; phần gửi/nhận thuộc giai đoạn 6.
 
 ## Chính sách file và giới hạn
 

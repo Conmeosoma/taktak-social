@@ -12,9 +12,39 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/bootstrap_message"
-        app:layout_constraintBottom_toBottomOf="parent"
+        android:textAppearance="?attr/textAppearanceDisplaySmall"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toTopOf="@id/loginButton"
+        app:layout_constraintVertical_chainStyle="packed"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/loginButton"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="24dp"
+        android:layout_marginTop="32dp"
+        android:minHeight="56dp"
+        android:text="@string/auth_login"
+        app:layout_constraintTop_toBottomOf="@id/bootstrapMessage"
+        app:layout_constraintBottom_toTopOf="@id/registerButton"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/registerButton"
+        style="@style/Widget.Material3.Button.OutlinedButton"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="24dp"
+        android:layout_marginTop="8dp"
+        android:minHeight="56dp"
+        android:text="@string/auth_register"
+        app:layout_constraintTop_toBottomOf="@id/loginButton"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
