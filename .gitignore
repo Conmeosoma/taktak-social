@@ -1,0 +1,84 @@
+# Android Studio, IntelliJ, VS Code, Eclipse
+.idea/
+.vscode/
+*.iml
+*.ipr
+*.iws
+.classpath
+.project
+.settings/
+.factorypath
+
+# Gradle, Android SDK and generated output
+.gradle/
+build/
+local.properties
+captures/
+.externalNativeBuild/
+.cxx/
+*.apk
+*.aab
+*.ap_
+*.dex
+
+# Maven and Java output; keep build wrappers versioned
+target/
+out/
+bin/
+.m2/
+*.class
+*.jar
+*.war
+*.ear
+!gradle/wrapper/gradle-wrapper.jar
+!**/gradle/wrapper/gradle-wrapper.jar
+!.mvn/wrapper/maven-wrapper.jar
+!**/.mvn/wrapper/maven-wrapper.jar
+
+# Local environment; examples must contain placeholders only
+.env
+.env.*
+!.env.example
+!.env.*.example
+secrets/
+credentials/
+*.credentials.json
+application-local.properties
+application-local.yml
+application-local.yaml
+
+# Firebase Android configuration and Admin private credentials
+google-services.json
+*firebase-adminsdk*.json
+*service-account*.json
+*service_account*.json
+*serviceAccount*.json
+
+# Signing material and private keys
+*.jks
+*.keystore
+keystore.properties
+key.properties
+*.pem
+*.key
+*.p12
+*.pfx
+
+# Local runtime data, logs and dumps
+.tools/
+.local/
+private-images/
+logs/
+*.log
+*.hprof
+*.dump
+hs_err_pid*
+replay_pid*
+
+# OS and editor temporary files
+.DS_Store
+Thumbs.db
+Desktop.ini
+*.swp
+*.swo
+*~

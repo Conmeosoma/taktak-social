@@ -1,0 +1,112 @@
+import groovy.json.JsonOutput
+
+plugins {
+    alias(libs.plugins.android.application)
+    id 'com.google.gms.google-services'
+}
+
+def debugBaseUrl = providers.gradleProperty('TAKTAK_DEBUG_BASE_URL').getOrElse('http://10.0.2.2:8080/')
+def releaseBaseUrl = providers.gradleProperty('TAKTAK_RELEASE_BASE_URL').getOrElse('')
+def validateBaseUrl = { String value, boolean release ->
+    URI uri
+    try {
+        uri = new URI(value)
+    } catch (Exception ignored) {
+        throw new GradleException('Taktak BASE_URL must be a valid absolute URL.')
+    }
+    if (!uri.host || uri.userInfo || uri.query || uri.fragment || !value.endsWith('/')) {
+        throw new GradleException('Taktak BASE_URL needs a host and trailing slash, without credentials/query/fragment.')
+    }
+    if (release && uri.scheme != 'https') {
+        throw new GradleException('Release BASE_URL must use HTTPS.')
+    }
+    if (!release && !(uri.scheme == 'https' ||
+            (uri.scheme == 'http' && uri.host in ['10.0.2.2', '127.0.0.1', 'localhost']))) {
+        throw new GradleException('Debug HTTP is restricted to emulator/loopback. Use HTTPS for a LAN/tunnel endpoint.')
+    }
+}
+validateBaseUrl(debugBaseUrl, false)
+if (releaseBaseUrl) {
+    validateBaseUrl(releaseBaseUrl, true)
+}
+
+def verifyReleaseBaseUrl = tasks.register('verifyReleaseBaseUrl') {
+    doLast {
+        if (!releaseBaseUrl) {
+            throw new GradleException('Set -PTAKTAK_RELEASE_BASE_URL=https://your-api-host/ before building release.')
+        }
+    }
+}
+tasks.configureEach {
+    if (name == 'preReleaseBuild') {
+        dependsOn verifyReleaseBaseUrl
+    }
+}
+
+android {
+    namespace 'com.taktak.app'
+    compileSdk {
+        version = release(37)
+    }
+
+    defaultConfig {
+        applicationId "com.taktak.app"
+        minSdk 26
+        targetSdk 37
+        versionCode 1
+        versionName "1.0"
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+    }
+
+    buildFeatures {
+        viewBinding true
+        buildConfig true
+    }
+
+    buildTypes {
+        debug {
+            buildConfigField 'String', 'BASE_URL', JsonOutput.toJson(debugBaseUrl)
+        }
+        release {
+            buildConfigField 'String', 'BASE_URL', JsonOutput.toJson(releaseBaseUrl)
+            optimization {
+                enable false
+            }
+        }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+}
+
+dependencies {
+    implementation libs.activity
+    implementation libs.appcompat
+    implementation libs.constraintlayout
+    implementation libs.material
+    implementation libs.lifecycle.viewmodel
+    implementation libs.lifecycle.livedata
+    implementation libs.retrofit
+    implementation libs.retrofit.gson
+    implementation libs.okhttp
+    implementation libs.gson
+    implementation libs.glide
+    implementation libs.camera.core
+    implementation libs.camera.camera2
+    implementation libs.camera.lifecycle
+    implementation libs.camera.view
+    implementation libs.work.runtime
+    implementation libs.security.crypto
+    implementation libs.viewpager2
+    implementation libs.recyclerview
+
+    // Firebase: chỉ dùng FCM để nhận tín hiệu cập nhật widget
+    implementation platform('com.google.firebase:firebase-bom:35.0.1')
+    implementation 'com.google.firebase:firebase-messaging'
+
+    testImplementation libs.junit
+    androidTestImplementation libs.espresso.core
+    androidTestImplementation libs.ext.junit
+}
