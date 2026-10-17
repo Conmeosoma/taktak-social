@@ -1,0 +1,5 @@
+<resources>
+    <string name="m3_session_waiting">Chờ một chút nhé</string>
+    <string name="m3_session_error">Chưa thể mở Camera</string>
+    <string name="m3_session_permission">Cần quyền kết nối</string>
+</resources>

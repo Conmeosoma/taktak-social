@@ -60,7 +60,8 @@ public abstract class AuthFormActivity extends AppCompatActivity {
         ViewCompat.setAccessibilityHeading(root.findViewById(R.id.authBrand), true);
         ViewCompat.setAccessibilityHeading(root.findViewById(R.id.authTitle), true);
         ViewCompat.setOnApplyWindowInsetsListener(root, (view, insets) -> {
-            Insets safe = insets.getInsets(WindowInsetsCompat.Type.systemBars() | WindowInsetsCompat.Type.ime());
+            Insets safe = insets.getInsets(WindowInsetsCompat.Type.systemBars() | WindowInsetsCompat.Type.ime()
+                    | WindowInsetsCompat.Type.displayCutout());
             view.setPadding(safe.left, safe.top, safe.right, safe.bottom);
             if (insets.isVisible(WindowInsetsCompat.Type.ime())) {
                 root.post(() -> {

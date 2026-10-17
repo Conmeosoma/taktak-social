@@ -20,8 +20,10 @@
         <meta-data
             android:name="firebase_messaging_auto_init_enabled"
             android:value="false" />
-        <activity android:name=".ui.auth.LoginActivity" android:exported="false" android:windowSoftInputMode="adjustResize" />
-        <activity android:name=".ui.auth.RegisterActivity" android:exported="false" android:windowSoftInputMode="adjustResize" />
+        <activity android:name=".ui.auth.LoginActivity" android:exported="false" android:windowSoftInputMode="adjustResize"
+            android:theme="@style/Theme.TakTak.M3.Login" />
+        <activity android:name=".ui.auth.RegisterActivity" android:exported="false" android:windowSoftInputMode="adjustResize"
+            android:theme="@style/Theme.TakTak.M3.Register" />
         <activity
             android:name=".MainActivity"
             android:exported="true"

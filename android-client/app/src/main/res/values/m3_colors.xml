@@ -1,0 +1,35 @@
+<resources>
+    <color name="m3_camera_shutter">#FF6B8A</color>
+    <color name="m3_on_camera_shutter">#38222A</color>
+    <color name="m3_success_container">#D9F1DF</color>
+    <color name="m3_on_success_container">#214E35</color>
+    <color name="m3_primary">#A83955</color>
+    <color name="m3_on_primary">#FFFFFF</color>
+    <color name="m3_primary_container">#FFD9E1</color>
+    <color name="m3_on_primary_container">#421123</color>
+    <color name="m3_secondary">#695489</color>
+    <color name="m3_on_secondary">#FFFFFF</color>
+    <color name="m3_secondary_container">#EBDDFF</color>
+    <color name="m3_on_secondary_container">#302044</color>
+    <color name="m3_tertiary">#825426</color>
+    <color name="m3_on_tertiary">#FFFFFF</color>
+    <color name="m3_tertiary_container">#FFDCBA</color>
+    <color name="m3_on_tertiary_container">#301A04</color>
+    <color name="m3_surface">#FFF8F2</color>
+    <color name="m3_surface_lowest">#FFFFFF</color>
+    <color name="m3_surface_low">#FBF0EB</color>
+    <color name="m3_surface_container">#F5EAE6</color>
+    <color name="m3_surface_high">#EFE4E1</color>
+    <color name="m3_surface_highest">#E9DEDB</color>
+    <color name="m3_on_surface">#211C21</color>
+    <color name="m3_on_surface_variant">#65565E</color>
+    <color name="m3_outline">#88767E</color>
+    <color name="m3_outline_variant">#D8C2CA</color>
+    <color name="m3_error">#BA1A1A</color>
+    <color name="m3_on_error">#FFFFFF</color>
+    <color name="m3_error_container">#FFDAD6</color>
+    <color name="m3_on_error_container">#410002</color>
+    <color name="m3_inverse_surface">#362E33</color>
+    <color name="m3_inverse_on_surface">#FCEEF4</color>
+    <color name="m3_inverse_primary">#FFB1C4</color>
+</resources>

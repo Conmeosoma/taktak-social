@@ -16,6 +16,8 @@ public class RegisterActivity extends AuthFormActivity {
         binding = ActivityRegisterBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
         configureInsets(binding.getRoot());
+        androidx.core.view.ViewCompat.setAccessibilityHeading(binding.registerIdentity, true);
+        androidx.core.view.ViewCompat.setAccessibilityHeading(binding.registerSecurity, true);
         observeAuth(binding.formNotice, () -> {
             binding.passwordInput.setText("");
             binding.confirmPasswordInput.setText("");

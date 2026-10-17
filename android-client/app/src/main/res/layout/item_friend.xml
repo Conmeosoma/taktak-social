@@ -1,26 +1,34 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical"
-    android:paddingVertical="10dp" android:saveEnabled="false">
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:theme="@style/Theme.TakTak.M3.Friends"
+    android:layout_width="match_parent" android:layout_height="wrap_content"
+    android:layout_marginBottom="@dimen/m3_space_12" android:saveEnabled="false"
+    app:cardCornerRadius="24dp" app:cardElevation="0dp" app:strokeWidth="0dp"
+    app:cardBackgroundColor="?attr/colorSurfaceContainerLow">
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:orientation="vertical" android:padding="@dimen/m3_space_16">
     <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical">
         <ImageView android:id="@+id/friendAvatar" android:layout_width="48dp" android:layout_height="48dp"
             android:importantForAccessibility="no" android:contentDescription="@null" />
         <LinearLayout android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content"
-            android:orientation="vertical" android:paddingStart="12dp" android:paddingEnd="4dp">
+            android:orientation="vertical" android:paddingStart="12dp" android:paddingEnd="0dp">
             <TextView android:id="@+id/friendName" android:layout_width="match_parent" android:layout_height="wrap_content"
-                android:textAppearance="@style/TextAppearance.Material3.TitleMedium" android:saveEnabled="false" />
+                android:textAppearance="@style/TextAppearance.Material3.TitleMedium"
+                android:textColor="?attr/colorOnSurface" android:saveEnabled="false" />
             <TextView android:id="@+id/friendUsername" android:layout_width="match_parent" android:layout_height="wrap_content"
-                android:textAppearance="@style/TextAppearance.TakTak.Camera.Body" android:saveEnabled="false" />
+                android:layout_marginTop="4dp" android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
+                android:textColor="?attr/colorOnSurfaceVariant" android:saveEnabled="false" />
         </LinearLayout>
     </LinearLayout>
     <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical">
         <com.google.android.material.button.MaterialButton android:id="@+id/friendPrimary"
-            android:layout_width="match_parent" android:layout_height="wrap_content" android:minHeight="48dp" />
+            style="@style/Widget.TakTakM3.Button" android:layout_marginTop="@dimen/m3_space_12" />
         <com.google.android.material.button.MaterialButton android:id="@+id/friendSecondary"
-            style="@style/Widget.Material3.Button.TextButton" android:layout_width="match_parent"
+            style="@style/Widget.Material3Expressive.Button.TonalButton" android:layout_width="match_parent"
             android:layout_height="wrap_content" android:minHeight="48dp" android:text="@string/friends_reject" />
         <com.google.android.material.button.MaterialButton android:id="@+id/friendOptions"
-            style="@style/Widget.Material3.Button.TextButton" android:layout_width="match_parent"
-            android:layout_height="wrap_content" android:minHeight="48dp" android:text="@string/friends_options_short" />
+            style="@style/Widget.TakTakM3.TextButton" android:text="@string/friends_options_short" />
     </LinearLayout>
-</LinearLayout>
+    </LinearLayout>
+</com.google.android.material.card.MaterialCardView>

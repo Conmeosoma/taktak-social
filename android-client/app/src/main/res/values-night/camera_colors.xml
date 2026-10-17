@@ -2,14 +2,9 @@
 <resources>
     <color name="camera_background">#17171D</color>
     <color name="camera_surface">#22232D</color>
-    <color name="camera_soft">#3A232D</color>
     <color name="camera_primary">#FF91A8</color>
     <color name="camera_on_primary">#222530</color>
     <color name="camera_ink">#FFF8FA</color>
     <color name="camera_muted">#C8C2CB</color>
     <color name="camera_border">#48434D</color>
-    <color name="camera_success_surface">#213D2D</color>
-    <color name="camera_success_ink">#A8DDB8</color>
-    <color name="camera_error_surface">#492D2B</color>
-    <color name="camera_error_ink">#FFC0B6</color>
 </resources>

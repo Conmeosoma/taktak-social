@@ -2,12 +2,16 @@
 
 Cập nhật: 17/10/2026. Nguồn đối chiếu: [đặc tả](TAKTAK_PROJECT.md), [trạng thái](PROJECT_STATUS.md), [bàn giao](SESSION_HANDOFF.md) và lịch sử yêu cầu trong cuộc trò chuyện.
 
-Quyền mới nhất: **4C — FriendsFragment nối API qua Repository/ViewModel**. **PASS local/USB/AVD**, chi tiết [QA_FRIENDS.md](QA_FRIENDS.md). Backend verify87/87 và28 unit chạy lại;6 ca USB cuối/7 regression/2 vai hai thiết bị đạt. Chưa được chuyển5A, redesign màn khác hoặc commit/push/deploy.
+Quyền mới nhất: **5A — điều hướng bốn tab và hoàn thiện CameraX**, người dùng duyệt riêng sau M3E-04. **PASS local/USB**, chi tiết [QA_MAIN_CAMERA.md](QA_MAIN_CAMERA.md): build/lint debug/release,33unit thực chạy,33ca USB duy nhất đạt. History/Profile chỉ là điểm đến thông báo, chưa chức năng; Camera/Friends và session gate hoạt động thật. Dừng chờ duyệt riêng **5B**, không tự triển khai. Commit/push5b6b520 trước redesign theo yêu cầu riêng, không phải quyền tự commit/push các thay đổi M3E/5A.
 
 `PASS` chỉ áp dụng cho phạm vi đã có bằng chứng. `CHƯA DUYỆT` nghĩa là không được tự triển khai; `CHƯA XÁC MINH` không đồng nghĩa thất bại.
 
 | Mã | Công việc | Trạng thái | Bằng chứng / điều kiện |
 |---|---|---|---|
+| M3E-01 | Foundation + Login Material3Expressive1.14.0, Java/XML | PASS local/USB | Theme opt-in;light/dark,font1.5,màn hẹp/IME,offline/retry/auth/logout;28unit,4+4USB,build/lint;QA_M3E_LOGIN |
+| M3E-02 | Redesign Register | PASS local/USB | Light/dark,long form,font1.5,IME,validation/loading/recreate,offline/retry/API/conflict;28unit,4+7USB,build/lint;QA_M3E_REGISTER |
+| M3E-03 | Camera + trạng thái phiên theo M3E | PASS local/USB | Camera-first, scoped theme giữ Friends cũ; 28unit/20USB/build/lint, QA_M3E_CAMERA |
+| M3E-04 | Redesign Bạn bè/Friends | PASS local/USB | M3E cards/header cuộn/light-dark/IME/dialog;28unit,20USB,build/lint;QA_M3E_FRIENDS |
 | 0A | Khóa định danh và quy ước repository | PASS — tài liệu/quy ước | Có đủ 4 file đầu ra; kiểm tra lại ignore, link, nội dung và định danh; xem bàn giao |
 | RESUME-DOCS | Khôi phục ngữ cảnh và tạo hồ sơ trạng thái còn thiếu | PASS — hồ sơ | Kiểm tra 7 file, 19 link local, 3 file mới không bị ignore; SHA-256 xác nhận 62 file có sẵn giữ nguyên |
 | 0B | Firebase Android `com.taktak.app`, chỉ FCM | PASS — đăng ký/cấu hình | Kiểm tra local, ảnh Console khớp định danh, FCM V1 Enabled; người dùng xác nhận chưa thiết lập dịch vụ bị loại trừ |
@@ -27,7 +31,8 @@ Quyền mới nhất: **4C — FriendsFragment nối API qua Repository/ViewMode
 | 4A | Search username, gửi/list pending incoming server | PASS backend local | Maven65/65 +JAR;19 ca mới gồm quota/block/DTO/isolation/concurrency/rollback,46 regression; schema/Android không đổi |
 | 4B | Accept/reject, canonical friendship/list/unfriend/block/unblock | PASS backend local | Maven87/87 +JAR;22 HTTP/PostgreSQL tests mới/65 regression, race/rollback/receiver-only/idempotency; schema/Android giữ nguyên |
 | 4C | FriendsFragment nối API qua Repository/ViewModel | PASS local/USB/AVD | Search/incoming/friends và actions;28 unit,6 USB cuối,7 regression,offline/retry,A/USB↔B/AVD+C;build/lint;avatar local, chưa recipient-aware media5C |
-| 5A–8 | Các tiểu bước MVP tiếp theo | CHƯA DUYỆT / CHƯA NGHIỆM THU | Đề xuất duy nhất5A; dừng chờ phê duyệt, không tự chuyển |
+| 5A | ViewPager2/bốn tab, CameraX quyền/đổi camera/flash/lifecycle/rotation | PASS local/USB | 33JVM,33ca USB duy nhất,build/lint debug/release;QA_MAIN_CAMERA;History/Profile chưa chức năng |
+| 5B–8 | Các tiểu bước MVP tiếp theo | CHƯA DUYỆT / CHƯA NGHIỆM THU | Đề xuất duy nhất5B; dừng chờ phê duyệt, không tự chuyển |
 
 ## Nghiệm thu phiên khôi phục trước khi duyệt 0B (lịch sử)
 

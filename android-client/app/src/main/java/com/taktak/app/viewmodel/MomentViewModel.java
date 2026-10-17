@@ -39,7 +39,7 @@ public final class MomentViewModel extends AndroidViewModel {
         busy = true; captured = null; momentId = null;
         state.setValue(new State(true, false, R.string.moment_capturing, null)); return true;
     }
-    public void captureFailed() { busy = false; state.setValue(new State(false, false, R.string.moment_camera_error, null)); }
+    public void captureFailed() { if (!cleared) { busy = false; state.setValue(new State(false, false, R.string.moment_camera_error, null)); } }
     public void acceptCapture(Bitmap bitmap, int rotation) {
         if (cleared) { bitmap.recycle(); return; }
         worker.execute(() -> {

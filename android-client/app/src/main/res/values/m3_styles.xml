@@ -1,0 +1,87 @@
+<resources>
+    <!-- Opt-in cho Login/Register và cây View Camera/phiên/Friends. -->
+    <style name="Theme.TakTak.M3" parent="Theme.Material3Expressive.DayNight.NoActionBar">
+        <item name="colorPrimary">@color/m3_primary</item>
+        <item name="colorOnPrimary">@color/m3_on_primary</item>
+        <item name="colorPrimaryContainer">@color/m3_primary_container</item>
+        <item name="colorOnPrimaryContainer">@color/m3_on_primary_container</item>
+        <item name="colorSecondary">@color/m3_secondary</item>
+        <item name="colorOnSecondary">@color/m3_on_secondary</item>
+        <item name="colorSecondaryContainer">@color/m3_secondary_container</item>
+        <item name="colorOnSecondaryContainer">@color/m3_on_secondary_container</item>
+        <item name="colorTertiary">@color/m3_tertiary</item>
+        <item name="colorOnTertiary">@color/m3_on_tertiary</item>
+        <item name="colorTertiaryContainer">@color/m3_tertiary_container</item>
+        <item name="colorOnTertiaryContainer">@color/m3_on_tertiary_container</item>
+        <item name="colorSurface">@color/m3_surface</item>
+        <item name="colorSurfaceContainerLowest">@color/m3_surface_lowest</item>
+        <item name="colorSurfaceContainerLow">@color/m3_surface_low</item>
+        <item name="colorSurfaceContainer">@color/m3_surface_container</item>
+        <item name="colorSurfaceContainerHigh">@color/m3_surface_high</item>
+        <item name="colorSurfaceContainerHighest">@color/m3_surface_highest</item>
+        <item name="colorSurfaceBright">@color/m3_surface</item>
+        <item name="colorSurfaceDim">@color/m3_surface_highest</item>
+        <item name="colorSurfaceVariant">@color/m3_surface_high</item>
+        <item name="colorOnSurface">@color/m3_on_surface</item>
+        <item name="colorOnSurfaceVariant">@color/m3_on_surface_variant</item>
+        <item name="colorOutline">@color/m3_outline</item>
+        <item name="colorOutlineVariant">@color/m3_outline_variant</item>
+        <item name="colorError">@color/m3_error</item>
+        <item name="colorOnError">@color/m3_on_error</item>
+        <item name="colorErrorContainer">@color/m3_error_container</item>
+        <item name="colorOnErrorContainer">@color/m3_on_error_container</item>
+        <item name="colorSurfaceInverse">@color/m3_inverse_surface</item>
+        <item name="colorOnSurfaceInverse">@color/m3_inverse_on_surface</item>
+        <item name="colorPrimaryInverse">@color/m3_inverse_primary</item>
+        <item name="android:colorBackground">@color/m3_surface</item>
+        <item name="colorOnBackground">@color/m3_on_surface</item>
+        <item name="android:windowBackground">@color/m3_surface</item>
+        <item name="android:fontFamily">sans-serif</item>
+        <item name="textAppearanceBodyLarge">@style/TextAppearance.TakTakM3.Body</item>
+        <item name="textAppearanceHeadlineLarge">@style/TextAppearance.TakTakM3.Headline</item>
+    </style>
+    <style name="Theme.TakTak.M3.Login" parent="Theme.TakTak.M3" />
+    <style name="Theme.TakTak.M3.Register" parent="Theme.TakTak.M3" />
+    <style name="Theme.TakTak.M3.Camera" parent="Theme.TakTak.M3" />
+    <style name="Theme.TakTak.M3.Friends" parent="Theme.TakTak.M3" />
+    <style name="TextAppearance.TakTakM3.Section" parent="TextAppearance.Material3.TitleSmall">
+        <item name="android:textColor">?attr/colorSecondary</item>
+    </style>
+    <style name="TextAppearance.TakTakM3.Headline" parent="TextAppearance.Material3.HeadlineLarge">
+        <item name="android:fontFamily">sans-serif-medium</item>
+        <item name="android:textSize">32sp</item>
+        <item name="android:textColor">?attr/colorOnSurface</item>
+    </style>
+    <style name="TextAppearance.TakTakM3.Body" parent="TextAppearance.Material3.BodyLarge">
+        <item name="android:textSize">16sp</item>
+        <item name="android:textColor">?attr/colorOnSurfaceVariant</item>
+    </style>
+    <style name="Widget.TakTakM3.Field" parent="Widget.Material3.TextInputLayout.OutlinedBox">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="boxBackgroundColor">?attr/colorSurfaceContainerLowest</item>
+        <item name="boxCornerRadiusTopStart">@dimen/m3_corner_field</item>
+        <item name="boxCornerRadiusTopEnd">@dimen/m3_corner_field</item>
+        <item name="boxCornerRadiusBottomStart">@dimen/m3_corner_field</item>
+        <item name="boxCornerRadiusBottomEnd">@dimen/m3_corner_field</item>
+        <item name="startIconTint">?attr/colorOnSurfaceVariant</item>
+        <item name="endIconTint">?attr/colorOnSurfaceVariant</item>
+        <item name="errorTextAppearance">@style/TextAppearance.Material3.BodySmall</item>
+    </style>
+    <style name="Widget.TakTakM3.Button" parent="Widget.Material3Expressive.Button">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:minHeight">@dimen/m3_button_height</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:paddingTop">@dimen/m3_space_16</item>
+        <item name="android:paddingBottom">@dimen/m3_space_16</item>
+        <item name="android:insetTop">0dp</item>
+        <item name="android:insetBottom">0dp</item>
+    </style>
+    <style name="Widget.TakTakM3.TextButton" parent="Widget.Material3Expressive.Button.TextButton">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:minHeight">@dimen/m3_touch_target</item>
+        <item name="android:textColor">?attr/colorSecondary</item>
+    </style>
+</resources>

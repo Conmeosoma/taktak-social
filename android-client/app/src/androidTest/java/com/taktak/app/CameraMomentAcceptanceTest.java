@@ -144,7 +144,7 @@ public class CameraMomentAcceptanceTest {
         awaitMessage(R.string.moment_downloaded);
         final byte[][] displayed = new byte[1][]; final String[] id = new String[1];
         actOnResumed(activity -> {
-            var fragment = (CameraFragment) ((androidx.fragment.app.FragmentActivity) activity).getSupportFragmentManager().findFragmentByTag("camera");
+            var fragment = MainNavigationTestSupport.camera(activity);
             var model = new androidx.lifecycle.ViewModelProvider(fragment).get(MomentViewModel.class);
             displayed[0] = model.state().getValue().downloaded;
             try { var field = MomentViewModel.class.getDeclaredField("momentId"); field.setAccessible(true); id[0] = (String) field.get(model); }
@@ -221,8 +221,7 @@ public class CameraMomentAcceptanceTest {
                     assertEquals(context.getString(R.string.moment_capture), shutter.getContentDescription());
                     assertEquals(View.ACCESSIBILITY_LIVE_REGION_POLITE,
                             activity.findViewById(R.id.momentStatus).getAccessibilityLiveRegion());
-                    var fragment = (CameraFragment) ((androidx.fragment.app.FragmentActivity) activity)
-                            .getSupportFragmentManager().findFragmentByTag("camera");
+                    var fragment = MainNavigationTestSupport.camera(activity);
                     var model = new androidx.lifecycle.ViewModelProvider(fragment).get(MomentViewModel.class);
                     // Renderer-only fixture; actual upload/JWT acceptance is a separate test.
                     try {
@@ -238,8 +237,7 @@ public class CameraMomentAcceptanceTest {
                 });
                 capture("redesign-" + variant + "-busy.png");
                 actOnResumed(activity -> {
-                    var fragment = (CameraFragment) ((androidx.fragment.app.FragmentActivity) activity)
-                            .getSupportFragmentManager().findFragmentByTag("camera");
+                    var fragment = MainNavigationTestSupport.camera(activity);
                     var model = new androidx.lifecycle.ViewModelProvider(fragment).get(MomentViewModel.class);
                     try {
                         var field = MomentViewModel.class.getDeclaredField("state"); field.setAccessible(true);

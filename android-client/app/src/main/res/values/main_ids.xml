@@ -1,0 +1,4 @@
+<resources>
+    <item name="historyPage" type="id" />
+    <item name="profilePage" type="id" />
+</resources>

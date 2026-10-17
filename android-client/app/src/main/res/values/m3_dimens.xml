@@ -1,0 +1,12 @@
+<resources>
+    <dimen name="m3_space_8">8dp</dimen>
+    <dimen name="m3_space_12">12dp</dimen>
+    <dimen name="m3_space_16">16dp</dimen>
+    <dimen name="m3_space_24">24dp</dimen>
+    <dimen name="m3_space_32">32dp</dimen>
+    <dimen name="m3_screen_padding">24dp</dimen>
+    <dimen name="m3_form_max_width">480dp</dimen>
+    <dimen name="m3_touch_target">48dp</dimen>
+    <dimen name="m3_button_height">56dp</dimen>
+    <dimen name="m3_corner_field">20dp</dimen>
+</resources>

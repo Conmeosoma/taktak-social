@@ -51,12 +51,20 @@ public final class FriendsFragment extends Fragment {
                 });
                 return;
             }
-            binding.friendsProgress.setVisibility(state.busy ? View.VISIBLE : View.GONE);
+            binding.friendsProgress.setVisibility(state.busy ? View.VISIBLE : View.INVISIBLE);
             binding.friendsSearch.setEnabled(!state.busy && state.searchAllowed);
             binding.friendsQuery.setEnabled(!state.busy);
             binding.friendsRefresh.setEnabled(!state.busy);
             binding.friendsMessage.setVisibility(state.message == 0 ? View.GONE : View.VISIBLE);
-            if (state.message != 0) { binding.friendsMessage.setText(state.message); }
+            if (state.message != 0) {
+                binding.friendsMessage.setText(state.message);
+                boolean success = state.message == R.string.friends_updated || state.message == R.string.friends_sent;
+                binding.friendsMessage.setBackgroundTintList(android.content.res.ColorStateList.valueOf(
+                        androidx.core.content.ContextCompat.getColor(view.getContext(), success
+                                ? R.color.m3_success_container : R.color.m3_error_container)));
+                binding.friendsMessage.setTextColor(androidx.core.content.ContextCompat.getColor(view.getContext(), success
+                        ? R.color.m3_on_success_container : R.color.m3_on_error_container));
+            }
             adapter.submit(state);
         });
         var current = model.state().getValue();
@@ -70,7 +78,7 @@ public final class FriendsFragment extends Fragment {
     }
     private void confirm(User user, boolean block) {
         if (confirmation != null) { confirmation.dismiss(); }
-        confirmation = new MaterialAlertDialogBuilder(requireContext())
+        confirmation = new MaterialAlertDialogBuilder(binding.getRoot().getContext())
                 .setTitle(block ? R.string.friends_block : R.string.friends_unfriend)
                 .setMessage(getString(block ? R.string.friends_confirm_block : R.string.friends_confirm_unfriend, user.username))
                 .setNegativeButton(R.string.friends_cancel, null)

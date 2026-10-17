@@ -4,6 +4,13 @@ Cập nhật: 17/10/2026 (Asia/Saigon). Nguồn: workspace/Git, bằng chứng k
 
 ## Trạng thái và quyền thực hiện
 
+- **Phạm vi mới nhất: 5A — điều hướng bốn tab và hoàn thiện CameraX**, người dùng duyệt riêng sau M3E-04. **PASS local/USB**: ViewPager2 + BottomNavigationView Camera/Lịch sử/Bạn bè/Hồ sơ; Camera trước/sau, flash, lifecycle và rotation; giữ session gate và owner-only API3D. Build debug/test/release và lint đạt (0errors/3warnings cũ),33/33 JVM thực chạy,33 ca USB duy nhất đạt; ảnh cuối không overlay. Xem [QA_MAIN_CAMERA.md](QA_MAIN_CAMERA.md). History/Profile chỉ là trang thông báo chưa triển khai chức năng. Không đổi backend/DB/API/JWT/FCM/dependency hoặc commit/push. Smoke QA đã dừng exit0 (7media/7file/0recipient), reverse gỡ, cold launch1981ms về Login. Không còn blocker cho5A; đề xuất duy nhất **5B**, chờ duyệt riêng. Các mốc/quyền bên dưới là lịch sử, không thay phạm vi này.
+- **Phạm vi mới nhất: M3E-04 — Bạn bè/Friends**, người dùng duyệt riêng màn4. **PASS local/USB**: theme M3E, card/section/avatar/action đồng bộ, header cuộn, light/dark/IME và notice/dialog. Build/lint debug/release đạt,28unit thực chạy và20ca USB đạt (4UI/layout,5core Friends,1offline/retry,10auth/Camera regression). Xem [QA_M3E_FRIENDS.md](QA_M3E_FRIENDS.md). Không đổi backend/DB/API/VM/Repository/JWT/FCM/dependency; giữ thay đổi màn1/2/3. Chưa commit/push; bốn màn hiện có đã redesign,không tạo History/Profile/widget mới. Đề xuất duy nhất quay lại **5A**, cần duyệt riêng; các mốc bên dưới là lịch sử.
+- **Phạm vi mới nhất: M3E-03 — Camera + trạng thái phiên**, người dùng duyệt riêng màn 3. **PASS local/USB**: Camera-first, shutter Coral, theme M3E sáng/tối chỉ trên cây View Camera/phiên, Friends giữ theme cũ. Build/lint debug/release đạt, 28 unit thực chạy và 20 ca USB đạt gồm Camera Deny/Allow, chụp thật/offline/retry/JWT, phiên/logout và auth/navigation regression. Xem [QA_M3E_CAMERA.md](QA_M3E_CAMERA.md). Không đổi backend/DB/API/ViewModel/Repository/JWT/FCM/dependency; bảo toàn thay đổi màn1/2. Chưa commit/push; dừng chờ duyệt **M3E-04 — Bạn bè/Friends**. Các mốc bên dưới là lịch sử, không thay phạm vi mới nhất.
+- **Phạm vi mới nhất: M3E-02 — Register**, người dùng duyệt riêng sau màn1. **PASS local/USB**: theme/nhóm form M3E đồng bộ Login,giữ nghiệp vụ;build/lint debug/release,28unit chạy lại,4Register +7regression USB đạt. Xem [QA_M3E_REGISTER.md](QA_M3E_REGISTER.md). Gỡ6styleAuth cũ đã hết tham chiếu;không đổi backend/DB/API/JWT/FCM/dependency. Các thay đổi M3E-01 có sẵn được bảo toàn. Chưa commit/push;dừng chờ duyệt **M3E-03 Camera + trạng thái phiên**.
+- Các mốc/quyền bên dưới là lịch sử trước M3E-02.
+- **Phạm vi mới nhất: M3E-01 — Foundation + Login**, được người dùng duyệt sau audit Material3Expressive. **PASS local/USB**: theme opt-in riêng Login, tokens Coral/Cream/Lavender sáng/tối, responsive/IME/cutout; build/lint debug/release,28 unit chạy lại,4 ca Login +4 regression USB đạt. Xem [QA_M3E_LOGIN.md](QA_M3E_LOGIN.md). Không đổi backend/DB/dependency/API/JWT/FCM. Dừng chờ duyệt M3E-02 Register; chưa chuyển5A. Commit/push5b6b520 đã thực hiện theo yêu cầu riêng trước phiên này; thay đổi M3E-01 chưa commit/push.
+- Các mốc và quyền bên dưới là lịch sử trước M3E-01; không thay thế phạm vi mới nhất.
 - Phạm vi mới nhất: người dùng duyệt riêng **4C — FriendsFragment nối API qua Repository/ViewModel**. **PASS local/USB/AVD**: search/incoming/friends, gửi/accept/reject/hủy bạn/chặn, trạng thái và phân trang, gắn generation phiên;28 unit,6 ca USB cuối,7 regression USB,offline/retry và A/USB↔B/AVD đạt. Build/lint debug/release đạt; backend verify87/87 +JAR chạy lại. Xem [QA_FRIENDS.md](QA_FRIENDS.md). Không đổi server/schema/dependency/Firebase/stack; chưa duyệt5A hoặc commit/push/merge/deploy.
 - **4B PASS backend local**: receiver-only, canonical friendship/transaction, list/unfriend/block/unblock;22 test mới +65 regression tiếp tục đạt trong suite4C. Hợp đồng [FRIEND_RELATIONS_API.md](FRIEND_RELATIONS_API.md) giữ nguyên.
 - **4A PASS backend local**: search/gửi/list pending, quota và block hai chiều tiếp tục đạt trong suite4B; hợp đồng [FRIEND_API.md](FRIEND_API.md) giữ nguyên.
@@ -28,7 +35,7 @@ Nghiệm thu USB mới3D: Android15/API35, không thay phiên cá nhân; chụp 
 
 | Hạng mục | Quan sát thực tế | Kết luận được phép |
 |---|---|---|
-| Git | Thực tế4C:nhánh `chore/push-current-project`, HEAD `8766f26`, index rỗng/worktree dirty. Hồ sơ cũ ghi main không phản ánh nhánh hiện tại; reflog có checkout từ main trước commit này | Không tự đổi nhánh/commit/push; bảo toàn source và thay đổi có sẵn |
+| Git | Thực tế M3E-03: nhánh `chore/push-current-project`, HEAD `5b6b520`, index rỗng/worktree dirty từ M3E-01/02/03; commit/push trước redesign theo yêu cầu riêng | Không tự đổi nhánh/commit/push; bảo toàn source và thay đổi có sẵn |
 | Thay đổi3D | Bảo toàn dirty/untracked từ3B/3C; thêm camera/media/server storage và test | Không đổi README/migration/Firebase/dependency hoặc tự commit |
 | Tài liệu 0A | Có AGENTS, README, `.gitignore`, PROJECT_DECISIONS; đã đọc toàn bộ đặc tả | Các quy ước đã hiện diện và kiểm tra lại được |
 | Android | Java/XML/ViewBinding; com.taktak.app,min26; CameraX/JWT giữ nguyên, thêm FriendsFragment/Repository/ViewModel/Glide avatar local | 4C PASS UI/API;3D giữ bằng chứng lịch sử, không chạy lại chụp ảnh trong4C |
@@ -46,6 +53,8 @@ Nghiệm thu USB mới3D: Android15/API35, không thay phiên cá nhân; chụp 
 - Backend test dùng PostgreSQL 14.22 tạm; chưa tạo database dev bền vững. Không reset hoặc sửa migration đã áp dụng ở database của người dùng.
 
 ## Kiểm tra và điểm dừng
+
+Mốc hiện tại **M3E-04 PASS**, chi tiết [QA_M3E_FRIENDS.md](QA_M3E_FRIENDS.md). Smoke QA dừng exit0,0media/0file/0recipient;reverse8080 gỡ,coldlaunch1312ms về Login/no friendsRecycler. Không cần thao tác thủ công để hoàn tất màn4; muốn dùng app dev tiếp cần backend/dev DB/kết nối phù hợp. Đề xuất duy nhất **5A — hoàn thiện điều hướng bốn tab và CameraX**, cần duyệt riêng. Đoạn4C bên dưới là bàn giao lịch sử, không phải quyền triển khai5A hiện tại.
 
 Kết quả kiểm tra thực tế và giới hạn nằm trong [SESSION_HANDOFF.md](SESSION_HANDOFF.md). Danh sách công việc nằm trong [TASKS.md](TASKS.md). Quyết định kiến trúc nằm trong [PROJECT_DECISIONS.md](PROJECT_DECISIONS.md); đặc tả tại [TAKTAK_PROJECT.md](TAKTAK_PROJECT.md).
 

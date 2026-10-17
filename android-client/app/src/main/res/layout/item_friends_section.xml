@@ -1,12 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:theme="@style/Theme.TakTak.M3.Friends"
     android:layout_width="match_parent" android:layout_height="wrap_content"
     android:orientation="vertical" android:paddingVertical="12dp">
     <TextView android:id="@+id/sectionTitle" android:layout_width="match_parent" android:layout_height="wrap_content"
-        android:textAppearance="@style/TextAppearance.Material3.TitleMedium" />
+        android:textColor="?attr/colorOnSurface" android:textAppearance="@style/TextAppearance.Material3.TitleLarge" />
     <TextView android:id="@+id/sectionMessage" android:layout_width="match_parent" android:layout_height="wrap_content"
-        android:paddingTop="8dp" android:textAppearance="@style/TextAppearance.TakTak.Camera.Body" />
+        android:paddingTop="8dp" android:textColor="?attr/colorOnSurfaceVariant"
+        android:textAppearance="@style/TextAppearance.Material3.BodyLarge" />
     <com.google.android.material.button.MaterialButton android:id="@+id/sectionMore"
-        style="@style/Widget.Material3.Button.TextButton" android:layout_width="match_parent"
+        style="@style/Widget.Material3Expressive.Button.TonalButton" android:layout_width="match_parent"
         android:layout_height="wrap_content" android:minHeight="48dp" android:text="@string/friends_more" />
 </LinearLayout>

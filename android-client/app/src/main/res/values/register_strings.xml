@@ -1,0 +1,4 @@
+<resources>
+    <string name="register_identity_section">Thông tin của bạn</string>
+    <string name="register_security_section">Bảo mật tài khoản</string>
+</resources>

@@ -1,41 +1,73 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:theme="@style/Theme.TakTak.M3.Friends"
     android:layout_width="match_parent" android:layout_height="match_parent"
-    android:orientation="vertical" android:padding="16dp" android:saveEnabled="false">
-    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
-        android:orientation="horizontal" android:gravity="center_vertical">
-        <com.google.android.material.button.MaterialButton android:id="@+id/friendsBack"
-            style="@style/Widget.Material3.Button.TextButton" android:layout_width="0dp" android:layout_weight="1"
-            android:layout_height="wrap_content" android:minHeight="48dp" android:text="@string/friends_back" />
-        <com.google.android.material.button.MaterialButton android:id="@+id/friendsLogout"
-            style="@style/Widget.Material3.Button.TextButton" android:layout_width="0dp" android:layout_weight="1"
-            android:layout_height="wrap_content" android:minHeight="48dp" android:text="@string/session_logout" />
-    </LinearLayout>
-    <TextView android:id="@+id/friendsTitle" android:layout_width="match_parent" android:layout_height="wrap_content"
-        android:text="@string/friends_title"
-        android:textAppearance="@style/TextAppearance.TakTak.Camera.Title" />
-    <com.google.android.material.textfield.TextInputLayout android:layout_width="match_parent"
-        android:layout_height="wrap_content" android:layout_marginTop="12dp" android:hint="@string/friends_query">
-        <com.google.android.material.textfield.TextInputEditText android:id="@+id/friendsQuery"
-            android:layout_width="match_parent" android:layout_height="wrap_content" android:minHeight="56dp"
-            android:inputType="textVisiblePassword" android:imeOptions="actionSearch" android:maxLength="255"
-            android:singleLine="true" android:saveEnabled="false" android:importantForAutofill="no" />
-    </com.google.android.material.textfield.TextInputLayout>
-    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal">
-        <com.google.android.material.button.MaterialButton android:id="@+id/friendsSearch"
-            android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content"
-            android:minHeight="48dp" android:text="@string/friends_search" />
-        <com.google.android.material.button.MaterialButton android:id="@+id/friendsRefresh"
-            style="@style/Widget.Material3.Button.TextButton" android:layout_width="0dp" android:layout_weight="1"
-            android:layout_height="wrap_content" android:minHeight="48dp" android:text="@string/friends_refresh" />
-    </LinearLayout>
-    <com.google.android.material.progressindicator.LinearProgressIndicator android:id="@+id/friendsProgress"
-        android:layout_width="match_parent" android:layout_height="wrap_content" android:indeterminate="true"
-        android:contentDescription="@string/friends_loading" android:visibility="gone" />
-    <TextView android:id="@+id/friendsMessage" android:layout_width="match_parent" android:layout_height="wrap_content"
-        android:textColor="@color/camera_ink" android:paddingVertical="8dp" android:visibility="gone"
-        android:accessibilityLiveRegion="polite" android:saveEnabled="false" />
-    <androidx.recyclerview.widget.RecyclerView android:id="@+id/friendsRecycler"
-        android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1"
-        android:saveEnabled="false" android:clipToPadding="false" android:paddingBottom="12dp" />
-</LinearLayout>
+    android:saveEnabled="false">
+    <androidx.coordinatorlayout.widget.CoordinatorLayout android:layout_width="0dp" android:layout_height="0dp"
+        app:layout_constraintWidth_max="@dimen/m3_form_max_width"
+        app:layout_constraintStart_toStartOf="parent" app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" app:layout_constraintBottom_toBottomOf="parent">
+        <com.google.android.material.appbar.AppBarLayout android:id="@+id/friendsAppBar"
+            android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:background="?attr/colorSurface" app:elevation="0dp" app:liftOnScroll="false">
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:orientation="vertical" android:paddingHorizontal="@dimen/m3_space_16"
+                app:layout_scrollFlags="scroll|enterAlways">
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:orientation="horizontal" android:gravity="center_vertical">
+                    <com.google.android.material.button.MaterialButton android:id="@+id/friendsBack"
+                        style="@style/Widget.TakTakM3.TextButton" android:layout_width="0dp" android:layout_weight="1"
+                        android:minWidth="0dp" android:text="@string/friends_back" />
+                    <com.google.android.material.button.MaterialButton android:id="@+id/friendsLogout"
+                        style="@style/Widget.TakTakM3.TextButton" android:layout_width="0dp" android:layout_weight="1"
+                        android:minWidth="0dp" android:text="@string/session_logout" />
+                </LinearLayout>
+                <com.google.android.material.textview.MaterialTextView android:id="@+id/friendsTitle"
+                    android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/m3_space_8" android:text="@string/friends_title"
+                    android:textAppearance="@style/TextAppearance.TakTakM3.Headline" />
+                <com.google.android.material.textfield.TextInputLayout android:id="@+id/friendsQueryLayout"
+                    style="@style/Widget.TakTakM3.Field" android:layout_marginTop="@dimen/m3_space_16"
+                    android:hint="@string/friends_query" app:startIconDrawable="@drawable/ic_m3_search">
+                    <com.google.android.material.textfield.TextInputEditText android:id="@+id/friendsQuery"
+                        android:layout_width="match_parent" android:layout_height="wrap_content"
+                        android:minHeight="@dimen/m3_button_height" android:textSize="16sp"
+                        android:inputType="textVisiblePassword" android:imeOptions="actionSearch" android:maxLength="255"
+                        android:singleLine="true" android:saveEnabled="false" android:importantForAutofill="no" />
+                </com.google.android.material.textfield.TextInputLayout>
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/m3_space_8" android:orientation="horizontal"
+                    android:baselineAligned="false">
+                    <com.google.android.material.button.MaterialButton android:id="@+id/friendsSearch"
+                        style="@style/Widget.TakTakM3.Button" android:layout_width="0dp"
+                        android:layout_weight="1" android:minWidth="0dp" android:text="@string/friends_search" />
+                    <com.google.android.material.button.MaterialButton android:id="@+id/friendsRefresh"
+                        style="@style/Widget.Material3Expressive.Button.TonalButton" android:layout_width="0dp"
+                        android:layout_weight="1" android:layout_height="wrap_content" android:layout_marginStart="@dimen/m3_space_8"
+                        android:minHeight="@dimen/m3_button_height" android:minWidth="0dp"
+                        android:insetTop="0dp" android:insetBottom="0dp" android:text="@string/friends_refresh" />
+                </LinearLayout>
+                <FrameLayout android:layout_width="match_parent" android:layout_height="@dimen/m3_space_12">
+                    <com.google.android.material.progressindicator.LinearProgressIndicator android:id="@+id/friendsProgress"
+                        style="@style/Widget.Material3Expressive.LinearProgressIndicator"
+                        android:layout_width="match_parent" android:layout_height="wrap_content"
+                        android:layout_gravity="center_vertical" android:indeterminate="true"
+                        android:contentDescription="@string/friends_loading" android:visibility="invisible" />
+                </FrameLayout>
+                <com.google.android.material.textview.MaterialTextView android:id="@+id/friendsMessage"
+                    android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:layout_marginBottom="@dimen/m3_space_12" android:padding="@dimen/m3_space_16"
+                    android:background="@drawable/m3_notice_background" android:visibility="gone"
+                    android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
+                    android:textColor="?attr/colorOnSecondaryContainer"
+                    android:accessibilityLiveRegion="polite" android:saveEnabled="false" />
+            </LinearLayout>
+        </com.google.android.material.appbar.AppBarLayout>
+        <androidx.recyclerview.widget.RecyclerView android:id="@+id/friendsRecycler"
+            android:layout_width="match_parent" android:layout_height="match_parent"
+            app:layout_behavior="@string/appbar_scrolling_view_behavior"
+            android:saveEnabled="false" android:clipToPadding="false" android:paddingHorizontal="@dimen/m3_space_16"
+            android:paddingBottom="@dimen/m3_space_24" />
+    </androidx.coordinatorlayout.widget.CoordinatorLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

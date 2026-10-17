@@ -1,0 +1,16 @@
+<resources>
+    <string name="nav_history">Lịch sử</string>
+    <string name="nav_profile">Hồ sơ</string>
+    <string name="history_pending">Màn lịch sử chưa được triển khai. Ảnh đã nhận và đã gửi sẽ có trong bước tiếp theo của dự án.</string>
+    <string name="profile_pending">Màn hồ sơ chưa được triển khai. Bạn vẫn có thể đăng xuất bằng nút phía trên.</string>
+    <string name="camera_switch">Đổi camera</string>
+    <string name="camera_front_selected">Đang dùng camera trước. Chuyển sang camera sau</string>
+    <string name="camera_back_selected">Đang dùng camera sau. Chuyển sang camera trước</string>
+    <string name="camera_switch_unavailable">Thiết bị không có camera khác</string>
+    <string name="camera_flash_off">Flash: Tắt</string>
+    <string name="camera_flash_auto">Flash: Tự động</string>
+    <string name="camera_flash_on">Flash: Bật</string>
+    <string name="camera_flash_unavailable">Không có flash</string>
+    <string name="camera_open_retry">Thử mở camera</string>
+    <string name="camera_starting">Đang mở camera…</string>
+</resources>

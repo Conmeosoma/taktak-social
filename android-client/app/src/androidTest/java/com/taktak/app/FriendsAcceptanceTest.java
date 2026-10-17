@@ -53,8 +53,8 @@ public class FriendsAcceptanceTest {
         secondary = new AuthRepository(secondaryClient); other = account(secondary, "Friends QA B");
         android.util.Log.i("TaktakQa", "FRIENDS_FIXTURE_LAUNCH");
         shell("am start -W -n com.taktak.app/.MainActivity");
-        SessionRoutingTest.awaitView(R.id.friendsButton);
-        act(activity -> activity.findViewById(R.id.friendsButton).performClick());
+        SessionRoutingTest.awaitView(R.id.bottomNavigation);
+        act(MainNavigationTestSupport::friends);
         ready();
     }
     @After public void stop() throws Exception {
@@ -95,7 +95,7 @@ public class FriendsAcceptanceTest {
         act(MainActivity::recreate); ready(); assertTrue(state().searched);
         act(activity -> activity.findViewById(R.id.friendsBack).performClick());
         SessionRoutingTest.awaitView(R.id.cameraTitle);
-        act(activity -> activity.findViewById(R.id.friendsButton).performClick()); ready();
+        act(MainNavigationTestSupport::friends); ready();
         act(activity -> activity.findViewById(R.id.friendsLogout).performClick());
         SessionRoutingTest.awaitView(R.id.emailInput);
         SessionRoutingTest.onResumed(activity -> { assertTrue(activity.isTaskRoot()); assertNull(activity.findViewById(R.id.friendsRecycler)); });

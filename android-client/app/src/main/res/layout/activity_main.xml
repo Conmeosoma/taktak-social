@@ -1,54 +1,68 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/main"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/main" android:theme="@style/Theme.TakTak.M3"
     android:layout_width="match_parent" android:layout_height="match_parent"
-    android:saveEnabled="false">
-    <ScrollView android:id="@+id/cameraScroll" android:layout_width="match_parent" android:layout_height="match_parent"
-        android:fillViewport="true" android:saveEnabled="false">
-    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
-        android:orientation="vertical" android:padding="20dp">
+    android:orientation="vertical" android:saveEnabled="false">
+    <com.google.android.material.appbar.MaterialToolbar android:id="@+id/mainToolbar"
+        style="@style/Widget.Material3Expressive.Toolbar"
+        android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:minHeight="48dp"
+        android:background="@android:color/transparent" app:contentInsetStart="0dp" app:contentInsetEnd="0dp">
         <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
-            android:orientation="horizontal" android:gravity="center_vertical">
-        <TextView android:id="@+id/bootstrapMessage" android:layout_width="0dp" android:layout_weight="1"
-            android:layout_height="wrap_content" android:text="@string/bootstrap_message"
-            android:textAppearance="@style/TextAppearance.TakTak.Camera.Title" />
-        <com.google.android.material.button.MaterialButton android:id="@+id/logoutButton"
-            style="@style/Widget.Material3.Button.TextButton" android:layout_width="wrap_content"
-            android:layout_height="wrap_content" android:minHeight="48dp" android:textColor="@color/camera_ink"
-            android:text="@string/session_logout" android:visibility="gone" />
+            android:orientation="horizontal" android:gravity="center_vertical" android:paddingHorizontal="16dp">
+            <com.google.android.material.textview.MaterialTextView android:id="@+id/bootstrapMessage"
+                android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content"
+                android:text="@string/bootstrap_message" android:textColor="?attr/colorOnSurfaceVariant"
+                android:textAppearance="@style/TextAppearance.Material3.TitleMedium" />
+            <com.google.android.material.button.MaterialButton android:id="@+id/logoutButton"
+                style="@style/Widget.TakTakM3.TextButton" android:layout_width="wrap_content"
+                android:minWidth="0dp" android:text="@string/session_logout" android:visibility="gone" />
         </LinearLayout>
-        <com.google.android.material.progressindicator.CircularProgressIndicator
-            android:id="@+id/sessionProgress" android:layout_width="wrap_content"
-            android:layout_height="wrap_content" android:layout_marginTop="24dp"
-            android:indeterminate="true" android:contentDescription="@string/session_checking" />
-        <TextView android:id="@+id/sessionMessage" android:layout_width="match_parent"
-            android:layout_height="wrap_content" android:layout_marginTop="24dp"
-            android:gravity="center" android:text="@string/session_checking"
-            android:accessibilityLiveRegion="polite" android:saveEnabled="false" />
-        <LinearLayout android:id="@+id/cameraPanel" android:layout_width="match_parent"
-            android:layout_height="wrap_content" android:orientation="vertical"
-            android:visibility="gone" android:saveEnabled="false">
-            <com.google.android.material.button.MaterialButton android:id="@+id/friendsButton"
-                style="@style/Widget.Material3.Button.TextButton" android:layout_width="match_parent"
-                android:layout_height="wrap_content" android:minHeight="48dp" android:text="@string/friends_title" />
-            <TextView android:id="@+id/cameraTitle" android:layout_width="wrap_content"
-                android:layout_height="wrap_content" android:layout_marginTop="24dp"
-                android:text="@string/camera_title" android:textAppearance="@style/TextAppearance.TakTak.Camera.Title" />
-            <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
-                android:layout_marginTop="6dp" android:text="@string/camera_subtitle"
-                android:textAppearance="@style/TextAppearance.TakTak.Camera.Body" />
-            <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
-                android:layout_marginTop="16dp" android:text="@string/camera_private_badge"
-                android:textColor="@color/camera_ink" android:textSize="12sp" android:fontFamily="sans-serif-medium" />
-            <androidx.fragment.app.FragmentContainerView android:id="@+id/cameraContent"
-                android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="16dp" />
-        </LinearLayout>
-        <com.google.android.material.button.MaterialButton android:id="@+id/retryButton"
-            android:layout_width="match_parent" android:layout_height="wrap_content"
-            android:minHeight="56dp" android:layout_marginTop="24dp"
-            android:text="@string/session_retry" android:visibility="gone" />
-    </LinearLayout>
-    </ScrollView>
-    <androidx.fragment.app.FragmentContainerView android:id="@+id/friendsContent"
-        android:layout_width="match_parent" android:layout_height="match_parent" android:visibility="gone" />
-</FrameLayout>
+    </com.google.android.material.appbar.MaterialToolbar>
+    <FrameLayout android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1">
+        <ScrollView android:id="@+id/sessionScroll" android:layout_width="match_parent"
+            android:layout_height="match_parent" android:fillViewport="true" android:saveEnabled="false">
+            <androidx.constraintlayout.widget.ConstraintLayout android:layout_width="match_parent"
+                android:layout_height="wrap_content" android:padding="16dp">
+                <com.google.android.material.card.MaterialCardView android:id="@+id/sessionCard"
+                    android:layout_width="0dp" android:layout_height="wrap_content"
+                    app:layout_constraintWidth_max="@dimen/m3_form_max_width"
+                    app:layout_constraintStart_toStartOf="parent" app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" app:cardCornerRadius="28dp"
+                    app:cardElevation="0dp" app:strokeWidth="0dp" app:cardBackgroundColor="?attr/colorSurfaceContainerLow">
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                        android:orientation="vertical" android:padding="24dp" android:gravity="center_horizontal">
+                        <com.google.android.material.progressindicator.CircularProgressIndicator android:id="@+id/sessionProgress"
+                            style="@style/Widget.Material3Expressive.CircularProgressIndicator"
+                            android:layout_width="wrap_content" android:layout_height="wrap_content"
+                            android:indeterminate="true" android:contentDescription="@string/session_checking" />
+                        <com.google.android.material.textview.MaterialTextView android:id="@+id/sessionTitle"
+                            android:layout_width="match_parent" android:layout_height="wrap_content"
+                            android:layout_marginTop="16dp" android:gravity="center" android:text="@string/m3_session_waiting"
+                            android:textAppearance="@style/TextAppearance.Material3.HeadlineSmall" />
+                        <com.google.android.material.textview.MaterialTextView android:id="@+id/sessionMessage"
+                            android:layout_width="match_parent" android:layout_height="wrap_content"
+                            android:layout_marginTop="8dp" android:gravity="center" android:text="@string/session_checking"
+                            android:textAppearance="@style/TextAppearance.TakTakM3.Body"
+                            android:accessibilityLiveRegion="polite" android:saveEnabled="false" />
+                        <com.google.android.material.button.MaterialButton android:id="@+id/retryButton"
+                            style="@style/Widget.TakTakM3.Button" android:layout_marginTop="24dp"
+                            android:text="@string/session_retry" android:visibility="gone" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+            </androidx.constraintlayout.widget.ConstraintLayout>
+        </ScrollView>
+        <FrameLayout android:id="@+id/cameraPanel" android:layout_width="match_parent"
+            android:layout_height="match_parent" android:visibility="gone" android:saveEnabled="false">
+            <androidx.viewpager2.widget.ViewPager2 android:id="@+id/mainPager"
+                android:layout_width="match_parent" android:layout_height="match_parent" android:saveEnabled="false" />
+        </FrameLayout>
+    </FrameLayout>
+    <com.google.android.material.bottomnavigation.BottomNavigationView android:id="@+id/bottomNavigation"
+        style="@style/Widget.Material3Expressive.BottomNavigationView"
+        android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:visibility="gone" android:saveEnabled="false"
+        app:menu="@menu/main_tabs" app:labelVisibilityMode="labeled"
+        app:itemHorizontalTranslationEnabled="false" />
+</LinearLayout>

@@ -1,6 +1,6 @@
 # Taktak — Quyết định kỹ thuật đã khóa
 
-Mốc mới nhất: **4B PASS backend local**, người dùng đã duyệt riêng chấp nhận/từ chối, friendship, hủy bạn và block; xem [FRIEND_RELATIONS_API.md](FRIEND_RELATIONS_API.md). UI-CAMERA/4A đã nghiệm thu trước đó. Các mốc “chưa triển khai/chưa duyệt” bên dưới là lịch sử; không thay thế yêu cầu mới nhất. Giữ stack/định danh/JWT/schema; chưa duyệt4C hoặc commit/push/deploy.
+Mốc mới nhất: **M3E-04 Bạn bè/Friends PASS local/USB**, sau Foundation/Login/Register/Camera. Người dùng duyệt riêng màn4; chưa duyệt5A hoặc màn mới. Các mốc “chưa triển khai/chưa duyệt” bên dưới là lịch sử; không thay thế yêu cầu mới nhất. Commit/push5b6b520 trước redesign theo yêu cầu riêng; M3E chưa commit/push. Giữ stack/định danh/JWT/schema; xem [QA_M3E_FRIENDS.md](QA_M3E_FRIENDS.md).
 
 Ngày ghi nhận: 16/10/2026. Phạm vi: Bước 0A.
 
@@ -143,3 +143,25 @@ GET friends trả page20/hasNext/public DTO, lọc block hai chiều. DELETE fri
 FriendsFragment Java/XML/ViewBinding dùng FriendRepository/FriendsViewModel/LiveData và cùng ApiClient/SessionManager. Kiểm tra generation trước/sau request và trước publish; đổi phiên xóa snapshot cũ rồi xác minh lại, không xóa phiên mới. Không thay stack, định danh, JWT hoặc API server. Search explicit submit, page20/hasNext và reload sau mutation; không tự lặp mutation khi đọc lại lỗi.
 
 Lối mở từ Camera và Back/logout tối thiểu phục vụ4C; bốn tab/ViewPager2/BottomNavigation vẫn thuộc5A. Avatar qua Glide là drawable mặc định local vì DTO chưa có API avatar; không thêm URL giả/public hoặc endpoint ngoài phạm vi. Chặn có confirm, chưa UI unblock/list block; API4B giữ nguyên. Bằng chứng/nghiệm thu và giới hạn ở [QA_FRIENDS.md](QA_FRIENDS.md). Đây là ghi nhận triển khai, không thay các quyết định kỹ thuật đã khóa.
+
+## Bổ sung M3E-01 —17/10/2026
+
+Người dùng duyệt Modern M3 Expressive + Soft Social với Coral Pink/Cream/Lavender và riêng màn1 Foundation + Login. Giữ Material1.14.0 stable đã khóa; không dependency mới hoặc nâng SDK. Dùng `Theme.Material3Expressive.DayNight.NoActionBar`, Expressive button/progress, XML/ViewBinding và font hệ thống. Theme riêng Login qua Manifest; application/Register/Main không chuyển theme trong màn1. Semantic resource prefix m3_/TakTakM3 tách khỏi camera/auth styles cũ, values-night đầy đủ; form max480dp, typography sp, touch≥48dp, CTA≥56dp. Insets Auth thêm displayCutout cùng systemBars/IME; không thay ViewModel/Repository/auth lifecycle hoặc backend. Widget tương lai chỉ chia sẻ màu/drawable phù hợp RemoteViews, không Material Views/Compose. Các màn chưa có không được dựng chức năng giả hoặc tự chuyển roadmap. Nghiệm thu và giới hạn tại QA_M3E_LOGIN; dừng trước Register.
+
+## Bổ sung M3E-02 —17/10/2026
+
+Register opt-in cùng foundation bằng Theme.TakTak.M3.Register,giữ5trường trên1form và max-width480dp,hai section có heading native. Chỉ đổi presentation/resource và2dòng ViewCompat cho heading;không đổi validation/normalization/Repository/ViewModel/API/password/session. Success vẫn ở Register,xóa hai password và không tự login. Sau khi cả hai form đã chuyển M3E,gỡ auth_styles.xml gồm6style không còn tham chiếu;khôi phục được từ Git,không thay theme Main/Camera/Friends. Giữ Material1.14.0/Java/XML/ViewBinding,không nâng stack. Bằng chứng/giới hạn [QA_M3E_REGISTER.md](QA_M3E_REGISTER.md);dừng chờ duyệt M3E-03.
+
+## Bổ sung M3E-03 —17/10/2026
+
+Camera/phiên opt-in Theme.TakTak.M3.Camera trên cây View, không đổi theme toàn MainActivity để Friends chưa redesign vẫn giữ palette cũ. Camera max480dp, preview vuông bo28dp, shutter Expressive88dp Coral ngay dưới ảnh; status semantic Lavender/error/success có text và retry hiện có. Insets bao gồm systemBars/IME/displayCutout. Giữ binding IDs, CameraX, API/JWT/VM/Repository và mọi nghiệp vụ; không backend/DB/FCM/dependency mới. Gỡ riêng resource Camera hết tham chiếu, giữ theme/màu cũ Friends đang dùng. Đây là chi tiết triển khai design system đã được duyệt, không đổi các quyết định kỹ thuật cố định. Nghiệm thu/giới hạn [QA_M3E_CAMERA.md](QA_M3E_CAMERA.md); dừng chờ duyệt M3E-04 Friends.
+
+## Bổ sung M3E-04 —17/10/2026
+
+Friends opt-in Theme.TakTak.M3.Friends trên cây View/rows; dialog xác nhận dùng root themed context,không đổi theme toàn Activity hoặc hành vi mutation. CoordinatorLayout/AppBarLayout cho header thu gọn cùng RecyclerView tái sử dụng hàng,max480dp; card24dp,avatar48dp,primary/search/refresh≥56dp và action phụ≥48dp. Giữ ba nhóm kết quả/lời mời/bạn,explicit search/IME,page20,retry và generation/session hiện có;không thêm tab hoặc API/avatar/unblock. Semantic notice và progress slot cố định;gỡ hai typography cũ hết tham chiếu sau tìm kiếm,không xóa file. Main root dùng surface M3E ở cả Camera/Friends;Camera và Auth giữ layout/nghiệp vụ. Stack1.14.0/JavaXML/ViewBinding,backend/DB/JWT/FCM không thay đổi. Chi tiết/giới hạn [QA_M3E_FRIENDS.md](QA_M3E_FRIENDS.md);dừng trước5A hoặc màn chưa tồn tại.
+
+## Bổ sung 5A —17/10/2026
+
+Người dùng duyệt riêng 5A sau bốn màn M3E. Main dùng ViewPager2/FragmentStateAdapter và BottomNavigationView Expressive có sẵn trong Material1.14.0; thứ tự Camera/Lịch sử/Bạn bè/Hồ sơ, cold authenticated entry vào Camera, Back từ tab khác về Camera, giữ tab qua recreate. Friends giữ chức năng4C. History/Profile chỉ là điểm đến có thông báo chưa triển khai; không giả dữ liệu hoặc thực hiện5E/7C. Navigation ẩn khi IME mở; private pager bị gỡ trước xác minh lại phiên, không bind Camera từ restored Fragment khi chưa được session gate cho phép.
+
+CameraX tái sử dụng3D, chỉ bind khi tab Camera RESUMED và phiên hợp lệ; ticket async chống bind muộn, chỉ unbind use case của chính Fragment khi pause/destroy. Đổi trước/sau và flash ImageCapture Off/Auto/On theo khả năng phần cứng; không torch hoặc flash giả trên camera không hỗ trợ. Activity ViewModel giữ lens/flash qua recreate trong RAM, không lưu ảnh/token hoặc thay session. OrientationEventListener cập nhật targetRotation; xử lý JPEG vẫn qua PhotoProcessor hiện có. Không triển khai cache/Preview/caption/recipient/mirror của5B. Giữ API owner-only3D, JWT/Repository/backend/DB/FCM/dependency và các quyết định cố định. Chi tiết bằng chứng và giới hạn [QA_MAIN_CAMERA.md](QA_MAIN_CAMERA.md); dừng trước5B.
