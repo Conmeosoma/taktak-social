@@ -34,6 +34,14 @@ Response lỗi của MVC và Spring Security dùng `application/json`, không re
 | 400 | FRIEND_REQUEST_SELF | Không được gửi lời mời cho chính mình |
 | 400 | FRIEND_SELF | Không được hủy bạn với chính mình |
 | 400 | BLOCK_SELF | Không được chặn/bỏ chặn chính mình |
+| 400 | INVALID_RECIPIENTS | Recipient UUID sai/rỗng/trùng/bản thân hoặc trộn literal[] với ID |
+| 400 | TOO_MANY_RECIPIENTS | Quá100 người nhận, không âm thầm cắt danh sách |
+| 400 | RECIPIENT_UNAVAILABLE | Có người nhận không tồn tại/không còn là bạn hoặc bị block hai chiều; không phân biệt lý do |
+| 400 | IMAGE_REQUIRED / INVALID_CAPTION | Ảnh rỗng hoặc caption quá50code point/chứaNUL |
+| 400 | INVALID_IDEMPOTENCY_KEY | Header Idempotency-Key sai định dạng UUID hợp lệ |
+| 404 | MOMENT_NOT_FOUND | Moment/file thiếu, đã xóa hoặc không phải sender/recipient |
+| 413 | IMAGE_TOO_LARGE | Vượt giới hạn file/request multipart; container cũng có thể dùng mã này khi vượt parts |
+| 415 | INVALID_IMAGE | MIME không image/jpeg, signature/decode sai hoặc vượt giới hạn pixel |
 | 401 | UNAUTHORIZED | Thiếu/sai/giả/hết hạn access; login sai; refresh không hợp lệ; JWT subject không có user |
 | 403 | FORBIDDEN | Đã xác thực nhưng bị chính sách security từ chối, ví dụ actuator env hoặc `/error` |
 | 404 | NOT_FOUND | Route/tài nguyên không tồn tại sau khi qua xác thực |
@@ -44,6 +52,7 @@ Response lỗi của MVC và Spring Security dùng `application/json`, không re
 | 409 | ACCOUNT_CONFLICT | DB unique email hoặc username; không tiết lộ constraint hay trường nào đã trùng |
 | 409 | FRIEND_REQUEST_CONFLICT | Đã có pending bất kỳ chiều nào hoặc đã là bạn |
 | 409 | FRIEND_REQUEST_ALREADY_RESPONDED | Quyết định khác với trạng thái accepted/rejected đã chốt |
+| 409 | IDEMPOTENCY_CONFLICT | Header Idempotency-Key trùng với request trước đó nhưng payload (caption, người nhận, ảnh) bị thay đổi |
 | 415 | UNSUPPORTED_MEDIA_TYPE | Endpoint yêu cầu JSON nhưng Content-Type không được hỗ trợ |
 | 429 | LOGIN_RATE_LIMITED | Quota login IP/account; header `Retry-After: 60` |
 | 429 | SEARCH_RATE_LIMITED | Quota search user/IP hoặc bộ đếm đạt capacity; `Retry-After: 60` |

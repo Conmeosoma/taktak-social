@@ -1,5 +1,23 @@
 # Taktak — Quyết định kỹ thuật đã khóa
 
+## Mốc hiện tại — 5C, ngày 17/10/2026
+
+5C được duyệt riêng và PASS local/USB, xem [QA_MOMENT_SHARING.md](QA_MOMENT_SHARING.md). Các đoạn5B/3D “chưa hỗ trợ gửi bạn bè” bên dưới là lịch sử. Giữ stack/package/dependency/JWT/schemaV1/FCM; không sửa migration hoặc backend ngoài media trong5C. Giữ HEAD `ed9fde6`, không commit/push.
+
+Repeated recipientIds từ1–100 UUID đầy đủ, không trùng/bản thân/JSON/CSV/trộn[]; bỏ field hoặc[] giữ owner-only. Server khóa mọi user liên quan theo UUID PostgreSQL cùng thứ tự FriendService, xét friendship/block hai chiều sau chờ khóa rồi lưu moment/recipients cùng transaction/cùngcreated_at. Một ID sai từ chối cảset, không tự lọc. GET xét sender hoặc recipient được cấp cho moment và deleted_at mỗi lần; friendship không tự cấp quyền. Block/unfriend ngăn gửi mới, không tự đổi grant cũ ngoài đặc tả. FileMIMEimage/jpeg và signature/decode thực, re-encode bỏEXIF; giới hạn5MiB/file,6MiB/request,104parts(containerbounded),4096/cạnh/16MP. Storageprivate/UUID/rollback/no-store giữ nguyên.
+
+Android Preview gửi selected snapshot hoặc đọc đủ trang cho Tất cả, rỗng/quá100/lỗi không gửi một phần. Khóa payload khi POST chưa rõ;400 xác định từ chối cho sửa, knownID chỉGET, không chuyển retry gửi bạn sang owner-only. GET ảnh có tối đa1transportretry, không retryHTTP/ApiFailure/POST; không thay auth/refresh policy. Nén cạnh1280/1024/768,quality92→52 bước8,dừng≤800KiB;500–800KiB là mục tiêu,không upscale/padảnh nhỏ. Cache/session/caption/mirror/CameraX/FCMgiữ nguyên. Chưa idempotency5D/History5E,không tự chuyển bước.
+
+## Mốc hiện tại — 5B, ngày17/10/2026
+
+5B đã được duyệt và PASS local/USB; chưa duyệt5C. Git hiện tại `ed9fde6` được commit/push theo yêu cầu riêng trước5B; thay đổi5B chưa commit/push. Các ghi nhận bên dưới là lịch sử.
+
+Camera nhận buffer CameraX, tái sử dụng PhotoProcessor để rotation/mirror camera trước/crop1:1 và ghi JPEG vào cache internal gắn generation. Intent chỉ chứa UUID/generation, Preview không exported. Repository chặn path không hợp lệ, kiểm tra phiên trước/sau I/O, giới hạn byte và từ chối draft quá24giờ. Cache có thể bịOS thu hồi; chụp lại/Back/logout/cleared dọn đúng file thuộc màn, không gallery. Recreate giữ caption/lựa chọn bằng SavedStateHandle, không bitmap/token trong Bundle; đổi phiên không được tái sử dụng ảnh/caption cũ.
+
+CaptureViewModel/PreviewViewModel tách chụp với xem trước và lưu riêng tư; gỡ MomentViewModel cũ hết tham chiếu. Caption≤50 Unicode code point, InputFilter không cắt surrogate, giữ span và chặnNUL. Client thêm multipart caption đúng contract server đã có; recipientIds vẫn[]. Friends lấy API thật page20/hasNext, mặc định all, giữ lựa chọn qua tải trang/recreate. Gửi bạn bè hiển thị chưa khả dụng tới5C. Lưu riêng tư có confirm, POST rồi GET JWT; retry biếtmomentId chỉ GET. Giữ backend/schema/JWT/FCM/stack/version và giới hạn nén3D; không coi đã làm5C/idempotency5D. Xem [QA_PREVIEW.md](QA_PREVIEW.md).
+
+## Ghi nhận lịch sử
+
 Mốc mới nhất: **M3E-04 Bạn bè/Friends PASS local/USB**, sau Foundation/Login/Register/Camera. Người dùng duyệt riêng màn4; chưa duyệt5A hoặc màn mới. Các mốc “chưa triển khai/chưa duyệt” bên dưới là lịch sử; không thay thế yêu cầu mới nhất. Commit/push5b6b520 trước redesign theo yêu cầu riêng; M3E chưa commit/push. Giữ stack/định danh/JWT/schema; xem [QA_M3E_FRIENDS.md](QA_M3E_FRIENDS.md).
 
 Ngày ghi nhận: 16/10/2026. Phạm vi: Bước 0A.

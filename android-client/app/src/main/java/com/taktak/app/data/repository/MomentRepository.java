@@ -12,10 +12,45 @@ public final class MomentRepository {
     private final Session owner;
     public MomentRepository(ApiClient client) { this.client = client; this.owner = client.sessions.snapshot(); }
 
+    public interface ProgressListener {
+        void onProgress(int percent, long bytesWritten, long totalBytes);
+    }
+
     public String upload(byte[] jpeg) throws IOException {
+        return upload(jpeg, "");
+    }
+    public String upload(byte[] jpeg, String caption) throws IOException {
+        return upload(jpeg, caption, java.util.List.of());
+    }
+    public String upload(byte[] jpeg, String caption, java.util.List<String> recipients) throws IOException {
+        return upload(jpeg, caption, recipients, null, null);
+    }
+    public String upload(byte[] jpeg, String caption, java.util.List<String> recipients, String idempotencyKey,
+            ProgressListener progressListener) throws IOException {
+        if (caption == null || caption.codePointCount(0, caption.length()) > 50 || caption.indexOf('\0') >= 0) {
+            throw new ApiFailure(ApiFailure.Kind.VALIDATION);
+        }
+        if (recipients == null || recipients.size() > 100) { throw new ApiFailure(ApiFailure.Kind.VALIDATION); }
+        var unique = new java.util.HashSet<String>();
+        for (String id : recipients) {
+            if (!com.taktak.app.data.model.FriendModels.uuid(id) || !unique.add(UUID.fromString(id).toString())) {
+                throw new ApiFailure(ApiFailure.Kind.VALIDATION);
+            }
+        }
+        if (idempotencyKey != null && !com.taktak.app.data.model.FriendModels.uuid(idempotencyKey)) {
+            throw new ApiFailure(ApiFailure.Kind.VALIDATION);
+        }
         Session owner = requireSession();
-        var image = MultipartBody.Part.createFormData("image", "moment.jpg", RequestBody.create(jpeg, MediaType.get("image/jpeg")));
-        var response = client.moments.upload(image, RequestBody.create("[]", MediaType.get("text/plain"))).execute();
+        RequestBody rawImage = RequestBody.create(jpeg, MediaType.get("image/jpeg"));
+        RequestBody imageBody = progressListener == null ? rawImage : new CountingRequestBody(rawImage, (bytesWritten, contentLength) -> {
+            int percent = contentLength > 0 ? (int) Math.min(100, Math.max(0, (100 * bytesWritten) / contentLength)) : 0;
+            progressListener.onProgress(percent, bytesWritten, contentLength);
+        });
+        var image = MultipartBody.Part.createFormData("image", "moment.jpg", imageBody);
+        var text = MediaType.get("text/plain; charset=utf-8");
+        var parts = recipients.isEmpty() ? java.util.List.of(RequestBody.create("[]", text))
+                : recipients.stream().map(id -> RequestBody.create(id, text)).collect(java.util.stream.Collectors.toList());
+        var response = client.moments.uploadToFriends(idempotencyKey, image, parts, RequestBody.create(caption, text)).execute();
         if (!response.isSuccessful()) { throw ApiFailure.from(response); }
         ensureCurrent(owner);
         if (response.body() == null || response.body().id == null) { throw new ApiFailure(ApiFailure.Kind.SERVER); }
@@ -24,6 +59,14 @@ public final class MomentRepository {
     }
 
     public byte[] download(String id) throws IOException {
+        try { return downloadOnce(id); }
+        catch (ApiFailure failure) { throw failure; }
+        catch (IOException transport) {
+            // GET an toàn để thử lại một lần; không retry POST hoặc lỗi HTTP/quyền/phiên.
+            return downloadOnce(id);
+        }
+    }
+    private byte[] downloadOnce(String id) throws IOException {
         Session owner = requireSession();
         var response = client.moments.image(id).execute();
         if (!response.isSuccessful()) { throw ApiFailure.from(response); }
@@ -48,6 +91,20 @@ public final class MomentRepository {
             throw new ApiFailure(ApiFailure.Kind.SERVER);
         }
         return bytes;
+    }
+
+    public com.taktak.app.data.model.MomentModels.MomentsPage received(int page) throws IOException {
+        if (page < 0) { throw new ApiFailure(ApiFailure.Kind.VALIDATION); }
+        Session owner = requireSession();
+        var response = client.moments.listMoments("received", page).execute();
+        if (!response.isSuccessful()) { throw ApiFailure.from(response); }
+        ensureCurrent(owner);
+        var body = response.body();
+        if (body == null || body.items == null) { throw new ApiFailure(ApiFailure.Kind.SERVER); }
+        for (var item : body.items) {
+            if (item == null || !item.valid()) { throw new ApiFailure(ApiFailure.Kind.SERVER); }
+        }
+        return body;
     }
 
     private Session requireSession() throws IOException {

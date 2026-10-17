@@ -105,7 +105,9 @@ class ServerBootstrapTest {
                 """, String.class)).containsExactly("blocks", "device_tokens", "friend_requests", "friendships",
                 "moment_recipients", "moments", "refresh_tokens", "users");
         assertThat(jdbc.queryForObject("SELECT count(*) FROM flyway_schema_history WHERE success", Integer.class))
-                .isEqualTo(1);
+                .isEqualTo(2);
+        assertThat(jdbc.queryForObject("SELECT indexdef FROM pg_indexes WHERE indexname = ?", String.class,
+                "uq_moments_sender_idempotency")).contains("sender_id, idempotency_key");
         assertThat(jdbc.queryForObject("SELECT indexdef FROM pg_indexes WHERE indexname = ?", String.class,
                 "ix_moment_recipients_user_created")).contains("user_id, created_at DESC");
         assertThat(context.getBean(Flyway.class).migrate().migrationsExecuted).isZero();

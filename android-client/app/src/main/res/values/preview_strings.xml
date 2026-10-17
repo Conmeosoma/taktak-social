@@ -1,0 +1,30 @@
+<resources>
+    <string name="preview_title">Khoảnh khắc của bạn</string>
+    <string name="preview_local">Ảnh đang ở bản xem trước, chưa được gửi và chưa lưu vào thư viện.</string>
+    <string name="preview_capture_hint">Chụp một khoảnh khắc rồi xem lại trước khi gửi.</string>
+    <string name="preview_image">Ảnh chụp xem trước</string>
+    <string name="preview_retake">Chụp lại</string>
+    <string name="preview_caption">Thêm một lời nhắn</string>
+    <string name="preview_count">%1$d/50 ký tự</string>
+    <string name="preview_recipients">Chia sẻ với</string>
+    <string name="preview_all">Tất cả bạn bè</string>
+    <string name="preview_empty">Bạn chưa có bạn bè. Hãy kết nối ở tab Bạn bè.</string>
+    <string name="preview_friends_error">Chưa tải được danh sách bạn. Ảnh vẫn được giữ để bạn thử lại.</string>
+    <string name="preview_more">Tải thêm bạn</string>
+    <string name="preview_send">Gửi cho bạn bè</string>
+    <string name="preview_send_hint">Chỉ những người bạn chọn mới được xem ảnh. Tối đa 100 bạn mỗi lần gửi.</string>
+    <string name="preview_sent_title">Đã gửi khoảnh khắc</string>
+    <string name="preview_sent">Đã gửi cho bạn bè và tải lại ảnh từ server. Ảnh không được lưu vào thư viện.</string>
+    <string name="preview_retry_send">Thử lại gửi ảnh</string>
+    <string name="preview_recipient_error">Chưa gửi ảnh. Hãy kiểm tra kết nối, chọn từ 1 đến 100 bạn và kiểm tra lại quan hệ bạn bè trước khi gửi.</string>
+    <string name="preview_private">Lưu chỉ mình tôi</string>
+    <string name="preview_private_confirm">Ảnh và lời nhắn chỉ được lưu vào tài khoản của bạn. Không gửi cho những người đang chọn.</string>
+    <string name="preview_confirm">Lưu riêng tư</string>
+    <string name="preview_cancel">Hủy</string>
+    <string name="preview_missing">Ảnh xem trước không còn khả dụng. Hãy quay lại chụp ảnh mới.</string>
+    <string name="preview_retry_private">Thử lại lưu riêng tư</string>
+    <string name="preview_identity">%1$s\n@%2$s</string>
+    <string name="preview_uploading_progress">Đang gửi ảnh (%1$d%%)…</string>
+    <string name="preview_processing_server">Đang xác nhận lưu trên máy chủ…</string>
+    <string name="preview_conflict_error">Yêu cầu gửi ảnh bị xung đột hoặc nội dung đã thay đổi. Vui lòng thử lại.</string>
+</resources>

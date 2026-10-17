@@ -24,6 +24,7 @@ public class PrivateImageStorage {
     public byte[] sanitize(MultipartFile file) throws IOException {
         if (file.isEmpty()) { throw new MomentFailure(HttpStatus.BAD_REQUEST, "IMAGE_REQUIRED"); }
         if (file.getSize() > MAX_BYTES) { throw new MomentFailure(HttpStatus.PAYLOAD_TOO_LARGE, "IMAGE_TOO_LARGE"); }
+        if (!"image/jpeg".equalsIgnoreCase(file.getContentType())) { throw unsupported(); }
         byte[] input;
         try (var stream = file.getInputStream()) { input = stream.readNBytes(MAX_BYTES + 1); }
         if (input.length > MAX_BYTES) { throw new MomentFailure(HttpStatus.PAYLOAD_TOO_LARGE, "IMAGE_TOO_LARGE"); }

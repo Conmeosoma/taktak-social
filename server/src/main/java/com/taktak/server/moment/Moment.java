@@ -15,14 +15,25 @@ public class Moment {
     @Column(name = "byte_size", nullable = false) private long byteSize;
     @Column(name = "created_at", nullable = false) private Instant createdAt;
     @Column(name = "deleted_at") private Instant deletedAt;
+    @Column(name = "idempotency_key") private UUID idempotencyKey;
+    @Column(name = "payload_hash", length = 64) private String payloadHash;
 
     protected Moment() { }
     public Moment(UUID id, UUID senderId, String caption, String filePath, long byteSize, Instant createdAt) {
+        this(id, senderId, caption, filePath, byteSize, createdAt, null, null);
+    }
+    public Moment(UUID id, UUID senderId, String caption, String filePath, long byteSize, Instant createdAt,
+            UUID idempotencyKey, String payloadHash) {
         this.id = id; this.senderId = senderId; this.caption = caption; this.filePath = filePath;
         this.mimeType = "image/jpeg"; this.byteSize = byteSize; this.createdAt = createdAt;
+        this.idempotencyKey = idempotencyKey; this.payloadHash = payloadHash;
     }
     public UUID getId() { return id; }
     public UUID getSenderId() { return senderId; }
     public String getFilePath() { return filePath; }
     public Instant getDeletedAt() { return deletedAt; }
+    public UUID getIdempotencyKey() { return idempotencyKey; }
+    public String getPayloadHash() { return payloadHash; }
+    public String getCaption() { return caption; }
+    public Instant getCreatedAt() { return createdAt; }
 }

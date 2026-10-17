@@ -1,5 +1,105 @@
 # Taktak — Bàn giao phiên khôi phục
 
+## Hoàn tất 5E — Lịch sử ảnh đã nhận (Received Moments History) — 18/10/2026
+
+**PASS local/USB; dừng chờ duyệt Giai đoạn 6.** Trước phiên: nhánh `chore/push-current-project`, HEAD `ed9fde6`, bảo toàn các thay đổi có sẵn trong worktree.
+
+### Triển khai:
+- **Backend API Lịch sử & Phân trang**:
+  - `GET /api/moments?type=received&page=0` với Bearer JWT xác thực người dùng.
+  - Native query tận dụng index `ix_moment_recipients_user_created` trên `moment_recipients (recipient_id, created_at DESC)` kết nối với `moments` và `users` (sender).
+  - Phân trang cố định `pageSize = 20`, lấy `LIMIT 21 OFFSET (page * 20)` để tính `hasNext` không cần đếm toàn bảng.
+  - Cô lập bảo mật tuyệt đối: ảnh chỉ mình tôi (`recipientIds=[]`), khoảnh khắc người lạ, hoặc ảnh đã xóa mềm không bao giờ xuất hiện trong danh sách nhận.
+  - DTOs `PublicUser`, `MomentItem`, `MomentsPage` chỉ trả về thông tin công khai (id, username, displayName).
+- **Android Client Material 3 Expressive History**:
+  - Kết nối Tab 1 của ViewPager2 tới `HistoryFragment` hoàn chỉnh (thay thế `PendingTabFragment`).
+  - M3E AppBar, thanh tiến trình `LinearProgressIndicator` (indeterminate), trạng thái rỗng (empty state) khi chưa có khoảnh khắc nào, và trạng thái lỗi/thử lại (retry).
+  - Thẻ khoảnh khắc `item_history_moment.xml`: Avatar ký tự đầu, tên hiển thị, username, thời gian tương đối ("Vừa xong", "X phút trước"...), khung ảnh vuông tỷ lệ 1:1, chú thích tối đa 50 ký tự Unicode.
+  - Tải ảnh qua JWT Bearer token `GET /api/moments/{id}/image`, giải mã Bitmap trên luồng worker và cache RAM 20MB qua `LruCache<String, Bitmap>` trong `HistoryViewModel`.
+  - Nút làm mới (Refresh) trên AppBar tải lại dữ liệu tức thì.
+
+### Kiểm thử và bằng chứng:
+- **Backend**: `mvn verify` đạt **104/104 tests PASS**, 0 failures, 0 errors, 0 skipped. Gồm 5 integration tests kiểm thử nhận khoảnh khắc mới nhất trước, phân trang trang 0 và trang 1, cô lập ảnh chỉ mình tôi, cô lập người lạ, và validation các tham số query `type`/`page`. Executable JAR được build và repackage thành công.
+- **Android Unit Tests**: `./gradlew.bat testDebugUnitTest` đạt **45/45 tests PASS**, 0 failures, 0 errors (gồm 3 unit tests mới trong `MomentCaptionTest` kiểm thử API contract, session guard và mapping DTO).
+- **Android Build & Lint**: `assembleDebug assembleRelease lintDebug lintRelease` **BUILD SUCCESSFUL** trong 32 giây, **0 errors**.
+- **Kiểm thử máy thật Xiaomi Redmi Note 13 4G (Android 15 / API 35)** qua USB reverse port 8080:
+  - `historyTabShowsEmptyStateWhenNoMomentsReceived`: PASS (3.801 s) — Tab Lịch sử hiển thị chính xác tiêu đề, view rỗng khi chưa có ảnh, RecyclerView ẩn, bấm làm mới thành công.
+  - `receivedMomentAppearsInHistoryWithSenderCaptionAndDownloadedImage`: PASS (7.069 s) — Alice gửi khoảnh khắc cho Bob, Bob chuyển sang Tab Lịch sử, khoảnh khắc hiển thị đầy đủ tên Alice, chú thích, ảnh JPEG tải thành công qua JWT với Drawable hợp lệ; xoay màn hình/recreate Activity bảo toàn danh sách.
+  - `MainCameraAcceptanceTest#tabsRecreationBackAndLogoutNeverKeepCameraBoundOffscreen`: PASS (35 s) — Kiểm tra hồi quy 4 tab đảm bảo CameraX unbind khi chuyển sang Tab Lịch sử, không rò rỉ tài nguyên.
+- **Kiểm tra nhất quán dữ liệu (Data Consistency)**:
+  - Smoke server dừng exit 0: `SMOKE_MEDIA_ROWS=3 FILES=3 RECIPIENTS=3`.
+  - Tuyệt đối không có duplicate moment trong DB và không có duplicate/orphaned file trên đĩa VPS. Port 8080 đã đóng, quy tắc reverse đã gỡ bỏ.
+
+### Trạng thái Git & Điểm dừng:
+- Giữ HEAD `ed9fde6`, worktree giữ nguyên các file chưa commit, không commit/push/deploy.
+- Cổng 8080 đã đóng, quy tắc ADB reverse đã dọn dẹp sạch sẽ.
+- **Đề xuất duy nhất**: **Giai đoạn 6 — Firebase Cloud Messaging (FCM) & Đồng bộ thời gian thực**. Dừng chờ phê duyệt.
+
+## Hoàn tất 5D — Upload Progress, Retry & Idempotency Key — 18/10/2026
+
+**PASS local/USB; dừng chờ duyệt riêng 5E.** Trước phiên: nhánh `chore/push-current-project`, HEAD `ed9fde6`, bảo toàn các thay đổi có sẵn trong worktree.
+
+### Triển khai:
+- **Backend Idempotency bền vững qua PostgreSQL**:
+  - Không sửa `V1__init_schema.sql`. Thêm migration `V2__moment_idempotency.sql` bổ sung cột `idempotency_key UUID` và `payload_hash VARCHAR(64)` cho bảng `moments`.
+  - Tạo partial unique index `uq_moments_sender_idempotency ON moments (sender_id, idempotency_key) WHERE idempotency_key IS NOT NULL`.
+  - Fingerprint SHA-256 tính từ: `sender_id` + `caption` (UTF-8) + danh sách `recipientIds` (sắp xếp tăng dần theo UUID) + raw bytes của ảnh JPEG.
+  - Xử lý replay: Nếu cùng key và cùng fingerprint, trả về ngay `201 Created` với `{"id":"<momentId ban đầu>"}`, không tạo bản ghi mới và không lưu ảnh mới lên đĩa VPS.
+  - Xử lý conflict: Cùng key nhưng payload khác trả về `409 IDEMPOTENCY_CONFLICT`.
+  - Xử lý format: Key sai UUID trả về `400 INVALID_IDEMPOTENCY_KEY`.
+  - Khóa bi quan `UserRepository.lockAll(participants)` tuần tự hóa các request đồng thời từ cùng tài khoản sender.
+- **Android Progress & Retry**:
+  - `CountingRequestBody` theo dõi số byte ghi thực tế của OkHttp để tính tiến trình 0–100%.
+  - Phân biệt tiến trình truyền dữ liệu (0–99%, determinate progress bar hiển thị %) với máy chủ xử lý (100%, indeterminate progress bar "Máy chủ đang xử lý và xác thực ảnh...").
+  - Lưu `idempotencyKey` trong `SavedStateHandle` của `PreviewViewModel` để bảo toàn key khi Activity bị recreate hoặc process death.
+  - Khi người dùng chỉnh sửa nội dung bản nháp (caption hoặc recipients), key cũ được xóa để sinh key mới cho lần gửi độc lập.
+  - Khi gặp lỗi mạng, giữ nguyên key và nội dung bản nháp để retry gửi lại đúng dữ liệu ban đầu. Lỗi non-retryable (400, 401, 409) mở khóa cho phép sửa và xóa key.
+
+### Kiểm thử và bằng chứng:
+- **Backend**: `mvn verify` đạt **99/99 tests PASS**, 0 failures, 0 errors, 0 skipped. Gồm 4 integration tests kiểm thử replay không duplicate row/file, conflict 409 khi đổi caption/ảnh, validation 400 key sai UUID, và concurrent uploads trả cùng ID. Flyway migration V2 và index DB được kiểm thử tự động.
+- **Android Unit Tests**: `./gradlew.bat testDebugUnitTest` đạt **42/42 tests PASS**, 0 failures, 0 errors (gồm 9 tests trong `MomentCaptionTest` kiểm tra header `Idempotency-Key`, `CountingRequestBody` listener, validation và 409 handling).
+- **Android Build & Lint**: `assembleDebug assembleRelease lintDebug lintRelease` **BUILD SUCCESSFUL**, 0 errors.
+- **Kiểm thử máy thật Xiaomi Redmi Note 13 4G (Android 15 / API 35)** qua USB reverse port 8080:
+  - `detailedPhotosHaveBoundedBytesDimensionsAndDoNotUpscaleSmallPhotos`: PASS (1.770 s).
+  - `privateSaveUsesExplicitConfirmationAndDownloadsJwtImage`: PASS (7.025 s) — chụp ảnh thật, gửi riêng tư với progress bar, server lưu và tải lại đúng byte bằng JWT.
+  - `realCameraSendsSelectedFriendsAndDeniesUnselectedFriend`: PASS (10.596 s) — gửi ảnh cho bạn bè có Idempotency-Key header, tải lại thành công cho người nhận.
+- **Kiểm tra nhất quán dữ liệu (Data Consistency)**:
+  - Smoke server dừng exit 0: `SMOKE_MEDIA_ROWS=2 FILES=2 RECIPIENTS=2`.
+  - **Xác nhận**: Tuyệt đối không có duplicate moment trong DB và không có duplicate/orphaned file trên đĩa VPS.
+
+### Trạng thái Git & Điểm dừng:
+- Giữ HEAD `ed9fde6`, worktree giữ nguyên các file chưa commit, không commit/push/deploy.
+- Cổng 8080 đã đóng, quy tắc ADB reverse đã dọn dẹp sạch sẽ.
+- **Đề xuất duy nhất**: **5E — Lịch sử ảnh đã nhận (Received Moments History)**. Dừng chờ phê duyệt.
+
+## Hoàn tất 5C — Gửi ảnh cho bạn bè — 17/10/2026
+
+**PASS local/USB; dừng chờ duyệt riêng 5D.** Trước phiên: nhánh `chore/push-current-project`, HEAD `ed9fde6`, 28 mục dirty/untracked của 5B đã kiểm tra và bảo toàn. Đã đọc AGENTS, toàn bộ đặc tả/roadmap, quyết định, hồ sơ và source. Dùng android_ui_verification trên USB Xiaomi Android 15/API35, 1080×2400 sau xác nhận camera an toàn của người dùng.
+
+Triển khai: Preview gửi selected hoặc Tất cả đủ trang API; multipart repeated UUID, snapshot caption/recipients và generation guard; giữ private-confirm riêng. Server kiểm tra toàn bộ 1–100 người nhận, friendship/block hai chiều, khóa users theo thứ tự PostgreSQL cùng FriendService, lưu moment/recipients cùng timestamp/transaction. GET JWT chỉ cho sender/recipient của moment chưa xóa. Giữ 5 MiB/file, 6 MiB/request, 4096/cạnh, 16 MP; kiểm tra MIME/magic bytes/decode, bỏ EXIF, tên UUID/private storage/rollback. Container giới hạn hữu hạn 104 parts. Nén cạnh 1280/1024/768 và quality 92→52, không upscale/pad. Không đổi stack/JWT/FCM/schema V1 hoặc DB dev.
+
+Kiểm thử cuối: **95/95 backend**, JAR đạt 53.718 s; Android debug/test/release/lint đạt 29 s, 0 errors/3 warnings cũ; **39/39 JVM** buộc chạy lại; **15 ca USB** đạt (11 Preview/5C, 1 gửi bạn bè offline/retry, 3 nav/lifecycle/owner-only regression), không skipped. Kiểm tra ảnh thật gửi hai bạn, đủ 21 bạn qua hai trang, B/C/JWT/block/stale selection/phiên/layout/IME. Xem [QA_MOMENT_SHARING.md](QA_MOMENT_SHARING.md) và [MOMENT_API.md](MOMENT_API.md); logs/screens ignored ở `.local/artifacts/5c/`.
+
+Lỗi ban đầu đã sửa và retest: mặc định container 50 parts chặn biên 100; snapshot pg_stat_activity trong test chờ khóa; PowerShell dừng ở javac Note; một GET fixture gặp EOF keep-alive. Thêm GET retry tối đa một lần, có test chứng minh không retry HTTP/POST hoặc nới auth. Resume đang gửi không enqueue đọc lại draft đã dọn. Không nhận suite từng fail là PASS.
+
+Cleanup: smoke dừng exit 0, **8 moments/8 files/47 recipients**; draft cache 0 file, port 8080 không listener, reverse gỡ, CAMERA granted. Cold Main 1532 ms → Login; hierarchy có emailInput, không previewImage. Không xóa dữ liệu/gallery/DB dev, không commit/push/deploy. HEAD giữ nguyên, index rỗng. Không có thao tác thủ công bắt buộc để nghiệm thu 5C; dùng app dev tiếp cần backend/kết nối vì smoke đã dừng.
+
+Giới hạn: chưa idempotency 5D hoặc khôi phục known ID qua full process death; retry POST chưa rõ kết quả có thể tạo thêm moment. Chưa History 5E, B được kiểm chứng bằng API/JWT, không giả UI. Chưa hai điện thoại vật lý/HTTPS runtime/API26/API37/FCM/widget/deploy. **Đề xuất duy nhất 5D; chờ xác nhận, chưa triển khai.**
+
+## Hoàn tất 5B — Chụp cache và Preview —17/10/2026
+
+**PASS local/USB; chờ duyệt riêng5C.** Trước phiên: nhánh `chore/push-current-project`, HEAD `ed9fde6`, worktree sạch. Commit/push này thuộc yêu cầu riêng trước5B. Đã đọc AGENTS/toàn đặc tả/roadmap/quyết định/hồ sơ/source; dùng android_ui_verification trên USB/API35 sau xác nhận người dùng hướng cả hai camera an toàn.
+
+Triển khai: cache internal UUID/generation có kiểm tra phiên/TTL/byte bounds; Camera → rotation/mirror/crop → cache → Preview. Preview Java/XML/ViewBinding/M3E có session gate, chụp lại, caption50code point, Tất cả/nhiều bạn và API page20/DiffUtil/SavedStateHandle. Có xác nhận lưu owner-only/caption → POST[] → GETJWT; gửi bạn bè chờ5C. Tách Capture/Preview ViewModel, gỡ MomentViewModel và overlay/retry upload cũ khỏi Camera sau kiểm tra tham chiếu; khôi phục source từ Git được. Giữ backend/DB/JWT/FCM/SDK/dependency.
+
+Xác minh: full build cuối29s debug/test/release/lint; bổ sung hai JVM về caption multipart/validation/cross-session, **35/35 đạt** trong lượt unit17s,0fail/error/skipped. Lint0errors/3warnings cũ. **32 ca USB duy nhất đạt sau sửa/retest**:11Preview,18Camera/Friends/auth/ảnh/layout,2quyền,1ảnh thật offline/retry/JWT. Hai ca Friends cần host/thiết bị thứ hai skipped, không tínhPASS. Không gọi các suite từngfail làPASS; trạng thái từng method được đối chiếu sau retest. Log/ảnh ignored `.local/artifacts/5b/`, chi tiết [QA_PREVIEW.md](QA_PREVIEW.md).
+
+Lỗi đã xử lý: Glide onDestroy tạo manager quá muộn → giữ RequestManager từonCreate; quota fixture21tài khoản → chờ Retry-After; dialog click lúc friends thay layout → chờ friends idle; native shellswipe không đổi tab → Espresso đồng bộ UI, giữassertion nav/pager; CameraAllow bị runner kế tiếp gián đoạn → chạy riêng lại đạt. Không nới timeout/limiter/assertion hoặc sửa backend.
+
+Bàn giao: ảnh thật/sáng/tối/IME/offline/JWT/Login đã xem, không overlay. Cache draft cuối0file. Smoke dừngexit0,7media/7privatefile/0recipient,cổng8080đóng; không xóa DBdev/ảnhserver/gallery. Fixtures logout/revoke,reversegỡ,CAMERAgranted,coldlaunch1489ms→Login,khôngpreviewImage trong hierarchy. Index rỗng/HEADed9fde6 giữ nguyên; review XML/link/diff/credential-pattern. Không commit/push/deploy5B.
+
+Giới hạn: chưa gửi ảnh bạn bè5C/idempotency5D/History5E/FCM/widget; chưa API26/API37 networkdialog,TalkBack full,font2×,tablet thật/physical rotation/fullprocessdeath/HTTPSruntime/signing. Cache bịOS thu hồi sẽ báo chụp lại. Backend87test không chạy lại vì source giữ nguyên. Không có thao tác thủ công bắt buộc cho5B; dùngappdevtiếp cần backend/devDB/kết nối vì smoke đã dừng. **Đề xuất duy nhất5C — hoàn thiện media private và người nhận thật; chờ duyệt.**
+
 ## Hoàn tất 5A — Bốn tab và CameraX —17/10/2026
 
 **PASS local/USB; dừng chờ duyệt riêng5B.** Người dùng duyệt5A sau bốn màn M3E, xác nhận hai camera hướng an toàn, cài APK và đóng Zalo. Trước phiên: nhánh `chore/push-current-project`,HEAD5b6b520,48mục dirty/untracked của các màn trước được bảo toàn; snapshot201file ignored. Đã đọc AGENTS/toàn đặc tả/roadmap/quyết định/hồ sơ/source, dùng UI UX Pro Max và android_ui_verification;Python3.12.10 sẵn có,giữ stack/dependency/JavaXML/M3E1.14.0.

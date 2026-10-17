@@ -24,6 +24,8 @@
             android:theme="@style/Theme.TakTak.M3.Login" />
         <activity android:name=".ui.auth.RegisterActivity" android:exported="false" android:windowSoftInputMode="adjustResize"
             android:theme="@style/Theme.TakTak.M3.Register" />
+        <activity android:name=".ui.camera.PreviewActivity" android:exported="false" android:windowSoftInputMode="adjustResize"
+            android:theme="@style/Theme.TakTak.M3.Camera" />
         <activity
             android:name=".MainActivity"
             android:exported="true"

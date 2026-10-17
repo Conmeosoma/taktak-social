@@ -11,11 +11,6 @@
                 app:layout_constraintTop_toTopOf="parent" app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="parent" app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintDimensionRatio="1:1" android:keepScreenOn="true" android:contentDescription="@string/moment_camera_preview" />
-            <ImageView android:id="@+id/serverImage" android:layout_width="0dp" android:layout_height="0dp"
-                app:layout_constraintTop_toTopOf="@id/cameraPreview" app:layout_constraintBottom_toBottomOf="@id/cameraPreview"
-                app:layout_constraintStart_toStartOf="@id/cameraPreview" app:layout_constraintEnd_toEndOf="@id/cameraPreview"
-                android:scaleType="fitCenter" android:visibility="gone" android:saveEnabled="false"
-                android:contentDescription="@string/moment_server_image" />
             <com.google.android.material.textview.MaterialTextView android:id="@+id/cameraPlaceholder"
                 android:layout_width="0dp" android:layout_height="0dp"
                 app:layout_constraintTop_toTopOf="parent" app:layout_constraintBottom_toBottomOf="parent"
@@ -72,7 +67,4 @@
                 android:textColor="?attr/colorOnSecondaryContainer" android:accessibilityLiveRegion="polite" android:saveEnabled="false" />
         </LinearLayout>
     </com.google.android.material.card.MaterialCardView>
-    <com.google.android.material.button.MaterialButton android:id="@+id/momentRetryButton"
-        style="@style/Widget.TakTakM3.Button" android:layout_marginTop="@dimen/m3_space_12"
-        android:visibility="gone" android:text="@string/session_retry" />
 </LinearLayout>

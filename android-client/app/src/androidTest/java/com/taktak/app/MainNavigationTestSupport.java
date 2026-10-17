@@ -10,6 +10,9 @@ final class MainNavigationTestSupport {
     static void friends(Activity activity) {
         ((BottomNavigationView) activity.findViewById(R.id.bottomNavigation)).setSelectedItemId(R.id.nav_friends);
     }
+    static void history(Activity activity) {
+        ((BottomNavigationView) activity.findViewById(R.id.bottomNavigation)).setSelectedItemId(R.id.nav_history);
+    }
     static CameraFragment camera(Activity activity) {
         return camera(((androidx.fragment.app.FragmentActivity) activity).getSupportFragmentManager());
     }

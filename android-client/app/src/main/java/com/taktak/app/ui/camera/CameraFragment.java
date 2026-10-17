@@ -15,22 +15,20 @@ import androidx.camera.view.PreviewView;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.taktak.app.MainActivity;
 import com.taktak.app.R;
 import com.taktak.app.databinding.FragmentCameraBinding;
 import com.taktak.app.viewmodel.CameraSettingsViewModel;
-import com.taktak.app.viewmodel.MomentViewModel;
+import com.taktak.app.viewmodel.CaptureViewModel;
 
 public final class CameraFragment extends Fragment {
     private FragmentCameraBinding binding;
-    private MomentViewModel model;
+    private CaptureViewModel model;
     private CameraSettingsViewModel settings;
     private ProcessCameraProvider provider;
     private ImageCapture capture;
     private Preview preview;
-    private boolean busy, active, canSwitch, hasFlash, cameraNotice;
+    private boolean busy, active, canSwitch, hasFlash, cameraNotice, openingPreview;
     private int requestId, targetRotation;
     private OrientationEventListener orientation;
     private final ActivityResultLauncher<String> permission = registerForActivityResult(
@@ -44,7 +42,7 @@ public final class CameraFragment extends Fragment {
         binding = FragmentCameraBinding.inflate(inflater, parent, false); return binding.getRoot();
     }
     @Override public void onViewCreated(@NonNull View view, Bundle state) {
-        model = new ViewModelProvider(this).get(MomentViewModel.class);
+        model = new ViewModelProvider(this).get(CaptureViewModel.class);
         settings = new ViewModelProvider(requireActivity()).get(CameraSettingsViewModel.class);
         binding.cameraPreview.setImplementationMode(PreviewView.ImplementationMode.COMPATIBLE);
         orientation = new OrientationEventListener(requireContext()) {
@@ -63,7 +61,6 @@ public final class CameraFragment extends Fragment {
             if (busy || capture == null || !canSwitch) { return; }
             settings.selectLens(settings.lensFacing() == CameraSelector.LENS_FACING_BACK
                     ? CameraSelector.LENS_FACING_FRONT : CameraSelector.LENS_FACING_BACK);
-            binding.serverImage.setVisibility(View.GONE);
             startCamera();
         });
         binding.flashButton.setOnClickListener(clicked -> {
@@ -71,29 +68,22 @@ public final class CameraFragment extends Fragment {
             settings.cycleFlash(); capture.setFlashMode(settings.flashMode()); updateControls();
         });
         binding.captureButton.setOnClickListener(clicked -> takePicture());
-        binding.momentRetryButton.setOnClickListener(clicked -> model.retry());
         model.state().observe(getViewLifecycleOwner(), result -> {
-            busy = result.busy;
-            boolean error = result.retry || result.message == R.string.moment_camera_error
-                    || result.message == R.string.auth_invalid_credentials;
-            binding.momentStatus.setText(result.message);
-            binding.momentProgress.setVisibility(result.busy ? View.VISIBLE : View.INVISIBLE);
-            styleStatus(result.busy ? R.string.camera_status_busy : error ? R.string.camera_status_error
-                    : result.downloaded != null ? R.string.camera_status_success : R.string.camera_status_ready,
-                    error ? R.color.m3_error_container : result.downloaded != null ? R.color.m3_success_container : R.color.m3_secondary_container,
-                    error ? R.color.m3_on_error_container : result.downloaded != null ? R.color.m3_on_success_container : R.color.m3_on_secondary_container);
+            busy = result.busy();
+            boolean error = result.message() == R.string.moment_camera_error;
+            binding.momentStatus.setText(result.message());
+            binding.momentProgress.setVisibility(busy ? View.VISIBLE : View.INVISIBLE);
+            styleStatus(busy ? R.string.camera_status_busy : error ? R.string.camera_status_error : R.string.camera_status_ready,
+                    error ? R.color.m3_error_container : R.color.m3_secondary_container,
+                    error ? R.color.m3_on_error_container : R.color.m3_on_secondary_container);
             updateControls();
-            binding.momentRetryButton.setVisibility(result.retry ? View.VISIBLE : View.GONE);
-            binding.momentRetryButton.setEnabled(!busy);
-            binding.serverImage.setVisibility(result.downloaded == null ? View.GONE : View.VISIBLE);
-            if (result.downloaded != null) {
-                Glide.with(this).load(result.downloaded).diskCacheStrategy(DiskCacheStrategy.NONE).skipMemoryCache(true).into(binding.serverImage);
-            } else { Glide.with(this).clear(binding.serverImage); binding.serverImage.setImageDrawable(null); }
+            openPreview();
         });
     }
 
     @Override public void onResume() {
-        super.onResume(); active = true;
+        super.onResume(); active = true; openingPreview = false;
+        openPreview();
         if (binding.cameraPreview.getDisplay() != null) { targetRotation = binding.cameraPreview.getDisplay().getRotation(); }
         if (orientation.canDetectOrientation()) { orientation.enable(); }
         if (hasPermission()) { startCamera(); }
@@ -116,7 +106,7 @@ public final class CameraFragment extends Fragment {
         return ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED;
     }
     private boolean pageActive() {
-        return active && getActivity() instanceof MainActivity activity && activity.isCameraPageActive();
+        return active && !openingPreview && getActivity() instanceof MainActivity activity && activity.isCameraPageActive();
     }
     private void startCamera() {
         if (binding == null || !pageActive() || !hasPermission()) { return; }
@@ -150,8 +140,8 @@ public final class CameraFragment extends Fragment {
                 binding.cameraPermissionButton.setVisibility(View.GONE);
                 binding.cameraPlaceholder.setVisibility(View.GONE);
                 if (cameraNotice && model.state().getValue() != null
-                        && model.state().getValue().message == R.string.moment_self_only) {
-                    binding.momentStatus.setText(R.string.moment_self_only);
+                        && model.state().getValue().message() == R.string.preview_capture_hint) {
+                    binding.momentStatus.setText(R.string.preview_capture_hint);
                     styleStatus(R.string.camera_status_ready, R.color.m3_secondary_container, R.color.m3_on_secondary_container);
                 }
                 cameraNotice = false; updateControls();
@@ -200,20 +190,27 @@ public final class CameraFragment extends Fragment {
     private void takePicture() {
         if (!pageActive() || capture == null || !model.beginCapture()) { return; }
         var captureModel = model;
+        boolean mirror = settings.lensFacing() == CameraSelector.LENS_FACING_FRONT;
         capture.takePicture(ContextCompat.getMainExecutor(requireContext()), new ImageCapture.OnImageCapturedCallback() {
             @Override public void onCaptureSuccess(@NonNull ImageProxy image) {
-                try { captureModel.acceptCapture(image.toBitmap(), image.getImageInfo().getRotationDegrees()); }
+                try { captureModel.acceptCapture(image.toBitmap(), image.getImageInfo().getRotationDegrees(), mirror); }
                 catch (RuntimeException failure) { captureModel.captureFailed(); }
                 finally { image.close(); }
             }
             @Override public void onError(@NonNull ImageCaptureException error) { captureModel.captureFailed(); }
         });
     }
+    private void openPreview() {
+        var state = model.state().getValue();
+        if (!pageActive() || state == null || state.draftId() == null) { return; }
+        var intent = new android.content.Intent(requireContext(), PreviewActivity.class)
+                .putExtra(PreviewActivity.DRAFT_ID, state.draftId()).putExtra(PreviewActivity.GENERATION, model.generation());
+        openingPreview = true; model.consume(); startActivity(intent);
+    }
     @Override public void onDestroyView() {
         active = false; requestId++;
         if (orientation != null) { orientation.disable(); orientation = null; }
         unbindOwned();
-        if (binding != null) { Glide.with(this).clear(binding.serverImage); binding.serverImage.setImageDrawable(null); }
         binding = null; super.onDestroyView();
     }
 }

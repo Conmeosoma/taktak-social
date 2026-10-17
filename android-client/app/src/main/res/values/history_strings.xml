@@ -1,0 +1,18 @@
+<resources>
+    <string name="history_title">Khoảnh khắc đã nhận</string>
+    <string name="history_empty">Chưa có khoảnh khắc nào</string>
+    <string name="history_empty_detail">Khi bạn bè gửi khoảnh khắc cho bạn, chúng sẽ xuất hiện ở đây.</string>
+    <string name="history_loading">Đang tải khoảnh khắc…</string>
+    <string name="history_loading_more">Đang tải thêm…</string>
+    <string name="history_more">Xem thêm</string>
+    <string name="history_refresh">Làm mới</string>
+    <string name="history_retry">Thử lại</string>
+    <string name="history_network_error">Không thể tải khoảnh khắc. Kiểm tra kết nối rồi thử lại.</string>
+    <string name="history_server_error">Máy chủ chưa thể tải khoảnh khắc. Vui lòng thử lại sau.</string>
+    <string name="history_image_loading">Đang tải ảnh…</string>
+    <string name="history_image_error">Chưa tải được ảnh</string>
+    <string name="history_time_just_now">Vừa xong</string>
+    <string name="history_time_minutes_ago">%1$d phút trước</string>
+    <string name="history_time_hours_ago">%1$d giờ trước</string>
+    <string name="history_time_days_ago">%1$d ngày trước</string>
+</resources>

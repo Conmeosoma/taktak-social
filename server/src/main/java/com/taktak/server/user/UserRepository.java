@@ -7,6 +7,9 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 public interface UserRepository extends JpaRepository<User, UUID> {
+    @Query(value = "select * from users where id in (:ids) order by id for update", nativeQuery = true)
+    java.util.List<User> lockAll(@Param("ids") java.util.Collection<UUID> ids);
+
     @Query(value = "select * from users where id in (:first, :second) order by id for update", nativeQuery = true)
     java.util.List<User> lockPair(@Param("first") UUID first, @Param("second") UUID second);
 

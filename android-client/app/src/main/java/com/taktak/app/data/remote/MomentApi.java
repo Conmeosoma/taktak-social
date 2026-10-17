@@ -9,7 +9,30 @@ import retrofit2.http.*;
 public interface MomentApi {
     final class CreatedMoment { public String id; }
     @Multipart @POST("api/moments")
-    Call<CreatedMoment> upload(@Part MultipartBody.Part image, @Part("recipientIds") RequestBody recipients);
+    Call<CreatedMoment> upload(
+            @Header("Idempotency-Key") String idempotencyKey,
+            @Part MultipartBody.Part image,
+            @Part("recipientIds") RequestBody recipients);
+
+    @Multipart @POST("api/moments")
+    Call<CreatedMoment> upload(
+            @Header("Idempotency-Key") String idempotencyKey,
+            @Part MultipartBody.Part image,
+            @Part("recipientIds") RequestBody recipients,
+            @Part("caption") RequestBody caption);
+
+    @Multipart @POST("api/moments")
+    Call<CreatedMoment> uploadToFriends(
+            @Header("Idempotency-Key") String idempotencyKey,
+            @Part MultipartBody.Part image,
+            @Part("recipientIds") java.util.List<RequestBody> recipients,
+            @Part("caption") RequestBody caption);
+
     @Streaming @GET("api/moments/{id}/image")
     Call<ResponseBody> image(@Path("id") String id);
+
+    @GET("api/moments")
+    Call<com.taktak.app.data.model.MomentModels.MomentsPage> listMoments(
+            @Query("type") String type,
+            @Query("page") int page);
 }

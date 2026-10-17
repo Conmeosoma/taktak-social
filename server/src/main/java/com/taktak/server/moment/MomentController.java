@@ -18,9 +18,10 @@ public class MomentController {
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<CreatedMoment> upload(@AuthenticationPrincipal Jwt jwt,
+            @RequestHeader(value = "Idempotency-Key", required = false) String idempotencyKey,
             @RequestPart("image") MultipartFile image, @RequestParam(defaultValue = "") String caption,
-            @RequestParam(required = false) List<String> recipientIds) throws IOException {
-        UUID id = moments.upload(UUID.fromString(jwt.getSubject()), image, caption, recipientIds);
+            @RequestParam org.springframework.util.MultiValueMap<String, String> fields) throws IOException {
+        UUID id = moments.upload(UUID.fromString(jwt.getSubject()), image, caption, fields.get("recipientIds"), idempotencyKey);
         return ResponseEntity.status(HttpStatus.CREATED).cacheControl(CacheControl.noStore()).body(new CreatedMoment(id));
     }
 
@@ -29,5 +30,12 @@ public class MomentController {
         byte[] image = moments.image(UUID.fromString(jwt.getSubject()), id);
         return ResponseEntity.ok().cacheControl(CacheControl.noStore()).contentType(MediaType.IMAGE_JPEG)
                 .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=moment.jpg").contentLength(image.length).body(image);
+    }
+
+    @GetMapping
+    public ResponseEntity<MomentDtos.MomentsPage> list(@AuthenticationPrincipal Jwt jwt,
+            @RequestParam String type, @RequestParam(defaultValue = "0") int page) {
+        return ResponseEntity.ok().cacheControl(CacheControl.noStore())
+                .body(moments.listMoments(UUID.fromString(jwt.getSubject()), type, page));
     }
 }

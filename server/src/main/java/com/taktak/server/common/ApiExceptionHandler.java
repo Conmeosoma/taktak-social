@@ -120,6 +120,10 @@ public class ApiExceptionHandler {
                                                 HttpServletRequest request) {
         for (Throwable cause = exception; cause != null; cause = cause.getCause()) {
             if (cause instanceof SQLException sql && "23505".equals(sql.getSQLState())) {
+                String msg = sql.getMessage();
+                if (msg != null && msg.contains("uq_moments_sender_idempotency")) {
+                    return error(HttpStatus.CONFLICT, "IDEMPOTENCY_CONFLICT", "Yêu cầu upload đang được xử lý hoặc xung đột khóa idempotency.", request);
+                }
                 return error(HttpStatus.CONFLICT, "ACCOUNT_CONFLICT", "Email hoặc username đã được sử dụng.", request);
             }
         }

@@ -25,6 +25,11 @@ public final class AuthRepository {
     public UserProfile profile() throws IOException { return checked(client.users.me().execute()); }
 
     public boolean hasSession() { return client.sessions.snapshot() != null; }
+    public long sessionGeneration() throws ApiFailure {
+        var session = client.sessions.snapshot();
+        if (session == null) { throw new ApiFailure(ApiFailure.Kind.UNAUTHORIZED); }
+        return session.generation;
+    }
 
     public void logout() throws IOException { client.sessions.logout(); }
     public MomentRepository moments() { return new MomentRepository(client); }

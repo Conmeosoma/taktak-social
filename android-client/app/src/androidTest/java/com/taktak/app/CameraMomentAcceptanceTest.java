@@ -14,7 +14,7 @@ import com.taktak.app.data.repository.*;
 import com.taktak.app.data.session.EncryptedSessionStore;
 import com.taktak.app.ui.camera.CameraFragment;
 import com.taktak.app.ui.camera.PhotoProcessor;
-import com.taktak.app.viewmodel.MomentViewModel;
+import com.taktak.app.viewmodel.CaptureViewModel;
 import java.io.*;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -97,7 +97,7 @@ public class CameraMomentAcceptanceTest {
             return allowed.get();
         });
         awaitCaptureReady();
-        awaitMessage(R.string.moment_self_only);
+        awaitMessage(R.string.preview_capture_hint);
         actOnResumed(activity -> {
             assertFalse(activity.findViewById(R.id.cameraPermissionButton).isShown());
             assertFalse(activity.findViewById(R.id.cameraPlaceholder).isShown());
@@ -122,6 +122,8 @@ public class CameraMomentAcceptanceTest {
         var repository = loginAndLaunch(true);
         awaitCaptureReady();
         capture("camera-preview.png");
+        actOnResumed(activity -> activity.findViewById(R.id.captureButton).performClick());
+        PreviewTestSupport.ready();
         boolean offline = "true".equals(InstrumentationRegistry.getArguments().getString("taktakAwaitMediaNetworkRestore"));
         if (offline) {
             android.util.Log.i("TaktakQa", "MEDIA_READY_FOR_DISCONNECT");
@@ -130,26 +132,25 @@ public class CameraMomentAcceptanceTest {
             while (healthy() && android.os.SystemClock.elapsedRealtime() < deadline) { android.os.SystemClock.sleep(200); }
             assertFalse("Host must disconnect test backend", healthy());
         }
-        actOnResumed(activity -> activity.findViewById(R.id.captureButton).performClick());
+        PreviewTestSupport.onPreview(activity -> PreviewTestSupport.model(activity).savePrivate());
         if (offline) {
             awaitMessage(R.string.moment_transfer_error);
-            actOnResumed(activity -> assertFalse(activity.findViewById(R.id.serverImage).isShown()));
+            actOnResumed(activity -> assertNull(PreviewTestSupport.model((com.taktak.app.ui.camera.PreviewActivity) activity).state().getValue().downloaded()));
             capture("media-offline.png");
             android.util.Log.i("TaktakQa", "MEDIA_WAITING_FOR_RESTORE");
             long deadline = android.os.SystemClock.elapsedRealtime() + 45000;
             while (!healthy() && android.os.SystemClock.elapsedRealtime() < deadline) { android.os.SystemClock.sleep(200); }
             assertTrue("Host must restore test backend", healthy());
-            actOnResumed(activity -> activity.findViewById(R.id.momentRetryButton).performClick());
+            PreviewTestSupport.onPreview(activity -> PreviewTestSupport.model(activity).savePrivate());
         }
         awaitMessage(R.string.moment_downloaded);
         final byte[][] displayed = new byte[1][]; final String[] id = new String[1];
         actOnResumed(activity -> {
-            var fragment = MainNavigationTestSupport.camera(activity);
-            var model = new androidx.lifecycle.ViewModelProvider(fragment).get(MomentViewModel.class);
-            displayed[0] = model.state().getValue().downloaded;
-            try { var field = MomentViewModel.class.getDeclaredField("momentId"); field.setAccessible(true); id[0] = (String) field.get(model); }
+            var model = PreviewTestSupport.model((com.taktak.app.ui.camera.PreviewActivity) activity);
+            displayed[0] = model.state().getValue().downloaded();
+            try { var field = com.taktak.app.viewmodel.PreviewViewModel.class.getDeclaredField("momentId"); field.setAccessible(true); id[0] = (String) field.get(model); }
             catch (ReflectiveOperationException failure) { throw new AssertionError(failure); }
-            assertTrue(activity.findViewById(R.id.serverImage).isShown());
+            assertTrue(activity.findViewById(R.id.previewImage).isShown());
         });
         assertNotNull(displayed[0]); assertNotNull(id[0]);
         assertArrayEquals(repository.moments().download(id[0]), displayed[0]);
@@ -222,13 +223,13 @@ public class CameraMomentAcceptanceTest {
                     assertEquals(View.ACCESSIBILITY_LIVE_REGION_POLITE,
                             activity.findViewById(R.id.momentStatus).getAccessibilityLiveRegion());
                     var fragment = MainNavigationTestSupport.camera(activity);
-                    var model = new androidx.lifecycle.ViewModelProvider(fragment).get(MomentViewModel.class);
+                    var model = new androidx.lifecycle.ViewModelProvider(fragment).get(CaptureViewModel.class);
                     // Renderer-only fixture; actual upload/JWT acceptance is a separate test.
                     try {
-                        var field = MomentViewModel.class.getDeclaredField("state"); field.setAccessible(true);
+                        var field = CaptureViewModel.class.getDeclaredField("state"); field.setAccessible(true);
                         @SuppressWarnings("unchecked")
-                        var state = (androidx.lifecycle.MutableLiveData<MomentViewModel.State>) field.get(model);
-                        state.setValue(new MomentViewModel.State(true, false, R.string.moment_transferring, null));
+                        var state = (androidx.lifecycle.MutableLiveData<CaptureViewModel.State>) field.get(model);
+                        state.setValue(new CaptureViewModel.State(true, R.string.moment_capturing, null));
                         assertFalse(shutter.isEnabled());
                         assertTrue(activity.findViewById(R.id.momentProgress).isShown());
                         assertEquals(context.getString(R.string.camera_status_busy),
@@ -238,12 +239,12 @@ public class CameraMomentAcceptanceTest {
                 capture("redesign-" + variant + "-busy.png");
                 actOnResumed(activity -> {
                     var fragment = MainNavigationTestSupport.camera(activity);
-                    var model = new androidx.lifecycle.ViewModelProvider(fragment).get(MomentViewModel.class);
+                    var model = new androidx.lifecycle.ViewModelProvider(fragment).get(CaptureViewModel.class);
                     try {
-                        var field = MomentViewModel.class.getDeclaredField("state"); field.setAccessible(true);
+                        var field = CaptureViewModel.class.getDeclaredField("state"); field.setAccessible(true);
                         @SuppressWarnings("unchecked")
-                        var state = (androidx.lifecycle.MutableLiveData<MomentViewModel.State>) field.get(model);
-                        state.setValue(new MomentViewModel.State(false, false, R.string.moment_self_only, null));
+                        var state = (androidx.lifecycle.MutableLiveData<CaptureViewModel.State>) field.get(model);
+                        state.setValue(new CaptureViewModel.State(false, R.string.preview_capture_hint, null));
                     } catch (ReflectiveOperationException failure) { throw new AssertionError(failure); }
                 });
             }
@@ -299,7 +300,8 @@ public class CameraMomentAcceptanceTest {
         await(() -> {
             AtomicBoolean matches = new AtomicBoolean();
             pollResumed(activity -> {
-                var text = (android.widget.TextView) activity.findViewById(R.id.momentStatus);
+                var text = (android.widget.TextView) activity.findViewById(activity instanceof com.taktak.app.ui.camera.PreviewActivity
+                        ? R.id.previewNotice : R.id.momentStatus);
                 matches.set(text != null && text.getText().toString().equals(context.getString(message)));
             });
             return matches.get();

@@ -21,7 +21,6 @@ import com.taktak.app.data.session.EncryptedSessionStore;
 import com.taktak.app.ui.camera.CameraFragment;
 import com.taktak.app.ui.camera.PhotoProcessor;
 import com.taktak.app.viewmodel.CameraSettingsViewModel;
-import com.taktak.app.viewmodel.MomentViewModel;
 import java.io.*;
 import java.util.*;
 import java.util.concurrent.atomic.*;
@@ -100,8 +99,8 @@ public class MainCameraAcceptanceTest {
         onMain(activity -> {
             assertNull(field(old.get(), "capture", ImageCapture.class));
             assertFalse(field(old.get(), "provider", ProcessCameraProvider.class).isBound(preview.get()));
-            assertEquals(context.getString(R.string.history_pending),
-                    ((TextView) activity.findViewById(R.id.historyPage).findViewById(R.id.pendingMessage)).getText().toString());
+            assertEquals(context.getString(R.string.history_title),
+                    ((TextView) activity.findViewById(R.id.historyPage).findViewById(R.id.historyTitle)).getText().toString());
         });
         capture("history-tab.png");
         select(R.id.nav_friends); SessionRoutingTest.awaitView(R.id.friendsQuery);
@@ -114,10 +113,7 @@ public class MainCameraAcceptanceTest {
             activity.getOnBackPressedDispatcher().onBackPressed();
         });
         readyCamera();
-        var pagerRect = new Rect();
-        onMain(activity -> assertTrue(activity.findViewById(R.id.mainPager).getGlobalVisibleRect(pagerRect)));
-        shell("input swipe " + (pagerRect.left + pagerRect.width() * 3 / 4) + " " + pagerRect.centerY()
-                + " " + (pagerRect.left + pagerRect.width() / 4) + " " + pagerRect.centerY() + " 500");
+        onView(withId(R.id.mainPager)).perform(androidx.test.espresso.action.ViewActions.swipeLeft());
         awaitTab(R.id.nav_history);
         onMain(activity -> activity.findViewById(R.id.logoutButton).performClick());
         SessionRoutingTest.awaitView(R.id.emailInput);
@@ -277,21 +273,24 @@ public class MainCameraAcceptanceTest {
             assertFalse(activity.findViewById(R.id.switchCameraButton).isEnabled());
             assertFalse(activity.findViewById(R.id.flashButton).isEnabled());
         });
+        PreviewTestSupport.ready();
+        PreviewTestSupport.onPreview(activity -> PreviewTestSupport.model(activity).savePrivate());
         AtomicReference<byte[]> bytes = new AtomicReference<>(); AtomicReference<String> id = new AtomicReference<>();
         await(() -> {
             AtomicBoolean done = new AtomicBoolean();
-            onMain(activity -> {
-                var model = new androidx.lifecycle.ViewModelProvider(MainNavigationTestSupport.camera(activity)).get(MomentViewModel.class);
+            PreviewTestSupport.onPreview(activity -> {
+                var model = PreviewTestSupport.model(activity);
                 var state = model.state().getValue();
-                if (!state.busy && state.downloaded != null) {
-                    bytes.set(state.downloaded); id.set(field(model, "momentId", String.class));
-                    assertTrue(activity.findViewById(R.id.serverImage).isShown()); done.set(true);
+                if (!state.sending() && state.downloaded() != null) {
+                    bytes.set(state.downloaded()); id.set(field(model, "momentId", String.class));
+                    assertTrue(activity.findViewById(R.id.previewImage).isShown()); done.set(true);
                 }
             }); return done.get();
         }, "Private JPEG roundtrip");
         assertArrayEquals(AuthGraph.repository(context).moments().download(id.get()), bytes.get());
         Bitmap image = BitmapFactory.decodeByteArray(bytes.get(), 0, bytes.get().length);
         assertNotNull(image); assertEquals(image.getWidth(), image.getHeight()); image.recycle(); capture(name);
+        PreviewTestSupport.onPreview(android.app.Activity::finish); readyCamera();
     }
     private CameraSettingsViewModel settings(MainActivity activity) {
         return new androidx.lifecycle.ViewModelProvider(activity).get(CameraSettingsViewModel.class);

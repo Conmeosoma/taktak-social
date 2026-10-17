@@ -77,7 +77,6 @@ public class CameraM3Test {
                     camera.findViewById(R.id.cameraPermissionButton).setVisibility(View.GONE);
                     camera.findViewById(R.id.cameraPlaceholder).setVisibility(View.GONE);
                     ((TextView) camera.findViewById(R.id.momentStatus)).setText(R.string.moment_transfer_error);
-                    camera.findViewById(R.id.momentRetryButton).setVisibility(View.VISIBLE);
                     measure(page, size, density); bounds(page, page.getWidth());
                     assertEquals("Camera gets Expressive palette", themed.getColor(R.color.m3_primary),
                             MaterialColors.getColor(camera.getContext(), androidx.appcompat.R.attr.colorPrimary, 0));

@@ -25,6 +25,9 @@ spring:
     locations: classpath:db/migration
 
 server:
+  tomcat:
+    # 100 người nhận + ảnh/caption; vẫn giới hạn multipart hữu hạn.
+    max-part-count: 104
   address: ${SERVER_ADDRESS:127.0.0.1}
   port: ${SERVER_PORT:8080}
   error:

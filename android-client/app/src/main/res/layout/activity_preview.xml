@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/previewRoot" android:layout_width="match_parent" android:layout_height="match_parent"
+    android:orientation="vertical" android:saveEnabled="false">
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:paddingHorizontal="16dp" android:gravity="center_vertical" android:orientation="horizontal">
+        <com.google.android.material.button.MaterialButton android:id="@+id/retakeButton"
+            style="@style/Widget.TakTakM3.TextButton" android:layout_width="0dp" android:layout_weight="1"
+            android:text="@string/preview_retake" />
+        <com.google.android.material.button.MaterialButton android:id="@+id/previewLogoutButton"
+            style="@style/Widget.TakTakM3.TextButton" android:layout_width="wrap_content"
+            android:minWidth="0dp" android:text="@string/session_logout" />
+    </LinearLayout>
+    <com.google.android.material.progressindicator.LinearProgressIndicator android:id="@+id/previewProgress"
+        android:layout_width="match_parent" android:layout_height="wrap_content" android:indeterminate="true"
+        android:visibility="invisible" />
+    <com.google.android.material.textview.MaterialTextView android:id="@+id/previewNotice"
+        android:layout_width="match_parent" android:layout_height="wrap_content" android:padding="16dp"
+        android:text="@string/session_checking" android:accessibilityLiveRegion="polite"
+        android:saveEnabled="false" android:textAppearance="@style/TextAppearance.TakTakM3.Body" />
+    <com.google.android.material.button.MaterialButton android:id="@+id/previewSessionRetry"
+        style="@style/Widget.TakTakM3.Button" android:text="@string/session_retry" android:visibility="gone" />
+    <ScrollView android:id="@+id/previewScroll" android:layout_width="match_parent" android:layout_height="0dp"
+        android:layout_weight="1" android:fillViewport="true" android:visibility="gone" android:saveEnabled="false">
+        <androidx.constraintlayout.widget.ConstraintLayout android:layout_width="match_parent"
+            android:layout_height="wrap_content" android:padding="16dp">
+            <LinearLayout android:id="@+id/previewContent" android:layout_width="0dp" android:layout_height="wrap_content"
+                android:orientation="vertical" app:layout_constraintWidth_max="@dimen/m3_form_max_width"
+                app:layout_constraintStart_toStartOf="parent" app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
+                <com.google.android.material.textview.MaterialTextView android:id="@+id/previewTitle"
+                    android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:text="@string/preview_title" android:textAppearance="@style/TextAppearance.TakTakM3.Headline" />
+                <com.google.android.material.card.MaterialCardView android:layout_width="match_parent"
+                    android:layout_height="wrap_content" android:layout_marginTop="16dp"
+                    app:cardCornerRadius="28dp" app:strokeWidth="0dp" app:cardElevation="0dp">
+                    <androidx.constraintlayout.widget.ConstraintLayout android:layout_width="match_parent" android:layout_height="wrap_content">
+                        <ImageView android:id="@+id/previewImage" android:layout_width="0dp" android:layout_height="0dp"
+                            android:contentDescription="@string/preview_image" android:scaleType="fitCenter" android:saveEnabled="false"
+                            app:layout_constraintStart_toStartOf="parent" app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintTop_toTopOf="parent" app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintDimensionRatio="1:1" />
+                    </androidx.constraintlayout.widget.ConstraintLayout>
+                </com.google.android.material.card.MaterialCardView>
+                <com.google.android.material.textfield.TextInputLayout android:id="@+id/captionLayout"
+                    style="@style/Widget.TakTakM3.Field" android:layout_marginTop="20dp" android:hint="@string/preview_caption">
+                    <com.google.android.material.textfield.TextInputEditText android:id="@+id/captionInput"
+                        android:layout_width="match_parent" android:layout_height="wrap_content" android:minHeight="56dp"
+                        android:inputType="textCapSentences|textMultiLine|textNoSuggestions" android:maxLines="3"
+                        android:saveEnabled="false" android:imeOptions="flagNoExtractUi" />
+                </com.google.android.material.textfield.TextInputLayout>
+                <com.google.android.material.textview.MaterialTextView android:id="@+id/captionCount"
+                    android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="end"
+                    android:layout_marginTop="4dp" android:textAppearance="@style/TextAppearance.Material3.BodySmall" />
+                <com.google.android.material.textview.MaterialTextView android:id="@+id/recipientHeading"
+                    android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="20dp"
+                    android:text="@string/preview_recipients" android:textAppearance="@style/TextAppearance.Material3.TitleLarge" />
+                <com.google.android.material.checkbox.MaterialCheckBox android:id="@+id/allFriendsCheck"
+                    android:layout_width="match_parent" android:layout_height="wrap_content" android:minHeight="48dp"
+                    android:text="@string/preview_all" android:saveEnabled="false" />
+                <com.google.android.material.textview.MaterialTextView android:id="@+id/friendsNotice"
+                    android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:textAppearance="@style/TextAppearance.TakTakM3.Body" android:accessibilityLiveRegion="polite" />
+                <androidx.recyclerview.widget.RecyclerView android:id="@+id/recipientsList"
+                    android:layout_width="match_parent" android:layout_height="240dp" android:visibility="gone"
+                    android:contentDescription="@string/preview_recipients" />
+                <com.google.android.material.button.MaterialButton android:id="@+id/friendsMoreButton"
+                    style="@style/Widget.TakTakM3.TextButton" android:text="@string/preview_more" android:visibility="gone" />
+                <com.google.android.material.textview.MaterialTextView android:layout_width="match_parent"
+                    android:layout_height="wrap_content" android:layout_marginTop="16dp"
+                    android:text="@string/preview_send_hint" android:textAppearance="@style/TextAppearance.TakTakM3.Body" />
+                <com.google.android.material.button.MaterialButton android:id="@+id/sendFriendsButton"
+                    style="@style/Widget.TakTakM3.Button" android:layout_marginTop="12dp"
+                    android:text="@string/preview_send" android:enabled="false" />
+                <com.google.android.material.button.MaterialButton android:id="@+id/savePrivateButton"
+                    style="@style/Widget.TakTakM3.TextButton" android:layout_marginTop="8dp" android:text="@string/preview_private" />
+            </LinearLayout>
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </ScrollView>
+</LinearLayout>

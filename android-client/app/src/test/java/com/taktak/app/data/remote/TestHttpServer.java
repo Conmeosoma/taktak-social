@@ -17,7 +17,11 @@ final class TestHttpServer implements AutoCloseable {
         final String path;
         final String authorization;
         final String body;
-        Incoming(String path, String authorization, String body) { this.path = path; this.authorization = authorization; this.body = body; }
+        final Map<String, String> headers;
+        Incoming(String path, String authorization, String body, Map<String, String> headers) {
+            this.path = path; this.authorization = authorization; this.body = body; this.headers = headers;
+        }
+        Incoming(String path, String authorization, String body) { this(path, authorization, body, Map.of()); }
         @Override public String toString() { return "Incoming[redacted]"; }
     }
     static final class Reply {
@@ -65,7 +69,8 @@ final class TestHttpServer implements AutoCloseable {
             int length = Integer.parseInt(headers.getOrDefault("content-length", "0"));
             if (length < 0 || length > 65536) { throw new IOException("Test body too large."); }
             byte[] bytes = input.readNBytes(length);
-            Reply reply = handler.handle(new Incoming(lines[0].split(" ")[1], headers.get("authorization"), new String(bytes, StandardCharsets.UTF_8)));
+            Reply reply = handler.handle(new Incoming(lines[0].split(" ")[1], headers.get("authorization"),
+                    new String(bytes, StandardCharsets.UTF_8), headers));
             byte[] output = reply.body.getBytes(StandardCharsets.UTF_8);
             String responseHeader = "HTTP/1.1 " + reply.status + " Test\r\nContent-Type: application/json\r\nContent-Length: "
                     + output.length + "\r\nConnection: close\r\n" + reply.headers + "\r\n";

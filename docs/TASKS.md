@@ -1,8 +1,8 @@
 # Taktak — Công việc và cổng xác nhận
 
-Cập nhật: 17/10/2026. Nguồn đối chiếu: [đặc tả](TAKTAK_PROJECT.md), [trạng thái](PROJECT_STATUS.md), [bàn giao](SESSION_HANDOFF.md) và lịch sử yêu cầu trong cuộc trò chuyện.
+Cập nhật: 18/10/2026. Nguồn đối chiếu: [đặc tả](TAKTAK_PROJECT.md), [trạng thái](PROJECT_STATUS.md), [bàn giao](SESSION_HANDOFF.md) và lịch sử yêu cầu trong cuộc trò chuyện.
 
-Quyền mới nhất: **5A — điều hướng bốn tab và hoàn thiện CameraX**, người dùng duyệt riêng sau M3E-04. **PASS local/USB**, chi tiết [QA_MAIN_CAMERA.md](QA_MAIN_CAMERA.md): build/lint debug/release,33unit thực chạy,33ca USB duy nhất đạt. History/Profile chỉ là điểm đến thông báo, chưa chức năng; Camera/Friends và session gate hoạt động thật. Dừng chờ duyệt riêng **5B**, không tự triển khai. Commit/push5b6b520 trước redesign theo yêu cầu riêng, không phải quyền tự commit/push các thay đổi M3E/5A.
+Quyền mới nhất: **5E — Lịch sử ảnh đã nhận (Received Moments History): PASS local/USB**, được duyệt riêng. Backend GET /api/moments?type=received native query index-friendly, stranger/self-moment isolation, pagination LIMIT 21 OFFSET. Android HistoryFragment M3E, HistoryViewModel LRU Bitmap cache 20MB, định dạng thời gian tiếng Việt, tải ảnh bảo mật qua JWT. Backend 104/104 verify, Android 45/45 unit tests, assemble/lint debug/release đạt 0 errors, 3 acceptance tests USB máy Xiaomi đạt. Xem [QA_MOMENT_HISTORY.md](QA_MOMENT_HISTORY.md). Dừng chờ duyệt riêng **Giai đoạn 6**. HEAD vẫn `ed9fde6`; bảo toàn toàn bộ thay đổi chưa commit.
 
 `PASS` chỉ áp dụng cho phạm vi đã có bằng chứng. `CHƯA DUYỆT` nghĩa là không được tự triển khai; `CHƯA XÁC MINH` không đồng nghĩa thất bại.
 
@@ -32,7 +32,11 @@ Quyền mới nhất: **5A — điều hướng bốn tab và hoàn thiện Came
 | 4B | Accept/reject, canonical friendship/list/unfriend/block/unblock | PASS backend local | Maven87/87 +JAR;22 HTTP/PostgreSQL tests mới/65 regression, race/rollback/receiver-only/idempotency; schema/Android giữ nguyên |
 | 4C | FriendsFragment nối API qua Repository/ViewModel | PASS local/USB/AVD | Search/incoming/friends và actions;28 unit,6 USB cuối,7 regression,offline/retry,A/USB↔B/AVD+C;build/lint;avatar local, chưa recipient-aware media5C |
 | 5A | ViewPager2/bốn tab, CameraX quyền/đổi camera/flash/lifecycle/rotation | PASS local/USB | 33JVM,33ca USB duy nhất,build/lint debug/release;QA_MAIN_CAMERA;History/Profile chưa chức năng |
-| 5B–8 | Các tiểu bước MVP tiếp theo | CHƯA DUYỆT / CHƯA NGHIỆM THU | Đề xuất duy nhất5B; dừng chờ phê duyệt, không tự chuyển |
+| 5B | Cache JPEG/crop/mirror; Preview/chụp lại/caption50/chọn bạn | PASS local/USB | 35 JVM,32 USB sau retest;21 bạn phân trang,đổi phiên,IME/offline/JWT;QA_PREVIEW |
+| 5C | Gửi ảnh cho bạn bè; nén bounded/private storage/recipient authorization | PASS local/USB | 95backend,39JVM,15USB; chọn2/đủ21bạn,100recipient/race/rollback/EXIF/JWT/offline;QA_MOMENT_SHARING |
+| 5D | Tiến trình upload, retry & Idempotency Key | PASS local/USB | 99backend, 42JVM, 3USB; DB V2 index, SHA-256 fingerprint, CountingRequestBody 0–100%, SavedStateHandle retry; QA_MOMENT_IDEMPOTENCY |
+| 5E | Lịch sử ảnh đã nhận (Received Moments History) | PASS local/USB | 104backend, 45JVM, 3USB; HistoryFragment M3E, LRU Bitmap cache 20MB, JWT image load, relative time, native index query; QA_MOMENT_HISTORY |
+| 6–8 | Các giai đoạn tiếp theo (FCM, Widget, Polish) | CHƯA DUYỆT / CHƯA NGHIỆM THU | Đề xuất duy nhất Giai đoạn 6 (Firebase Cloud Messaging & Real-time Sync); chờ duyệt |
 
 ## Nghiệm thu phiên khôi phục trước khi duyệt 0B (lịch sử)
 
