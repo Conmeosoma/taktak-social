@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Chỉ Main/Camera sử dụng theme này; không đổi giao diện Auth. -->
+    <style name="Theme.TakTak.Camera" parent="Theme.TakTak">
+        <item name="colorPrimary">@color/camera_primary</item>
+        <item name="colorOnPrimary">@color/camera_on_primary</item>
+        <item name="colorSurface">@color/camera_surface</item>
+        <item name="colorOnSurface">@color/camera_ink</item>
+        <item name="colorOnSurfaceVariant">@color/camera_muted</item>
+        <item name="colorOutline">@color/camera_border</item>
+        <item name="android:colorBackground">@color/camera_background</item>
+        <item name="android:windowBackground">@color/camera_background</item>
+        <item name="android:fontFamily">sans-serif</item>
+    </style>
+    <style name="TextAppearance.TakTak.Camera.Title" parent="TextAppearance.Material3.TitleLarge">
+        <item name="android:textColor">@color/camera_ink</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
+        <item name="android:textSize">24sp</item>
+    </style>
+    <style name="TextAppearance.TakTak.Camera.Body" parent="TextAppearance.Material3.BodyMedium">
+        <item name="android:textColor">@color/camera_muted</item>
+        <item name="android:textSize">14sp</item>
+    </style>
+    <style name="Widget.TakTak.Camera.Button" parent="Widget.Material3.Button">
+        <item name="android:minHeight">56dp</item>
+        <item name="cornerRadius">16dp</item>
+        <item name="android:textColor">@color/camera_on_primary</item>
+        <item name="backgroundTint">@color/camera_primary</item>
+    </style>
+</resources>

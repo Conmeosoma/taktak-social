@@ -1,6 +1,8 @@
-# Taktak — Hợp đồng lỗi API (2D)
+# Taktak — Hợp đồng lỗi API
 
-Phạm vi: backend auth và hồ sơ đã triển khai; chốt để client giai đoạn 3 sử dụng. Không đổi stack, định danh, JWT/refresh policy hoặc success DTO của 2A–2C.
+Phạm vi gốc2D: backend auth và hồ sơ; bổ sung4A cho search/lời mời tại [FRIEND_API.md](FRIEND_API.md). Mã media3D được ghi tại [MOMENT_API.md](MOMENT_API.md). Không đổi stack, định danh, JWT/refresh policy hoặc success DTO của2A–2C.
+
+Bổ sung4B: accept/reject, friendship/unfriend và block/unblock tại [FRIEND_RELATIONS_API.md](FRIEND_RELATIONS_API.md); lỗi giữ cùng JSON/no-store, không lộ request cho người không phải receiver.
 
 ## JSON chung
 
@@ -29,14 +31,22 @@ Response lỗi của MVC và Spring Security dùng `application/json`, không re
 | HTTP | code | Tình huống |
 |---|---|---|
 | 400 | VALIDATION_ERROR | Body thiếu/sai cấu trúc/JSON hỏng hoặc validation không đạt |
+| 400 | FRIEND_REQUEST_SELF | Không được gửi lời mời cho chính mình |
+| 400 | FRIEND_SELF | Không được hủy bạn với chính mình |
+| 400 | BLOCK_SELF | Không được chặn/bỏ chặn chính mình |
 | 401 | UNAUTHORIZED | Thiếu/sai/giả/hết hạn access; login sai; refresh không hợp lệ; JWT subject không có user |
 | 403 | FORBIDDEN | Đã xác thực nhưng bị chính sách security từ chối, ví dụ actuator env hoặc `/error` |
 | 404 | NOT_FOUND | Route/tài nguyên không tồn tại sau khi qua xác thực |
+| 404 | FRIEND_TARGET_UNAVAILABLE | Receiver không tồn tại hoặc block hai chiều; không phân biệt lý do |
+| 404 | FRIEND_REQUEST_NOT_FOUND | Lời mời không tồn tại hoặc không thuộc receiver đang gọi |
 | 405 | METHOD_NOT_ALLOWED | Route có nhưng không hỗ trợ method đã gọi; header `Allow` nêu method hỗ trợ |
 | 406 | NOT_ACCEPTABLE | `Accept` không hỗ trợ response JSON; lỗi vẫn trả JSON để client đọc được |
 | 409 | ACCOUNT_CONFLICT | DB unique email hoặc username; không tiết lộ constraint hay trường nào đã trùng |
+| 409 | FRIEND_REQUEST_CONFLICT | Đã có pending bất kỳ chiều nào hoặc đã là bạn |
+| 409 | FRIEND_REQUEST_ALREADY_RESPONDED | Quyết định khác với trạng thái accepted/rejected đã chốt |
 | 415 | UNSUPPORTED_MEDIA_TYPE | Endpoint yêu cầu JSON nhưng Content-Type không được hỗ trợ |
 | 429 | LOGIN_RATE_LIMITED | Quota login IP/account; header `Retry-After: 60` |
+| 429 | SEARCH_RATE_LIMITED | Quota search user/IP hoặc bộ đếm đạt capacity; `Retry-After: 60` |
 | 500 | INTERNAL_ERROR | Lỗi xử lý nội bộ, kể cả cấp JWT thất bại; message chung |
 
 Thứ tự xử lý quan trọng: request tới API protected chưa có JWT hợp lệ trả 401 trước khi xét route/body, không bảo đảm 404/405/400 cho request chưa xác thực. Auth chỉ mở đúng bốn POST register/login/refresh/logout; GET các route auth vẫn cần JWT rồi mới trả 405. Không mở `/error` hoặc endpoint thay đổi thời gian để làm test. Handler MVC xử lý trực tiếp 404/405, không để error dispatch đổi chúng thành 403.

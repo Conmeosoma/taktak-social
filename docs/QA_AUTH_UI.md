@@ -2,6 +2,8 @@
 
 Ngày kiểm tra: 16/10/2026. Người dùng duyệt riêng 3A và yêu cầu skill `android_ui_verification`. Kết quả: **PASS trong phạm vi giao diện local**, chưa auth đầu cuối.
 
+Đây là mốc lịch sử 3A. Form đã nối API và phiên trong 3B; kết quả mới tại [QA_ANDROID_AUTH.md](QA_ANDROID_AUTH.md). Các mô tả “chưa nối API” bên dưới phản ánh thời điểm 3A.
+
 ## Phạm vi đã triển khai
 
 - LoginActivity/RegisterActivity Java + XML, ViewBinding, Material TextInputLayout, hiện/ẩn password, IME Next/Done, form cuộn và light/dark theo theme hiện có.

@@ -1,6 +1,6 @@
 # Taktak — Đăng nhập và phiên xác thực (2B)
 
-Ngày nghiệm thu 2B: 16/10/2026. Người dùng duyệt riêng “triển khai 2B”. Tài liệu này ghi hợp đồng phiên của 2B; hồ sơ `/api/users/me` được triển khai tiếp ở 2C, xem [PROFILE_API.md](PROFILE_API.md). Chưa Android auth hoặc deploy.
+Ngày nghiệm thu 2B: 16/10/2026. Người dùng duyệt riêng “triển khai 2B”. Tài liệu này ghi hợp đồng phiên của 2B; hồ sơ `/api/users/me` được triển khai tiếp ở 2C, xem [PROFILE_API.md](PROFILE_API.md). Android auth được nối ở 3B, xem [QA_ANDROID_AUTH.md](QA_ANDROID_AUTH.md); chưa deploy.
 
 ## Endpoint
 

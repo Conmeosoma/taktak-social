@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="camera_private_badge">Chỉ mình tôi</string>
+    <string name="camera_subtitle">Giữ lại một khoảnh khắc của riêng bạn.</string>
+    <string name="camera_shutter_label">Chụp khoảnh khắc</string>
+    <string name="camera_permission_hint">Cho phép Camera để bắt đầu chụp.</string>
+    <string name="camera_status_ready">Khoảnh khắc riêng tư</string>
+    <string name="camera_status_busy">Đang lưu khoảnh khắc…</string>
+    <string name="camera_status_success">Đã lưu riêng tư</string>
+    <string name="camera_status_error">Chưa thể hoàn tất</string>
+</resources>

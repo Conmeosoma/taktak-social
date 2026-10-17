@@ -35,13 +35,16 @@ public abstract class AuthFormActivity extends AppCompatActivity {
         viewModel = new ViewModelProvider(this).get(AuthViewModel.class);
         viewModel.state().observe(this, state -> {
             setLoading(state.loading);
-            notice.setVisibility(state.message == 0 ? View.GONE : View.VISIBLE);
-            if (state.message != 0) {
-                notice.setText(state.retryAfterSeconds > 0 ? getString(state.message, state.retryAfterSeconds) : getString(state.message));
+            int message = state.message == 0 && !state.loading ? initialNotice() : state.message;
+            notice.setVisibility(message == 0 ? View.GONE : View.VISIBLE);
+            if (message != 0) {
+                notice.setText(state.retryAfterSeconds > 0 ? getString(message, state.retryAfterSeconds) : getString(message));
             }
             if (state.success) { clearPasswords.run(); }
         });
     }
+
+    protected int initialNotice() { return 0; }
 
     protected boolean ensureNetworkPermission() {
         if (BuildConfig.DEBUG && Build.VERSION.SDK_INT >= 37

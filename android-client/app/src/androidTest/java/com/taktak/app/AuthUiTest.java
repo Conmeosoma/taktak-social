@@ -21,22 +21,23 @@ import static androidx.test.espresso.matcher.ViewMatchers.*;
 
 @RunWith(AndroidJUnit4.class)
 public class AuthUiTest {
-    @Before public void allowDebugLocalNetwork() {
+    @Before public void allowDebugLocalNetwork() throws Exception {
         if (android.os.Build.VERSION.SDK_INT >= 37) {
             var instrumentation = androidx.test.platform.app.InstrumentationRegistry.getInstrumentation();
             instrumentation.getUiAutomation().grantRuntimePermission("com.taktak.app", "android.permission.ACCESS_LOCAL_NETWORK");
         }
+        com.taktak.app.data.AuthGraph.repository(androidx.test.platform.app.InstrumentationRegistry
+                .getInstrumentation().getTargetContext()).logout();
     }
     @Test public void launcherNavigatesLoginRegisterAndBackWithoutAuthenticating() {
         try (ActivityScenario<MainActivity> scenario = ActivityScenario.launch(MainActivity.class)) {
-            onView(withId(R.id.loginButton)).perform(click());
+            SessionRoutingTest.awaitView(R.id.emailInput);
             onView(withId(R.id.emailInput)).check(matches(isDisplayed()));
             onView(withId(R.id.switchButton)).perform(scrollTo(), click());
             onView(withId(R.id.displayNameInput)).check(matches(isDisplayed()));
             onView(withId(R.id.switchButton)).perform(scrollTo(), click());
             onView(withId(R.id.emailInput)).check(matches(isDisplayed()));
-            androidx.test.espresso.Espresso.pressBack();
-            onView(withId(R.id.bootstrapMessage)).check(matches(withText("Taktak")));
+            onView(withId(R.id.emailInput)).check(matches(isDisplayed()));
         }
     }
 
@@ -147,7 +148,22 @@ public class AuthUiTest {
     @Test public void confirmationFieldStaysAboveKeyboardWhenFocused() {
         try (ActivityScenario<RegisterActivity> scenario = ActivityScenario.launch(RegisterActivity.class)) {
             onView(withId(R.id.confirmPasswordInput)).perform(scrollTo(), click());
-            // Chờ animation IME, không delay hoặc giả lập request mạng.
+            // Chờ đúng trạng thái IME thay vì giả định máy ảo mở bàn phím trong 1,2 giây.
+            scenario.onActivity(activity -> {
+                var controller = androidx.core.view.ViewCompat.getWindowInsetsController(activity.findViewById(android.R.id.content));
+                assertNotNull(controller);
+                controller.show(androidx.core.view.WindowInsetsCompat.Type.ime());
+            });
+            long deadline = android.os.SystemClock.elapsedRealtime() + 10000;
+            java.util.concurrent.atomic.AtomicBoolean keyboardVisible = new java.util.concurrent.atomic.AtomicBoolean();
+            while (!keyboardVisible.get() && android.os.SystemClock.elapsedRealtime() < deadline) {
+                scenario.onActivity(activity -> {
+                    var insets = androidx.core.view.ViewCompat.getRootWindowInsets(activity.findViewById(android.R.id.content));
+                    keyboardVisible.set(insets != null && insets.isVisible(androidx.core.view.WindowInsetsCompat.Type.ime()));
+                });
+                android.os.SystemClock.sleep(100);
+            }
+            assertTrue("IME must actually be visible before checking viewport", keyboardVisible.get());
             android.os.SystemClock.sleep(1200);
             scenario.onActivity(activity -> {
                 View root = activity.findViewById(android.R.id.content);
@@ -166,7 +182,7 @@ public class AuthUiTest {
         }
     }
 
-    @Test public void loginUsesViewModelAndSavesRealSessionWithoutCameraRouting() throws Exception {
+    @Test public void loginUsesViewModelAndRoutesToCameraWithSavedSession() throws Exception {
         var context = androidx.test.platform.app.InstrumentationRegistry.getInstrumentation().getTargetContext();
         String username = "loginui_" + java.util.UUID.randomUUID().toString().replace("-", "");
         String password = java.util.UUID.randomUUID().toString();
@@ -183,12 +199,8 @@ public class AuthUiTest {
                 activity.findViewById(R.id.submitButton).performClick();
                 activity.findViewById(R.id.submitButton).performClick();
             });
-            awaitNotice(scenario, R.string.auth_login_success);
+            SessionRoutingTest.awaitView(R.id.cameraTitle);
             capture("login-success.png");
-            scenario.onActivity(activity -> {
-                assertFalse(activity.isFinishing());
-                assertEquals("", ((EditText) activity.findViewById(R.id.passwordInput)).getText().toString());
-            });
             var store = new com.taktak.app.data.session.EncryptedSessionStore(context, BuildConfig.BASE_URL);
             assertNotNull(store.load());
             var restored = new com.taktak.app.data.remote.ApiClient(BuildConfig.BASE_URL, store);

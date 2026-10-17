@@ -8,6 +8,7 @@ import com.taktak.app.R;
 import com.taktak.app.databinding.ActivityLoginBinding;
 
 public class LoginActivity extends AuthFormActivity {
+    public static final String SESSION_NOTICE = "session_notice";
     private ActivityLoginBinding binding;
 
     @Override
@@ -16,7 +17,12 @@ public class LoginActivity extends AuthFormActivity {
         binding = ActivityLoginBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
         configureInsets(binding.getRoot());
-        observeAuth(binding.formNotice, () -> binding.passwordInput.setText(""));
+        observeAuth(binding.formNotice, () -> {
+            binding.passwordInput.setText("");
+            startActivity(new Intent(this, com.taktak.app.MainActivity.class)
+                    .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK));
+            finish();
+        });
         binding.submitButton.setOnClickListener(view -> submit());
         binding.switchButton.setOnClickListener(view -> {
             if (!isLoading()) { startActivity(new Intent(this, RegisterActivity.class)); }
@@ -25,6 +31,12 @@ public class LoginActivity extends AuthFormActivity {
             if (action == EditorInfo.IME_ACTION_DONE) { submit(); return true; }
             return false;
         });
+    }
+
+    @Override protected int initialNotice() {
+        int notice = getIntent().getIntExtra(SESSION_NOTICE, 0);
+        return notice == R.string.session_logged_out || notice == R.string.session_logout_local_only
+                || notice == R.string.auth_invalid_credentials ? notice : 0;
     }
 
     private void submit() {

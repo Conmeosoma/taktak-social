@@ -55,6 +55,7 @@ public final class AuthViewModel extends AndroidViewModel {
             } catch (ApiFailure failure) {
                 int message;
                 switch (failure.kind) {
+                    case NETWORK: message = R.string.auth_network_error; break;
                     case UNAUTHORIZED: message = R.string.auth_invalid_credentials; break;
                     case CONFLICT: message = R.string.auth_account_conflict; break;
                     case VALIDATION: message = R.string.auth_server_validation; break;

@@ -13,6 +13,7 @@ public final class LocalSmokeServer {
 
     public static void main(String[] args) throws Exception {
         Path root = Files.createDirectories(Path.of("target", "smoke-postgres"));
+        Path images = Files.createTempDirectory(root, "private-images-");
         int port = Integer.parseInt(System.getProperty("taktak.smoke.port", "0"));
         byte[] testKey = new byte[32];
         new java.security.SecureRandom().nextBytes(testKey);
@@ -28,13 +29,29 @@ public final class LocalSmokeServer {
                              "--spring.datasource.url=" + postgres.getJdbcUrl("postgres", "postgres"),
                              "--spring.datasource.username=postgres",
                              "--spring.datasource.password=",
+                             "--taktak.storage.root=" + images.toAbsolutePath(),
                              "--server.address=127.0.0.1",
                              "--server.port=" + port,
                              "--debug=false",
                              "--logging.level.root=WARN")) {
             System.out.println("SMOKE_HEALTH=http://127.0.0.1:" + context.getWebServer().getPort() + "/actuator/health");
-            System.out.println("Temporary test database only. Press Enter to stop and discard this test cluster.");
-            System.in.read();
+            System.out.println("Temporary test database only. Enter stops; offline/online toggles only this test HTTP connector.");
+            var console = new java.io.BufferedReader(new java.io.InputStreamReader(System.in));
+            String command;
+            var connector = ((org.springframework.boot.web.embedded.tomcat.TomcatWebServer) context.getWebServer()).getTomcat().getConnector();
+            while ((command = console.readLine()) != null && !command.isBlank()) {
+                if ("offline".equals(command)) { connector.pause(); connector.stop(); System.out.println("SMOKE_HTTP_OFFLINE"); }
+                else if ("online".equals(command)) { connector.start(); connector.resume(); System.out.println("SMOKE_HTTP_ONLINE"); }
+                else { System.out.println("Unknown smoke command; use offline, online or Enter."); }
+            }
+            var jdbc = context.getBean(org.springframework.jdbc.core.JdbcTemplate.class);
+            int rows = jdbc.queryForObject("SELECT count(*) FROM moments", Integer.class);
+            int recipients = jdbc.queryForObject("SELECT count(*) FROM moment_recipients", Integer.class);
+            try (var files = Files.list(images)) {
+                long count = files.count();
+                System.out.println("SMOKE_MEDIA_ROWS=" + rows + " FILES=" + count + " RECIPIENTS=" + recipients);
+                if (rows != count) { throw new IllegalStateException("Smoke media storage and metadata are inconsistent."); }
+            }
         }
     }
 }

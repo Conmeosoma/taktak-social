@@ -24,6 +24,12 @@ public final class AuthRepository {
 
     public UserProfile profile() throws IOException { return checked(client.users.me().execute()); }
 
+    public boolean hasSession() { return client.sessions.snapshot() != null; }
+
+    public void logout() throws IOException { client.sessions.logout(); }
+    public MomentRepository moments() { return new MomentRepository(client); }
+    public FriendRepository friends() { return new FriendRepository(client); }
+
     private UserProfile checked(Response<UserProfile> response) throws IOException {
         if (!response.isSuccessful()) { throw ApiFailure.from(response); }
         UserProfile profile = response.body();

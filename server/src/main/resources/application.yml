@@ -1,6 +1,11 @@
 spring:
   application:
     name: taktak-server
+  servlet:
+    multipart:
+      max-file-size: 5MB
+      max-request-size: 6MB
+      file-size-threshold: 0
   datasource:
     url: ${DB_URL}
     username: ${DB_USERNAME}

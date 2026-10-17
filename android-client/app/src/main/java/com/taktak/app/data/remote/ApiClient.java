@@ -15,6 +15,8 @@ import retrofit2.converter.gson.GsonConverterFactory;
 public final class ApiClient {
     public final AuthApi auth;
     public final UserApi users;
+    public final MomentApi moments;
+    public final FriendApi friends;
     public final SessionManager sessions;
     private final OkHttpClient apiHttp;
     private final HttpUrl base;
@@ -51,6 +53,8 @@ public final class ApiClient {
                     .tag(Session.class, next).build();
         }).build();
         users = retrofit(baseUrl, apiHttp).create(UserApi.class);
+        moments = retrofit(baseUrl, apiHttp).create(MomentApi.class);
+        friends = retrofit(baseUrl, apiHttp).create(FriendApi.class);
     }
 
     private boolean protectedTarget(HttpUrl target) {

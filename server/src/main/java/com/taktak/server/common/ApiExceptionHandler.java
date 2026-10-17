@@ -23,6 +23,36 @@ import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 @RestControllerAdvice
 public class ApiExceptionHandler {
+    @ExceptionHandler(com.taktak.server.friend.FriendFailure.class)
+    ResponseEntity<ApiError> friendFailure(com.taktak.server.friend.FriendFailure failure, HttpServletRequest request) {
+        return error(failure.status, failure.code, "Không thể xử lý yêu cầu kết bạn hoặc dữ liệu tìm kiếm.", request);
+    }
+
+    @ExceptionHandler(com.taktak.server.friend.SearchThrottled.class)
+    ResponseEntity<ApiError> searchThrottled(HttpServletRequest request) {
+        return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).contentType(MediaType.APPLICATION_JSON)
+                .header("Retry-After", "60").body(new ApiError(clock.instant(), 429, "SEARCH_RATE_LIMITED",
+                        "Quá nhiều yêu cầu tìm kiếm. Vui lòng thử lại sau.", request.getRequestURI()));
+    }
+
+    @ExceptionHandler(com.taktak.server.moment.MomentFailure.class)
+    ResponseEntity<ApiError> momentFailure(com.taktak.server.moment.MomentFailure failure, HttpServletRequest request) {
+        return error(failure.status, failure.code, "Không thể xử lý ảnh hoặc bạn không có quyền truy cập.", request);
+    }
+
+    @ExceptionHandler(org.springframework.web.multipart.MaxUploadSizeExceededException.class)
+    ResponseEntity<ApiError> uploadTooLarge(HttpServletRequest request) {
+        return error(HttpStatus.PAYLOAD_TOO_LARGE, "IMAGE_TOO_LARGE", "Ảnh vượt quá dung lượng cho phép.", request);
+    }
+
+    @ExceptionHandler({org.springframework.web.multipart.support.MissingServletRequestPartException.class,
+            org.springframework.web.method.annotation.MethodArgumentTypeMismatchException.class,
+            org.springframework.web.bind.MissingServletRequestParameterException.class,
+            org.springframework.web.multipart.MultipartException.class})
+    ResponseEntity<ApiError> invalidMultipart(Exception ignored, HttpServletRequest request) {
+        return error(HttpStatus.BAD_REQUEST, "VALIDATION_ERROR", "Dữ liệu yêu cầu không hợp lệ.", request);
+    }
+
     private final Clock clock;
 
     public ApiExceptionHandler(Clock clock) {

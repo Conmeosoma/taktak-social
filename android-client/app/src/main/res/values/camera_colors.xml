@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="camera_background">#FAF9F7</color>
+    <color name="camera_surface">#FFFFFF</color>
+    <color name="camera_soft">#FFF1F3</color>
+    <color name="camera_primary">#FF6483</color>
+    <color name="camera_on_primary">#222530</color>
+    <color name="camera_ink">#222530</color>
+    <color name="camera_muted">#5C5F6A</color>
+    <color name="camera_border">#E7E2E4</color>
+    <color name="camera_success_surface">#EAF5ED</color>
+    <color name="camera_success_ink">#245438</color>
+    <color name="camera_error_surface">#FFF0ED</color>
+    <color name="camera_error_ink">#913C30</color>
+</resources>

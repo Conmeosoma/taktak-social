@@ -1,8 +1,8 @@
 # Taktak — Công việc và cổng xác nhận
 
-Cập nhật: 16/10/2026. Nguồn đối chiếu: [đặc tả](TAKTAK_PROJECT.md), [trạng thái](PROJECT_STATUS.md), [bàn giao](SESSION_HANDOFF.md) và lịch sử yêu cầu trong cuộc trò chuyện.
+Cập nhật: 17/10/2026. Nguồn đối chiếu: [đặc tả](TAKTAK_PROJECT.md), [trạng thái](PROJECT_STATUS.md), [bàn giao](SESSION_HANDOFF.md) và lịch sử yêu cầu trong cuộc trò chuyện.
 
-Quyền mới nhất: người dùng duyệt riêng **3A**, yêu cầu skill android_ui_verification. Không tự chuyển sang 3B; quyền AUTO CONTINUE cũ chỉ áp dụng 0–1.
+Quyền mới nhất: **4C — FriendsFragment nối API qua Repository/ViewModel**. **PASS local/USB/AVD**, chi tiết [QA_FRIENDS.md](QA_FRIENDS.md). Backend verify87/87 và28 unit chạy lại;6 ca USB cuối/7 regression/2 vai hai thiết bị đạt. Chưa được chuyển5A, redesign màn khác hoặc commit/push/deploy.
 
 `PASS` chỉ áp dụng cho phạm vi đã có bằng chứng. `CHƯA DUYỆT` nghĩa là không được tự triển khai; `CHƯA XÁC MINH` không đồng nghĩa thất bại.
 
@@ -20,7 +20,14 @@ Quyền mới nhất: người dùng duyệt riêng **3A**, yêu cầu skill and
 | 2C | GET/PUT hồ sơ cá nhân, chỉ sửa displayName | PASS | 36/36 test, 7 case hồ sơ mới; isolation A/B, mass assignment, validation, JWT, DTO; HTTP smoke ngoài test profile và JAR PASS |
 | 2D | Integration test/curl cho auth/hồ sơ, chốt lỗi | PASS local | 39/39 test và JAR, curl thật cho expiry/forgery/duplicate/rotation/logout; hợp đồng lỗi chung đã kiểm tra |
 | 3A | Login/Register Java XML, ViewBinding/Material, validation/loading | PASS UI local | Build/lint debug/release; 8 unit/12 emulator test; screenshot light/dark/required/IME, sửa keyboard che field; chưa nối API |
-| 3B–8 | Các tiểu bước MVP tiếp theo | CHƯA DUYỆT / CHƯA NGHIỆM THU | Không suy đoán hoàn thành; chỉ chọn từng tiểu bước khi người dùng yêu cầu |
+| 3B | Auth API/Repository/ViewModel, phiên mã hóa và refresh đồng bộ | PASS local | Build/lint debug/release; 20 unit + 17 emulator test với backend thật; xem QA_ANDROID_AUTH |
+| 3C | Điều hướng phiên, Camera destination và logout UI | PASS | Local lịch sử 20 unit/25 emulator; USB mới 6/6 test chọn lọc, cold-process restore/logout, 5 screenshot; xem QA_SESSION_ROUTING |
+| 3D | CameraX → upload chỉ mình tôi → GET bằng JWT | PASS | Maven46/46; Android build/lint +20 unit;4 ca media +1 lặp đủ sáng +6 auth regression máy thật PASS |
+| UI-CAMERA | Redesign Camera sau3D, không thêm chức năng | PASS local/USB | Python3.12.10/CLI skill; Java/XML theme Camera riêng, build/lint +20 unit;13 ca USB/14 lượt đạt gồm quyền, sáng/tối/busy, ảnh thật/offline/retry và logout; xem QA_CAMERA_REDESIGN |
+| 4A | Search username, gửi/list pending incoming server | PASS backend local | Maven65/65 +JAR;19 ca mới gồm quota/block/DTO/isolation/concurrency/rollback,46 regression; schema/Android không đổi |
+| 4B | Accept/reject, canonical friendship/list/unfriend/block/unblock | PASS backend local | Maven87/87 +JAR;22 HTTP/PostgreSQL tests mới/65 regression, race/rollback/receiver-only/idempotency; schema/Android giữ nguyên |
+| 4C | FriendsFragment nối API qua Repository/ViewModel | PASS local/USB/AVD | Search/incoming/friends và actions;28 unit,6 USB cuối,7 regression,offline/retry,A/USB↔B/AVD+C;build/lint;avatar local, chưa recipient-aware media5C |
+| 5A–8 | Các tiểu bước MVP tiếp theo | CHƯA DUYỆT / CHƯA NGHIỆM THU | Đề xuất duy nhất5A; dừng chờ phê duyệt, không tự chuyển |
 
 ## Nghiệm thu phiên khôi phục trước khi duyệt 0B (lịch sử)
 
@@ -117,6 +124,70 @@ Không tạo lại project/app khi chưa đối chiếu tài nguyên đã có; k
 - [x] Bản cuối 8 unit + 12 instrumentation PASS, 0 failures/errors/skipped; build/lint debug và release PASS.
 - [x] Manifest release/ignore/credentials và hồ sơ QA/trạng thái/bàn giao được kiểm tra; không commit/push/deploy.
 
-Tiểu bước đề xuất tiếp theo duy nhất: **3B — nối AuthApi/Repository/ViewModel, phiên mã hóa và refresh đồng bộ**. Chưa được duyệt.
+## 3B — đã được duyệt và nghiệm thu local
+
+- [x] Khôi phục Git/code: HEAD 8766f26 đã chứa triển khai; giữ nguyên commit/source và kiểm tra lại thay vì tạo lại.
+- [x] AuthApi/UserApi, DTO Gson, ApiClient tách auth/protected và Repository gọi server thật.
+- [x] ViewModel/LiveData + worker, loading/duplicate guard, lỗi local an toàn, cooldown Retry-After.
+- [x] EncryptedSharedPreferences/Keystore, ghi cặp token, origin binding, backup exclusion, fail-closed.
+- [x] Bearer đúng đích; refresh đồng bộ, tối đa một replay; clear phiên khi revoke/401, guard kết quả trễ sau đổi phiên.
+- [x] Chạy lại 20 unit test, 0 failures/errors/skipped; 17 instrumentation PASS trên AVD read-only/backend/PostgreSQL tạm thật.
+- [x] Build/lint debug/release PASS; 0 lint errors, 3 warnings được ghi rõ, không suppress.
+- [x] Xem screenshot UI thành công/lỗi, rà policy/credentials và cập nhật hồ sơ; không commit/push/deploy.
+
+Giới hạn chưa chạy và lệnh kiểm thử tại [QA_ANDROID_AUTH.md](QA_ANDROID_AUTH.md). Nghiệm thu auth máy thật/đóng mở app/routing còn ở 3C; không đánh dấu toàn giai đoạn 3 hoàn tất.
+
+## 3C — PASS local và nghiệm thu máy thật Android 15
+
+- [x] Đọc tài liệu/Git/source/skill; giữ 7 hồ sơ dirty từ 3B.
+- [x] Launcher kiểm tra phiên trên worker, verify me/refresh trước Camera; phiên vắng/revoke về Login.
+- [x] Login/logout dọn task/back stack, Camera destination placeholder chưa chụp ảnh.
+- [x] Lỗi kết nối/read timeout/permission/storage có UI; retry hồi phục và logout local khi mạng lỗi.
+- [x] Không báo xóa token thành công khi disk clear lỗi, giữ gate qua recreate và thử logout lại.
+- [x] Sửa thông báo bị initial LiveData che, đồng bộ test IME theo visibility thực thay vì delay cố định.
+- [x] Build/lint debug/release PASS (0 errors, 3 warnings); 20 unit + 25 emulator test PASS, fixture cold start 1/1 và ADB force-stop/relaunch/logout PASS.
+- [x] Xem screenshot, review bảo mật và cập nhật hồ sơ; không đổi backend/migration/Firebase/dependency.
+- [x] Điện thoại USB kết nối lại, không có phiên auth trước test; build/cập nhật debug giữ dữ liệu và cold launcher → Login trên máy thật PASS.
+- [x] Máy thật: login đúng/sai, encrypted persistence, cold-process restore, mất kết nối/retry, logout/root task và revoke refresh PASS. Hai test launcher + bốn AuthBackendTest = 6/6 PASS; xác minh lại cold launcher về Login sau logout. Không tuyên bố suite cũ 25 test máy thật đạt; suite mặc định mới 27 test chưa chạy toàn bộ.
+
+Mốc3C đã được duyệt tiếp3D sau đó; xem nghiệm thu3D bên dưới.
+
+## 3D — PASS backend local và Android15 qua USB
+
+- [x] Đọc đặc tả/quyết định/trạng thái/Git/source, bảo toàn thay đổi3B/3C/UI review.
+- [x] CameraX sau, xin/từ chối quyền an toàn, lifecycle, rotation/crop1:1/JPEG có giới hạn; không gallery.
+- [x] POST multipart owner-only, sender từ JWT, không recipient/FCM; JPEG thực tế/caption/dung lượng/pixel được kiểm tra.
+- [x] Private storage tên server sinh, rollback dọn file, V1 không đổi; GET kiểm tra owner/deleted từng lần, B404/thiếu hoặc saiJWT401.
+- [x] Repository/ViewModel dùng transport/refresh hiện có, chốt generation chống media qua phiên, không fake ảnh local; retry known id chỉ GET.
+- [x] Maven46/46 +JAR;20 unit, build/lint debug/release0 errors/3 warnings;4 ca media mới máy thật và6 auth regression PASS, lặp chụp đủ sáng1/1 PASS.
+- [x] Xem screenshot, kiểm tra cold logout không còn ảnh/token; smoke4row/4file/0recipient, dừng runner/gỡ reverse; giữ dữ liệu cá nhân.
+- [x] Ghi giới hạn unknown POST response có thể tạo thêm moment; idempotency hoàn chỉnh ở5D, chưa coi31 test mặc định đã chạy.
+
+Mốc3D đã được duyệt tiếp4A sau UI-CAMERA. API/hướng dẫn/giới hạn3D tại [MOMENT_API.md](MOMENT_API.md), [QA_SELF_MOMENT.md](QA_SELF_MOMENT.md).
+
+## 4A — PASS backend local
+
+- [x] Đọc toàn bộ đặc tả/quyết định, trạng thái/bàn giao/Git/source; bảo toàn dirty/untracked trước phiên.
+- [x] GET users/search prefix chuẩn hóa, underscore literal, max20/public DTO, loại self/block hai chiều; quota user/IP bounded và Retry-After.
+- [x] POST friends/requests receiverId, sender JWT; self/absent/block/friendship/duplicate checks; khóa cặp PostgreSQL và unique V1 chống race.
+- [x] GET incoming chỉ người nhận/pending, lọc block hai chiều, page20/sort ổn định/hasNext; không email/hash/đường dẫn private.
+- [x]14 integration +5 limiter tests mới,46 regression; Maven verify65/65,0 failures/errors/skipped +JAR,44.283giây.
+- [x] Ghi lỗi fixture orphan và sửa test đúng nguyên nhân; không bỏ FK/JWT assertion, không dùng DB cá nhân.
+- [x] Cập nhật hợp đồng/API_ERRORS/quyết định/trạng thái/handoff; không Android/migration/dependency hoặc commit/push/deploy.
+
+Mốc4A đã được duyệt tiếp4B riêng.
+
+## 4B — PASS backend local
+
+- [x] Đọc toàn bộ đặc tả/Git, quyết định và source4A; bảo toàn dirty/untracked, không sửa Android hoặc migration.
+- [x] PUT accept/reject chỉ receiver, hidden404; status/responded_at/friendship transaction, canonical UUID PostgreSQL, retry không resurrect.
+- [x] GET friends page20/hasNext/public DTO, block filter hai chiều; DELETE friend chỉ cặp actor–target/idempotent.
+- [x] POST block atomically ghi block/xóa friendship/reject pending hai chiều; DELETE unblock chỉ hướng của actor, không restore.
+- [x] Cùng lockPair users cho send/respond/unfriend/block/unblock; projection tránh status cache cũ trước khóa; kiểm thử race và chờ lock thật.
+- [x]22 test mới gồm receiver-only/JWT/DTO/input/pagination/rollback/concurrency,65 regression; Maven verify87/87,0 failures/errors/skipped +JAR,46.821giây.
+- [x] Ghi3 lỗi harness ban đầu, sửa assertion tập kết quả và snapshot thống kê đúng nguyên nhân; không bỏ kiểm thử hoặc FK/transaction.
+- [x] Cập nhật hợp đồng/API_ERRORS/quyết định/trạng thái/handoff; không commit/push/deploy hoặc tự chuyển4C.
+
+**Đề xuất duy nhất:4C — FriendsFragment nối API qua Repository/ViewModel. Chờ duyệt, không triển khai.**
 
 Lệnh, báo cáo, cảnh báo và phạm vi kiểm thử: [QA_BOOTSTRAP.md](QA_BOOTSTRAP.md), [NETWORK_TEST_PLAN.md](NETWORK_TEST_PLAN.md).

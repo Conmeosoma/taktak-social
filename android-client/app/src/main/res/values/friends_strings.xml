@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="friends_title">Bạn bè</string>
+    <string name="friends_username">\u0040%1$s</string>
+    <string name="friends_back">Quay lại Camera</string>
+    <string name="friends_query">Tìm theo username</string>
+    <string name="friends_search">Tìm</string>
+    <string name="friends_results">Kết quả tìm kiếm</string>
+    <string name="friends_incoming">Lời mời đến</string>
+    <string name="friends_list">Bạn của tôi</string>
+    <string name="friends_empty_results">Không tìm thấy người dùng phù hợp.</string>
+    <string name="friends_empty_incoming">Chưa có lời mời kết bạn.</string>
+    <string name="friends_empty_list">Chưa có bạn bè. Tìm username để gửi lời mời nhé.</string>
+    <string name="friends_loading">Đang tải…</string>
+    <string name="friends_more">Tải thêm</string>
+    <string name="friends_refresh">Tải lại</string>
+    <string name="friends_send">Kết bạn</string>
+    <string name="friends_sent">Đã gửi lời mời</string>
+    <string name="friends_accept">Chấp nhận</string>
+    <string name="friends_reject">Từ chối</string>
+    <string name="friends_options">Tùy chọn cho %1$s</string>
+    <string name="friends_options_short">Tùy chọn</string>
+    <string name="friends_unfriend">Hủy kết bạn</string>
+    <string name="friends_block">Chặn người dùng</string>
+    <string name="friends_confirm_unfriend">Hủy kết bạn với @%1$s? Hai bạn sẽ không còn là bạn bè.</string>
+    <string name="friends_confirm_block">Chặn @%1$s? Quan hệ bạn bè và lời mời đang chờ giữa hai bạn sẽ bị gỡ.</string>
+    <string name="friends_cancel">Hủy</string>
+    <string name="friends_updated">Đã cập nhật.</string>
+    <string name="friends_changed_refresh">Thao tác đã thành công nhưng chưa tải lại được danh sách. Hãy chọn Tải lại.</string>
+    <string name="friends_invalid_query">Username chỉ gồm chữ cái a–z, số và dấu gạch dưới, tối đa 255 ký tự.</string>
+    <string name="friends_rate_limit">Bạn tìm quá nhanh. Vui lòng chờ một lát trước khi tìm lại.</string>
+    <string name="friends_conflict">Lời mời hoặc quan hệ này đã thay đổi. Hãy tải lại danh sách trước khi thao tác tiếp.</string>
+    <string name="friends_unavailable">Không thể thực hiện với người dùng hoặc lời mời này. Hãy tải lại danh sách.</string>
+    <string name="friends_network_error">Không kết nối được máy chủ. Kiểm tra mạng và tải lại để xác nhận trạng thái trước khi thử thao tác lần nữa.</string>
+    <string name="friends_server_error">Chưa tải được dữ liệu bạn bè. Vui lòng thử lại.</string>
+</resources>

@@ -1,5 +1,7 @@
 # Taktak — Quyết định kỹ thuật đã khóa
 
+Mốc mới nhất: **4B PASS backend local**, người dùng đã duyệt riêng chấp nhận/từ chối, friendship, hủy bạn và block; xem [FRIEND_RELATIONS_API.md](FRIEND_RELATIONS_API.md). UI-CAMERA/4A đã nghiệm thu trước đó. Các mốc “chưa triển khai/chưa duyệt” bên dưới là lịch sử; không thay thế yêu cầu mới nhất. Giữ stack/định danh/JWT/schema; chưa duyệt4C hoặc commit/push/deploy.
+
 Ngày ghi nhận: 16/10/2026. Phạm vi: Bước 0A.
 
 Nguồn: [TAKTAK_PROJECT.md](TAKTAK_PROJECT.md), đặc biệt các mục 5, 6, 9, 10 và 12; cùng yêu cầu Bước 0A của người dùng. Đây là quyết định thiết kế, không phải tuyên bố các thành phần đã được triển khai hoặc kiểm thử.
@@ -101,3 +103,43 @@ Kiểm thử chứng minh 404 bị error dispatch đổi thành 403; xử lý tr
 Người dùng duyệt riêng UI Java/XML và skill android_ui_verification. Login/Register dùng ViewBinding/Material/theme DayNight hiện có, không thêm dependency hoặc ViewModel/Repository rỗng trước 3B. MainActivity vẫn launcher; chỉ thêm lối mở form, hai auth activity không exported. Submit hợp lệ báo chưa nối server, loading chỉ renderer/hook UI, không giả đăng nhập/đăng ký hoặc lưu token. Password/confirmation không lưu view state, không trim/cắt hoặc log.
 
 Validation tương ứng giới hạn backend; email Android Patterns chỉ là precheck, server vẫn authoritative khi 3B nối API. Insets áp dụng ở FrameLayout ngoài để ScrollView có viewport đúng khi mở IME; accessibility qua ViewCompat để giữ min26. Cách chọn JDK đầy đủ bằng Gradle -D trong QA_AUTH_UI chỉ là lệnh môi trường local, không thay phiên bản stack/SDK hoặc daemon criteria trong repo. Test/screenshot và giới hạn tại [QA_AUTH_UI.md](QA_AUTH_UI.md); 3B chưa được duyệt.
+
+## Bổ sung 3B — 16/10/2026
+
+Người dùng duyệt riêng nối API/Repository/ViewModel và phiên. Giữ toàn bộ stack/version/package đã khóa, không thay backend hoặc migration. Auth request không mang bearer, protected request chỉ gắn token cho origin/API path của backend; không tự follow redirect. Refresh chạy sync trên worker với khóa SessionManager, tối đa một replay; dùng chung AuthGraph singleton trong process, không tạo manager độc lập cho mỗi request.
+
+Token pair/expiry được lưu bằng EncryptedSharedPreferences/Keystore, gắn BASE_URL, loại khỏi backup/device transfer; lỗi lưu trữ không fallback plaintext. Generation guard chặn kết quả cũ sau đổi phiên; refresh 400/401 hoặc replay 401 xóa phiên tương ứng, lỗi mạng/5xx giữ phiên với cửa sổ gộp lỗi refresh 5 giây. Không tự retry POST auth khi lỗi transport không rõ kết quả.
+
+LiveData chỉ giữ trạng thái UI không chứa password/token; lỗi hiển thị từ resource local, không phản chiếu raw body/message. Đăng ký không tự đăng nhập. Logout hook đã có/test nhưng UI/routing/process-death flow thuộc 3C; unregister FCM thuộc bước 6. EncryptedSharedPreferences deprecated nhưng vẫn giữ đúng yêu cầu công nghệ, chưa được quyền thay thế. Bằng chứng: 20 unit + 17 emulator test và build/lint debug/release PASS local tại QA_ANDROID_AUTH; chưa tự chuyển 3C.
+
+## Bổ sung 3C — 16/10/2026
+
+MainActivity giữ vai trò launcher và điểm đến Camera placeholder, không thêm splash Activity/dependency hoặc tính năng CameraX trước 3D. SessionViewModel xác minh me/refresh ngoài main thread trước khi hiện Camera, kiểm tra lại lúc vào foreground. Không mở Camera chỉ vì token tồn tại hoặc expiry local; lỗi mạng giữ phiên, có retry/logout. Login/logout dùng task mới/clear task, không gửi token/profile/password qua Intent.
+
+Logout sử dụng chung AuthGraph/SessionManager: thử thu hồi refresh, xóa local; lỗi mạng nhưng clear được hiển thị cảnh báo chỉ logout local, lỗi clear storage không giả thành công. Device unregister chưa thực hiện vì registration thuộc bước 6. Thông báo điều hướng chỉ whitelist resource ID và renderer giữ notice khi LiveData idle. Không đổi chính sách access JWT còn dùng tới exp hoặc stack/phiên bản/migration. Nghiệm thu tại QA_SESSION_ROUTING; không coi local PASS là auth máy thật PASS.
+
+## Bổ sung triển khai3D —16/10/2026
+
+Dùng CameraX/Material/Glide đã có, không thêm/nâng dependency. Camera sau tối thiểu, xin CAMERA lúc dùng, rotation rồi crop1:1, JPEG trong bộ nhớ riêng; ảnh displayed chỉ từ GET có JWT. Thêm MomentRepository/MomentViewModel dùng cùng ApiClient/SessionManager; media gắn generation ngay khi bắt đầu chụp để không chuyển ảnh giữa tài khoản.
+
+POST `/api/moments` và GET `/{id}/image` triển khai trên schema moments V1 hiện có, không sửa migration. Chỉ danh sách rỗng (bỏ field hoặc literal `[]`), từ chối mọi người nhận khác tới giai đoạn5; sender từ JWT và kiểm tra user tồn tại. JPEG tối đa5 MiB/4096 mỗi chiều/16MP, re-encode bỏ metadata, tên UUID server sinh, storage private cấu hình qua IMAGE_STORAGE_ROOT, rollback dọn file. GET owner-only và kiểm tra deleted_at từng request,404 chung che dữ liệu người khác; no-store. Không thêm route public, FCM, DELETE hoặc lịch sử.
+
+3D dùng buffer trong RAM thay vì ghi raw capture ra gallery; không thêm dịch vụ backend giả. Known id retry chỉ GET; POST mất phản hồi trước id có cảnh báo có thể tạo thêm một ảnh hoàn chỉnh. Idempotency hoàn chỉnh dành5D, không thay đổi phạm vi roadmap. Smoke runner có offline/online connector qua stdin chỉ trong test source để mô phỏng mất kết nối thật, không endpoint production. Chi tiết [MOMENT_API.md](MOMENT_API.md); không thay quyết định kỹ thuật đã khóa.
+
+## Bổ sung triển khai4A —17/10/2026
+
+Người dùng duyệt riêng4A. GET users/search dùng username prefix strip/lowercase, underscore literal, loại bản thân/block hai chiều, tối đa20 DTO id/username/displayName. Search30/user và60/IP/60giây, bounded10.000 key single JVM; remoteAddr, không tin XFF. POST friends/requests bind receiverId, sender từ JWT; GET chỉ pending đến người gọi, page20/hasNext, sort createdAt/id DESC. Không email/hash/avatar path hoặc FCM.
+
+Dùng Entity/JPA và bảng V1 hiện có; không sửa migration. Gửi mời khóa users theo thứ tự UUID PostgreSQL trước kiểm tra block/friendship/pending, unique pending-pair DB bảo vệ thêm. Self400, target absent/block404 chung, trùng/đã là bạn409; không tự accept mời chéo. 4B phải phối hợp cùng khóa cặp khi thêm accept/block/unfriend. Hợp đồng, giới hạn quota/pagination và65 test/JAR tại [FRIEND_API.md](FRIEND_API.md). Không đổi stack/JWT/Android hoặc tự chuyển4B.
+
+## Bổ sung triển khai4B —17/10/2026
+
+Respond chỉ receiver từ JWT, hidden404 nếu khác người nhận/không tồn tại. Mọi mutation quan hệ cùng lockPair users theo UUID PostgreSQL; respond lấy projection participants trước, đọc/khóa entity request sau để không dùng status cũ. Accept/status/responded_at/friendship cùng transaction; friendship canonical LEAST/GREATEST/unique V1. Retry cùng action200 giữ timestamp và không tạo lại friendship đã unfriend; action trái trạng thái409.
+
+GET friends trả page20/hasNext/public DTO, lọc block hai chiều. DELETE friends/{id} dùng **userId người bạn**, chỉ cặp với actor, idempotent204. Block có hướng, đồng thời xóa friendship và reject pending hai chiều; unblock chỉ xóa block của actor, không restore. Native DML trong JPA repository/transaction dùng schema V1, không thêm migration/dependency hoặc đổi JWT. Hợp đồng/giới hạn và87 test/JAR tại [FRIEND_RELATIONS_API.md](FRIEND_RELATIONS_API.md); chưa Friends UI/4C, gửi ảnh bạn bè5C/FCM hoặc deploy.
+
+## Bổ sung triển khai4C —17/10/2026
+
+FriendsFragment Java/XML/ViewBinding dùng FriendRepository/FriendsViewModel/LiveData và cùng ApiClient/SessionManager. Kiểm tra generation trước/sau request và trước publish; đổi phiên xóa snapshot cũ rồi xác minh lại, không xóa phiên mới. Không thay stack, định danh, JWT hoặc API server. Search explicit submit, page20/hasNext và reload sau mutation; không tự lặp mutation khi đọc lại lỗi.
+
+Lối mở từ Camera và Back/logout tối thiểu phục vụ4C; bốn tab/ViewPager2/BottomNavigation vẫn thuộc5A. Avatar qua Glide là drawable mặc định local vì DTO chưa có API avatar; không thêm URL giả/public hoặc endpoint ngoài phạm vi. Chặn có confirm, chưa UI unblock/list block; API4B giữ nguyên. Bằng chứng/nghiệm thu và giới hạn ở [QA_FRIENDS.md](QA_FRIENDS.md). Đây là ghi nhận triển khai, không thay các quyết định kỹ thuật đã khóa.

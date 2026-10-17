@@ -36,14 +36,10 @@ public class ExampleInstrumentedTest {
     }
 
     @Test
-    public void mainActivityOpensWithBootstrapText() {
+    public void launcherRoutesToLoginWhenSignedOut() throws Exception {
+        com.taktak.app.data.AuthGraph.repository(InstrumentationRegistry.getInstrumentation().getTargetContext()).logout();
         try (ActivityScenario<MainActivity> scenario = ActivityScenario.launch(MainActivity.class)) {
-            scenario.onActivity(activity -> {
-                assertNotNull(activity.findViewById(R.id.main));
-                TextView message = activity.findViewById(R.id.bootstrapMessage);
-                assertEquals("Taktak", message.getText().toString());
-                assertFalse(activity.isFinishing());
-            });
+            SessionRoutingTest.awaitView(R.id.emailInput);
         }
     }
 

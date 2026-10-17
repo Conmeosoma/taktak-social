@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="match_parent"
+    android:orientation="vertical" android:padding="16dp" android:saveEnabled="false">
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:orientation="horizontal" android:gravity="center_vertical">
+        <com.google.android.material.button.MaterialButton android:id="@+id/friendsBack"
+            style="@style/Widget.Material3.Button.TextButton" android:layout_width="0dp" android:layout_weight="1"
+            android:layout_height="wrap_content" android:minHeight="48dp" android:text="@string/friends_back" />
+        <com.google.android.material.button.MaterialButton android:id="@+id/friendsLogout"
+            style="@style/Widget.Material3.Button.TextButton" android:layout_width="0dp" android:layout_weight="1"
+            android:layout_height="wrap_content" android:minHeight="48dp" android:text="@string/session_logout" />
+    </LinearLayout>
+    <TextView android:id="@+id/friendsTitle" android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:text="@string/friends_title"
+        android:textAppearance="@style/TextAppearance.TakTak.Camera.Title" />
+    <com.google.android.material.textfield.TextInputLayout android:layout_width="match_parent"
+        android:layout_height="wrap_content" android:layout_marginTop="12dp" android:hint="@string/friends_query">
+        <com.google.android.material.textfield.TextInputEditText android:id="@+id/friendsQuery"
+            android:layout_width="match_parent" android:layout_height="wrap_content" android:minHeight="56dp"
+            android:inputType="textVisiblePassword" android:imeOptions="actionSearch" android:maxLength="255"
+            android:singleLine="true" android:saveEnabled="false" android:importantForAutofill="no" />
+    </com.google.android.material.textfield.TextInputLayout>
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal">
+        <com.google.android.material.button.MaterialButton android:id="@+id/friendsSearch"
+            android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content"
+            android:minHeight="48dp" android:text="@string/friends_search" />
+        <com.google.android.material.button.MaterialButton android:id="@+id/friendsRefresh"
+            style="@style/Widget.Material3.Button.TextButton" android:layout_width="0dp" android:layout_weight="1"
+            android:layout_height="wrap_content" android:minHeight="48dp" android:text="@string/friends_refresh" />
+    </LinearLayout>
+    <com.google.android.material.progressindicator.LinearProgressIndicator android:id="@+id/friendsProgress"
+        android:layout_width="match_parent" android:layout_height="wrap_content" android:indeterminate="true"
+        android:contentDescription="@string/friends_loading" android:visibility="gone" />
+    <TextView android:id="@+id/friendsMessage" android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:textColor="@color/camera_ink" android:paddingVertical="8dp" android:visibility="gone"
+        android:accessibilityLiveRegion="polite" android:saveEnabled="false" />
+    <androidx.recyclerview.widget.RecyclerView android:id="@+id/friendsRecycler"
+        android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1"
+        android:saveEnabled="false" android:clipToPadding="false" android:paddingBottom="12dp" />
+</LinearLayout>

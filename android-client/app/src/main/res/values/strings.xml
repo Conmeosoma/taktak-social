@@ -36,4 +36,22 @@
     <string name="auth_session_changed">Phiên đã thay đổi. Vui lòng thử lại.</string>
     <string name="auth_permission_granted">Đã cấp quyền mạng local. Vui lòng bấm gửi lại.</string>
     <string name="auth_permission_denied">Cần quyền mạng local để kết nối máy chủ debug. Bạn có thể thử cấp quyền lại.</string>
+    <string name="session_checking">Đang kiểm tra phiên đăng nhập…</string>
+    <string name="session_logging_out">Đang đăng xuất…</string>
+    <string name="session_logout">Đăng xuất</string>
+    <string name="session_retry">Thử lại</string>
+    <string name="session_logged_out">Đã đăng xuất.</string>
+    <string name="session_logout_local_only">Đã xóa phiên trên thiết bị. Chưa thể xác nhận thu hồi phiên trên máy chủ.</string>
+    <string name="camera_title">Camera</string>
+    <string name="moment_self_only">Ảnh chỉ mình tôi. Không gửi cho bạn bè và không tự lưu vào thư viện.</string>
+    <string name="moment_capture">Chụp và lưu chỉ mình tôi</string>
+    <string name="moment_camera_permission">Cho phép / mở lại camera</string>
+    <string name="moment_camera_denied">Chưa có quyền camera. Cho phép camera để chụp; nếu đã từ chối nhiều lần, mở quyền trong Cài đặt ứng dụng.</string>
+    <string name="moment_camera_error">Chưa mở hoặc chụp được camera. Vui lòng mở lại camera.</string>
+    <string name="moment_camera_preview">Khung xem trước camera sau</string>
+    <string name="moment_server_image">Ảnh riêng tư đã tải lại từ máy chủ</string>
+    <string name="moment_capturing">Đang chụp và gửi ảnh riêng tư…</string>
+    <string name="moment_transferring">Đang gửi / tải lại ảnh bằng phiên đăng nhập…</string>
+    <string name="moment_downloaded">Đã tải lại ảnh từ máy chủ. Chỉ bạn có quyền xem.</string>
+    <string name="moment_transfer_error">Chưa xác nhận gửi / tải ảnh thành công. Kiểm tra kết nối rồi thử lại. Nếu máy chủ đã nhận nhưng mất phản hồi, gửi lại có thể tạo thêm một ảnh riêng tư.</string>
 </resources>
