@@ -14,7 +14,7 @@ public final class MainPagerAdapter extends FragmentStateAdapter {
             case 0 -> new CameraPageFragment();
             case 1 -> new com.taktak.app.ui.history.HistoryFragment();
             case 2 -> new FriendsFragment();
-            case 3 -> PendingTabFragment.newInstance(true);
+            case 3 -> new com.taktak.app.ui.profile.ProfileFragment();
             default -> throw new IllegalArgumentException("Unknown main tab");
         };
     }

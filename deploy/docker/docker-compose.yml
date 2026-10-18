@@ -6,7 +6,7 @@ services:
     environment:
       POSTGRES_DB: taktak
       POSTGRES_USER: taktak
-      POSTGRES_PASSWORD: ${DB_PASSWORD:CHANGE_ME_DATABASE_PASSWORD}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:?Set DB_PASSWORD using --env-file ../.env}
     volumes:
       - taktak-pgdata:/var/lib/postgresql/data
     # Bảo mật: KHÔNG expose cổng ra host, chỉ trao đổi trong private docker network
@@ -34,10 +34,10 @@ services:
     environment:
       DB_URL: jdbc:postgresql://taktak-db:5432/taktak
       DB_USERNAME: taktak
-      DB_PASSWORD: ${DB_PASSWORD}
+      DB_PASSWORD: ${DB_PASSWORD:?Set DB_PASSWORD using --env-file ../.env}
       SERVER_ADDRESS: 0.0.0.0
       SERVER_PORT: 8080
-      JWT_ACCESS_SECRET: ${JWT_ACCESS_SECRET}
+      JWT_ACCESS_SECRET: ${JWT_ACCESS_SECRET:?Set JWT_ACCESS_SECRET using --env-file ../.env}
       IMAGE_STORAGE_ROOT: /var/taktak/private-images
       FCM_ENABLED: ${FCM_ENABLED:-true}
       GOOGLE_APPLICATION_CREDENTIALS: /var/taktak/firebase-admin.json

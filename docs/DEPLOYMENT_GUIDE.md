@@ -1,5 +1,7 @@
 # Hướng Dẫn Triển Khai Taktak Server Trên VPS Ubuntu (Giai đoạn 8A & 8B)
 
+> Cập nhật sửa lỗi 18/10/2026: quy trình hiện hành và giới hạn nghiệm thu tại [runbook bảo trì](../deploy/MAINTENANCE.md). Chưa nghiệm thu trên VPS/Docker thật. Không dùng quy trình restore snapshot dạng thư mục cũ.
+
 Tài liệu này hướng dẫn chi tiết toàn bộ quy trình chuẩn bị môi trường, cấu hình dịch vụ bảo mật, Nginx reverse proxy, TLS Let's Encrypt, giới hạn tần suất (Rate Limiting), tường lửa UFW, xoay vòng nhật ký (Logrotate) và quy trình sao lưu / phục hồi dữ liệu tự động cho máy chủ Taktak trên Ubuntu 22.04 / 24.04 LTS.
 
 ---
@@ -45,7 +47,7 @@ Tạo file `/var/taktak/.env` từ file mẫu:
 ```bash
 sudo cp deploy/.env.example /var/taktak/.env
 sudo chmod 600 /var/taktak/.env
-sudo chown taktak:taktak /var/taktak/.env
+sudo chown root:root /var/taktak/.env
 ```
 Mở file và cập nhật các giá trị bí mật:
 - Sinh khóa JWT ngẫu nhiên mạnh: `openssl rand -base64 32` và điền vào `JWT_ACCESS_SECRET`.
@@ -56,8 +58,8 @@ Mở file và cập nhật các giá trị bí mật:
 Sao chép file JAR build từ máy local lên VPS:
 ```bash
 sudo cp server/target/taktak-server-0.0.1-SNAPSHOT.jar /var/taktak/taktak-server.jar
-sudo chown taktak:taktak /var/taktak/taktak-server.jar
-sudo chmod 750 /var/taktak/taktak-server.jar
+sudo chown root:root /var/taktak/taktak-server.jar
+sudo chmod 644 /var/taktak/taktak-server.jar
 
 # Khởi động dịch vụ backend
 sudo systemctl enable --now taktak
@@ -84,12 +86,11 @@ sudo bash deploy/scripts/setup-ssl.sh <DOMAIN_CỦA_BẠN> <EMAIL_QUẢN_TRỊ>
 *Ví dụ:* `sudo bash deploy/scripts/setup-ssl.sh api.taktak.example.com admin@example.com`
 
 Script thực hiện:
-1. Sao chép mẫu cấu hình `deploy/nginx/taktak.conf` sang `/etc/nginx/sites-available/taktak`.
-2. Thay thế `YOUR_DOMAIN_OR_IP` bằng domain thật của bạn.
-3. Kích hoạt site qua `/etc/nginx/sites-enabled/taktak` và gỡ bỏ site `default`.
-4. Gọi `certbot --nginx` để tự động xác thực tên miền qua ACME challenge và nạp chứng chỉ TLS vào Nginx.
-5. Kiểm tra cú pháp bằng `nginx -t` và tải lại cấu hình `systemctl reload nginx`.
-6. Kiểm tra tính năng tự động gia hạn chứng chỉ bằng `certbot renew --dry-run`.
+1. Khi chưa có certificate, bật riêng `taktak-http.conf` phục vụ ACME webroot, không tham chiếu certificate chưa tồn tại.
+2. Chạy `certbot certonly --webroot`, kiểm tra certificate đã được cấp.
+3. Sau đó mới bật mẫu HTTPS, chạy `nginx -t` và reload.
+4. Lưu deploy hook reload Nginx khi gia hạn; chạy `certbot renew --dry-run`.
+Domain phải trỏ đúng VPS và port 80 phải truy cập được từ Internet. Không tự gỡ site khác.
 
 ### Bước 2: Cơ chế Rate Limiting (Giới hạn tần suất)
 Cấu hình Nginx được tích hợp 2 lớp phòng vệ chống tấn công quá tải và brute-force:
@@ -142,7 +143,7 @@ Hệ thống cung cấp giải pháp toàn diện sao lưu đồng thời 3 thà
 
 ### 5.1. Sao lưu tự động qua Systemd Timer
 - Dịch vụ sao lưu tự động `taktak-backup.timer` kích hoạt script `/var/taktak/scripts/backup.sh` mỗi ngày vào lúc **02:00 AM**.
-- Bản sao lưu được lưu trữ tại `/var/taktak/backups/<YYYYMMDD_HHMMSS>/` với phân quyền `chmod 700` thuộc sở hữu `taktak:taktak`.
+- Archive `/var/taktak/backups/backup-<UTC>-<PID>.tar.enc` và checksum, root-only; thư mục `700`, file `600`.
 - Chính sách xoay vòng (Retention Policy): Tự động xóa các bản sao lưu cũ hơn **14 ngày**.
 
 Kiểm tra trạng thái timer:
@@ -155,11 +156,9 @@ Quản trị viên có thể kích hoạt sao lưu bất kỳ lúc nào:
 ```bash
 sudo bash /var/taktak/scripts/backup.sh
 ```
-Kết quả bản sao lưu bao gồm:
-- `db_taktak_<timestamp>.sql.gz`: Dump PostgreSQL nén.
-- `private_images_<timestamp>.tar.gz`: Toàn bộ ảnh khoảnh khắc riêng tư nén.
-- `env_<timestamp>.bak`: Bản sao file biến môi trường (`chmod 600`).
-- `metadata.json`: Thông tin chi tiết bản sao lưu.
+Archive mã hóa chứa custom PostgreSQL dump, private images, bản sao env và manifest SHA-256. Dùng OpenSSL AES-256-CBC/PBKDF2; checksum phát hiện hỏng dữ liệu, không thay chữ ký xác thực archive từ nguồn không tin cậy.
+
+Key `/etc/taktak/backup.key` (root:root, 600) được setup sinh một lần; phải sao lưu key an toàn tách khỏi VPS/archive. Mất key không giải mã được. Service được tạm dừng trong lúc chụp snapshot nhất quán, nên có downtime. Các script này dành cho systemd + PostgreSQL native, không quản lý Docker volumes.
 
 ### 5.3. Quy trình Khôi phục Dữ liệu (Disaster Recovery)
 Khi cần khôi phục lại hệ thống từ một bản sao lưu cụ thể:
@@ -170,18 +169,19 @@ Khi cần khôi phục lại hệ thống từ một bản sao lưu cụ thể:
    ```
 2. **Thực hiện khôi phục**:
    ```bash
-   sudo bash /var/taktak/scripts/restore.sh <TIMESTAMP_HOẶC_THƯ_MỤC>
+   sudo bash /var/taktak/scripts/restore.sh /var/taktak/backups/backup-<UTC>-<PID>.tar.enc
    ```
-   *Ví dụ:* `sudo bash /var/taktak/scripts/restore.sh 20261018_093000`
+   Thay `<UTC>-<PID>` bằng tên archive thật; không chạy nguyên placeholder.
 
 3. **Cơ chế hoạt động của script restore**:
-   - Yêu cầu xác nhận tường minh (`yes`) để tránh thao tác nhầm lẫn ghi đè dữ liệu.
-   - Tạm dừng dịch vụ `taktak.service` nhằm ngăn chặn tranh chấp dữ liệu.
-   - Khôi phục database PostgreSQL từ file SQL dump nén.
-   - Dọn sạch và giải nén lại toàn bộ thư mục `/var/taktak/private-images`.
-   - Thiết lập lại phân quyền an toàn `chmod 700 /var/taktak/private-images` và `chown -R taktak:taktak`.
-   - Khởi động lại dịch vụ `taktak.service`.
-   - Tự động gọi endpoint `/actuator/health` để xác thực dịch vụ đã sẵn sàng và hoạt động ổn định.
+   - Kiểm tra checksum, giải mã, whitelist entry/manifest trước khi đổi dữ liệu.
+   - Yêu cầu gõ `RESTORE`; `--yes` chỉ dành cho operator đã xác nhận rõ dữ liệu đích.
+   - Tạm dừng service; tạo backup mã hóa trước restore, dump riêng trạng thái hiện tại.
+   - `pg_restore --clean --if-exists --exit-on-error --single-transaction`; lỗi SQL không để DB khôi phục dở.
+   - Xác minh mọi ảnh active trong DB có trong snapshot rồi mới đổi thư mục ảnh; giữ thư mục cũ `private-images.before-*`, không xóa đệ quy ảnh live.
+   - Lỗi sau khi áp dụng sẽ thử phục hồi DB/ảnh trước restore. Nếu rollback cũng lỗi, giữ recovery files và báo `RECOVERY_REQUIRED`, cần operator can thiệp.
+   - Giữ nguyên env hiện tại; không tự thay secrets bằng env trong archive. DB phải đang tồn tại và user có quyền khôi phục các object do app quản lý.
+   - Kiểm tra health khi service vốn đang chạy. Chọn JAR tương thích schema snapshot trước khi thao tác; rollback JAR không đảo migration.
 
 ---
 

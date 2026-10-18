@@ -32,6 +32,8 @@ public final class HistoryAdapter extends RecyclerView.Adapter<RecyclerView.View
     private static final int TYPE_FOOTER = 1;
 
     private final RequestManager glide;
+    private final com.taktak.app.ui.profile.AvatarLoader avatars;
+    public void close() { avatars.close(); }
     private final HistoryViewModel viewModel;
     private final OnMoreClickListener moreListener;
     private final OnMomentClickListener momentClickListener;
@@ -45,6 +47,7 @@ public final class HistoryAdapter extends RecyclerView.Adapter<RecyclerView.View
 
     public HistoryAdapter(RequestManager glide, HistoryViewModel viewModel, OnMoreClickListener moreListener, OnMomentClickListener momentClickListener) {
         this.glide = glide;
+        avatars=new com.taktak.app.ui.profile.AvatarLoader(glide);
         this.viewModel = viewModel;
         this.moreListener = moreListener;
         this.momentClickListener = momentClickListener;
@@ -122,9 +125,7 @@ public final class HistoryAdapter extends RecyclerView.Adapter<RecyclerView.View
         moment.binding.momentSenderUsername.setText(ctx.getString(R.string.friends_username, item.sender.username));
         moment.binding.momentTimestamp.setText(HistoryTimeFormatter.format(ctx, item.createdAt));
 
-        glide.load(R.drawable.friend_avatar)
-                .circleCrop()
-                .into(moment.binding.momentSenderAvatar);
+        avatars.load(item.sender.id,moment.binding.momentSenderAvatar);
 
         if (item.caption != null && !item.caption.trim().isEmpty()) {
             moment.binding.momentCaption.setVisibility(View.VISIBLE);
@@ -169,7 +170,7 @@ public final class HistoryAdapter extends RecyclerView.Adapter<RecyclerView.View
         if (holder instanceof MomentHolder moment) {
             moment.currentMomentId = null;
             moment.binding.momentImage.setImageDrawable(null);
-            glide.clear(moment.binding.momentSenderAvatar);
+            avatars.clear(moment.binding.momentSenderAvatar);
         }
         super.onViewRecycled(holder);
     }

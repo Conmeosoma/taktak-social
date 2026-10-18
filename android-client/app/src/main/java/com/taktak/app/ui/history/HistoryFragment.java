@@ -60,6 +60,7 @@ public final class HistoryFragment extends Fragment {
             Intent intent = new Intent(requireContext(), MomentViewerActivity.class);
             intent.putExtra(MomentViewerActivity.EXTRA_MOMENT_ID, item.id);
             intent.putExtra(MomentViewerActivity.EXTRA_SENDER_NAME, item.sender.displayName);
+            intent.putExtra(MomentViewerActivity.EXTRA_SENDER_ID,item.sender.id);
             intent.putExtra(MomentViewerActivity.EXTRA_SENDER_USERNAME, item.sender.username);
             intent.putExtra(MomentViewerActivity.EXTRA_CAPTION, item.caption);
             intent.putExtra(MomentViewerActivity.EXTRA_CREATED_AT, item.createdAt);
@@ -118,6 +119,7 @@ public final class HistoryFragment extends Fragment {
 
     @Override
     public void onDestroyView() {
+        if(adapter!=null) adapter.close();
         if (binding != null) {
             binding.historyTabs.clearOnTabSelectedListeners();
             binding.historyRecycler.setAdapter(null);

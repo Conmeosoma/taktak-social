@@ -26,6 +26,10 @@ public final class WidgetUpdater {
     public static final String WORK_NAME_PERIODIC = "taktak_widget_periodic";
 
     private WidgetUpdater() { }
+    public static void clearForLogout(Context context) {
+        WorkManager.getInstance(context.getApplicationContext()).cancelUniqueWork(WORK_NAME_SYNC);
+        renderLoggedOut(context);
+    }
 
     public static void enqueueOneTimeWork(Context context) {
         Constraints constraints = new Constraints.Builder()

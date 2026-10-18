@@ -31,6 +31,14 @@ public class MainActivity extends AppCompatActivity {
                 if (granted) { viewModel.check(true); }
                 else { binding.sessionMessage.setText(R.string.auth_permission_denied); }
             });
+    private final ActivityResultLauncher<String> profileAvatar = getActivityResultRegistry().register("profile.avatar",this,
+            new ActivityResultContracts.GetContent(),uri -> new ViewModelProvider(this)
+                    .get(com.taktak.app.viewmodel.ProfileViewModel.class).uploadSelection(uri));
+    public void chooseProfileAvatar() {
+        if(new ViewModelProvider(this).get(com.taktak.app.viewmodel.ProfileViewModel.class).beginAvatarSelection()) {
+            profileAvatar.launch("image/*");
+        }
+    }
 
     @Override protected void onCreate(Bundle savedInstanceState) {
         setTheme(R.style.Theme_TakTak_Camera);
@@ -117,7 +125,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void renderNavigation() {
         binding.bottomNavigation.setVisibility(authenticated && !imeVisible ? View.VISIBLE : View.GONE);
-        binding.mainToolbar.setVisibility(authenticated && selectedTab == 2 ? View.GONE : View.VISIBLE);
+        binding.mainToolbar.setVisibility(authenticated && (selectedTab == 2 || selectedTab == 3) ? View.GONE : View.VISIBLE);
         if (tabBack != null) { tabBack.setEnabled(authenticated && selectedTab != 0); }
     }
 

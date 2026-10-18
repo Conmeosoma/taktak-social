@@ -79,15 +79,18 @@ public final class SessionViewModel extends AndroidViewModel {
 
     private void syncFcmToken(AuthRepository repository) {
         try {
+            long generation = repository.sessionGeneration();
             com.google.firebase.messaging.FirebaseMessaging.getInstance().getToken()
                     .addOnCompleteListener(task -> {
-                        if (task.isSuccessful() && task.getResult() != null) {
+                        if (!cleared && task.isSuccessful() && task.getResult() != null) {
                             String token = task.getResult();
-                            worker.execute(() -> {
+                            try { worker.execute(() -> {
                                 try {
-                                    repository.devices(getApplication()).register(token);
+                                    if (!cleared && repository.sessionGeneration() == generation) {
+                                        repository.devices(getApplication()).register(token);
+                                    }
                                 } catch (Exception ignored) { }
-                            });
+                            }); } catch (java.util.concurrent.RejectedExecutionException ignored) { }
                         }
                     });
         } catch (Exception ignored) {

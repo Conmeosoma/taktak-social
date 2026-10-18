@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.taktak.server.auth.TokenService;
 import com.taktak.server.device.DeviceService;
 import com.taktak.server.device.DeviceTokenRepository;
-import com.taktak.server.device.FirebasePushNotificationSender;
 import io.zonky.test.db.postgres.embedded.EmbeddedPostgres;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -40,7 +39,13 @@ class MomentPushIntegrationTest {
     private String base;
     private final HttpClient client = HttpClient.newHttpClient();
     private final ObjectMapper json = new ObjectMapper();
-    private FirebasePushNotificationSender pushSender;
+    private RecordingPushSender pushSender;
+    @org.springframework.boot.test.context.TestConfiguration(proxyBeanMethods = false)
+    static class PushFixture {
+        @org.springframework.context.annotation.Bean
+        @org.springframework.context.annotation.Primary
+        RecordingPushSender recordingPushSender() { return new RecordingPushSender(); }
+    }
     private DeviceService deviceService;
     private DeviceTokenRepository deviceTokenRepository;
 
@@ -53,14 +58,14 @@ class MomentPushIntegrationTest {
                 .setServerConfig("listen_addresses", "127.0.0.1").setPort(0).start();
         byte[] key = new byte[32];
         new java.security.SecureRandom().nextBytes(key);
-        context = (ServletWebServerApplicationContext) SpringApplication.run(TaktakApplication.class,
+        context = (ServletWebServerApplicationContext) new SpringApplication(TaktakApplication.class, PushFixture.class).run(
                 "--spring.datasource.url=" + postgres.getJdbcUrl("postgres", "postgres"),
                 "--spring.datasource.username=postgres", "--spring.datasource.password=",
                 "--taktak.jwt.access-secret=" + Base64.getEncoder().encodeToString(key),
                 "--taktak.storage.root=" + storage, "--server.port=0", "--server.address=127.0.0.1",
                 "--debug=false", "--logging.level.root=WARN");
         jdbc = context.getBean(JdbcTemplate.class);
-        pushSender = context.getBean(FirebasePushNotificationSender.class);
+        pushSender = context.getBean(RecordingPushSender.class);
         deviceService = context.getBean(DeviceService.class);
         deviceTokenRepository = context.getBean(DeviceTokenRepository.class);
         base = "http://127.0.0.1:" + context.getWebServer().getPort();
@@ -167,7 +172,7 @@ class MomentPushIntegrationTest {
         var recorded = pushSender.getRecordedMessages();
         assertThat(recorded).hasSize(2);
 
-        var tokens = recorded.stream().map(FirebasePushNotificationSender.SentMessage::fcmToken).toList();
+        var tokens = recorded.stream().map(RecordingPushSender.SentMessage::fcmToken).toList();
         assertThat(tokens).containsExactlyInAnyOrder(tokenPhone, tokenTablet);
 
         for (var msg : recorded) {

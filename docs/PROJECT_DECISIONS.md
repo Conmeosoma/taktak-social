@@ -1,5 +1,19 @@
 # Taktak — Quyết định kỹ thuật đã khóa
 
+## Hồ sơ/avatar và FCM thật — 18/10/2026
+
+Người dùng duyệt Hồ sơ cá nhân, Avatar cá nhân và nghiệm thu FCM/widget; sau đó chọn emulator trước khi có thể dành điện thoại cho QA. ProfileFragment thay tab placeholder, dùng ProfileRepository/ViewModel và session gate hiện có. PUT me vẫn chỉ sửa displayName; avatar dùng POST multipart riêng, GET có JWT cho chính chủ/bạn accepted không block. Stranger/block nhận404; chưa có avatar trả204. Không đưa private path vào DTO, không public URL/cache đĩa Glide.
+
+Avatar dùng cột users.avatar_path V1, lưu trong IMAGE_STORAGE_ROOT/avatars bằng UUID server tạo; JPEG512×512 bỏ metadata, sanitizer/giới hạn input có sẵn. Row lock user dùng chung cho sửa tên/avatar; dọn file mới khi rollback và file cũ sau commit. Backup/restore chứa cả avatars và xác minh references của users; không thêm/sửa migration. Picker callback ở Activity để tồn tại qua session-gate Fragment recreation, kiểm tra generation trước dùng ảnh.
+
+Firebase Cloud Messaging thật đã nghiệm thu trên AVD với Admin JSON local và QA AppWidgetHost/RemoteViews; không suy ra launcher OEM hoặc điện thoại thật đã PASS. Không đổi stack, dependency/package hoặc cấp quyền deploy. Bằng chứng và giới hạn: [QA_PROFILE_AVATAR_FCM.md](QA_PROFILE_AVATAR_FCM.md).
+
+## Ghi nhận sửa lỗi review — 18/10/2026
+
+Không thay quyết định stack/định danh/nghiệp vụ. Xóa vật lý ảnh chỉ sau DB commit; request sau soft-delete vẫn bị từ chối. Viewer và thao tác xuất gallery phải tải bằng JWT, không dùng cache làm fallback khi mất mạng/mất quyền; logout/đổi phiên chặn publication cũ và dọn dữ liệu hiển thị/cache/widget. FCM disabled là lựa chọn explicit; bật nhưng sai credentials thì fail-fast, production không giữ recorder hoặc log raw device token.
+
+Native backup/restore có khóa bảo trì, archive mã hóa root-only và backup key tách riêng; restore có xác nhận, DB transaction và ảnh cũ có thể phục hồi. Rollback JAR không tự restore/reset DB hay đảo migration. Nginx ghi đè XFF, backend chỉ tin proxy đã xác định. Đây là cách thực thi các yêu cầu an toàn đã có, không phê duyệt deploy hoặc hạ điều kiện nghiệm thu. Bằng chứng/giới hạn: [QA_REVIEW_FIXES.md](QA_REVIEW_FIXES.md), [runbook](../deploy/MAINTENANCE.md).
+
 ## Mốc hiện tại — 5C, ngày 17/10/2026
 
 5C được duyệt riêng và PASS local/USB, xem [QA_MOMENT_SHARING.md](QA_MOMENT_SHARING.md). Các đoạn5B/3D “chưa hỗ trợ gửi bạn bè” bên dưới là lịch sử. Giữ stack/package/dependency/JWT/schemaV1/FCM; không sửa migration hoặc backend ngoài media trong5C. Giữ HEAD `ed9fde6`, không commit/push.

@@ -48,10 +48,17 @@ public final class LocalSmokeServer {
             int rows = jdbc.queryForObject("SELECT count(*) FROM moments WHERE deleted_at IS NULL", Integer.class);
             int recipients = jdbc.queryForObject("SELECT count(*) FROM moment_recipients", Integer.class);
             try (var files = Files.list(images)) {
-                long count = files.count();
+                long count = files.filter(Files::isRegularFile).count();
                 System.out.println("SMOKE_MEDIA_ROWS=" + rows + " FILES=" + count + " RECIPIENTS=" + recipients);
                 if (rows != count) { throw new IllegalStateException("Smoke media storage and metadata are inconsistent."); }
             }
+            int avatars = jdbc.queryForObject("SELECT count(*) FROM users WHERE avatar_path IS NOT NULL", Integer.class);
+            long avatarFiles=0;
+            if (Files.isDirectory(images.resolve("avatars"))) {
+                try (var files=Files.list(images.resolve("avatars"))) { avatarFiles=files.filter(Files::isRegularFile).count(); }
+            }
+            System.out.println("SMOKE_AVATAR_ROWS="+avatars+" FILES="+avatarFiles);
+            if (avatars!=avatarFiles) { throw new IllegalStateException("Smoke avatar storage and metadata are inconsistent."); }
         }
     }
 }

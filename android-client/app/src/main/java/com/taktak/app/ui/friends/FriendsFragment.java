@@ -87,6 +87,7 @@ public final class FriendsFragment extends Fragment {
                 }).show();
     }
     @Override public void onDestroyView() {
+        if(binding.friendsRecycler.getAdapter() instanceof FriendsAdapter adapter) adapter.close();
         if (confirmation != null) { confirmation.dismiss(); confirmation = null; }
         binding.friendsRecycler.setAdapter(null);
         binding = null;

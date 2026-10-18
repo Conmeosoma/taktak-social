@@ -1,5 +1,7 @@
 # Sổ Tay Hướng Dẫn Sử Dụng VPS Ubuntu Cho Dự Án Taktak (Từ A đến Z)
 
+> Cập nhật sửa lỗi 18/10/2026: quy trình hiện hành và giới hạn nghiệm thu tại [runbook bảo trì](../deploy/MAINTENANCE.md). Chưa nghiệm thu trên VPS/Docker thật. Không dùng quy trình restore snapshot dạng thư mục cũ.
+
 Tài liệu này được viết chi tiết, dễ hiểu dành cho quản trị viên và lập trình viên để làm quen, kết nối, triển khai, vận hành và xử lý sự cố máy chủ Taktak trên VPS Ubuntu 22.04 / 24.04 LTS.
 
 ---
@@ -106,7 +108,7 @@ EOF
 ```bash
 sudo cp /root/deploy/.env.example /var/taktak/.env
 sudo chmod 600 /var/taktak/.env
-sudo chown taktak:taktak /var/taktak/.env
+sudo chown root:root /var/taktak/.env
 sudo nano /var/taktak/.env
 ```
 Trong file `.env`, chỉnh sửa:
@@ -117,8 +119,8 @@ Trong file `.env`, chỉnh sửa:
 ### Bước 4: Đặt file JAR và khởi động dịch vụ
 ```bash
 sudo cp /root/taktak-server.jar /var/taktak/taktak-server.jar
-sudo chown taktak:taktak /var/taktak/taktak-server.jar
-sudo chmod 750 /var/taktak/taktak-server.jar
+sudo chown root:root /var/taktak/taktak-server.jar
+sudo chmod 644 /var/taktak/taktak-server.jar
 
 # Khởi động dịch vụ Taktak:
 sudo systemctl enable --now taktak
@@ -223,7 +225,7 @@ Mỗi khi bạn sửa code Java ở máy tính local và muốn cập nhật lê
    ```bash
    sudo bash /var/taktak/scripts/update.sh /root/taktak-server-new.jar
    ```
-   *Cơ chế tự động: Script sẽ tự động snapshot sao lưu database -> backup JAR cũ -> nạp JAR mới -> restart dịch vụ -> kiểm tra healthcheck trong 30s. Nếu bản mới bị crash hoặc lỗi khởi động, script sẽ **tự động Rollback** ngay về bản cũ để bảo đảm hệ thống không bị chết.*
+   *Cơ chế tự động: Script sẽ tự động snapshot sao lưu database -> backup JAR cũ -> nạp JAR mới -> restart dịch vụ -> kiểm tra healthcheck theo tối đa 15 lượt, timeout 3s/lượt và nghỉ 2s. Nếu bản mới bị crash hoặc lỗi khởi động, script sẽ **tự động Rollback** ngay về bản cũ để bảo đảm hệ thống không bị chết.*
 
 ---
 
@@ -245,11 +247,11 @@ sudo bash /var/taktak/scripts/backup.sh
    ```bash
    ls -la /var/taktak/backups/
    ```
-2. Chạy lệnh khôi phục (điền tên thư mục backup mong muốn):
+2. Chạy lệnh khôi phục (điền đường dẫn archive mã hóa thật):
    ```bash
-   sudo bash /var/taktak/scripts/restore.sh 20261018_093000
+   sudo bash /var/taktak/scripts/restore.sh /var/taktak/backups/backup-<UTC>-<PID>.tar.enc
    ```
-   Hệ thống sẽ hỏi xác nhận `yes`, sau đó tự động nạp lại DB, phục hồi thư mục ảnh, cấp lại quyền `chmod 700` và khởi động lại dịch vụ an toàn.
+   Hệ thống kiểm tra archive trước, hỏi xác nhận `RESTORE`, sao lưu trạng thái hiện tại rồi restore DB trong transaction và đổi thư mục ảnh có thể quay lại. Nếu xuất hiện `RECOVERY_REQUIRED`, giữ nguyên các file recovery để operator xử lý.
 
 ---
 
@@ -257,7 +259,7 @@ sudo bash /var/taktak/scripts/backup.sh
 
 1. **Tuyệt đối không chạy ứng dụng bằng user `root`**: Taktak Server luôn được chạy dưới user dịch vụ `taktak:taktak` bị giới hạn quyền.
 2. **Không mở cổng 8080 và 5432 ra internet**: Tường lửa UFW đã chặn 2 cổng này. Mọi truy cập từ internet phải đi qua Nginx cổng 443 HTTPS.
-3. **Bảo mật file `/var/taktak/.env`**: File này chứa mật khẩu DB và JWT Secret, chỉ root và user taktak được đọc (`chmod 600`), không bao giờ đưa nội dung file này lên mạng hoặc gửi cho người lạ.
+3. **Bảo mật file `/var/taktak/.env`**: File này chứa mật khẩu DB và JWT Secret, chỉ root đọc (`root:root`, `chmod 600`); systemd nạp EnvironmentFile trước khi hạ quyền user, không bao giờ đưa nội dung file này lên mạng hoặc gửi cho người lạ.
 4. **Cập nhật bảo mật Ubuntu định kỳ**: Mỗi tháng 1 lần, bạn nên chạy lệnh sau trên VPS để cập nhật các bản vá lỗi bảo mật của Linux:
    ```bash
    sudo apt update && sudo apt upgrade -y

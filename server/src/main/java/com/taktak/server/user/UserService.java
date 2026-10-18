@@ -20,7 +20,7 @@ public class UserService {
 
     @Transactional
     public UserProfileResponse updateProfile(UUID currentUserId, UpdateProfileRequest request) {
-        User user = currentUser(currentUserId);
+        User user = users.lockAll(java.util.List.of(currentUserId)).stream().findFirst().orElseThrow(AuthFailure::new);
         user.updateDisplayName(request.displayName());
         // Entity đang được quản lý; JPA ghi thay đổi khi transaction commit.
         return UserProfileResponse.from(user);

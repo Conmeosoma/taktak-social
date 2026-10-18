@@ -1,5 +1,7 @@
 # Taktak Deployment & Operations Guide (Giai đoạn 8)
 
+> Cập nhật sửa lỗi 18/10/2026: quy trình hiện hành và giới hạn nghiệm thu tại [runbook bảo trì](MAINTENANCE.md). Chưa nghiệm thu trên VPS/Docker thật. Không dùng quy trình restore snapshot dạng thư mục cũ.
+
 Tài liệu này tổng hợp toàn bộ kiến trúc hạ tầng, quy trình triển khai máy chủ VPS Ubuntu, bảo mật mạng, quy trình cập nhật an toàn và sổ tay xử lý sự cố (Troubleshooting Runbook) của dự án Taktak.
 
 ---
@@ -40,8 +42,8 @@ graph TD
 | **Spring Boot** | `8080/tcp` | **Nội bộ `127.0.0.1`** (Chặn từ ngoài) | Nhận request từ Nginx reverse proxy |
 | **PostgreSQL** | `5432/tcp` | **Nội bộ `127.0.0.1`** (Chặn từ ngoài) | Lưu trữ người dùng, khoảnh khắc, quan hệ bạn bè |
 | **Private Images** | `/var/taktak/private-images` | `chmod 700 taktak:taktak` | Lưu ảnh khoảnh khắc (ngoài web root, không URL public) |
-| **File Secrets** | `/var/taktak/.env` | `chmod 600 taktak:taktak` | Chứa mật khẩu DB, JWT secret, FCM path |
-| **Thư mục Backups** | `/var/taktak/backups` | `chmod 700 taktak:taktak` | Lưu các bản sao lưu xoay vòng 14 ngày |
+| **File Secrets** | `/var/taktak/.env` | `chmod 600 root:root` | Chứa mật khẩu DB, JWT secret, FCM path |
+| **Thư mục Backups** | `/var/taktak/backups` | `chmod 700 root:root` | Lưu các bản sao lưu xoay vòng 14 ngày |
 
 ---
 
@@ -88,14 +90,14 @@ deploy/
    ```bash
    sudo cp /home/user/deploy/.env.example /var/taktak/.env
    sudo chmod 600 /var/taktak/.env
-   sudo chown taktak:taktak /var/taktak/.env
+   sudo chown root:root /var/taktak/.env
    sudo nano /var/taktak/.env
    ```
 5. **Chuyển giao file JAR sản phẩm**:
    ```bash
    sudo cp taktak-server.jar /var/taktak/taktak-server.jar
-   sudo chown taktak:taktak /var/taktak/taktak-server.jar
-   sudo chmod 750 /var/taktak/taktak-server.jar
+   sudo chown root:root /var/taktak/taktak-server.jar
+   sudo chmod 644 /var/taktak/taktak-server.jar
    sudo systemctl enable --now taktak
    ```
 6. **Kích hoạt HTTPS Let's Encrypt**:
@@ -112,22 +114,22 @@ deploy/
 
 ## 5. Quy Trình Cập Nhật & Quay Lui (Update & Rollback)
 
-### Cập nhật phiên bản mới (Zero-Risk Update):
+### Cập nhật phiên bản mới (Cập nhật có backup và rollback):
 ```bash
 sudo bash /var/taktak/scripts/update.sh /tmp/taktak-server-new.jar
 ```
 - Tự động tạo bản sao lưu snapshot trước khi update.
 - Sao lưu file JAR hiện tại thành `taktak-server.jar.bak`.
 - Khởi động lại dịch vụ và thăm dò `http://127.0.0.1:8080/actuator/health`.
-- Nếu thất bại sau 30 giây: **Tự động quay lui (Rollback) ngay lập tức** về bản cũ và giữ nguyên trạng thái dịch vụ.
+- Nếu restart hoặc healthcheck thất bại (mặc định tối đa 15 lượt, timeout 3s/lượt, nghỉ 2s): **Tự động quay lui (Rollback) ngay lập tức** về bản cũ và giữ nguyên trạng thái dịch vụ.
 
 ### Quay lui thủ công khẩn cấp (Emergency Rollback):
 ```bash
 # Chỉ quay lui file JAR:
 sudo bash /var/taktak/scripts/rollback.sh
 
-# Quay lui cả file JAR và khôi phục Database từ snapshot:
-sudo bash /var/taktak/scripts/rollback.sh --restore-db 20261018_093000
+# Khôi phục dữ liệu riêng, cần xác nhận RESTORE và kiểm tra tương thích schema/JAR:
+sudo bash /var/taktak/scripts/restore.sh /var/taktak/backups/backup-<UTC>-<PID>.tar.enc
 ```
 
 ---

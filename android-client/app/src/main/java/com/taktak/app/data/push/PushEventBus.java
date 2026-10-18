@@ -7,6 +7,7 @@ public final class PushEventBus {
     public interface Listener {
         void onMomentCreated(String momentId);
         void onMomentDeleted(String momentId);
+        default void onSessionCleared() { }
     }
 
     private static final List<Listener> listeners = new CopyOnWriteArrayList<>();
@@ -49,5 +50,12 @@ public final class PushEventBus {
 
     public static void clear() {
         listeners.clear();
+    }
+
+    // Sự kiện local, không phải payload FCM: ẩn dữ liệu đang hiển thị khi mất phiên.
+    public static void emitSessionCleared() {
+        for (Listener listener : listeners) {
+            try { listener.onSessionCleared(); } catch (Exception ignored) { }
+        }
     }
 }

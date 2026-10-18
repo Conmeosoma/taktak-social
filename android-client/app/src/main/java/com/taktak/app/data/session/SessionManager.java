@@ -15,6 +15,16 @@ public final class SessionManager {
     private Session failedRefresh;
     private IOException refreshFailure;
     private long retryRefreshAfterNanos;
+    private Runnable onCleared = () -> { };
+    public synchronized void setOnCleared(Runnable listener) { onCleared = listener; }
+    public synchronized boolean runIfCurrent(long expected, Runnable action) {
+        if (current == null || current.generation != expected) { return false; }
+        action.run(); return true;
+    }
+    public synchronized boolean runIfLoggedOut(Runnable action) {
+        if (current != null) { return false; }
+        action.run(); return true;
+    }
 
     public SessionManager(SessionStore store, AuthApi auth) throws IOException {
         this.store = store; this.auth = auth; current = store.load();
@@ -48,6 +58,7 @@ public final class SessionManager {
         refreshFailure = null;
         try { store.clear(); }
         catch (IOException exception) { throw new ApiFailure(ApiFailure.Kind.STORAGE); }
+        finally { try { onCleared.run(); } catch (RuntimeException ignored) { } }
     }
 
     public synchronized void clearIfCurrent(Session sent) throws IOException {

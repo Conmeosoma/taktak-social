@@ -1,0 +1,13 @@
+<resources>
+    <string name="profile_avatar">Ảnh đại diện cá nhân</string>
+    <string name="profile_change_avatar">Đổi ảnh đại diện</string>
+    <string name="profile_display_name">Tên hiển thị</string>
+    <string name="profile_save">Lưu thay đổi</string>
+    <string name="profile_reload">Tải lại hồ sơ</string>
+    <string name="profile_logout">Đăng xuất</string>
+    <string name="profile_saved">Đã lưu tên hiển thị.</string>
+    <string name="profile_avatar_saved">Đã cập nhật ảnh đại diện.</string>
+    <string name="profile_invalid_name">Nhập tên hiển thị từ 1 đến 255 ký tự.</string>
+    <string name="profile_error">Chưa thể cập nhật hồ sơ. Hãy thử lại.</string>
+    <string name="profile_network_error">Không thể hoàn tất yêu cầu. Kiểm tra kết nối hoặc chọn ảnh khác rồi thử lại.</string>
+</resources>

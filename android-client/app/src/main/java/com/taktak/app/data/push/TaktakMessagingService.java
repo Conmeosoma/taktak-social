@@ -44,6 +44,7 @@ public class TaktakMessagingService extends FirebaseMessagingService {
                 PushEventBus.emitMomentCreated(momentId);
                 com.taktak.app.widget.WidgetUpdater.enqueueOneTimeWork(getApplicationContext());
             } else if ("moment_deleted".equals(type) && momentId != null) {
+                com.taktak.app.ui.history.HistoryImageCache.remove(momentId);
                 PushEventBus.emitMomentDeleted(momentId);
                 com.taktak.app.widget.WidgetUpdater.enqueueOneTimeWork(getApplicationContext());
             }

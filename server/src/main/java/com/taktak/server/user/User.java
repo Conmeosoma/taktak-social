@@ -51,6 +51,8 @@ public class User {
     public String getUsername() { return username; }
     public String getDisplayName() { return displayName; }
     public Instant getCreatedAt() { return createdAt; }
+    @JsonIgnore public String getAvatarPath() { return avatarPath; }
+    public void updateAvatar(String path) { avatarPath = path; }
 
     public void updateDisplayName(String displayName) {
         this.displayName = displayName;

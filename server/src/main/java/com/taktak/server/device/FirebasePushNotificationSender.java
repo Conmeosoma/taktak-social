@@ -27,20 +27,12 @@ public class FirebasePushNotificationSender implements PushNotificationSender {
         this.deviceTokenRepository = deviceTokenRepository;
     }
 
-    public record SentMessage(String fcmToken, Map<String, String> data) {}
-    private final java.util.List<SentMessage> recordedMessages = new java.util.concurrent.CopyOnWriteArrayList<>();
-
-    public java.util.List<SentMessage> getRecordedMessages() { return java.util.List.copyOf(recordedMessages); }
-    public void clearRecordedMessages() { recordedMessages.clear(); }
-
     @Override
     public void sendDataMessage(String fcmToken, Map<String, String> data) {
         if (fcmToken == null || fcmToken.isBlank() || data == null || data.isEmpty()) {
             return;
         }
-        recordedMessages.add(new SentMessage(fcmToken, Map.copyOf(data)));
         if (firebaseApp == null) {
-            log.debug("FirebaseApp not configured. Skipping push message to token: {}", fcmToken);
             return;
         }
 
@@ -50,21 +42,18 @@ public class FirebasePushNotificationSender implements PushNotificationSender {
                     .putAllData(data)
                     .build();
             FirebaseMessaging.getInstance(firebaseApp).send(message);
-            log.debug("Sent FCM data message to token: {}", fcmToken);
         } catch (FirebaseMessagingException e) {
-            log.warn("FCM push failed for token: {}. ErrorCode: {}", fcmToken, e.getMessagingErrorCode());
-            if (e.getMessagingErrorCode() == MessagingErrorCode.UNREGISTERED
-                    || e.getMessagingErrorCode() == MessagingErrorCode.INVALID_ARGUMENT) {
+            log.warn("FCM push failed. ErrorCode: {}", e.getMessagingErrorCode());
+            if (e.getMessagingErrorCode() == MessagingErrorCode.UNREGISTERED) {
                 // Token has expired or app was uninstalled: clean up stale token
-                log.info("Removing stale FCM token: {}", fcmToken);
                 try {
                     deviceTokenRepository.deleteByFcmToken(fcmToken);
                 } catch (Exception ex) {
-                    log.warn("Failed to delete stale token {}: {}", fcmToken, ex.getMessage());
+                    log.warn("Failed to remove expired device registration.");
                 }
             }
         } catch (Exception e) {
-            log.warn("Unexpected error sending FCM message: {}", e.getMessage());
+            log.warn("Unexpected error sending FCM message.");
         }
     }
 

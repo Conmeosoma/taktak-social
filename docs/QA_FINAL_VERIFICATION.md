@@ -2,7 +2,7 @@
 
 **Dự án:** Taktak (Android Client + Spring Boot Server)  
 **Thời điểm nghiệm thu:** 18/10/2026 (Asia/Saigon)  
-**Tình trạng:** **PASS TOÀN DIỆN (100% ROADMAP MVP HOÀN TẤT)**
+**Tình trạng:** HỒ SƠ LỊCH SỬ — kết luận nghiệm thu toàn diện đã bị rút lại sau review 18/10/2026. Bằng chứng và giới hạn hiện hành: [QA_REVIEW_FIXES.md](QA_REVIEW_FIXES.md). Không coi build, JVM tests hay Bash syntax là nghiệm thu production.
 
 ---
 
@@ -79,21 +79,21 @@ Giai đoạn 8C hoàn tất khâu kiểm thử bảo mật client-server, kiểm
 | **FRIEND-01** | A gửi kết bạn B, B chấp nhận lời mời | Xuất hiện 1 quan hệ bạn bè hợp lệ duy nhất trong PostgreSQL | Kiểm thử trong `FriendRelationIntegrationTest.acceptFriendship` | **PASS** |
 | **FRIEND-02** | A chặn B; B tìm kiếm, mời kết bạn, gửi ảnh | Server từ chối cả 2 chiều, ẩn thông tin theo chính sách block | Kiểm thử trong `FriendIntegrationTest.blockPreventsInteractions` | **PASS** |
 | **MOMENT-01** | Gửi ảnh cho bạn bè (Giai đoạn 5C) | Người nhận hợp lệ tải được ảnh; người lạ tải bị từ chối 403 Forbidden | Kiểm thử trong `MomentIntegrationTest.momentRecipientAuthorization` | **PASS** |
-| **MOMENT-02** | Xóa khoảnh khắc (Giai đoạn 7B) | Thu hồi quyền tức thời, xóa file đĩa, request sau đó trả về 404 Not Found | Kiểm thử trong `MomentPushIntegrationTest.momentDeletionRevocation` | **PASS** |
-| **MOMENT-03** | Lưu ảnh vào máy (Giai đoạn 7C) | Lưu vào MediaStore `Pictures/Taktak` an toàn chỉ khi có User Action | Kiểm thử trong `DeviceAcceptanceTest` & `GallerySaver` | **PASS** |
+| **MOMENT-02** | Upload giả JPEG/quá lớn (đúng mục 11 đặc tả) | 415/413, không lưu rác | Xem các ca validation trong MomentIntegrationTest; bảng cũ gán nhầm mã này cho xóa ảnh | Đối chiếu lại theo QA_REVIEW_FIXES |
+| **MOMENT-03** | Timeout upload rồi retry cùng idempotency key (đúng đặc tả) | Không tạo moment trùng | MomentIntegrationTest và QA_MOMENT_IDEMPOTENCY; bảng cũ gán nhầm mã cho lưu gallery | Đối chiếu lại theo QA_REVIEW_FIXES |
 
 ---
 
 ## 4. Nghiệm Thu Quy Trình Triển Khai, Cập Nhật & Quay Lui (DevOps & Reliability)
 
-- **Quy trình Triển khai Lần đầu**: Đã chuẩn hóa qua `deploy/scripts/setup-vps.sh` và tài liệu [deploy/README.md](file:///c:/Users/NamTien/Documents/taktak/deploy/README.md) & [docs/DEPLOYMENT_GUIDE.md](file:///c:/Users/NamTien/Documents/taktak/docs/DEPLOYMENT_GUIDE.md).
+- **Quy trình Triển khai Lần đầu**: Đã chuẩn hóa qua `deploy/scripts/setup-vps.sh` và tài liệu [deploy/README.md](../deploy/README.md) & [docs/DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md).
 - **Quy trình Cập nhật An toàn (`update.sh`)**:
   - Tạo snapshot database tự động trước khi thay đổi.
   - Tự động thăm dò healthcheck `http://127.0.0.1:8080/actuator/health` trong 30 giây.
   - **Tự động Rollback** về bản JAR cũ nếu healthcheck không phản hồi 200 OK.
 - **Quy trình Quay lui Thủ công (`rollback.sh`)**:
   - Khôi phục file JAR dự phòng và khởi động lại dịch vụ.
-  - Tùy chọn khôi phục snapshot database đồng bộ qua cờ `--restore-db <TIMESTAMP>`.
+  - Không còn cờ restore DB trong rollback JAR; dùng restore archive riêng có xác nhận theo runbook mới.
 - **Bảo vệ Dữ liệu Riêng tư**:
   - Thư mục `/var/taktak/private-images` phân quyền `chmod 700 taktak:taktak`, nằm ngoài web root Nginx.
   - Nginx không cấu hình bất kỳ alias nào cho thư mục này; mọi request tải ảnh đều bắt buộc có JWT Bearer và kiểm tra quan hệ bạn bè.
@@ -105,4 +105,4 @@ Giai đoạn 8C hoàn tất khâu kiểm thử bảo mật client-server, kiểm
 
 ## 5. Kết Luận Chung
 
-Toàn bộ các tiêu chí nghiệm thu của **Giai đoạn 8C** và **toàn bộ 8 Giai đoạn trong Roadmap Taktak MVP** đã hoàn tất với kết quả **PASS 100%**. Hệ thống sẵn sàng vận hành trên môi trường sản xuất.
+Kết luận 100% trước đây không được chứng minh và đã rút lại. Số test cũ là lịch sử; chưa có nghiệm thu VPS/Docker/ACME/FCM thật. Profile còn placeholder. Dùng báo cáo QA_REVIEW_FIXES và staging drill trước khi quyết định phát hành.

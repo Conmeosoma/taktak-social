@@ -30,9 +30,11 @@ final class FriendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
     }
     private final Actions actions;
     private final RequestManager images;
+    private final com.taktak.app.ui.profile.AvatarLoader avatars;
     private final List<Row> rows = new ArrayList<>();
     private State state;
-    FriendsAdapter(RequestManager images, Actions actions) { this.images = images; this.actions = actions; }
+    FriendsAdapter(RequestManager images, Actions actions) { this.images = images; this.actions = actions; avatars=new com.taktak.app.ui.profile.AvatarLoader(images); }
+    void close() { avatars.close(); }
     void submit(State next) {
         var previous = new ArrayList<>(rows);
         state = next; rows.clear();
@@ -103,7 +105,7 @@ final class FriendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         var b = ((PersonHolder) holder).binding;
         b.friendName.setText(row.user.displayName);
         b.friendUsername.setText(b.getRoot().getContext().getString(R.string.friends_username, row.user.username));
-        images.load(R.drawable.friend_avatar).error(R.drawable.friend_avatar).into(b.friendAvatar);
+        avatars.load(row.user.id,b.friendAvatar);
         boolean alreadyFriend = state.friends.stream().anyMatch(user -> user.id.equals(row.user.id));
         boolean incoming = state.incoming.stream().anyMatch(item -> item.sender.id.equals(row.user.id));
         boolean sent = state.sent.contains(row.user.id);
@@ -129,7 +131,7 @@ final class FriendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         });
     }
     @Override public void onViewRecycled(@NonNull RecyclerView.ViewHolder holder) {
-        if (holder instanceof PersonHolder person) { images.clear(person.binding.friendAvatar); }
+        if (holder instanceof PersonHolder person) { avatars.clear(person.binding.friendAvatar); }
         super.onViewRecycled(holder);
     }
 }

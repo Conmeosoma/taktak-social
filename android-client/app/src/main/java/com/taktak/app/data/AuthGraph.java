@@ -15,8 +15,14 @@ public final class AuthGraph {
     public static synchronized AuthRepository repository(Context context) throws IOException {
         if (repository == null) {
             try {
-                repository = new AuthRepository(new ApiClient(BuildConfig.BASE_URL,
-                        new EncryptedSessionStore(context.getApplicationContext(), BuildConfig.BASE_URL)));
+                Context app = context.getApplicationContext();
+                var client = new ApiClient(BuildConfig.BASE_URL, new EncryptedSessionStore(app, BuildConfig.BASE_URL));
+                client.sessions.setOnCleared(() -> {
+                    com.taktak.app.ui.history.HistoryImageCache.clear();
+                    com.taktak.app.data.push.PushEventBus.emitSessionCleared();
+                    com.taktak.app.widget.WidgetUpdater.clearForLogout(app);
+                });
+                repository = new AuthRepository(client);
             } catch (IOException failure) { throw new ApiFailure(ApiFailure.Kind.STORAGE); }
         }
         return repository;

@@ -25,6 +25,8 @@ public final class AuthRepository {
     public UserProfile profile() throws IOException { return checked(client.users.me().execute()); }
 
     public boolean hasSession() { return client.sessions.snapshot() != null; }
+    public boolean publishIfCurrent(long generation, Runnable action) { return client.sessions.runIfCurrent(generation, action); }
+    public boolean publishIfLoggedOut(Runnable action) { return client.sessions.runIfLoggedOut(action); }
     public long sessionGeneration() throws ApiFailure {
         var session = client.sessions.snapshot();
         if (session == null) { throw new ApiFailure(ApiFailure.Kind.UNAUTHORIZED); }
@@ -40,6 +42,7 @@ public final class AuthRepository {
         return new DeviceRepository(client, new com.taktak.app.data.session.AppDeviceIdProvider(context));
     }
     public MomentRepository moments() { return new MomentRepository(client); }
+    public ProfileRepository profiles() { return new ProfileRepository(client); }
     public FriendRepository friends() { return new FriendRepository(client); }
 
     private UserProfile checked(Response<UserProfile> response) throws IOException {

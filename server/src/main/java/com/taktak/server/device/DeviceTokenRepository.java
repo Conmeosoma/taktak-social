@@ -22,7 +22,7 @@ public interface DeviceTokenRepository extends JpaRepository<DeviceToken, UUID> 
     void deleteByUserIdAndDeviceId(@Param("userId") UUID userId, @Param("deviceId") String deviceId);
 
     @Modifying
-    @org.springframework.transaction.annotation.Transactional
+    @org.springframework.transaction.annotation.Transactional(propagation = org.springframework.transaction.annotation.Propagation.REQUIRES_NEW)
     @Query("DELETE FROM DeviceToken d WHERE d.fcmToken = :fcmToken")
     void deleteByFcmToken(@Param("fcmToken") String fcmToken);
 }

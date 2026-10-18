@@ -1,5 +1,11 @@
 # Taktak — 0B: Firebase Android chỉ dùng FCM
 
+## Cập nhật runtime — 18/10/2026
+
+Người dùng đã chuẩn bị Admin service-account JSON local trong `.local/secrets` và duyệt kiểm thử FCM. Đã đối chiếu type/project với cấu hình Android mà không in private key, xác minh Git ignore, rồi chạy Firebase Admin gửi tới AVD thật. Batch6/6 có ca foreground/background, xóa và logout cập nhật RemoteViews qua WorkManager. Đây là cloud integration trên emulator với QA AppWidgetHost, chưa phải nghiệm thu điện thoại/launcher OEM. Bằng chứng hiện hành ở [QA_PROFILE_AVATAR_FCM.md](QA_PROFILE_AVATAR_FCM.md); nội dung0B bên dưới là lịch sử.
+
+Để lấy Admin JSON theo [hướng dẫn Firebase](https://firebase.google.com/docs/admin/setup): Project settings → Service accounts → Firebase Admin SDK → Generate new private key. Giữ file server-side trong thư mục secret local, không dán key lên chat, không dùng google-services.json thay thế. Smoke runner có tùy chọn `-EnableFcm -FirebaseCredentials <đường-dẫn-local>`; mặc định vẫn không bật FCM. Bản test FCM cần chạy có chủ đích với `-e taktakRealFcm true`, không lấy test skip hoặc push giả làm PASS Firebase.
+
 Cập nhật: 16/10/2026. **0B PASS — đăng ký/cấu hình Firebase**, dựa trên kiểm tra local, ảnh Console do người dùng cung cấp và xác nhận thủ công về phạm vi dịch vụ. Chưa kiểm thử gửi/nhận FCM.
 
 Quyền mới nhất AUTO CONTINUE đã mở toàn Bước 0 và giai đoạn 1, bao gồm phần độc lập khi 0B bị chặn. Các kết quả local 0B dưới đây là của phiên 0B trước; phần build/runtime giai đoạn 1 được ghi riêng trong QA_BOOTSTRAP. JSON local được giữ nguyên.

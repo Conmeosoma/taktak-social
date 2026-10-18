@@ -1,76 +1,43 @@
 #!/usr/bin/env bash
-# ==============================================================================
-# Taktak SSL Setup Script với Let's Encrypt Certbot (Giai đoạn 8B)
-# Chạy với quyền sudo trên Ubuntu 22.04 / 24.04 LTS
-# Cách dùng: sudo ./setup-ssl.sh <DOMAIN> <EMAIL>
-# Ví dụ: sudo ./setup-ssl.sh taktak.example.com admin@example.com
-# ==============================================================================
+# Bootstrap HTTP -> cấp certificate -> kiểm tra và bật HTTPS.
 set -euo pipefail
-
-if [ "$#" -lt 2 ]; then
-    echo "Lỗi: Thiếu tham số!"
-    echo "Cách dùng: sudo $0 <DOMAIN> <EMAIL>"
-    echo "Ví dụ: sudo $0 api.taktak.example.com admin@example.com"
-    exit 1
-fi
-
-DOMAIN="$1"
-EMAIL="$2"
-
-echo "=============================================================================="
-echo " Thiết lập SSL/TLS Let's Encrypt cho domain: $DOMAIN"
-echo " Email quản trị: $EMAIL"
-echo "=============================================================================="
-
-echo "===> [1/4] Cài đặt Nginx và Certbot..."
+[[ $# = 2 ]] || { echo 'Usage: setup-ssl.sh <domain> <email>' >&2; exit 1; }
+DOMAIN="$1"; EMAIL="$2"
+[[ "${#DOMAIN}" -le 253 && "$DOMAIN" =~ ^[a-z0-9]([a-z0-9.-]*[a-z0-9])?$ && "$DOMAIN" = *.* ]] || exit 1
+[[ "$EMAIL" =~ ^[^[:space:]@]+@[^[:space:]@]+\.[^[:space:]@]+$ ]] || exit 1
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# Override chỉ để test trên root fixture, không thay cấu hình máy host.
+CONFIG_ROOT="${TAKTAK_NGINX_ROOT:-/etc/nginx}"
+CERT_ROOT="${TAKTAK_CERT_ROOT:-/etc/letsencrypt}"
+WEB_ROOT="${TAKTAK_ACME_ROOT:-/var/www/certbot}"
 apt-get update
 apt-get install -y nginx certbot python3-certbot-nginx
-
-# Tạo thư mục ACME challenge
-mkdir -p /var/www/certbot
-chown -R www-data:www-data /var/www/certbot
-
-echo "===> [2/4] Chuẩn bị file cấu hình Nginx..."
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-NGINX_CONF_TEMPLATE="$SCRIPT_DIR/../nginx/taktak.conf"
-
-if [ -f "$NGINX_CONF_TEMPLATE" ]; then
-    # Thay thế placeholder domain bằng domain thật
-    sed "s/YOUR_DOMAIN_OR_IP/$DOMAIN/g" "$NGINX_CONF_TEMPLATE" > /etc/nginx/sites-available/taktak
-    
-    # Tạo symlink nếu chưa có
-    if [ ! -f /etc/nginx/sites-enabled/taktak ]; then
-        ln -sf /etc/nginx/sites-available/taktak /etc/nginx/sites-enabled/taktak
-    fi
-
-    # Gỡ bỏ default site của Nginx nếu còn tồn tại
-    if [ -f /etc/nginx/sites-enabled/default ]; then
-        rm -f /etc/nginx/sites-enabled/default
-    fi
-
-    echo "Đã sao chép cấu hình Nginx tới /etc/nginx/sites-available/taktak."
+mkdir -p "$WEB_ROOT" "$CONFIG_ROOT/sites-available" "$CONFIG_ROOT/sites-enabled"
+chown www-data:www-data "$WEB_ROOT"
+TARGET="$CONFIG_ROOT/sites-available/taktak"
+if [[ ! -s "$CERT_ROOT/live/$DOMAIN/fullchain.pem" || ! -s "$CERT_ROOT/live/$DOMAIN/privkey.pem" ]]; then
+    sed "s/YOUR_DOMAIN_OR_IP/$DOMAIN/g" "$SCRIPT_DIR/../nginx/taktak-http.conf" > "$TARGET"
+    ln -sfn "$TARGET" "$CONFIG_ROOT/sites-enabled/taktak"
+    nginx -t
+    systemctl reload nginx
 fi
-
-echo "===> [3/4] Cấp phát chứng chỉ Let's Encrypt SSL/TLS..."
-# Dùng certbot cấp chứng chỉ tự động cho Nginx
-certbot --nginx \
-    -d "$DOMAIN" \
-    --non-interactive \
-    --agree-tos \
-    -m "$EMAIL" \
-    --redirect
-
-echo "===> [4/4] Kiểm tra cấu hình và reload Nginx..."
+certbot certonly --webroot -w "$WEB_ROOT" -d "$DOMAIN" -m "$EMAIL" \
+    --non-interactive --agree-tos --keep-until-expiring --deploy-hook "systemctl reload nginx"
+[[ -s "$CERT_ROOT/live/$DOMAIN/fullchain.pem" && -s "$CERT_ROOT/live/$DOMAIN/privkey.pem" ]] || { echo 'Missing issued certificate' >&2; exit 1; }
+PREVIOUS="$(mktemp "$CONFIG_ROOT/sites-available/.taktak-previous-XXXXXXXX")"
+HAD_PREVIOUS=0
+if [[ -f "$TARGET" ]]; then cp -- "$TARGET" "$PREVIOUS"; HAD_PREVIOUS=1; fi
+finish() {
+    local result=$?
+    trap - EXIT
+    if [[ "$result" != 0 && "$HAD_PREVIOUS" = 1 ]]; then cp -- "$PREVIOUS" "$TARGET"; fi
+    rm -f -- "$PREVIOUS"
+    exit "$result"
+}
+trap finish EXIT
+sed "s/YOUR_DOMAIN_OR_IP/$DOMAIN/g" "$SCRIPT_DIR/../nginx/taktak.conf" > "$TARGET"
+ln -sfn "$TARGET" "$CONFIG_ROOT/sites-enabled/taktak"
 nginx -t
 systemctl reload nginx
-
-echo "===> [Kiểm tra] Kiểm tra dịch vụ tự động gia hạn chứng chỉ (Auto-Renewal)..."
-systemctl status certbot.timer --no-pager || true
 certbot renew --dry-run
-
-echo ""
-echo "=============================================================================="
-echo " Thiết lập SSL/TLS thành công!"
-echo " Tên miền: https://$DOMAIN"
-echo " Chứng chỉ Let's Encrypt sẽ tự động gia hạn qua certbot.timer."
-echo "=============================================================================="
+echo "TLS_OK=https://$DOMAIN"

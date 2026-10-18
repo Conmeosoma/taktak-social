@@ -2,6 +2,10 @@ package com.taktak.app.data.model;
 
 public final class AuthModels {
     private AuthModels() { }
+    public static final class UpdateProfileRequest {
+        private final String displayName;
+        public UpdateProfileRequest(String name) { displayName=name; }
+    }
 
     public static final class LoginRequest {
         private final String email;

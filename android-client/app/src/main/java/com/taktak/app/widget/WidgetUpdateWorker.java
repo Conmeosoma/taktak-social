@@ -25,27 +25,30 @@ public class WidgetUpdateWorker extends Worker {
         try {
             AuthRepository auth = AuthGraph.repository(context);
             if (!auth.hasSession()) {
-                WidgetUpdater.renderLoggedOut(context);
+                auth.publishIfLoggedOut(() -> WidgetUpdater.renderLoggedOut(context));
                 return Result.success();
             }
 
             MomentRepository moments = auth.moments();
             MomentItem latest = moments.latest();
             if (latest == null) {
-                WidgetUpdater.renderEmpty(context);
+                moments.publishIfCurrent(() -> WidgetUpdater.renderEmpty(context));
                 return Result.success();
             }
 
             byte[] imageBytes = moments.download(latest.id);
             Bitmap bitmap = WidgetUpdater.decodeSampledBitmap(imageBytes, 512, 512);
-            WidgetUpdater.renderMoment(context, latest, bitmap);
+            try { moments.publishIfCurrent(() -> WidgetUpdater.renderMoment(context, latest, bitmap)); }
+            finally { if (bitmap != null) { bitmap.recycle(); } }
             return Result.success();
         } catch (ApiFailure failure) {
             if (failure.kind == ApiFailure.Kind.UNAUTHORIZED || failure.kind == ApiFailure.Kind.CANCELLED) {
-                WidgetUpdater.renderLoggedOut(context);
+                try { AuthGraph.repository(context).publishIfLoggedOut(() -> WidgetUpdater.renderLoggedOut(context)); }
+                catch (IOException ignored) { }
                 return Result.success();
             }
-            if (failure.kind == ApiFailure.Kind.SERVER || failure.kind == ApiFailure.Kind.RATE_LIMIT) {
+            if (failure.kind == ApiFailure.Kind.NETWORK || failure.kind == ApiFailure.Kind.SERVER
+                    || failure.kind == ApiFailure.Kind.RATE_LIMIT) {
                 return Result.retry();
             }
             return Result.failure();

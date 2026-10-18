@@ -2,12 +2,18 @@
 
 Cập nhật: 18/10/2026. Nguồn đối chiếu: [đặc tả](TAKTAK_PROJECT.md), [trạng thái](PROJECT_STATUS.md), [bàn giao](SESSION_HANDOFF.md) và lịch sử yêu cầu trong cuộc trò chuyện.
 
-Quyền mới nhất: **8C — Kiểm thử cuối, bảo mật client-server & Quy trình Update/Rollback: PASS TOÀN DIỆN**, được người dùng duyệt sau 8B. Hoàn tất kiểm thử nghiệm thu toàn diện 11 kịch bản cốt lõi mục 11 đặc tả TAKTAK_PROJECT.md; kiểm tra bảo mật APK Release: `assembleRelease lintRelease` thành công 0 errors, sinh file `app-release-unsigned.apk` (11.8 MB), `usesCleartextTraffic="false"`, `allowBackup="false"`, `BASE_URL` bắt buộc HTTPS, quét sạch hoàn toàn không chứa JWT secret hay database credentials. Bộ đôi script bảo đảm độ tin cậy DevOps: `deploy/scripts/update.sh` (tự động sao lưu snapshot DB, kiểm tra healthcheck 30s và auto-rollback nếu lỗi) và `deploy/scripts/rollback.sh` (quay lui thủ công file JAR và database); tài liệu triển khai toàn diện [deploy/README.md](../deploy/README.md) kèm sơ đồ Mermaid và troubleshooting runbook. Backend đạt 123/123 tests PASS (100%), Android client đạt 66/66 JVM tests PASS (100%), 100% script bash pass cú pháp (`bash -n`). Xem [QA_FINAL_VERIFICATION.md](QA_FINAL_VERIFICATION.md). HEAD vẫn `ed9fde6`; bảo toàn toàn bộ thay đổi chưa commit. **Hoàn tất 100% Roadmap Taktak MVP (Giai đoạn 0 đến 8)**.
+Quyền mới nhất: **Hồ sơ cá nhân + Avatar cá nhân + FCM/widget thực tế**, người dùng chọn emulator trước vì đang dùng điện thoại. Hồ sơ/avatar đã triển khai, Firebase cloud/QA AppWidgetHost đã test trên AVD; USB/OEM và VPS còn chờ nghiệm thu. Bằng chứng hiện hành: [QA_PROFILE_AVATAR_FCM.md](QA_PROFILE_AVATAR_FCM.md). Giữ toàn bộ bản vá review chưa commit; không commit/push/deploy hoặc tự chuyển tính năng mới.
+
+Bản vá review được giữ nguyên; baseline hiện hành sau Hồ sơ/avatar: **136 backend/72 JVM PASS**, batch mới 6/6 và hồi quy cuối 10/10 AVD PASS, 11 contract tests mock, build/lint debug/release đạt. FCM cloud thật đã kiểm chứng tới AVD/QA widget host; chưa đóng cổng nghiệm thu điện thoại/OEM hoặc production. Bước đề xuất duy nhất: nghiệm thu điện thoại thật khi người dùng sẵn sàng.
 
 `PASS` chỉ áp dụng cho phạm vi đã có bằng chứng. `CHƯA DUYỆT` nghĩa là không được tự triển khai; `CHƯA XÁC MINH` không đồng nghĩa thất bại.
 
 | Mã | Công việc | Trạng thái | Bằng chứng / điều kiện |
 |---|---|---|---|
+| PROFILE | Xem/sửa hồ sơ, bản nháp/recreate/logout, Java/XML M3E | PASS local/AVD | ProfileFragment/Repository/ViewModel; QA_PROFILE_AVATAR_FCM |
+| AVATAR | Upload/tải JPEG private, friend/block, transaction/race, UI bạn bè/lịch sử | PASS local/AVD | 6 backend cases,3JVM mới,5 UI cases; snapshot chứaavatars |
+| FCM-REAL-AVD | Firebase cloud thật tới AVD, Worker cập nhật QA RemoteViews | PASS AVD | Foreground/background, xóa/logout; real opt-in test1/1 rồi batch6/6;4ảnhwidget |
+| FCM-REAL-USB | FCM/widget trên điện thoại và launcher OEM | CHƯA NGHIỆM THU | Người dùng chọn emulator trước vì đang dùng điện thoại; không tự tác động máy |
 | M3E-01 | Foundation + Login Material3Expressive1.14.0, Java/XML | PASS local/USB | Theme opt-in;light/dark,font1.5,màn hẹp/IME,offline/retry/auth/logout;28unit,4+4USB,build/lint;QA_M3E_LOGIN |
 | M3E-02 | Redesign Register | PASS local/USB | Light/dark,long form,font1.5,IME,validation/loading/recreate,offline/retry/API/conflict;28unit,4+7USB,build/lint;QA_M3E_REGISTER |
 | M3E-03 | Camera + trạng thái phiên theo M3E | PASS local/USB | Camera-first, scoped theme giữ Friends cũ; 28unit/20USB/build/lint, QA_M3E_CAMERA |
@@ -42,9 +48,9 @@ Quyền mới nhất: **8C — Kiểm thử cuối, bảo mật client-server & 
 | 7A | Lịch sử Đã gửi & Xem toàn màn hình (Sent Moments History & Viewer) | PASS local/AVD | 123backend, 62JVM, 8AVD; GET /api/moments?type=sent, TabLayout 2 tab, MomentViewerActivity, LRU cache 20MB; QA_SENT_HISTORY_VIEWER |
 | 7B | Xóa khoảnh khắc phía máy chủ & Thu hồi quyền tức thời (Server-side Delete) | PASS local/AVD | 123backend, 66JVM, 10AVD; DELETE /api/moments/{id}, soft delete, discard image file, push moment_deleted, UI confirm & rollback; QA_MOMENT_DELETION |
 | 7C | Tải ảnh vào bộ sưu tập thiết bị (Save to Device Gallery) | PASS local/AVD | 123backend, 66JVM, 12AVD; MediaStore Pictures/Taktak, Scoped Storage API 29+, compatibility API 26-28, user action only; QA_SAVE_TO_GALLERY |
-| 8A | Chuẩn bị môi trường VPS Ubuntu & Cấu hình dịch vụ (VPS Setup) | PASS | 123backend, package JAR; application-prod.yml, .env.example, taktak.service, Dockerfile, docker-compose.yml, setup-vps.sh; QA_VPS_SETUP |
-| 8B | Nginx Reverse Proxy, TLS Let's Encrypt & Tường lửa UFW | PASS | Nginx taktak.conf, Certbot HTTPS, rate limit, upload 10M, UFW 22/80/443, logrotate, backup.sh, restore.sh, backup timer; QA_NGINX_SSL_BACKUP |
-| 8C | Kiểm thử cuối, bảo mật client-server & Quy trình Update/Rollback | PASS TOÀN DIỆN | 123 backend (100%), 66 Android JVM (100%), assemble/lint Release 0 errors (APK 11.8MB), update.sh, rollback.sh, deploy/README.md; QA_FINAL_VERIFICATION |
+| 8A | Chuẩn bị môi trường VPS Ubuntu & Cấu hình dịch vụ (VPS Setup) | CHƯA NGHIỆM THU VPS | 123backend, package JAR; application-prod.yml, .env.example, taktak.service, Dockerfile, docker-compose.yml, setup-vps.sh; QA_VPS_SETUP |
+| 8B | Nginx Reverse Proxy, TLS Let's Encrypt & Tường lửa UFW | CHƯA NGHIỆM THU TLS/RESTORE THẬT | Nginx taktak.conf, Certbot HTTPS, rate limit, upload 10M, UFW 22/80/443, logrotate, backup.sh, restore.sh, backup timer; QA_NGINX_SSL_BACKUP |
+| 8C | Kiểm thử cuối, bảo mật client-server & Quy trình Update/Rollback | PASS LOCAL, CHƯA NGHIỆM THU TOÀN DIỆN | 130 backend,69 JVM,22 Android khác nhau qua batch,11 contract mock; không suy ra production/FCM thật; QA_REVIEW_FIXES |
 
 ## Nghiệm thu phiên khôi phục trước khi duyệt 0B (lịch sử)
 

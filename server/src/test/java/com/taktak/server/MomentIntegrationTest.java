@@ -507,6 +507,24 @@ class MomentIntegrationTest {
         var image = new BufferedImage(80, 80, BufferedImage.TYPE_INT_RGB);
         var output = new ByteArrayOutputStream(); ImageIO.write(image, "jpeg", output); image.flush(); return output.toByteArray();
     }
+    @Test void deletionRollbackKeepsImageAndCommitDiscardsOnlyAfterCommit() throws Exception {
+        var owner = account(); UUID id = uploaded(owner.token);
+        var service = context.getBean(com.taktak.server.moment.MomentService.class);
+        var transaction = new TransactionTemplate(context.getBean(PlatformTransactionManager.class));
+        transaction.executeWithoutResult(status -> {
+            service.delete(owner.id, id);
+            assertThat(Files.isRegularFile(storage.resolve(id + ".jpg"))).isTrue();
+            status.setRollbackOnly();
+        });
+        assertThat(jdbc.queryForObject("SELECT deleted_at IS NULL FROM moments WHERE id=?", Boolean.class, id)).isTrue();
+        assertThat(image(owner.token, id).statusCode()).isEqualTo(200);
+        transaction.executeWithoutResult(status -> {
+            service.delete(owner.id, id);
+            assertThat(Files.isRegularFile(storage.resolve(id + ".jpg"))).isTrue();
+        });
+        assertThat(Files.exists(storage.resolve(id + ".jpg"))).isFalse();
+        assertThat(image(owner.token, id).statusCode()).isEqualTo(404);
+    }
     private long fileCount() throws Exception { try (var files = Files.list(storage)) { return files.count(); } }
     private int rows() { return jdbc.queryForObject("SELECT count(*) FROM moments", Integer.class); }
 }

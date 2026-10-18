@@ -8,6 +8,9 @@ import okhttp3.*;
 
 public final class MomentRepository {
     public static final int MAX_BYTES = 5 * 1024 * 1024;
+    public boolean publishIfCurrent(Runnable action) {
+        return owner != null && client.sessions.runIfCurrent(owner.generation, action);
+    }
     private final ApiClient client;
     private final Session owner;
     public MomentRepository(ApiClient client) { this.client = client; this.owner = client.sessions.snapshot(); }
@@ -128,7 +131,7 @@ public final class MomentRepository {
     public com.taktak.app.data.model.MomentModels.MomentItem latest() throws IOException {
         Session owner = requireSession();
         var response = client.moments.latest().execute();
-        if (response.code() == 204) { return null; }
+        if (response.code() == 204) { ensureCurrent(owner); return null; }
         if (!response.isSuccessful()) { throw ApiFailure.from(response); }
         ensureCurrent(owner);
         var body = response.body();

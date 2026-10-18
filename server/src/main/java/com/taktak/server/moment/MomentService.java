@@ -117,7 +117,10 @@ public class MomentService {
         }
         moment.markDeleted(clock.instant());
         moments.saveAndFlush(moment);
-        storage.discard(moment.getFilePath());
+        // Không xóa file khi giao dịch vẫn có thể rollback.
+        TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+            @Override public void afterCommit() { storage.discard(moment.getFilePath()); }
+        });
 
         var recipients = moments.findRecipientIds(momentId);
         if (!recipients.isEmpty()) {

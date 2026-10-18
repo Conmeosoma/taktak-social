@@ -1,110 +1,72 @@
 #!/usr/bin/env bash
-# ==============================================================================
-# Taktak System Restore Script (Giai đoạn 8B)
-# Khôi phục hệ thống từ bản sao lưu: Database + Private Images
-# Chạy với quyền sudo trên Ubuntu VPS
-# Cách dùng: sudo ./restore.sh <TIMESTAMP_OR_PATH> [-y]
-# Ví dụ: sudo ./restore.sh 20261018_093000
-# ==============================================================================
+# Restore có xác nhận, kiểm tra trước, transaction PostgreSQL và rollback khi lỗi.
 set -euo pipefail
-
-BACKUP_ROOT="/var/taktak/backups"
-
-if [ "$#" -lt 1 ]; then
-    echo "Lỗi: Thiếu tham số đường dẫn bản sao lưu!"
-    echo "Cách dùng: sudo $0 <TIMESTAMP_HOẶC_ĐƯỜNG_DẪN_THƯ_MỤC_BACKUP> [-y]"
-    echo "Các bản backup hiện có trong $BACKUP_ROOT:"
-    ls -1 "$BACKUP_ROOT" 2>/dev/null || echo "(Chưa có bản sao lưu nào)"
-    exit 1
-fi
-
-TARGET="$1"
-AUTO_CONFIRM="${2:-}"
-
-# Xác định đường dẫn thư mục backup
-if [ -d "$TARGET" ]; then
-    BACKUP_DIR="$TARGET"
-elif [ -d "$BACKUP_ROOT/$TARGET" ]; then
-    BACKUP_DIR="$BACKUP_ROOT/$TARGET"
-else
-    echo "Lỗi: Không tìm thấy thư mục bản sao lưu: $TARGET"
-    exit 1
-fi
-
-echo "=============================================================================="
-echo " [CẢNH BÁO] CHUẨN BỊ KHÔI PHỤC DỮ LIỆU TAKTAK TỪ: $BACKUP_DIR"
-echo " Quá trình này sẽ GHI ĐÈ toàn bộ dữ liệu database và thư mục ảnh hiện tại!"
-echo "=============================================================================="
-
-if [ "$AUTO_CONFIRM" != "-y" ]; then
-    read -r -p "Bạn có chắc chắn muốn khôi phục không? (nhập 'yes' để xác nhận): " CONFIRM
-    if [ "$CONFIRM" != "yes" ]; then
-        echo "Hủy bỏ quá trình khôi phục theo yêu cầu người dùng."
-        exit 0
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$SCRIPT_DIR/common.sh"
+[[ $# -ge 1 ]] || die 'Usage: restore.sh <backup-file.tar.enc> [--yes]'
+load_database; require_key; lock_operations
+ARCHIVE="$(realpath -e -- "$1")"
+[[ -f "$ARCHIVE" && ! -L "$1" && -f "$ARCHIVE.sha256" ]] || die 'Missing backup or checksum.'
+EXPECTED="$(awk 'NR==1 {print $1}' "$ARCHIVE.sha256")"
+[[ "$EXPECTED" =~ ^[a-f0-9]{64}$ ]] || die 'Invalid checksum.'
+ACTUAL="$(sha256sum "$ARCHIVE")"; [[ "${ACTUAL%% *}" = "$EXPECTED" ]] || die 'Backup checksum mismatch.'
+make_stage
+WAS_ACTIVE=0; DB_APPLIED=0; OLD_IMAGES=0; NEW_IMAGES=0; COMPLETE=0
+BEFORE_IMAGES="$APP_ROOT/private-images.before-$(date -u +%Y%m%dT%H%M%S)-$$"
+finish() {
+    local result=$? recovered=1
+    trap - EXIT
+    if [[ "$COMPLETE" != 1 && "$DB_APPLIED" = 1 ]]; then
+        systemctl stop "$SERVICE" || true
+        database_restore "$STAGE/before.dump" || recovered=0
+        if [[ "$NEW_IMAGES" = 1 ]]; then
+            mv -- "$IMAGE_DIR" "$APP_ROOT/private-images.failed-$$" || recovered=0
+        fi
+        if [[ "$OLD_IMAGES" = 1 ]]; then mv -- "$BEFORE_IMAGES" "$IMAGE_DIR" || recovered=0; fi
     fi
+    if [[ "$WAS_ACTIVE" = 1 && "$recovered" = 1 ]]; then
+        systemctl start "$SERVICE" && healthy || { result=1; recovered=0; }
+    fi
+    if [[ "$recovered" = 1 ]]; then remove_stage
+    else echo "RECOVERY_REQUIRED: service/data need inspection; temporary recovery files retained at $STAGE" >&2; fi
+    exit "$result"
+}
+trap finish EXIT
+openssl enc -d -aes-256-cbc -pbkdf2 -iter 200000 -pass stdin -in "$ARCHIVE" -out "$STAGE/bundle.tar" < "$KEY_FILE"
+# Không giải nén archive bất kỳ trước khi kiểm tra tên và kiểu entry.
+[[ "$(tar -tf "$STAGE/bundle.tar" | sort)" = "$(printf '%s\n' CONTENTS.sha256 app.env db.dump private-images.tar.gz | sort)" ]] || die 'Unexpected archive entries.'
+[[ -z "$(tar -tvf "$STAGE/bundle.tar" | awk 'substr($0,1,1)!="-" {print}')" ]] || die 'Links/non-regular archive entries rejected.'
+tar -xf "$STAGE/bundle.tar" --no-same-owner --no-same-permissions -C "$STAGE" db.dump private-images.tar.gz app.env CONTENTS.sha256
+for name in db.dump private-images.tar.gz app.env; do
+    EXPECTED="$(awk -v name="$name" '{entry=$2; sub(/^\*/, "", entry); if(entry==name) print $1}' "$STAGE/CONTENTS.sha256")"
+    [[ "$EXPECTED" =~ ^[a-f0-9]{64}$ ]] || die 'Invalid contents manifest.'
+    ACTUAL="$(sha256sum "$STAGE/$name")"; [[ "${ACTUAL%% *}" = "$EXPECTED" ]] || die 'Content checksum mismatch.'
+done
+pg_restore --list "$STAGE/db.dump" >/dev/null
+while IFS= read -r name; do
+    [[ "$name" = private-images/ || "$name" = private-images/avatars/ || "$name" =~ ^private-images/(avatars/)?[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}\.jpg$ ]] || die 'Unsafe image entry.'
+done < <(tar -tzf "$STAGE/private-images.tar.gz")
+[[ -z "$(tar -tvzf "$STAGE/private-images.tar.gz" | awk 'substr($0,1,1)!="-" && substr($0,1,1)!="d" {print}')" ]] || die 'Image links rejected.'
+tar -xzf "$STAGE/private-images.tar.gz" --no-same-owner --no-same-permissions -C "$STAGE"
+[[ -d "$STAGE/private-images" && -d "$IMAGE_DIR" && ! -L "$IMAGE_DIR" ]] || die 'Image directory missing.'
+if [[ "${2:-}" != --yes ]]; then
+    read -r -p "Restore database $DB_NAME and private images? Type RESTORE: " answer
+    [[ "$answer" = RESTORE ]] || die 'Restore cancelled.'
 fi
-
-# Tạm dừng dịch vụ Taktak để đảm bảo tính nhất quán dữ liệu
-echo "===> [1/5] Tạm dừng dịch vụ taktak.service..."
-systemctl stop taktak || true
-
-# Nạp cấu hình từ .env
-ENV_FILE="/var/taktak/.env"
-if [ -f "$ENV_FILE" ]; then
-    # shellcheck disable=SC1090
-    export $(grep -v '^#' "$ENV_FILE" | xargs)
-fi
-
-DB_NAME="${DB_NAME:-taktak}"
-DB_USER="${DB_USERNAME:-taktak}"
-DB_HOST="${DB_HOST:-127.0.0.1}"
-DB_PORT="${DB_PORT:-5432}"
-
-# --- 2. Khôi phục Cơ sở dữ liệu PostgreSQL ---
-echo "===> [2/5] Khôi phục cơ sở dữ liệu PostgreSQL..."
-DB_FILE=$(find "$BACKUP_DIR" -name "db_*.sql.gz" | head -n 1)
-
-if [ -n "$DB_FILE" ] && [ -f "$DB_FILE" ]; then
-    echo "Đang nạp file dữ liệu: $DB_FILE..."
-    # Xóa và tạo lại schema sạch hoặc nạp trực tiếp qua psql
-    PGPASSWORD="${DB_PASSWORD:-}" gunzip -c "$DB_FILE" | psql -h "$DB_HOST" -p "$DB_PORT" -U "$DB_USER" -d "$DB_NAME"
-    echo "Khôi phục database PostgreSQL thành công."
-else
-    echo "Cảnh báo: Không tìm thấy file db_*.sql.gz trong bản sao lưu! Bỏ qua."
-fi
-
-# --- 3. Khôi phục Thư mục Ảnh riêng tư (Private Images) ---
-echo "===> [3/5] Khôi phục thư mục ảnh riêng tư (/var/taktak/private-images)..."
-IMAGES_FILE=$(find "$BACKUP_DIR" -name "private_images_*.tar.gz" | head -n 1)
-
-if [ -n "$IMAGES_FILE" ] && [ -f "$IMAGES_FILE" ]; then
-    # Dọn dẹp thư mục ảnh hiện tại để tránh xung đột file mồ côi
-    rm -rf /var/taktak/private-images
-    mkdir -p /var/taktak/private-images
-
-    # Giải nén bản sao lưu
-    tar -xzf "$IMAGES_FILE" -C /var/taktak/
-    echo "Giải nén ảnh riêng tư thành công."
-fi
-
-# --- 4. Thiết lập lại phân quyền bảo mật nghiêm ngặt ---
-echo "===> [4/5] Thiết lập lại phân quyền an toàn (chmod 700 taktak:taktak)..."
-chmod 700 /var/taktak/private-images
-chown -R taktak:taktak /var/taktak/private-images
-
-# --- 5. Khởi động lại dịch vụ & Kiểm tra Healthcheck ---
-echo "===> [5/5] Khởi động lại dịch vụ taktak.service..."
-systemctl start taktak
-
-echo "Đang đợi ứng dụng khởi động và sẵn sàng (10 giây)..."
-sleep 10
-
-if curl -s -f "http://127.0.0.1:8080/actuator/health" >/dev/null 2>&1; then
-    echo "KIỂM TRA THÀNH CÔNG: Dịch vụ Taktak đã hoạt động bình thường sau khi khôi phục!"
-else
-    echo "Cảnh báo: Healthcheck chưa phản hồi 200 OK. Vui lòng kiểm tra log: journalctl -u taktak -n 50"
-fi
-
-echo "=============================================================================="
-echo " Quá trình khôi phục hoàn tất!"
-echo "=============================================================================="
+if systemctl is-active --quiet "$SERVICE"; then WAS_ACTIVE=1; systemctl stop "$SERVICE"; fi
+# Giữ bản trước restore đã mã hóa; không tự thay secrets bằng app.env trong backup.
+bash "$SCRIPT_DIR/backup.sh"
+database_dump "$STAGE/before.dump"
+database_restore "$STAGE/db.dump"
+DB_APPLIED=1
+PGPASSWORD="$DB_PASSWORD" psql -h "$DB_HOST" -p "$DB_PORT" -U "$DB_USER" -d "$DB_NAME" -v ON_ERROR_STOP=1 -At \
+    -c "SELECT file_path FROM moments WHERE deleted_at IS NULL UNION ALL SELECT 'avatars/' || avatar_path FROM users WHERE avatar_path IS NOT NULL" > "$STAGE/active-images.txt"
+while IFS= read -r name; do
+    [[ "$name" =~ ^(avatars/)?[a-f0-9-]{36}\.jpg$ && -f "$STAGE/private-images/$name" ]] || die 'Database references a missing/unsafe image.'
+done < "$STAGE/active-images.txt"
+mv -- "$IMAGE_DIR" "$BEFORE_IMAGES"; OLD_IMAGES=1
+mv -- "$STAGE/private-images" "$IMAGE_DIR"; NEW_IMAGES=1
+chmod 700 "$IMAGE_DIR"; chown -R taktak:taktak "$IMAGE_DIR"
+if [[ "$WAS_ACTIVE" = 1 ]]; then systemctl start "$SERVICE"; healthy; fi
+COMPLETE=1
+echo "RESTORE_OK: database and private images restored; previous images retained at $BEFORE_IMAGES"

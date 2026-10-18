@@ -78,6 +78,14 @@ public final class HistoryViewModel extends AndroidViewModel {
     }
 
     private final com.taktak.app.data.push.PushEventBus.Listener pushListener = new com.taktak.app.data.push.PushEventBus.Listener() {
+        @Override public void onSessionCleared() {
+            main.post(() -> {
+                if (cleared) { return; }
+                if (repository != null && repository.publishIfCurrent(() -> { })) { return; }
+                receivedMoments.clear(); sentMoments.clear();
+                expired = true; publish();
+            });
+        }
         @Override
         public void onMomentCreated(String momentId) {
             main.post(() -> {
@@ -202,30 +210,39 @@ public final class HistoryViewModel extends AndroidViewModel {
             return;
         }
         Bitmap cached = HistoryImageCache.get(momentId);
-        if (cached != null) {
-            callback.onLoaded(cached);
+        if (cached != null && repository != null && repository.publishIfCurrent(() -> callback.onLoaded(cached))) {
             return;
         }
         worker.execute(() -> {
             try {
-                if (repository == null) {
-                    repository = AuthGraph.repository(getApplication()).moments();
+                MomentRepository owner = repository;
+                if (owner == null) {
+                    owner = AuthGraph.repository(getApplication()).moments();
+                    repository = owner;
                 }
-                byte[] bytes = repository.download(momentId);
+                byte[] bytes = owner.download(momentId);
                 Bitmap bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
                 if (bitmap == null) {
                     throw new IOException("Failed to decode JPEG bytes");
                 }
-                HistoryImageCache.put(momentId, bitmap);
+                MomentRepository producer = owner;
                 main.post(() -> {
                     if (!cleared) {
-                        callback.onLoaded(bitmap);
+                        if (!producer.publishIfCurrent(() -> {
+                            HistoryImageCache.put(momentId, bitmap); callback.onLoaded(bitmap);
+                        })) {
+                            failed(new ApiFailure(ApiFailure.Kind.CANCELLED)); publish(); callback.onError();
+                        }
                     }
                 });
             } catch (Exception failure) {
                 android.util.Log.e("TaktakQa", "Failed to download/decode image: " + momentId, failure);
                 main.post(() -> {
                     if (!cleared) {
+                        if (failure instanceof ApiFailure api && (api.status == 404 || api.status == 403
+                                || api.kind == ApiFailure.Kind.UNAUTHORIZED || api.kind == ApiFailure.Kind.CANCELLED)) {
+                            HistoryImageCache.remove(momentId);
+                        }
                         callback.onError();
                     }
                 });
@@ -244,20 +261,25 @@ public final class HistoryViewModel extends AndroidViewModel {
         publish();
         worker.execute(() -> {
             Runnable result;
+            MomentRepository owner = null;
             try {
                 if (repository == null) {
                     repository = AuthGraph.repository(getApplication()).moments();
                 }
-                result = action.execute(repository);
+                owner = repository;
+                result = action.execute(owner);
             } catch (IOException | RuntimeException failure) {
                 result = () -> failed(failure);
             }
             Runnable completion = result;
+            MomentRepository producer = owner;
             main.post(() -> {
                 if (cleared) { return; }
-                completion.run();
-                busy = false;
-                publish();
+                Runnable deliver = () -> { completion.run(); busy = false; publish(); };
+                if (producer == null) { deliver.run(); }
+                else if (!producer.publishIfCurrent(deliver)) {
+                    failed(new ApiFailure(ApiFailure.Kind.CANCELLED)); busy = false; publish();
+                }
             });
         });
     }

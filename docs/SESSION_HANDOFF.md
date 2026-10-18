@@ -1,5 +1,25 @@
 # Taktak — Bàn giao phiên khôi phục
 
+## Hiện hành — Hồ sơ/avatar và Firebase/widget thật trên AVD, 18/10/2026
+
+Người dùng duyệt ba hạng mục sau báo cáo phần thiếu. Đã tạo ProfileFragment Java/XML theo foundation M3E, ProfileRepository/ViewModel, chọn/upload/tải avatar riêng tư; hiển thị avatar ở Bạn bè/Lịch sử/Viewer. Backend có POST avatar, GET self/friend, giữ PUT me chỉ sửa displayName, row lock chống tên/avatar cập nhật đồng thời. Tái sử dụng cột V1 và storage sanitizer; không migration/dependency mới. Backup/restore hỗ trợ avatars.
+
+Backend cuối **136/136 tests PASS + JAR**; Android **72/72 JVM + build/lint debug/release PASS, 0 errors/9 warnings mỗi variant**. Batch mới **6/6 AVD PASS**:5 Hồ sơ/avatar/dark mode +1 FCM/widget qua Firebase thật, không fake delivery. Có4 ảnh RemoteViews QA host và5 ảnh Profile/Friends. Hồi quy cuối sau chỉnh avatar placeholder **10/10 PASS** (2 profile,2 history,6 privacy). Shell contract có avatar **11/11**, Bash syntax10file và PowerShell smoke script parse đạt. Smoke server đã dừng exit0, đối chiếu4 moment rows/files và4 avatar rows/files; gỡ reverse/quyền bind widget QA trên emulator.
+
+Admin JSON local đã khớp project Android, Git ignore, không in key/token. Người dùng yêu cầu **emulator trước**, nên không cài/test/sửa phiên hoặc widget trên điện thoại thật đang sử dụng. FCM cloud thật tới AVD và Worker cập nhật RemoteViews khi app background đã xác minh; **chưa nghiệm thu USB/launcher OEM, Doze, force-stop hoặc VPS**. Không commit/push/deploy; toàn bộ bản sửa review trước được giữ. Xem [QA_PROFILE_AVATAR_FCM.md](QA_PROFILE_AVATAR_FCM.md) cho files/logs/ảnh/lệnh và giới hạn. Bước tiếp theo duy nhất là nghiệm thu cùng luồng trên điện thoại thật khi người dùng sẵn sàng.
+
+## Lịch sử — sửa lỗi review 5C–8, 18/10/2026
+
+Kết quả: backend verify **130/130**, Android JVM **69/69**, build/lint debug/release **PASS (0 errors, 9 warnings/variant)**; **22 ca Android khác nhau** đã đạt qua batch, không bỏ qua 7 lỗi login của lượt gộp (đã chạy lại đạt); **11 contract** và **10 Bash syntax** đạt. Riêng privacy 6/6, History 2/2 trên APK cuối. Logs và 2 screenshot fixture: `.local/artifacts/fixes-20261018/`, ignored. Git diff check/link/credential-pattern scan đạt trong phạm vi đã ghi.
+
+Smoke server báo `14 rows / 14 files / 8 recipients`, đóng sạch cluster test; gỡ reverse, tắt emulator đã mở. Điện thoại USB xuất hiện ở lần kiểm tra cuối sau nghiệm thu emulator; chưa cài APK/chạy test hoặc thay đổi phiên trên điện thoại. Không dữ liệu người dùng bị xóa. Môi trường tiếp theo cần operator phê duyệt staging Ubuntu/DB test và FCM credentials/thiết bị nếu muốn nghiệm thu tích hợp thật; xem giới hạn ở báo cáo. Dừng tại đây, không tự triển khai bước tiếp theo.
+
+Người dùng yêu cầu sửa các lỗi quan trọng đã tìm thấy. Bắt đầu ở `chore/push-current-project`, HEAD `6a7f51e`, tracked worktree sạch. Không đổi stack/package, không sửa migration, không chạm DB/VPS người dùng; không commit/push/deploy.
+
+Đã sửa thứ tự xóa file sau commit, cache/viewer/gallery fail-closed, generation guard khi render widget/history, FCM recorder/config và callback lifecycle; sửa backup/restore/update/TLS và trusted proxy/Compose. Báo cáo kết quả/lệnh/log ở [QA_REVIEW_FIXES.md](QA_REVIEW_FIXES.md), vận hành ở [runbook](../deploy/MAINTENANCE.md).
+
+Các mục 8C bên dưới là **hồ sơ lịch sử bị thay thế ở những kết luận mâu thuẫn**; không dùng nhận định “100%/production-ready” hoặc cờ `rollback.sh --restore-db` cũ làm hướng dẫn hiện hành. Profile chưa triển khai. Chưa nghiệm thu VPS/Docker/ACME/FCM thật.
+
 ## Hoàn tất 8C — Kiểm thử cuối, bảo mật client-server & Quy trình Update/Rollback (Final Verification & Rollback Procedures) — 18/10/2026
 
 **PASS TOÀN DIỆN; HOÀN TẤT 100% ROADMAP TAKTAK MVP (GIAI ĐOẠN 0 ĐẾN 8).** Trước phiên: nhánh `chore/push-current-project`, HEAD `ed9fde6`, bảo toàn các thay đổi có sẵn trong worktree.
