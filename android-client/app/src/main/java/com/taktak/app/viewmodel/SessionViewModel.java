@@ -58,23 +58,48 @@ public final class SessionViewModel extends AndroidViewModel {
 
     private State restore(AuthRepository repository, boolean networkAllowed) throws IOException {
         if (logoutStorageFailed) { return new State(Destination.ERROR, R.string.auth_storage_error); }
-        if (!repository.hasSession()) { return new State(Destination.LOGIN, 0); }
+        if (!repository.hasSession()) {
+            com.taktak.app.widget.WidgetUpdater.renderLoggedOut(getApplication());
+            return new State(Destination.LOGIN, 0);
+        }
         if (!networkAllowed) { return new State(Destination.PERMISSION, R.string.auth_permission_denied); }
         try {
             repository.profile();
+            syncFcmToken(repository);
+            com.taktak.app.widget.WidgetUpdater.enqueueOneTimeWork(getApplication());
             return new State(Destination.CAMERA, 0);
         } catch (ApiFailure failure) {
             if (failure.kind == ApiFailure.Kind.UNAUTHORIZED && !repository.hasSession()) {
+                com.taktak.app.widget.WidgetUpdater.renderLoggedOut(getApplication());
                 return new State(Destination.LOGIN, R.string.auth_invalid_credentials);
             }
             throw failure;
         }
     }
 
+    private void syncFcmToken(AuthRepository repository) {
+        try {
+            com.google.firebase.messaging.FirebaseMessaging.getInstance().getToken()
+                    .addOnCompleteListener(task -> {
+                        if (task.isSuccessful() && task.getResult() != null) {
+                            String token = task.getResult();
+                            worker.execute(() -> {
+                                try {
+                                    repository.devices(getApplication()).register(token);
+                                } catch (Exception ignored) { }
+                            });
+                        }
+                    });
+        } catch (Exception ignored) {
+            // Google Play Services may not be available in some test environments
+        }
+    }
+
     private State signOut(AuthRepository repository) throws IOException {
         try {
-            repository.logout();
+            repository.logout(getApplication());
             logoutStorageFailed = false;
+            com.taktak.app.widget.WidgetUpdater.renderLoggedOut(getApplication());
             return new State(Destination.LOGIN, R.string.session_logged_out);
         }
         catch (IOException | RuntimeException failure) {

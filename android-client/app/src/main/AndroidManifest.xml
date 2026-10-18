@@ -4,6 +4,8 @@
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" android:maxSdkVersion="28" />
     <uses-feature android:name="android.hardware.camera.any" android:required="false" />
 
     <application
@@ -16,16 +18,34 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.TakTak">
-        <!-- Chỉ đăng ký token khi triển khai luồng thiết bị ở bước 6. -->
         <meta-data
             android:name="firebase_messaging_auto_init_enabled"
-            android:value="false" />
+            android:value="true" />
+        <service
+            android:name=".data.push.TaktakMessagingService"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
+            </intent-filter>
+        </service>
+        <receiver
+            android:name=".widget.TaktakAppWidgetProvider"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_taktak_2x2_info" />
+        </receiver>
         <activity android:name=".ui.auth.LoginActivity" android:exported="false" android:windowSoftInputMode="adjustResize"
             android:theme="@style/Theme.TakTak.M3.Login" />
         <activity android:name=".ui.auth.RegisterActivity" android:exported="false" android:windowSoftInputMode="adjustResize"
             android:theme="@style/Theme.TakTak.M3.Register" />
         <activity android:name=".ui.camera.PreviewActivity" android:exported="false" android:windowSoftInputMode="adjustResize"
             android:theme="@style/Theme.TakTak.M3.Camera" />
+        <activity android:name=".ui.history.MomentViewerActivity" android:exported="false"
+            android:theme="@style/Theme.TakTak.M3" />
         <activity
             android:name=".MainActivity"
             android:exported="true"

@@ -35,4 +35,10 @@ public interface MomentApi {
     Call<com.taktak.app.data.model.MomentModels.MomentsPage> listMoments(
             @Query("type") String type,
             @Query("page") int page);
+
+    @DELETE("api/moments/{id}")
+    Call<Void> deleteMoment(@Path("id") String id);
+
+    @GET("api/moments/latest")
+    Call<com.taktak.app.data.model.MomentModels.MomentItem> latest();
 }

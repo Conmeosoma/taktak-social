@@ -58,6 +58,18 @@
                         android:text="@string/history_refresh" />
                 </LinearLayout>
 
+                <com.google.android.material.tabs.TabLayout
+                    android:id="@+id/historyTabs"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/m3_space_8"
+                    android:background="@android:color/transparent"
+                    app:tabIndicatorColor="?attr/colorPrimary"
+                    app:tabSelectedTextColor="?attr/colorPrimary"
+                    app:tabTextColor="?attr/colorOnSurfaceVariant"
+                    app:tabMode="fixed"
+                    app:tabGravity="fill" />
+
                 <FrameLayout
                     android:layout_width="match_parent"
                     android:layout_height="@dimen/m3_space_12">

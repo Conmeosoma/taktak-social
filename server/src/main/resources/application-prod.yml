@@ -1,0 +1,70 @@
+# Cấu hình production cho Taktak Server trên VPS Ubuntu
+spring:
+  config:
+    activate:
+      on-profile: prod
+  servlet:
+    multipart:
+      max-file-size: 5MB
+      max-request-size: 6MB
+      file-size-threshold: 0
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://127.0.0.1:5432/taktak}
+    username: ${DB_USERNAME:taktak}
+    password: ${DB_PASSWORD}
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 2
+      idle-timeout: 600000
+      max-lifetime: 1800000
+      connection-timeout: 20000
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        jdbc:
+          time_zone: UTC
+  flyway:
+    enabled: true
+    clean-disabled: true
+    validate-on-migrate: true
+    locations: classpath:db/migration
+
+server:
+  tomcat:
+    max-part-count: 104
+  address: 127.0.0.1
+  port: ${SERVER_PORT:8080}
+  error:
+    include-message: never
+    include-stacktrace: never
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+  endpoint:
+    health:
+      show-details: never
+      show-components: never
+
+taktak:
+  jwt:
+    access-secret: ${JWT_ACCESS_SECRET}
+    access-minutes: ${JWT_ACCESS_MINUTES:15}
+    refresh-days: ${JWT_REFRESH_DAYS:30}
+  storage:
+    root: ${IMAGE_STORAGE_ROOT:/var/taktak/private-images}
+  fcm:
+    enabled: ${FCM_ENABLED:true}
+    credentials-path: ${GOOGLE_APPLICATION_CREDENTIALS:/var/taktak/firebase-admin.json}
+
+logging:
+  level:
+    root: INFO
+    com.taktak.server: INFO
+    org.springframework.web: WARN
+    org.hibernate: WARN

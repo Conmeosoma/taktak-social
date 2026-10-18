@@ -45,7 +45,7 @@ public final class LocalSmokeServer {
                 else { System.out.println("Unknown smoke command; use offline, online or Enter."); }
             }
             var jdbc = context.getBean(org.springframework.jdbc.core.JdbcTemplate.class);
-            int rows = jdbc.queryForObject("SELECT count(*) FROM moments", Integer.class);
+            int rows = jdbc.queryForObject("SELECT count(*) FROM moments WHERE deleted_at IS NULL", Integer.class);
             int recipients = jdbc.queryForObject("SELECT count(*) FROM moment_recipients", Integer.class);
             try (var files = Files.list(images)) {
                 long count = files.count();

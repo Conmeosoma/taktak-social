@@ -1,0 +1,65 @@
+services:
+  taktak-db:
+    image: postgres:16-alpine
+    container_name: taktak-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: taktak
+      POSTGRES_USER: taktak
+      POSTGRES_PASSWORD: ${DB_PASSWORD:CHANGE_ME_DATABASE_PASSWORD}
+    volumes:
+      - taktak-pgdata:/var/lib/postgresql/data
+    # Bảo mật: KHÔNG expose cổng ra host, chỉ trao đổi trong private docker network
+    networks:
+      - taktak-internal
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U taktak -d taktak"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  taktak-server:
+    build:
+      context: ../..
+      dockerfile: deploy/docker/Dockerfile
+      args:
+        JAR_FILE: server/target/taktak-server-0.0.1-SNAPSHOT.jar
+    container_name: taktak-server
+    restart: unless-stopped
+    depends_on:
+      taktak-db:
+        condition: service_healthy
+    env_file:
+      - ../.env
+    environment:
+      DB_URL: jdbc:postgresql://taktak-db:5432/taktak
+      DB_USERNAME: taktak
+      DB_PASSWORD: ${DB_PASSWORD}
+      SERVER_ADDRESS: 0.0.0.0
+      SERVER_PORT: 8080
+      JWT_ACCESS_SECRET: ${JWT_ACCESS_SECRET}
+      IMAGE_STORAGE_ROOT: /var/taktak/private-images
+      FCM_ENABLED: ${FCM_ENABLED:-true}
+      GOOGLE_APPLICATION_CREDENTIALS: /var/taktak/firebase-admin.json
+    volumes:
+      - taktak-images:/var/taktak/private-images
+      - ../firebase-admin.json:/var/taktak/firebase-admin.json:ro
+    # Chỉ mở cổng 8080 nội bộ trên loopback interface 127.0.0.1 của host để Nginx proxy
+    ports:
+      - "127.0.0.1:8080:8080"
+    networks:
+      - taktak-internal
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:8080/actuator/health || exit 1"]
+      interval: 30s
+      timeout: 5s
+      start_period: 30s
+      retries: 3
+
+networks:
+  taktak-internal:
+    driver: bridge
+
+volumes:
+  taktak-pgdata:
+  taktak-images:

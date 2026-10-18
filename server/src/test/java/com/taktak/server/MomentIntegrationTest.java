@@ -427,6 +427,52 @@ class MomentIntegrationTest {
         assertThat(listMoments(user.token, "received", -1).statusCode()).isEqualTo(400);
     }
 
+    @Test void listMomentsSentTabReturnsSentMomentsWithPaginationAndSorting() throws Exception {
+        var sender = account(); var recipient = account();
+        befriend(sender, recipient);
+
+        // Upload 1 private moment
+        var privateRes = upload(sender.token, jpeg(), "Private Moment");
+        assertThat(privateRes.statusCode()).isEqualTo(201);
+        UUID privateId = UUID.fromString(json.readTree(privateRes.body()).get("id").asText());
+
+        // Upload 20 moments sent to recipient
+        UUID lastSentId = null;
+        for (int i = 0; i < 20; i++) {
+            var res = upload(sender.token, jpeg(), "Sent Moment " + i, recipient.id.toString());
+            assertThat(res.statusCode()).isEqualTo(201);
+            lastSentId = UUID.fromString(json.readTree(res.body()).get("id").asText());
+        }
+
+        // Page 0 of sent moments: has 20 items, hasNext = true, newest first
+        var page0 = listMoments(sender.token, "sent", 0);
+        assertThat(page0.statusCode()).isEqualTo(200);
+        var tree0 = json.readTree(page0.body());
+        assertThat(tree0.get("items").size()).isEqualTo(20);
+        assertThat(tree0.get("hasNext").asBoolean()).isTrue();
+        assertThat(tree0.get("page").asInt()).isEqualTo(0);
+        assertThat(tree0.get("items").get(0).get("id").asText()).isEqualTo(lastSentId.toString());
+
+        // Page 1 of sent moments: has 1 item (the private one), hasNext = false
+        var page1 = listMoments(sender.token, "sent", 1);
+        assertThat(page1.statusCode()).isEqualTo(200);
+        var tree1 = json.readTree(page1.body());
+        assertThat(tree1.get("items").size()).isEqualTo(1);
+        assertThat(tree1.get("hasNext").asBoolean()).isFalse();
+        assertThat(tree1.get("page").asInt()).isEqualTo(1);
+        assertThat(tree1.get("items").get(0).get("id").asText()).isEqualTo(privateId.toString());
+
+        // Sender can download their own moment
+        assertThat(image(sender.token, privateId).statusCode()).isEqualTo(200);
+
+        // Recipient only sees 20 moments (private moment is excluded from received)
+        var recipientPage = listMoments(recipient.token, "received", 0);
+        assertThat(recipientPage.statusCode()).isEqualTo(200);
+        assertThat(json.readTree(recipientPage.body()).get("items").size()).isEqualTo(20);
+        assertThat(listMoments(recipient.token, "received", 1).statusCode()).isEqualTo(200);
+        assertThat(json.readTree(listMoments(recipient.token, "received", 1).body()).get("items").size()).isEqualTo(0);
+    }
+
     private HttpResponse<String> listMoments(String token, String type, int page) throws Exception {
         String uri = base + "/api/moments?type=" + (type != null ? type : "") + "&page=" + page;
         var request = HttpRequest.newBuilder(URI.create(uri));

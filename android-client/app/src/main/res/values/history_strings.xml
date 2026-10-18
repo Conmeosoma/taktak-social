@@ -15,4 +15,25 @@
     <string name="history_time_minutes_ago">%1$d phút trước</string>
     <string name="history_time_hours_ago">%1$d giờ trước</string>
     <string name="history_time_days_ago">%1$d ngày trước</string>
+    <string name="history_tab_received">Đã nhận</string>
+    <string name="history_tab_sent">Đã gửi</string>
+    <string name="history_sent_title">Khoảnh khắc đã gửi</string>
+    <string name="history_empty_sent">Chưa có khoảnh khắc đã gửi</string>
+    <string name="history_empty_sent_detail">Khoảnh khắc bạn gửi cho bạn bè hoặc lưu riêng tư sẽ xuất hiện ở đây.</string>
+    <string name="history_viewer_close">Đóng</string>
+    <string name="history_viewer_image">Ảnh khoảnh khắc toàn màn hình</string>
+    <string name="history_viewer_no_caption">Không có chú thích</string>
+    <string name="history_viewer_delete">Xóa khoảnh khắc</string>
+    <string name="moment_delete_confirm_title">Xóa khoảnh khắc?</string>
+    <string name="moment_delete_confirm_message">Khoảnh khắc này sẽ bị xóa khỏi máy chủ và thiết bị của người nhận.</string>
+    <string name="moment_delete_action">Xóa</string>
+    <string name="moment_delete_cancel">Hủy</string>
+    <string name="moment_delete_network_error">Không thể xóa khoảnh khắc do mất kết nối mạng. Vui lòng thử lại.</string>
+    <string name="moment_delete_generic_error">Không thể xóa khoảnh khắc. Vui lòng thử lại sau.</string>
+    <string name="moment_deleting">Đang xóa…</string>
+    <string name="history_viewer_save">Lưu ảnh về máy</string>
+    <string name="moment_saved_to_gallery">Đã lưu ảnh vào Bộ sưu tập.</string>
+    <string name="moment_save_failed">Không thể lưu ảnh vào máy. Vui lòng thử lại.</string>
+    <string name="gallery_permission_denied">Cần cấp quyền bộ nhớ để lưu ảnh vào thiết bị.</string>
+    <string name="moment_saving">Đang lưu ảnh…</string>
 </resources>

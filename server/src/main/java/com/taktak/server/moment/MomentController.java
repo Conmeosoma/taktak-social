@@ -38,4 +38,18 @@ public class MomentController {
         return ResponseEntity.ok().cacheControl(CacheControl.noStore())
                 .body(moments.listMoments(UUID.fromString(jwt.getSubject()), type, page));
     }
+
+    @GetMapping("/latest")
+    public ResponseEntity<MomentDtos.MomentItem> latest(@AuthenticationPrincipal Jwt jwt) {
+        UUID userId = UUID.fromString(jwt.getSubject());
+        return moments.latestMoment(userId)
+                .map(item -> ResponseEntity.ok().cacheControl(CacheControl.noStore()).body(item))
+                .orElseGet(() -> ResponseEntity.noContent().cacheControl(CacheControl.noStore()).build());
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> delete(@AuthenticationPrincipal Jwt jwt, @PathVariable UUID id) {
+        moments.delete(UUID.fromString(jwt.getSubject()), id);
+        return ResponseEntity.noContent().build();
+    }
 }

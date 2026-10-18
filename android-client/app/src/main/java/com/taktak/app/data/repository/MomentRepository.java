@@ -94,9 +94,19 @@ public final class MomentRepository {
     }
 
     public com.taktak.app.data.model.MomentModels.MomentsPage received(int page) throws IOException {
-        if (page < 0) { throw new ApiFailure(ApiFailure.Kind.VALIDATION); }
+        return list("received", page);
+    }
+
+    public com.taktak.app.data.model.MomentModels.MomentsPage sent(int page) throws IOException {
+        return list("sent", page);
+    }
+
+    public com.taktak.app.data.model.MomentModels.MomentsPage list(String type, int page) throws IOException {
+        if (page < 0 || (!"received".equals(type) && !"sent".equals(type))) {
+            throw new ApiFailure(ApiFailure.Kind.VALIDATION);
+        }
         Session owner = requireSession();
-        var response = client.moments.listMoments("received", page).execute();
+        var response = client.moments.listMoments(type, page).execute();
         if (!response.isSuccessful()) { throw ApiFailure.from(response); }
         ensureCurrent(owner);
         var body = response.body();
@@ -104,6 +114,25 @@ public final class MomentRepository {
         for (var item : body.items) {
             if (item == null || !item.valid()) { throw new ApiFailure(ApiFailure.Kind.SERVER); }
         }
+        return body;
+    }
+
+    public void delete(String id) throws IOException {
+        if (!com.taktak.app.data.model.FriendModels.uuid(id)) { throw new ApiFailure(ApiFailure.Kind.VALIDATION); }
+        Session owner = requireSession();
+        var response = client.moments.deleteMoment(id).execute();
+        if (!response.isSuccessful()) { throw ApiFailure.from(response); }
+        ensureCurrent(owner);
+    }
+
+    public com.taktak.app.data.model.MomentModels.MomentItem latest() throws IOException {
+        Session owner = requireSession();
+        var response = client.moments.latest().execute();
+        if (response.code() == 204) { return null; }
+        if (!response.isSuccessful()) { throw ApiFailure.from(response); }
+        ensureCurrent(owner);
+        var body = response.body();
+        if (body == null || !body.valid()) { throw new ApiFailure(ApiFailure.Kind.SERVER); }
         return body;
     }
 

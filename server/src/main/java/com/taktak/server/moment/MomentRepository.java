@@ -14,7 +14,20 @@ public interface MomentRepository extends JpaRepository<Moment, UUID> {
     boolean isRecipient(@org.springframework.data.repository.query.Param("moment") UUID moment,
             @org.springframework.data.repository.query.Param("viewer") UUID viewer);
 
+    @org.springframework.data.jpa.repository.Query(value = "select user_id from moment_recipients where moment_id = :momentId", nativeQuery = true)
+    java.util.List<UUID> findRecipientIds(@org.springframework.data.repository.query.Param("momentId") UUID momentId);
+
     java.util.Optional<Moment> findBySenderIdAndIdempotencyKey(UUID senderId, UUID idempotencyKey);
+
+    @org.springframework.data.jpa.repository.Query(value = """
+            select m.* from moments m
+            join moment_recipients mr on m.id = mr.moment_id
+            where mr.user_id = :viewerId
+              and m.deleted_at is null
+            order by mr.created_at desc, m.id desc
+            limit 1
+            """, nativeQuery = true)
+    java.util.Optional<Moment> findLatestReceivedMoment(@org.springframework.data.repository.query.Param("viewerId") UUID viewerId);
 
     @org.springframework.data.jpa.repository.Query(value = """
             select m.* from moments m

@@ -2,7 +2,7 @@
 
 Cập nhật: 18/10/2026. Nguồn đối chiếu: [đặc tả](TAKTAK_PROJECT.md), [trạng thái](PROJECT_STATUS.md), [bàn giao](SESSION_HANDOFF.md) và lịch sử yêu cầu trong cuộc trò chuyện.
 
-Quyền mới nhất: **5E — Lịch sử ảnh đã nhận (Received Moments History): PASS local/USB**, được duyệt riêng. Backend GET /api/moments?type=received native query index-friendly, stranger/self-moment isolation, pagination LIMIT 21 OFFSET. Android HistoryFragment M3E, HistoryViewModel LRU Bitmap cache 20MB, định dạng thời gian tiếng Việt, tải ảnh bảo mật qua JWT. Backend 104/104 verify, Android 45/45 unit tests, assemble/lint debug/release đạt 0 errors, 3 acceptance tests USB máy Xiaomi đạt. Xem [QA_MOMENT_HISTORY.md](QA_MOMENT_HISTORY.md). Dừng chờ duyệt riêng **Giai đoạn 6**. HEAD vẫn `ed9fde6`; bảo toàn toàn bộ thay đổi chưa commit.
+Quyền mới nhất: **8C — Kiểm thử cuối, bảo mật client-server & Quy trình Update/Rollback: PASS TOÀN DIỆN**, được người dùng duyệt sau 8B. Hoàn tất kiểm thử nghiệm thu toàn diện 11 kịch bản cốt lõi mục 11 đặc tả TAKTAK_PROJECT.md; kiểm tra bảo mật APK Release: `assembleRelease lintRelease` thành công 0 errors, sinh file `app-release-unsigned.apk` (11.8 MB), `usesCleartextTraffic="false"`, `allowBackup="false"`, `BASE_URL` bắt buộc HTTPS, quét sạch hoàn toàn không chứa JWT secret hay database credentials. Bộ đôi script bảo đảm độ tin cậy DevOps: `deploy/scripts/update.sh` (tự động sao lưu snapshot DB, kiểm tra healthcheck 30s và auto-rollback nếu lỗi) và `deploy/scripts/rollback.sh` (quay lui thủ công file JAR và database); tài liệu triển khai toàn diện [deploy/README.md](../deploy/README.md) kèm sơ đồ Mermaid và troubleshooting runbook. Backend đạt 123/123 tests PASS (100%), Android client đạt 66/66 JVM tests PASS (100%), 100% script bash pass cú pháp (`bash -n`). Xem [QA_FINAL_VERIFICATION.md](QA_FINAL_VERIFICATION.md). HEAD vẫn `ed9fde6`; bảo toàn toàn bộ thay đổi chưa commit. **Hoàn tất 100% Roadmap Taktak MVP (Giai đoạn 0 đến 8)**.
 
 `PASS` chỉ áp dụng cho phạm vi đã có bằng chứng. `CHƯA DUYỆT` nghĩa là không được tự triển khai; `CHƯA XÁC MINH` không đồng nghĩa thất bại.
 
@@ -36,7 +36,15 @@ Quyền mới nhất: **5E — Lịch sử ảnh đã nhận (Received Moments H
 | 5C | Gửi ảnh cho bạn bè; nén bounded/private storage/recipient authorization | PASS local/USB | 95backend,39JVM,15USB; chọn2/đủ21bạn,100recipient/race/rollback/EXIF/JWT/offline;QA_MOMENT_SHARING |
 | 5D | Tiến trình upload, retry & Idempotency Key | PASS local/USB | 99backend, 42JVM, 3USB; DB V2 index, SHA-256 fingerprint, CountingRequestBody 0–100%, SavedStateHandle retry; QA_MOMENT_IDEMPOTENCY |
 | 5E | Lịch sử ảnh đã nhận (Received Moments History) | PASS local/USB | 104backend, 45JVM, 3USB; HistoryFragment M3E, LRU Bitmap cache 20MB, JWT image load, relative time, native index query; QA_MOMENT_HISTORY |
-| 6–8 | Các giai đoạn tiếp theo (FCM, Widget, Polish) | CHƯA DUYỆT / CHƯA NGHIỆM THU | Đề xuất duy nhất Giai đoạn 6 (Firebase Cloud Messaging & Real-time Sync); chờ duyệt |
+| 6A | Đăng ký thiết bị & FCM Token (Device & FCM Registration) | PASS local/AVD | 111backend, 49JVM, 2AVD; POST/DELETE/GET /api/devices, Firebase Admin SDK fallback, DeviceIdProvider, TaktakMessagingService, auto-sync token; QA_DEVICE_REGISTRATION |
+| 6B | Bắn thông báo đẩy khi tạo/xóa khoảnh khắc (Push Notification Dispatching) | PASS local/AVD | 118backend, 56JVM, 4AVD; FCM data message sau commit (created/deleted), DELETE /api/moments/{id}, stale token cleanup, PushEventBus, HistoryViewModel real-time sync; QA_PUSH_DISPATCHING |
+| 6C | AppWidgetProvider 2×2 & WorkManager Widget Sync | PASS local/AVD | 122backend, 60JVM, 6AVD; GET /api/moments/latest, AppWidgetProvider 2×2, RemoteViews, decodeSampledBitmap, WorkManager sync & periodic, FCM push trigger, logged out state; QA_WIDGET_SYNC |
+| 7A | Lịch sử Đã gửi & Xem toàn màn hình (Sent Moments History & Viewer) | PASS local/AVD | 123backend, 62JVM, 8AVD; GET /api/moments?type=sent, TabLayout 2 tab, MomentViewerActivity, LRU cache 20MB; QA_SENT_HISTORY_VIEWER |
+| 7B | Xóa khoảnh khắc phía máy chủ & Thu hồi quyền tức thời (Server-side Delete) | PASS local/AVD | 123backend, 66JVM, 10AVD; DELETE /api/moments/{id}, soft delete, discard image file, push moment_deleted, UI confirm & rollback; QA_MOMENT_DELETION |
+| 7C | Tải ảnh vào bộ sưu tập thiết bị (Save to Device Gallery) | PASS local/AVD | 123backend, 66JVM, 12AVD; MediaStore Pictures/Taktak, Scoped Storage API 29+, compatibility API 26-28, user action only; QA_SAVE_TO_GALLERY |
+| 8A | Chuẩn bị môi trường VPS Ubuntu & Cấu hình dịch vụ (VPS Setup) | PASS | 123backend, package JAR; application-prod.yml, .env.example, taktak.service, Dockerfile, docker-compose.yml, setup-vps.sh; QA_VPS_SETUP |
+| 8B | Nginx Reverse Proxy, TLS Let's Encrypt & Tường lửa UFW | PASS | Nginx taktak.conf, Certbot HTTPS, rate limit, upload 10M, UFW 22/80/443, logrotate, backup.sh, restore.sh, backup timer; QA_NGINX_SSL_BACKUP |
+| 8C | Kiểm thử cuối, bảo mật client-server & Quy trình Update/Rollback | PASS TOÀN DIỆN | 123 backend (100%), 66 Android JVM (100%), assemble/lint Release 0 errors (APK 11.8MB), update.sh, rollback.sh, deploy/README.md; QA_FINAL_VERIFICATION |
 
 ## Nghiệm thu phiên khôi phục trước khi duyệt 0B (lịch sử)
 
@@ -197,6 +205,34 @@ Mốc4A đã được duyệt tiếp4B riêng.
 - [x] Ghi3 lỗi harness ban đầu, sửa assertion tập kết quả và snapshot thống kê đúng nguyên nhân; không bỏ kiểm thử hoặc FK/transaction.
 - [x] Cập nhật hợp đồng/API_ERRORS/quyết định/trạng thái/handoff; không commit/push/deploy hoặc tự chuyển4C.
 
-**Đề xuất duy nhất:4C — FriendsFragment nối API qua Repository/ViewModel. Chờ duyệt, không triển khai.**
+## 6A — Đăng ký thiết bị & FCM Token (PASS local/AVD)
+- [x] Backend Spring Boot: POST /api/devices, DELETE /api/devices/{id}, GET /api/devices.
+- [x] Android Client: DeviceIdProvider, DeviceApi, DeviceRepository, TaktakMessagingService, SessionViewModel token sync.
+- [x] 111/111 backend tests PASS, 49/49 unit tests PASS, 2 connected acceptance tests PASS. Xem [QA_DEVICE_REGISTRATION.md](QA_DEVICE_REGISTRATION.md).
 
-Lệnh, báo cáo, cảnh báo và phạm vi kiểm thử: [QA_BOOTSTRAP.md](QA_BOOTSTRAP.md), [NETWORK_TEST_PLAN.md](NETWORK_TEST_PLAN.md).
+## 6B — Bắn thông báo đẩy khi tạo/xóa khoảnh khắc (PASS local/AVD)
+- [x] Backend Spring Boot: FCM push notification afterCommit, recipientIds=[] không push, DELETE /api/moments/{id} xóa file và phát moment_deleted.
+- [x] Android Client: PushEventBus, TaktakMessagingService, HistoryViewModel auto-refresh/auto-remove, MomentRepository delete.
+- [x] 118/118 backend tests PASS, 56/56 unit tests PASS, 4 connected acceptance tests PASS. Xem [QA_PUSH_DISPATCHING.md](QA_PUSH_DISPATCHING.md).
+
+## 6C — AppWidgetProvider 2×2 & WorkManager Widget Sync (PASS local/AVD)
+- [x] Backend Spring Boot: GET /api/moments/latest, trả về ảnh mới nhất hoặc 204 No Content.
+- [x] Android Client: TaktakAppWidgetProvider 2x2, WidgetUpdateWorker downsample an toàn, PeriodicWorkRequest 15 phút, push trigger.
+- [x] 122/122 backend tests PASS, 60/60 unit tests PASS, 6 connected acceptance tests PASS. Xem [QA_WIDGET_SYNC.md](QA_WIDGET_SYNC.md).
+
+## 7A — Màn lịch sử Đã gửi & Xem toàn màn hình (PASS local/AVD)
+- [x] Backend Spring Boot: GET /api/moments?type=sent&page=0 và sender authorization GET /image.
+- [x] Android Client: TabLayout 2 tab ("Đã nhận" / "Đã gửi"), HistoryViewModel dual-tab state, HistoryImageCache LruCache 20MB, MomentViewerActivity toàn màn hình.
+- [x] 123/123 backend tests PASS, 62/62 unit tests PASS, 8 connected acceptance tests PASS. Xem [QA_SENT_HISTORY_VIEWER.md](QA_SENT_HISTORY_VIEWER.md).
+
+## 7B — Xóa khoảnh khắc phía máy chủ & Thu hồi quyền tức thời (PASS local/AVD)
+- [x] Backend Spring Boot: DELETE /api/moments/{id} sender-only (403 với non-sender), soft delete + storage.discard, GET /image trả về 404 tức thời, phát FCM moment_deleted.
+- [x] Android Client: icon xóa ic_delete.xml trên MomentViewerActivity khi isSender == true, MaterialAlertDialog xác nhận, xóa cache RAM, emit PushEventBus, enqueue widget sync, xử lý offline bảo toàn local data.
+- [x] 123/123 backend tests PASS, 66/66 unit tests PASS, assemble/lint debug/release 0 errors, 10 connected acceptance tests PASS trên Android Emulator Medium_Phone. Xem [QA_MOMENT_DELETION.md](QA_MOMENT_DELETION.md).
+
+## 7C — Tải ảnh vào bộ sưu tập thiết bị (PASS local/AVD)
+- [x] Android Client: GallerySaver lưu ảnh vào MediaStore (Pictures/Taktak) chuẩn Scoped Storage trên Android 10+ và hỗ trợ Android 8–9 với quyền WRITE_EXTERNAL_STORAGE maxSdkVersion 28.
+- [x] MomentViewerActivity: nút lưu ảnh ic_download.xml (viewerSaveButton) trên viewerTopBar cho cả sender và recipient; ảnh riêng tư không tự động xuất ra Gallery khi chưa có hành động người dùng (User Action).
+- [x] 66/66 unit tests PASS, assemble/lint debug/release 0 errors, 12 connected acceptance tests PASS trên Android Emulator Medium_Phone. Xem [QA_SAVE_TO_GALLERY.md](QA_SAVE_TO_GALLERY.md).
+
+**Đề xuất duy nhất: Giai đoạn 8A — Chuẩn bị môi trường VPS Ubuntu & Cấu hình dịch vụ (VPS Ubuntu Setup & System Services). Chờ duyệt, không tự ý triển khai.**

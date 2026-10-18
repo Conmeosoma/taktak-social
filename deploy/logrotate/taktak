@@ -1,0 +1,33 @@
+# ==============================================================================
+# Taktak Logrotate Configuration (Giai đoạn 8B)
+# Đường dẫn cài đặt trên VPS: /etc/logrotate.d/taktak
+# ==============================================================================
+
+# 1. Quản lý xoay vòng log cho Taktak Application
+/var/log/taktak/*.log {
+    daily
+    rotate 14
+    missingok
+    notifempty
+    compress
+    delaycompress
+    copytruncate
+    create 0640 taktak taktak
+}
+
+# 2. Quản lý xoay vòng log cho Nginx Taktak Access & Error
+/var/log/nginx/taktak_*.log {
+    daily
+    rotate 14
+    missingok
+    notifempty
+    compress
+    delaycompress
+    sharedscripts
+    create 0640 www-data adm
+    postrotate
+        if [ -f /var/run/nginx.pid ]; then
+            kill -USR1 $(cat /var/run/nginx.pid)
+        fi
+    endscript
+}

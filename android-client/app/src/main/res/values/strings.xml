@@ -53,4 +53,10 @@
     <string name="moment_transferring">Đang lưu ảnh riêng tư…</string>
     <string name="moment_downloaded">Ảnh đã lưu riêng tư. Chỉ bạn có quyền xem.</string>
     <string name="moment_transfer_error">Chưa xác nhận gửi / tải ảnh thành công. Kiểm tra kết nối rồi thử lại. Nếu máy chủ đã nhận nhưng mất phản hồi, gửi lại có thể tạo thêm một ảnh riêng tư.</string>
+    <string name="widget_2x2_name">Khoảnh khắc Taktak</string>
+    <string name="widget_2x2_description">Hiển thị khoảnh khắc mới nhất nhận được từ bạn bè.</string>
+    <string name="widget_empty_title">Chưa có ảnh nào</string>
+    <string name="widget_empty_subtitle">Chạm để mở Taktak</string>
+    <string name="widget_logged_out_title">Chưa đăng nhập</string>
+    <string name="widget_logged_out_subtitle">Đăng nhập để xem khoảnh khắc</string>
 </resources>

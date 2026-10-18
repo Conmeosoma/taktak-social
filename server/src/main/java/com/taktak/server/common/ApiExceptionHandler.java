@@ -40,6 +40,11 @@ public class ApiExceptionHandler {
         return error(failure.status, failure.code, "Không thể xử lý ảnh hoặc bạn không có quyền truy cập.", request);
     }
 
+    @ExceptionHandler(com.taktak.server.device.DeviceFailure.class)
+    ResponseEntity<ApiError> deviceFailure(com.taktak.server.device.DeviceFailure failure, HttpServletRequest request) {
+        return error(failure.status, failure.code, "Không thể xử lý yêu cầu thiết bị.", request);
+    }
+
     @ExceptionHandler(org.springframework.web.multipart.MaxUploadSizeExceededException.class)
     ResponseEntity<ApiError> uploadTooLarge(HttpServletRequest request) {
         return error(HttpStatus.PAYLOAD_TOO_LARGE, "IMAGE_TOO_LARGE", "Ảnh vượt quá dung lượng cho phép.", request);

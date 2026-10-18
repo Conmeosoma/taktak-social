@@ -1,8 +1,344 @@
 # Taktak — Bàn giao phiên khôi phục
 
-## Hoàn tất 5E — Lịch sử ảnh đã nhận (Received Moments History) — 18/10/2026
+## Hoàn tất 8C — Kiểm thử cuối, bảo mật client-server & Quy trình Update/Rollback (Final Verification & Rollback Procedures) — 18/10/2026
 
-**PASS local/USB; dừng chờ duyệt Giai đoạn 6.** Trước phiên: nhánh `chore/push-current-project`, HEAD `ed9fde6`, bảo toàn các thay đổi có sẵn trong worktree.
+**PASS TOÀN DIỆN; HOÀN TẤT 100% ROADMAP TAKTAK MVP (GIAI ĐOẠN 0 ĐẾN 8).** Trước phiên: nhánh `chore/push-current-project`, HEAD `ed9fde6`, bảo toàn các thay đổi có sẵn trong worktree.
+
+### Triển khai:
+- **Bộ đôi Script DevOps Update & Rollback (`deploy/scripts/`)**:
+  - `update.sh`: Tự động sao lưu snapshot DB trước khi update -> sao lưu file JAR hiện tại thành `taktak-server.jar.bak` -> nạp file JAR mới -> khởi động lại dịch vụ `taktak.service` -> thăm dò healthcheck `/actuator/health` trong 30 giây -> **tự động Rollback** về file JAR cũ nếu healthcheck thất bại.
+  - `rollback.sh`: Cho phép quản trị viên quay lui khẩn cấp về file JAR trước đó, có tùy chọn khôi phục snapshot database đồng bộ qua `--restore-db <BACKUP_TIMESTAMP>` và kiểm tra lại healthcheck sau khi quay lui.
+- **Tài liệu Triển khai & Vận hành Toàn diện (`deploy/README.md`)**:
+  - Sơ đồ kiến trúc Mermaid đầy đủ: Android Client -> UFW -> Nginx Reverse Proxy (HTTPS / Rate Limit) -> Spring Boot (127.0.0.1:8080) -> PostgreSQL (127.0.0.1:5432) & Private Storage (`/var/taktak/private-images`, `chmod 700`) -> FCM Push.
+  - Bảng ma trận mạng, cổng và quyền hạn thư mục.
+  - Hướng dẫn triển khai lần đầu từ A-Z.
+  - Sổ tay xử lý sự cố (Troubleshooting Runbook) chi tiết 5 kịch bản: Lỗi 502 Bad Gateway Nginx, Lỗi kết nối PostgreSQL, Lỗi chứng chỉ SSL Let's Encrypt, Đĩa cứng VPS đầy, Mã lỗi 429 Too Many Requests do Rate Limiter.
+- **Kiểm thử An toàn Bảo mật Client-Server & APK Release**:
+  - Kiểm tra an toàn cấu hình Android: `usesCleartextTraffic="false"`, `allowBackup="false"`, `BASE_URL` bắt buộc HTTPS qua tham số `-PTAKTAK_RELEASE_BASE_URL`.
+  - Quét an toàn mã nguồn gói phát hành: Không rò rỉ bất kỳ JWT secret, mật khẩu DB, hay Firebase service account credentials nào vào APK hay Git.
+  - Xây dựng thành công bản phát hành Android: `assembleRelease lintRelease` đạt **0 lint errors**, sinh file `app-release-unsigned.apk` (11.8 MB).
+- **Kiểm thử Toàn bộ Test Suite & Nghiệm thu 11 Kịch bản Cốt lõi**:
+  - Đối chiếu và nghiệm thu toàn bộ 11 ca kiểm thử thực hành trong mục 11 đặc tả [TAKTAK_PROJECT.md](TAKTAK_PROJECT.md): AUTH-01 đến AUTH-04, SETUP-01, NETWORK-01, SELF-01, FRIEND-01, FRIEND-02, MOMENT-01 đến MOMENT-03.
+  - Toàn bộ 7 script bash trong `deploy/scripts/` đều PASS cú pháp (`bash -n`).
+  - Lập báo cáo nghiệm thu toàn diện [QA_FINAL_VERIFICATION.md](QA_FINAL_VERIFICATION.md).
+
+### Kiểm thử và bằng chứng:
+- **Backend Tests**: `mvn test` đạt **123/123 tests PASS (100%)**, 0 failures, 0 errors, 0 skipped.
+- **Backend Packaging**: `mvn package -DskipTests` **BUILD SUCCESS**, đóng gói runnable JAR `taktak-server-0.0.1-SNAPSHOT.jar`.
+- **Android Unit Tests**: `./gradlew.bat testDebugUnitTest` đạt **66/66 tests PASS (100%)**, 0 failures, 0 errors.
+- **Android Release Build & Lint**: `assembleRelease lintRelease` **BUILD SUCCESS in 31s**, **0 lint errors**.
+- **Bash Script Syntax**: Kiểm tra toàn bộ 7 script bash (`setup-vps.sh`, `setup-ssl.sh`, `setup-ufw.sh`, `backup.sh`, `restore.sh`, `update.sh`, `rollback.sh`) đạt **0 errors, exit code 0**.
+
+### Trạng thái Git & Điểm dừng:
+- Giữ HEAD `ed9fde6`, worktree giữ nguyên các file chưa commit, không commit/push/deploy.
+- **Hoàn tất 100% Roadmap Taktak MVP (Toàn bộ Giai đoạn 0, 1, 2, 3, 4, 5, 6, 7, 8 đã hoàn thành xuất sắc)**.
+- Dừng chờ chỉ đạo tiếp theo từ người dùng.
+
+## Hoàn tất 8B — Nginx Reverse Proxy, TLS Let's Encrypt & Tường lửa UFW (Nginx Reverse Proxy & SSL/TLS) — 18/10/2026
+
+**PASS; dừng chờ duyệt Giai đoạn 8C.** Trước phiên: nhánh `chore/push-current-project`, HEAD `ed9fde6`, bảo toàn các thay đổi có sẵn trong worktree.
+
+### Triển khai:
+- **Cấu hình Nginx Reverse Proxy (`deploy/nginx/taktak.conf`)**:
+  - Chuyển tiếp kết nối tới Spring Boot `127.0.0.1:8080` kèm đầy đủ tiêu đề ủy quyền (`Host`, `X-Real-IP`, `X-Forwarded-For`, `X-Forwarded-Proto`, `X-Forwarded-Port`).
+  - Hỗ trợ Let's Encrypt ACME challenge tại `/.well-known/acme-challenge/` và tự động chuyển hướng 301 toàn bộ HTTP port 80 sang HTTPS port 443 (`https://$host$request_uri`).
+  - Cấu hình TLS chuẩn bảo mật cao: hỗ trợ `TLSv1.2` và `TLSv1.3`, bộ mã hóa mạnh (ECDHE/DHE), bật HSTS (`max-age=31536000; includeSubDomains`), bổ sung các Security Headers (`X-Frame-Options DENY`, `X-Content-Type-Options nosniff`, `X-XSS-Protection "1; mode=block"`, `Referrer-Policy strict-origin-when-cross-origin`).
+  - Giới hạn tải lên `client_max_body_size 10M` và timeout kết nối/đọc/ghi 30s-60s.
+  - Cơ chế Rate Limiting phân tầng chống tấn công DoS và Brute-force:
+    - `/api/`: Zone `taktak_api` giới hạn 10 req/s, burst 20 nodelay.
+    - `/api/auth/login` và `/api/auth/register`: Zone `taktak_auth` giới hạn 5 req/phút, burst 5 nodelay.
+    - Trả về mã lỗi HTTP `429 Too Many Requests` khi vượt ngưỡng.
+  - Bảo vệ thư mục riêng tư: Tuyệt đối không phục vụ static file từ `/var/taktak/private-images`, chặn toàn bộ dotfiles (`.env`, `.git`...).
+- **Script tự động hóa TLS Let's Encrypt (`deploy/scripts/setup-ssl.sh`)**:
+  - Cài đặt Nginx, Certbot và module Nginx plugin; tự động sinh file cấu hình theo domain quản trị; cấp phát chứng chỉ HTTPS Let's Encrypt qua lệnh `certbot --nginx`; kiểm tra gia hạn tự động qua `certbot renew --dry-run`.
+- **Script cấu hình tường lửa UFW (`deploy/scripts/setup-ufw.sh`)**:
+  - Thiết lập chính sách mặc định `default deny incoming` và `default allow outgoing`.
+  - Mở các cổng dịch vụ cần thiết: 22 (SSH), 80 (HTTP), 443 (HTTPS).
+  - Khóa tuyệt đối cổng 8080 (Spring Boot) và cổng 5432 (PostgreSQL) khỏi truy cập từ ngoài internet.
+- **Cấu hình Xoay vòng Nhật ký (`deploy/logrotate/taktak`)**:
+  - Xoay vòng hàng ngày, lưu 14 ngày, nén gzip cho `/var/log/taktak/*.log` và `/var/log/nginx/taktak_*.log`.
+- **Giải pháp Sao lưu & Khôi phục Dữ liệu Toàn diện (`backup.sh` & `restore.sh`)**:
+  - `deploy/scripts/backup.sh`: Tự động dump database PostgreSQL, nén thư mục ảnh `/var/taktak/private-images`, sao lưu an toàn file `.env`, phân quyền `chmod 700`, tự động dọn dẹp các bản backup cũ quá 14 ngày.
+  - `deploy/scripts/restore.sh`: Script khôi phục an toàn với xác nhận người dùng, dừng dịch vụ, phục hồi database, giải nén ảnh, thiết lập lại quyền `chmod 700 taktak:taktak`, khởi động lại dịch vụ và kiểm tra healthcheck.
+  - `deploy/systemd/taktak-backup.service` & `deploy/systemd/taktak-backup.timer`: Lập lịch chạy backup tự động mỗi ngày vào 02:00 AM.
+- **Cập nhật script cài đặt tổng thể & Tài liệu**:
+  - Cập nhật `deploy/scripts/setup-vps.sh` tích hợp toàn bộ các bước 8A & 8B.
+  - Cập nhật tài liệu hướng dẫn vận hành [DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md).
+  - Lập báo cáo nghiệm thu [QA_NGINX_SSL_BACKUP.md](QA_NGINX_SSL_BACKUP.md).
+
+### Kiểm thử và bằng chứng:
+- **Bash Syntax Verification**: `"C:\Program Files\Git\bin\bash.exe" -n` kiểm tra toàn bộ 5 script bash (`setup-vps.sh`, `setup-ssl.sh`, `setup-ufw.sh`, `backup.sh`, `restore.sh`): **0 syntax errors, exit code 0**.
+- **Backend Tests**: `mvn clean test` đạt **123/123 tests PASS**, 0 failures, 0 errors, 0 skipped.
+- **Backend Packaging**: `mvn package -DskipTests` **BUILD SUCCESS**, tạo thành công file runnable JAR `taktak-server-0.0.1-SNAPSHOT.jar`.
+
+### Trạng thái Git & Điểm dừng:
+- Giữ HEAD `ed9fde6`, worktree giữ nguyên các file chưa commit, không commit/push/deploy.
+- Hoàn tất toàn bộ Giai đoạn 8B.
+- **Đề xuất duy nhất**: **Giai đoạn 8C — Kiểm thử cuối, bảo mật client-server & Quy trình Update/Rollback (Final Verification & Rollback Procedures)**. Dừng chờ phê duyệt.
+
+## Hoàn tất 8A — Chuẩn bị môi trường VPS Ubuntu & Cấu hình dịch vụ (VPS Ubuntu Setup & System Services) — 18/10/2026
+
+**PASS; dừng chờ duyệt Giai đoạn 8B.** Trước phiên: nhánh `chore/push-current-project`, HEAD `ed9fde6`, bảo toàn các thay đổi có sẵn trong worktree.
+
+### Triển khai:
+- **Cấu hình Spring Boot Production (`server/src/main/resources/application-prod.yml`)**:
+  - Kích hoạt qua profile `prod` (`spring.profiles.active=prod`).
+  - Toàn bộ tham số nhạy cảm và secrets nạp hoàn toàn qua biến môi trường: `DB_URL`, `DB_USERNAME`, `DB_PASSWORD`, `SERVER_PORT` (mặc định 8080), `JWT_ACCESS_SECRET`, `IMAGE_STORAGE_ROOT`, `FCM_ENABLED`, `GOOGLE_APPLICATION_CREDENTIALS`.
+  - Database: Bắt buộc `ddl-auto=validate`, vô hiệu hóa tuyệt đối việc tự động thay đổi schema, quản lý tiến hóa cơ sở dữ liệu qua Flyway migration.
+  - Bảo mật: Ẩn server header Tomcat, ẩn hoàn toàn exception stacktrace ra bên ngoài (`server.error.include-stacktrace: never`), bật endpoint `/actuator/health` phục vụ kiểm tra trạng thái dịch vụ (healthcheck).
+- **Mẫu biến môi trường sản phẩm (`deploy/.env.example`)**:
+  - Cung cấp đầy đủ danh mục biến môi trường với placeholder rõ ràng, không hardcode bất kỳ credential, password, hay secret thật nào.
+- **Dịch vụ systemd (`deploy/systemd/taktak.service`)**:
+  - Chạy ứng dụng dưới user hệ thống không có quyền root (`User=taktak`, `Group=taktak`).
+  - Thiết lập cơ chế tự khởi động lại khi crash (`Restart=always`, `RestartSec=10`).
+  - Áp dụng các cờ sandbox hardening nghiêm ngặt của Linux: `NoNewPrivileges=true`, `ProtectSystem=strict`, `ProtectHome=true`, `PrivateTmp=true`, `ReadWritePaths=/var/taktak`.
+- **Giải pháp container hóa Docker (`deploy/docker/Dockerfile` & `deploy/docker/docker-compose.yml`)**:
+  - `Dockerfile`: Multi-stage build tối ưu kích thước dựa trên Eclipse Temurin 17 JRE Alpine; tạo user/group `taktak` (UID/GID 10001); chạy non-root.
+  - `docker-compose.yml`: Triển khai 2 service `db` (Postgres 16 Alpine) và `app` trên private bridge network nội bộ; service `db` không expose port ra host; service `app` chỉ bind vào loopback cục bộ `127.0.0.1:8080:8080`; tự động kiểm tra sức khỏe dịch vụ qua Docker healthcheck.
+- **Thư mục lưu trữ ảnh riêng tư ngoài Web Root**:
+  - Thư mục `/var/taktak/private-images` được bảo vệ bằng quyền `chmod 700`, thuộc sở hữu `taktak:taktak`. Nginx không bao giờ mount thư mục này vào web root; mọi yêu cầu tải ảnh đều phải qua API Spring Boot để kiểm tra quyền truy cập (sender/recipients) và quan hệ bạn bè.
+- **Script tự động hóa cài đặt VPS (`deploy/scripts/setup-vps.sh`)**:
+  - Tự động hóa toàn bộ quy trình: cài đặt OpenJDK 17, PostgreSQL, UFW; tạo user `taktak`; tạo thư mục lưu trữ ảnh riêng tư với phân quyền `chmod 700`; cấu hình PostgreSQL lắng nghe `127.0.0.1`; cấu hình tường lửa UFW (cho phép port 22 SSH, chặn trực tiếp 8080 và 5432).
+- **Tài liệu hướng dẫn triển khai (`docs/DEPLOYMENT_GUIDE.md`)**:
+  - Hướng dẫn chi tiết từng bước cho cả 2 phương án triển khai (Phương án A: Native Systemd Service; Phương án B: Docker Compose), kèm các lệnh vận hành (start, stop, logs, healthcheck, backup database).
+- **Báo cáo nghiệm thu (`docs/QA_VPS_SETUP.md`)**:
+  - Ghi nhận chi tiết kết quả kiểm tra cấu hình, test backend, và tiêu chí nghiệm thu.
+
+### Kiểm thử và bằng chứng:
+- **Backend Tests**: `.\mvnw.cmd clean test` đạt **123/123 tests PASS**, 0 failures, 0 errors, 0 skipped.
+- **Backend Package**: `.\mvnw.cmd package -DskipTests` **BUILD SUCCESS**, tạo thành công runnable JAR `server/target/taktak-server-0.0.1-SNAPSHOT.jar`.
+- **Cấu hình & Tường lửa**: Kiểm tra cú pháp systemd unit, Dockerfile, docker-compose.yml, script bash setup-vps.sh; đảm bảo nguyên tắc bảo mật tối thượng (không phơi bày port DB/App ra internet, secrets qua ENV).
+
+### Trạng thái Git & Điểm dừng:
+- Giữ HEAD `ed9fde6`, worktree giữ nguyên các file chưa commit, không commit/push/deploy.
+- Hoàn tất toàn bộ Giai đoạn 8A.
+- **Đề xuất duy nhất**: **Giai đoạn 8B — Nginx Reverse Proxy, TLS Let's Encrypt & Tường lửa UFW**. Dừng chờ phê duyệt.
+
+## Hoàn tất 7C — Tải ảnh vào bộ sưu tập thiết bị (Save to Device Gallery) — 18/10/2026
+
+**PASS local/AVD; dừng chờ duyệt Giai đoạn 8A.** Trước phiên: nhánh `chore/push-current-project`, HEAD `ed9fde6`, bảo toàn các thay đổi có sẵn trong worktree.
+
+### Triển khai:
+- **Android Client (Java / Material 3)**:
+  - Khai báo quyền: `<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" android:maxSdkVersion="28" />` trong `AndroidManifest.xml` (tương thích ngược Android 8–9; Android 10+ dùng Scoped Storage không cần quyền runtime).
+  - Lớp tiện ích `GallerySaver`: Lưu ảnh JPEG / Bitmap vào `MediaStore` (`Pictures/Taktak`). Trên Android 10+ (API 29+) sử dụng `RELATIVE_PATH` và cờ `IS_PENDING = 1` trong lúc ghi để tránh file hỏng; trên Android 8–9 (API 26–28) ghi vào thư mục ngoài rồi quét MediaStore; có cơ chế rollback dọn dẹp Uri nếu ghi thất bại.
+  - Vector icon tải xuống: `ic_download.xml` (24dp, chuẩn Material Icon).
+  - Chuỗi giao diện tiếng Việt trong `history_strings.xml`: Tiêu đề lưu ảnh, thông báo thành công ("Đã lưu ảnh vào Bộ sưu tập."), thông báo lỗi ("Không thể lưu ảnh vào máy. Vui lòng thử lại."), và thông báo quyền bộ nhớ.
+  - Giao diện xem toàn màn hình: Bổ sung nút lưu ảnh `viewerSaveButton` trên thanh tiêu đề `viewerTopBar` trong `MomentViewerActivity` cho cả người gửi lẫn người nhận.
+  - Hành động người dùng (User Action): Ảnh riêng tư và khoảnh khắc nhận được tuyệt đối không tự động xuất ra Gallery khi chưa có hành động nhấn nút từ người dùng.
+  - Luồng lưu ảnh an toàn: Chạy trên worker thread, ưu tiên lấy bytes JPEG gốc tải từ server hoặc nén từ RAM cache nếu thiết bị đang offline, hiển thị Toast trạng thái tiếng Việt mượt mà.
+  - Quản lý quyền runtime: Sử dụng `ActivityResultLauncher<String>` xin quyền `WRITE_EXTERNAL_STORAGE` khi chạy trên Android 9 trở xuống (API <= 28).
+
+### Kiểm thử và bằng chứng:
+- **Android Unit Tests**: `./gradlew.bat testDebugUnitTest` đạt **66/66 tests PASS**, 0 failures, 0 errors.
+- **Android Build & Lint**: `assembleDebug assembleRelease lintDebug lintRelease -PTAKTAK_RELEASE_BASE_URL=https://taktak.example.com/` **BUILD SUCCESSFUL**, **0 errors, 0 lint warnings**.
+- **Kiểm thử trên Android Emulator `Medium_Phone` (Android 17 / API 37)** qua ADB reverse port 8080:
+  - 12/12 tests trong `DeviceAcceptanceTest` PASS (100% success rate):
+    - `saveMomentToGalleryOnUserActionSavesValidJpegToMediaStore` (3.493s): Người dùng kích hoạt lưu ảnh -> lưu thành công JPEG vào MediaStore -> mở stream đọc lại từ ContentResolver giải mã được Bitmap đúng kích thước gốc 80×80 -> dọn dẹp Uri thành công.
+    - `emptyJpegBytesThrowsIOExceptionOnGallerySave` (1.561s): Kiểm tra trường hợp byte rỗng ném IOException.
+    - `momentDeletionBySenderRevokesRecipientAccessImmediately` (4.594s)
+    - `momentDeletionNetworkFailurePreservesLocalCache` (2.308s)
+    - `sentMomentsEndToEndWithBackend` (4.133s)
+    - `momentViewerActivityRendersAndCachesImage` (2.707s)
+    - `widgetUpdaterRendersAllStatesAndDecodesBitmap` (1.929s)
+    - `latestMomentEndToEndWithBackend` (5.989s)
+    - `multiDeviceRegistrationForSameAccount` (23.240s)
+    - `deviceRegistrationAndUnregistrationEndToEnd` (2.215s)
+    - `pushEventBusDispatchesEventsToListeners` (1.615s)
+    - `momentUploadAndDeleteEndToEnd` (2.405s)
+- **Dọn dẹp môi trường**:
+  - Smoke server dừng an toàn, đóng cổng 8080.
+  - Quy tắc ADB reverse đã gỡ bỏ, emulator dừng an toàn qua `adb emu kill`. Xem [QA_SAVE_TO_GALLERY.md](QA_SAVE_TO_GALLERY.md).
+
+### Trạng thái Git & Điểm dừng:
+- Giữ HEAD `ed9fde6`, worktree giữ nguyên các file chưa commit, không commit/push/deploy.
+- Hoàn tất toàn bộ Giai đoạn 7.
+- **Đề xuất duy nhất**: **Giai đoạn 8A — Chuẩn bị môi trường VPS Ubuntu & Cấu hình dịch vụ (VPS Ubuntu Setup & System Services)**. Dừng chờ phê duyệt.
+
+## Hoàn tất 7B — Xóa khoảnh khắc phía máy chủ & Thu hồi quyền tức thời (Server-side Delete & Revocation) — 18/10/2026
+
+**PASS local/AVD; dừng chờ duyệt Giai đoạn 7C.** Trước phiên: nhánh `chore/push-current-project`, HEAD `ed9fde6`, bảo toàn các thay đổi có sẵn trong worktree.
+
+### Triển khai:
+- **Backend Spring Boot 3**:
+  - Endpoint `DELETE /api/moments/{id}`: Xác thực JWT subject, kiểm tra quyền sở hữu của sender; nếu non-sender gọi xóa sẽ lập tức trả về `403 FORBIDDEN`.
+  - Thu hồi quyền tức thời: Cập nhật soft delete `deleted_at = now()`, xóa an toàn file ảnh khỏi đĩa private VPS `storage.discard(filePath)` khiến mọi request `GET /{id}/image` lập tức trả về `404 NOT_FOUND` cho cả sender và recipients.
+  - Sau commit transaction, phát FCM data payload `{type: "moment_deleted", momentId: id}` tới tất cả thiết bị của người nhận để kích hoạt đồng bộ nền tức thì.
+  - Các truy vấn `latestMoment`, `listMoments(received)`, và `listMoments(sent)` tự động loại bỏ các ảnh đã xóa mềm.
+- **Android Client (Java / Material 3)**:
+  - Vector icon xóa: `ic_delete.xml` (24dp, chuẩn Material Icon).
+  - Chuỗi giao diện tiếng Việt trong `history_strings.xml`: Tiêu đề xác nhận, nội dung cảnh báo, nút xóa/hủy, và thông báo lỗi kết nối mạng.
+  - Giao diện xem toàn màn hình: Thêm nút `viewerDeleteButton` trên `viewerTopBar` của `MomentViewerActivity`, hiển thị khi `isSender == true`.
+  - Luồng xóa an toàn: Khi người dùng bấm xóa, hiển thị hộp thoại `MaterialAlertDialogBuilder` xác nhận. Khi xác nhận, gọi luồng nền `MomentRepository.delete(momentId)`.
+  - Vô hiệu hóa cache an toàn: Khi xóa thành công, loại bỏ khỏi `HistoryImageCache`, phát `PushEventBus.emitMomentDeleted(momentId)` (cập nhật UI danh sách Đã gửi và Đã nhận tức thì 0 ms), kích hoạt `WidgetUpdater.enqueueOneTimeWork(context)` để widget đồng bộ về ảnh tiếp theo hoặc placeholder rỗng, và đóng màn hình xem.
+  - Xử lý Offline / Lỗi mạng an toàn: Nếu thiết bị mất mạng hoặc server không phản hồi, hiển thị dialog thông báo lỗi kết nối mạng, khôi phục tương tác và **tuyệt đối không xóa local cache hay danh sách hiển thị** khi xóa thất bại.
+  - Màn hình lịch sử: `HistoryFragment` truyền cờ `EXTRA_IS_SENDER = (activeTab == HistoryViewModel.Tab.SENT)` khi mở `MomentViewerActivity`.
+
+### Kiểm thử và bằng chứng:
+- **Backend**: `mvn verify` đạt **123/123 tests PASS**, 0 failures, 0 errors. Các integration test xóa khoảnh khắc trong `MomentPushIntegrationTest` bao phủ: xóa thành công, thu hồi quyền tức thời (404), xóa file đĩa, phát FCM, chặn non-sender (403), xóa 2 lần (404), và loại trừ ảnh đã xóa mềm khỏi latest/list.
+- **Android Unit Tests**: `./gradlew.bat testDebugUnitTest` đạt **66/66 tests PASS**, 0 failures, 0 errors. Bổ sung unit tests cho `MomentRepository.delete()` trong `MomentCaptionTest` (thành công, từ chối invalid UUID, không có session, server error 403/404).
+- **Android Build & Lint**: `assembleDebug assembleRelease lintDebug lintRelease -PTAKTAK_RELEASE_BASE_URL=https://taktak.example.com/` **BUILD SUCCESSFUL**, **0 errors**.
+- **Kiểm thử trên Android Emulator `Medium_Phone` (Android 17 / API 37)** qua ADB reverse port 8080:
+  - 10/10 tests trong `DeviceAcceptanceTest` PASS (100% success rate):
+    - `momentDeletionBySenderRevokesRecipientAccessImmediately` (2.206s): Sender gửi khoảnh khắc cho Bob; Bob nhận được và tải được ảnh; Bob thử xóa bị từ chối 403; Sender xóa thành công; cả Bob và Sender tải ảnh đều lập tức nhận 404; ảnh biến mất khỏi danh sách `sent` của Sender và `received` của Bob.
+    - `momentDeletionNetworkFailurePreservesLocalCache` (0.855s): Kiểm tra kịch bản offline/lỗi mạng, gọi xóa thất bại, xác nhận cache RAM `HistoryImageCache` và dữ liệu local không bị xóa sai lệch.
+    - `sentMomentsEndToEndWithBackend` (1.830s)
+    - `momentViewerActivityRendersAndCachesImage` (0.844s)
+    - `widgetUpdaterRendersAllStatesAndDecodesBitmap` (0.942s)
+    - `latestMomentEndToEndWithBackend` (1.938s)
+    - `multiDeviceRegistrationForSameAccount` (3.670s)
+    - `deviceRegistrationAndUnregistrationEndToEnd` (0.819s)
+    - `pushEventBusDispatchesEventsToListeners` (0.820s)
+    - `momentUploadAndDeleteEndToEnd` (0.868s)
+- **Dọn dẹp môi trường**:
+  - Smoke server dừng an toàn, đóng cổng 8080.
+  - Quy tắc ADB reverse đã gỡ bỏ, emulator dừng an toàn qua `adb emu kill`. Xem [QA_MOMENT_DELETION.md](QA_MOMENT_DELETION.md).
+
+### Trạng thái Git & Điểm dừng:
+- Giữ HEAD `ed9fde6`, worktree giữ nguyên các file chưa commit, không commit/push/deploy.
+- **Đề xuất duy nhất**: **Giai đoạn 7C — Tải ảnh vào bộ sưu tập thiết bị (Save to Device Gallery)**. Dừng chờ phê duyệt.
+
+## Hoàn tất 7A — Màn lịch sử Đã gửi & Xem toàn màn hình (Sent Moments History & Full-screen Viewer) — 18/10/2026
+
+**PASS local/AVD; dừng chờ duyệt Giai đoạn 7B.** Trước phiên: nhánh `chore/push-current-project`, HEAD `ed9fde6`, bảo toàn các thay đổi có sẵn trong worktree.
+
+### Triển khai:
+- **Backend Spring Boot 3**:
+  - Hỗ trợ endpoint `GET /api/moments?type=sent&page=0`: truy vấn danh sách khoảnh khắc người dùng đã gửi (`m.sender_id = :senderId AND m.deleted_at IS NULL`), sắp xếp mới nhất lên đầu `created_at DESC, id DESC`, phân trang 20 items/trang kèm cờ `hasNext`, trả về `200 OK` với `MomentsPage`.
+  - Quyền tải ảnh có xác thực: người gửi được cấp quyền tải trực tiếp ảnh của chính mình qua Bearer JWT `GET /api/moments/{id}/image`.
+- **Android Client (Java / Material 3)**:
+  - Repository: Mở rộng `MomentRepository.sent(int page)` và `MomentRepository.list(String type, int page)`.
+  - Quản lý đa tab: `HistoryFragment` tích hợp `TabLayout` gồm 2 tab "Đã nhận" và "Đã gửi". Tiêu đề (`historyTitle`) và trạng thái rỗng (`historyEmptyTitle`, `historyEmptyDetail`) tự động chuyển đổi theo tab, bảo đảm tương thích ngược 100% với các test 5E và 5A.
+  - Quản lý trạng thái: `HistoryViewModel` hỗ trợ `enum Tab { RECEIVED, SENT }`, quản lý phân trang độc lập cho 2 tab, tự động cập nhật khi có push `moment_created` hoặc `moment_deleted`.
+  - Bộ nhớ đệm dùng chung: Xây dựng `HistoryImageCache` an toàn đa luồng bằng `LruCache` max 20 MB.
+  - Xem toàn màn hình: Xây dựng `MomentViewerActivity` hiển thị chi tiết người gửi (avatar, displayName, @username, timestamp tương đối), ảnh 1:1 chất lượng cao (hiển thị tức thì 0 ms từ RAM cache hoặc tải qua mạng), khung chú thích đầy đủ, hỗ trợ đóng và back cử chỉ.
+  - Card khoảnh khắc: Thêm hiệu ứng chạm ripple và `OnMomentClickListener` trong `HistoryAdapter` để mở `MomentViewerActivity`.
+
+### Kiểm thử và bằng chứng:
+- **Backend**: `mvn verify` đạt **123/123 tests PASS**, 0 failures, 0 errors. Bổ sung `MomentIntegrationTest.listMomentsSentTabReturnsSentMomentsWithPaginationAndSorting`.
+- **Android Unit Tests**: `./gradlew.bat testDebugUnitTest` đạt **62/62 tests PASS**, 0 failures, 0 errors. Bổ sung unit tests cho `MomentRepository.sent()` trong `MomentCaptionTest`.
+- **Android Build & Lint**: `assembleDebug assembleRelease lintDebug lintRelease -PTAKTAK_RELEASE_BASE_URL=https://taktak.example.com/` **BUILD SUCCESSFUL**, **0 errors**.
+- **Kiểm thử trên Android Emulator `Medium_Phone` (Android 17 / API 37)** qua ADB reverse port 8080:
+  - 8/8 tests trong `DeviceAcceptanceTest` PASS (100% success rate):
+    - `sentMomentsEndToEndWithBackend` (2.936s): Bob upload 1 ảnh riêng tư và 1 ảnh gửi Alice; Bob gọi `sent(0)` thấy cả 2 ảnh sắp xếp DESC; Bob tải được ảnh của chính mình; Alice gọi `sent(0)` thấy 0 ảnh, gọi `received(0)` thấy 1 ảnh (loại trừ ảnh riêng tư).
+    - `momentViewerActivityRendersAndCachesImage` (1.049s): Kiểm tra ghi/đọc cache `HistoryImageCache`, định dạng thời gian `HistoryTimeFormatter`.
+    - `widgetUpdaterRendersAllStatesAndDecodesBitmap` (1.657s)
+    - `latestMomentEndToEndWithBackend` (2.474s)
+    - `multiDeviceRegistrationForSameAccount` (12.364s)
+    - `deviceRegistrationAndUnregistrationEndToEnd` (1.529s)
+    - `pushEventBusDispatchesEventsToListeners` (1.108s)
+    - `momentUploadAndDeleteEndToEnd` (2.189s)
+- **Dọn dẹp môi trường**:
+  - Smoke server dừng an toàn, đóng cổng 8080.
+  - Quy tắc ADB reverse đã gỡ bỏ, emulator dừng an toàn qua `adb emu kill`. Xem [QA_SENT_HISTORY_VIEWER.md](QA_SENT_HISTORY_VIEWER.md).
+
+### Trạng thái Git & Điểm dừng:
+- Giữ HEAD `ed9fde6`, worktree giữ nguyên các file chưa commit, không commit/push/deploy.
+- **Đề xuất duy nhất**: **Giai đoạn 7B — Xóa khoảnh khắc phía máy chủ & Thu hồi quyền tức thời (Server-side Delete & Revocation)**. Dừng chờ phê duyệt.
+
+## Hoàn tất 6C — AppWidgetProvider 2×2 & WorkManager Widget Sync — 18/10/2026
+
+**PASS local/AVD; dừng chờ duyệt Giai đoạn 7A.** Trước phiên: nhánh `chore/push-current-project`, HEAD `ed9fde6`, bảo toàn các thay đổi có sẵn trong worktree.
+
+### Triển khai:
+- **Backend Endpoint `GET /api/moments/latest` (Spring Boot)**:
+  - Cung cấp endpoint bảo mật yêu cầu JWT Bearer, truy vấn khoảnh khắc nhận được mới nhất chưa bị xóa (`deleted_at IS NULL`) mà viewer được phép xem (`moment_recipients.user_id = :viewerId`).
+  - Trả về `200 OK` kèm `MomentItem` (id, sender, caption, createdAt) hoặc `204 No Content` khi chưa có khoảnh khắc. `Cache-Control: no-store`.
+  - Khi khoảnh khắc mới nhất bị xóa, tự động rơi về khoảnh khắc hợp lệ kế trước hoặc trả về 204.
+- **Android Client App Widget 2×2 & RemoteViews Chuẩn M3 (Java)**:
+  - Layout widget 2×2 (`widget_taktak_2x2.xml`, `widget_taktak_2x2_info.xml`): Khung ảnh bo góc 24dp, phủ dải gradient chân ảnh, tên người gửi (`displayName`/`username`), chú thích ảnh; trạng thái rỗng (placeholder camera *"Chưa có ảnh nào"*); trạng thái đăng xuất (ổ khóa *"Chưa đăng nhập"*); chạm mở `MainActivity`.
+  - An toàn IPC Binder: Tuân thủ RemoteViews whitelist (`ImageView` cho gradient), thuật toán `decodeSampledBitmap` downsample ảnh an toàn xuống max 512×512 RGB_565 (< 512 KB) loại bỏ hoàn toàn lỗi `TransactionTooLargeException`.
+  - `TaktakAppWidgetProvider`: `onUpdate` **chỉ enqueue WorkManager**, tuyệt đối không gọi mạng trực tiếp trong BroadcastReceiver.
+  - `WidgetUpdateWorker`: Tải khoảnh khắc mới nhất qua JWT Bearer, giải mã Bitmap an toàn và cập nhật RemoteViews.
+  - Kích hoạt thời gian thực & dự phòng: `TaktakMessagingService` nhận FCM data message (`moment_created`, `moment_deleted`) enqueue `OneTimeWorkRequest` (`taktak_widget_sync`); widget kích hoạt `PeriodicWorkRequest` 15 phút làm dự phòng. `SessionViewModel` tự động render trạng thái đăng xuất khi signOut.
+  - Mở rộng client: `MomentApi.latest()`, `MomentRepository.latest()`.
+
+### Kiểm thử và bằng chứng:
+- **Backend**: `mvn verify` đạt **122/122 tests PASS**, 0 failures, 0 errors, 0 skipped. Gồm 4 integration tests mới trong `MomentPushIntegrationTest` (204 no content, 200 ok mới nhất, bỏ qua ảnh đã xóa, 401 unauthenticated). Executable JAR repackage thành công.
+- **Android Unit Tests**: `./gradlew.bat testDebugUnitTest` đạt **60/60 tests PASS**, 0 failures, 0 errors (gồm 4 unit tests mới cho `MomentRepository.latest()`).
+- **Android Build & Lint**: `assembleDebug assembleRelease lintDebug lintRelease -PTAKTAK_RELEASE_BASE_URL=https://api.taktak.test/` **BUILD SUCCESSFUL**, **0 errors**.
+- **Kiểm thử trên Android Emulator `Medium_Phone` (Android 17 / API 37)** qua ADB reverse port 8080:
+  - 6/6 tests trong `DeviceAcceptanceTest` PASS (100% success rate):
+    - `widgetUpdaterRendersAllStatesAndDecodesBitmap` (0.977s): Render an toàn các trạng thái LoggedOut, Empty, Loaded Moment; kiểm tra decodeSampledBitmap 800×800 -> 400×400 (<= 512); enqueue OneTime và Periodic Work.
+    - `latestMomentEndToEndWithBackend` (2.545s): Alice kết bạn với User, Alice upload ảnh gửi cho User, User gọi `latest()` nhận đúng moment; Alice xóa ảnh, User gọi `latest()` tự động nhận null.
+    - `multiDeviceRegistrationForSameAccount` (8.141s)
+    - `deviceRegistrationAndUnregistrationEndToEnd` (1.032s)
+    - `pushEventBusDispatchesEventsToListeners` (0.902s)
+    - `momentUploadAndDeleteEndToEnd` (1.725s)
+- **Dọn dẹp môi trường**:
+  - Smoke server dừng exit 0: `SMOKE_MEDIA_ROWS=0 FILES=0 RECIPIENTS=1`.
+  - Cổng 8080 đã đóng, quy tắc ADB reverse đã gỡ bỏ, emulator dừng an toàn qua `adb emu kill`. Xem [QA_WIDGET_SYNC.md](QA_WIDGET_SYNC.md).
+
+### Trạng thái Git & Điểm dừng:
+- Giữ HEAD `ed9fde6`, worktree giữ nguyên các file chưa commit, không commit/push/deploy.
+- **Đề xuất duy nhất**: **Giai đoạn 7A — Màn lịch sử Đã gửi & Xem toàn màn hình (Sent Moments History & Full-screen Viewer)**. Dừng chờ phê duyệt.
+
+## Hoàn tất 6B — Bắn thông báo đẩy khi tạo/xóa khoảnh khắc (Push Notification Dispatching) — 18/10/2026
+
+**PASS local/AVD; dừng chờ duyệt Giai đoạn 6C.** Trước phiên: nhánh `chore/push-current-project`, HEAD `ed9fde6`, bảo toàn các thay đổi có sẵn trong worktree.
+
+### Triển khai:
+- **Backend Bắn thông báo đẩy & Vòng đời khoảnh khắc (Spring Boot)**:
+  - Cơ chế sau commit (`TransactionSynchronization.afterCommit`): Gửi push notification qua FCM chỉ khi giao dịch DB đã commit thành công; lỗi gửi FCM không rollback giao dịch DB.
+  - Sự kiện `moment_created`: Bắn data message `{type: "moment_created", momentId: "..."}` tới toàn bộ thiết bị active của người nhận (`targets`).
+  - Bảo mật & Cô lập: Ảnh chỉ mình tôi (`recipientIds=[]`) và upload gửi lại cùng `Idempotency-Key` (idempotency replay) tuyệt đối không gửi push. Tuyệt đối không gửi URL ảnh, caption hoặc bearer token qua FCM.
+  - Endpoint `DELETE /api/moments/{id}`: Chỉ chủ sở hữu (sender) được phép xóa (`403 FORBIDDEN` với người khác). Đánh dấu `deleted_at = now()` (soft delete), xóa file ảnh khỏi private storage trên VPS, và phát FCM `{type: "moment_deleted", momentId: "..."}` tới người nhận. Sau khi xóa, request tải ảnh trả về `404 NOT_FOUND` cho cả sender lẫn recipient, và ảnh bị ẩn ngay khỏi danh sách lịch sử.
+  - Tự động dọn dẹp stale token: Xóa token FCM hết hạn (`UNREGISTERED`, `INVALID_ARGUMENT`) khỏi bảng `device_tokens`.
+- **Android Client Đón nhận sự kiện & Đồng bộ UI (Java)**:
+  - `PushEventBus`: Singleton thread-safe quản lý đăng ký/hủy đăng ký và phát sự kiện `onMomentCreated` và `onMomentDeleted`.
+  - `TaktakMessagingService`: `onMessageReceived` bóc tách `type` và `momentId` từ `remoteMessage.getData()` và emit vào `PushEventBus`.
+  - `HistoryViewModel`: Lắng nghe `PushEventBus` — tự động `refresh()` khi có `moment_created`; xóa khoảnh khắc và RAM cache tức thì khi có `moment_deleted`.
+  - `MomentApi` & `MomentRepository`: Thêm endpoint và hàm `delete(id)`.
+
+### Kiểm thử và bằng chứng:
+- **Backend**: `mvn verify` đạt **118/118 tests PASS**, 0 failures, 0 errors, 0 skipped. Gồm 7 integration tests mới trong `MomentPushIntegrationTest` kiểm thử đa thiết bị, chỉ mình tôi, idempotency replay, xóa ảnh, 403 không phải chủ sở hữu, 404 xóa lại, và dọn dẹp stale token. Executable JAR được repackage thành công.
+- **Android Unit Tests**: `./gradlew.bat testDebugUnitTest` đạt **56/56 tests PASS**, 0 failures, 0 errors (gồm 4 tests mới trong `PushEventBusTest` và 3 tests mới cho DELETE trong `MomentCaptionTest`).
+- **Android Build & Lint**: `assembleDebug assembleRelease lintDebug lintRelease -PTAKTAK_RELEASE_BASE_URL=https://api.taktak.test/` **BUILD SUCCESSFUL**, **0 errors**.
+- **Kiểm thử trên Android Emulator `Medium_Phone` (Android 17 / API 37)** qua ADB reverse port 8080:
+  - 4/4 tests trong `DeviceAcceptanceTest` PASS (100%): gồm `pushEventBusDispatchesEventsToListeners` (1.716s) và `momentUploadAndDeleteEndToEnd` (2.193s).
+- **Dọn dẹp môi trường**:
+  - Smoke server dừng exit 0: `SMOKE_MEDIA_ROWS=0 FILES=0 RECIPIENTS=0`.
+  - Cổng 8080 đã đóng, quy tắc ADB reverse đã gỡ bỏ, emulator dừng an toàn qua `adb emu kill`. Xem [QA_PUSH_DISPATCHING.md](QA_PUSH_DISPATCHING.md).
+
+### Trạng thái Git & Điểm dừng:
+- Giữ HEAD `ed9fde6`, worktree giữ nguyên các file chưa commit, không commit/push/deploy.
+- **Đề xuất duy nhất**: **Giai đoạn 6C — AppWidgetProvider 2×2 & WorkManager Widget Sync**. Dừng chờ phê duyệt.
+
+## Hoàn tất 6A — Đăng ký thiết bị & FCM Token (Device & FCM Registration) — 18/10/2026
+
+**PASS local/AVD; dừng chờ duyệt Giai đoạn 6B.** Trước phiên: nhánh `chore/push-current-project`, HEAD `ed9fde6`, bảo toàn các thay đổi có sẵn trong worktree.
+
+### Triển khai:
+- **Backend API Quản lý Thiết bị & Firebase Admin SDK**:
+  - `POST /api/devices` với Bearer JWT: Đăng ký/cập nhật `deviceId` và `fcmToken`. Xử lý chuyển nhượng token (reassignment) tự động xóa token cũ nếu được tái sử dụng trên thiết bị/tài khoản khác, bảo đảm ràng buộc `uq_device_tokens_fcm_token`.
+  - `DELETE /api/devices/{deviceId}`: Hủy đăng ký thiết bị khi người dùng đăng xuất (idempotent, trả về `204 No Content`).
+  - `GET /api/devices`: Liệt kê các thiết bị active của người dùng hiện tại (`200 OK`).
+  - `FirebaseConfig`: Tự động nạp Google credentials hoặc kích hoạt graceful fallback an toàn nếu không tìm thấy file cấu hình trong môi trường test/local.
+  - Interface `PushNotificationSender` và triển khai `FirebasePushNotificationSender` chuẩn bị cho 6B.
+- **Android Client Quản lý Device & FCM**:
+  - `DeviceIdProvider` / `AppDeviceIdProvider`: Tạo và lưu trữ UUID ngẫu nhiên bền vững trong SharedPreferences (`Context.MODE_PRIVATE`).
+  - `DeviceModels`, `DeviceApi`, `DeviceRepository`: Triển khai các phương thức `register(token)` và `unregister()`.
+  - `TaktakMessagingService`: Kế thừa `FirebaseMessagingService`, xử lý `onNewToken` (tự động đồng bộ với backend nếu đã đăng nhập) và `onMessageReceived` (chuẩn bị xử lý lightweight data payload ở 6B).
+  - `SessionViewModel`: Đồng bộ FCM token tự động khi đăng nhập thành công (`syncFcmToken`); unregister thiết bị trên server trước khi xóa phiên local khi đăng xuất (`logout`).
+  - `AndroidManifest.xml`: Khai báo quyền `POST_NOTIFICATIONS`, khai báo `TaktakMessagingService`, bật `firebase_messaging_auto_init_enabled`.
+
+### Kiểm thử và bằng chứng:
+- **Backend**: `mvn verify` đạt **111/111 tests PASS**, 0 failures, 0 errors, 0 skipped. Gồm 7 integration tests mới trong `DeviceIntegrationTest` kiểm thử đăng ký, re-register cập nhật token, đa thiết bị cho cùng user, chuyển nhượng token giữa các tài khoản, unregister thiết bị, 401 unauthenticated và 400 validation. Executable JAR được build và repackage thành công.
+- **Android Unit Tests**: `./gradlew.bat testDebugUnitTest` đạt **49/49 tests PASS**, 0 failures, 0 errors (gồm 4 unit tests mới trong `DeviceRepositoryTest`).
+- **Android Build & Lint**: `assembleDebug assembleRelease lintDebug lintRelease` **BUILD SUCCESSFUL**, **0 errors**.
+- **Kiểm thử trên Android Emulator `Medium_Phone` (Android 17 / API 37)** qua ADB reverse port 8080:
+  - `deviceRegistrationAndUnregistrationEndToEnd`: PASS (0.745 s) — Đăng ký thiết bị với token ban đầu, làm mới với token mới, và hủy đăng ký thành công.
+  - `multiDeviceRegistrationForSameAccount`: PASS (2.988 s) — Đăng ký đồng thời 2 thiết bị (phone + tablet) cho cùng tài khoản, unregister thiết bị phụ độc lập.
+  - Tổng: 2/2 tests PASS (100% success rate).
+- **Dọn dẹp môi trường**:
+  - Smoke server dừng exit 0: `SMOKE_MEDIA_ROWS=0 FILES=0 RECIPIENTS=0`.
+  - Cổng 8080 đã đóng, quy tắc ADB reverse đã gỡ bỏ, emulator dừng an toàn qua `adb emu kill`. Xem [QA_DEVICE_REGISTRATION.md](QA_DEVICE_REGISTRATION.md).
+
+### Trạng thái Git & Điểm dừng:
+- Giữ HEAD `ed9fde6`, worktree giữ nguyên các file chưa commit, không commit/push/deploy.
+- **Đề xuất duy nhất**: **Giai đoạn 6B — Bắn thông báo đẩy khi tạo/xóa khoảnh khắc (Push Notification Dispatching)**. Dừng chờ phê duyệt.
+
+## Hoàn tất 5E — Lịch sử ảnh đã nhận (Received Moments History) — 18/10/2026
 
 ### Triển khai:
 - **Backend API Lịch sử & Phân trang**:

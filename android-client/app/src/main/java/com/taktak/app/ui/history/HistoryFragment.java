@@ -1,5 +1,6 @@
 package com.taktak.app.ui.history;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -10,6 +11,8 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import com.bumptech.glide.Glide;
+import com.google.android.material.tabs.TabLayout;
+import com.taktak.app.R;
 import com.taktak.app.databinding.FragmentHistoryBinding;
 import com.taktak.app.viewmodel.HistoryViewModel;
 import com.taktak.app.viewmodel.SessionViewModel;
@@ -32,7 +35,39 @@ public final class HistoryFragment extends Fragment {
 
         ViewCompat.setAccessibilityHeading(binding.historyTitle, true);
 
-        adapter = new HistoryAdapter(Glide.with(this), model, () -> model.more());
+        // Setup Tabs (Đã nhận / Đã gửi)
+        binding.historyTabs.removeAllTabs();
+        binding.historyTabs.addTab(binding.historyTabs.newTab().setText(R.string.history_tab_received));
+        binding.historyTabs.addTab(binding.historyTabs.newTab().setText(R.string.history_tab_sent));
+
+        binding.historyTabs.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
+            @Override
+            public void onTabSelected(TabLayout.Tab tab) {
+                if (tab.getPosition() == 0) {
+                    model.switchTab(HistoryViewModel.Tab.RECEIVED);
+                } else {
+                    model.switchTab(HistoryViewModel.Tab.SENT);
+                }
+            }
+
+            @Override public void onTabUnselected(TabLayout.Tab tab) { }
+            @Override public void onTabReselected(TabLayout.Tab tab) {
+                model.refresh();
+            }
+        });
+
+        adapter = new HistoryAdapter(Glide.with(this), model, () -> model.more(), item -> {
+            Intent intent = new Intent(requireContext(), MomentViewerActivity.class);
+            intent.putExtra(MomentViewerActivity.EXTRA_MOMENT_ID, item.id);
+            intent.putExtra(MomentViewerActivity.EXTRA_SENDER_NAME, item.sender.displayName);
+            intent.putExtra(MomentViewerActivity.EXTRA_SENDER_USERNAME, item.sender.username);
+            intent.putExtra(MomentViewerActivity.EXTRA_CAPTION, item.caption);
+            intent.putExtra(MomentViewerActivity.EXTRA_CREATED_AT, item.createdAt);
+            boolean isSender = model.state().getValue() != null && model.state().getValue().activeTab == HistoryViewModel.Tab.SENT;
+            intent.putExtra(MomentViewerActivity.EXTRA_IS_SENDER, isSender);
+            startActivity(intent);
+        });
+
         binding.historyRecycler.setLayoutManager(new LinearLayoutManager(requireContext()));
         binding.historyRecycler.setAdapter(adapter);
         binding.historyRecycler.setItemAnimator(null);
@@ -49,6 +84,19 @@ public final class HistoryFragment extends Fragment {
                 });
                 return;
             }
+
+            int selectedTab = (state.activeTab == HistoryViewModel.Tab.RECEIVED) ? 0 : 1;
+            if (binding.historyTabs.getSelectedTabPosition() != selectedTab) {
+                var tab = binding.historyTabs.getTabAt(selectedTab);
+                if (tab != null && !tab.isSelected()) {
+                    tab.select();
+                }
+            }
+
+            boolean isReceived = state.activeTab == HistoryViewModel.Tab.RECEIVED;
+            binding.historyTitle.setText(isReceived ? R.string.history_title : R.string.history_sent_title);
+            binding.historyEmptyTitle.setText(isReceived ? R.string.history_empty : R.string.history_empty_sent);
+            binding.historyEmptyDetail.setText(isReceived ? R.string.history_empty_detail : R.string.history_empty_sent_detail);
 
             binding.historyProgress.setVisibility(state.busy ? View.VISIBLE : View.INVISIBLE);
             binding.historyRefresh.setEnabled(!state.busy);
@@ -71,6 +119,7 @@ public final class HistoryFragment extends Fragment {
     @Override
     public void onDestroyView() {
         if (binding != null) {
+            binding.historyTabs.clearOnTabSelectedListeners();
             binding.historyRecycler.setAdapter(null);
             binding = null;
         }

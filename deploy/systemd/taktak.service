@@ -1,0 +1,35 @@
+[Unit]
+Description=Taktak Social Backend Service
+After=syslog.target network.target postgresql.service
+Requires=postgresql.service
+
+[Service]
+Type=simple
+User=taktak
+Group=taktak
+WorkingDirectory=/var/taktak
+
+# Đọc cấu hình bí mật từ file môi trường local
+EnvironmentFile=/var/taktak/.env
+ExecStart=/usr/bin/java -Xms256m -Xmx512m -Dspring.profiles.active=prod -jar /var/taktak/taktak-server.jar
+
+# Tự động khởi động lại khi gặp sự cố
+Restart=always
+RestartSec=10
+
+# Tăng cường bảo mật quy trình (Systemd Hardening)
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/taktak/private-images /var/log/taktak
+CapabilityBoundingSet=
+AmbientCapabilities=
+
+# Logging qua systemd journal
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=taktak-server
+
+[Install]
+WantedBy=multi-user.target

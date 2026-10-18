@@ -32,6 +32,13 @@ public final class AuthRepository {
     }
 
     public void logout() throws IOException { client.sessions.logout(); }
+    public void logout(android.content.Context context) throws IOException {
+        devices(context).unregister();
+        client.sessions.logout();
+    }
+    public DeviceRepository devices(android.content.Context context) {
+        return new DeviceRepository(client, new com.taktak.app.data.session.AppDeviceIdProvider(context));
+    }
     public MomentRepository moments() { return new MomentRepository(client); }
     public FriendRepository friends() { return new FriendRepository(client); }
 

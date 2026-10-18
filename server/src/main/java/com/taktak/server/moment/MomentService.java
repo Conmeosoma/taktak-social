@@ -1,6 +1,7 @@
 package com.taktak.server.moment;
 
 import com.taktak.server.storage.PrivateImageStorage;
+import com.taktak.server.user.User;
 import com.taktak.server.user.UserService;
 import com.taktak.server.user.UserRepository;
 import com.taktak.server.friend.FriendRequestRepository;
@@ -15,6 +16,10 @@ import org.springframework.transaction.support.TransactionSynchronization;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.taktak.server.device.DeviceToken;
+import com.taktak.server.device.DeviceTokenRepository;
+import com.taktak.server.device.PushNotificationSender;
+
 @Service
 public class MomentService {
     private final MomentRepository moments;
@@ -23,10 +28,15 @@ public class MomentService {
     private final Clock clock;
     private final UserRepository accounts;
     private final FriendRequestRepository relations;
+    private final PushNotificationSender pushSender;
+    private final DeviceTokenRepository deviceTokens;
+
     public MomentService(MomentRepository moments, PrivateImageStorage storage, UserService users, Clock clock,
-            UserRepository accounts, FriendRequestRepository relations) {
+            UserRepository accounts, FriendRequestRepository relations, PushNotificationSender pushSender,
+            DeviceTokenRepository deviceTokens) {
         this.moments = moments; this.storage = storage; this.users = users; this.clock = clock;
-        this.accounts = accounts; this.relations = relations;
+        this.accounts = accounts; this.relations = relations; this.pushSender = pushSender;
+        this.deviceTokens = deviceTokens;
     }
 
     @Transactional(rollbackFor = IOException.class)
@@ -76,7 +86,57 @@ public class MomentService {
         var created = clock.instant();
         moments.saveAndFlush(new Moment(id, sender, caption, key, bytes.length, created, idempotencyKey, payloadHash));
         for (UUID target : targets) { moments.addRecipient(id, target, created); }
+
+        if (!targets.isEmpty()) {
+            var fcmTokens = deviceTokens.findAllByUserIdIn(targets).stream()
+                    .map(DeviceToken::getFcmToken)
+                    .filter(t -> t != null && !t.isBlank())
+                    .distinct()
+                    .toList();
+            if (!fcmTokens.isEmpty()) {
+                TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+                    @Override public void afterCommit() {
+                        pushSender.sendDataMessageToDevices(fcmTokens, java.util.Map.of(
+                                "type", "moment_created",
+                                "momentId", id.toString()
+                        ));
+                    }
+                });
+            }
+        }
         return id;
+    }
+
+    @Transactional
+    public void delete(UUID senderId, UUID momentId) {
+        users.getProfile(senderId);
+        Moment moment = moments.findById(momentId).filter(value -> value.getDeletedAt() == null)
+                .orElseThrow(() -> new MomentFailure(HttpStatus.NOT_FOUND, "MOMENT_NOT_FOUND"));
+        if (!moment.getSenderId().equals(senderId)) {
+            throw new MomentFailure(HttpStatus.FORBIDDEN, "FORBIDDEN");
+        }
+        moment.markDeleted(clock.instant());
+        moments.saveAndFlush(moment);
+        storage.discard(moment.getFilePath());
+
+        var recipients = moments.findRecipientIds(momentId);
+        if (!recipients.isEmpty()) {
+            var fcmTokens = deviceTokens.findAllByUserIdIn(recipients).stream()
+                    .map(DeviceToken::getFcmToken)
+                    .filter(t -> t != null && !t.isBlank())
+                    .distinct()
+                    .toList();
+            if (!fcmTokens.isEmpty()) {
+                TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+                    @Override public void afterCommit() {
+                        pushSender.sendDataMessageToDevices(fcmTokens, java.util.Map.of(
+                                "type", "moment_deleted",
+                                "momentId", momentId.toString()
+                        ));
+                    }
+                });
+            }
+        }
     }
 
     @Transactional(readOnly = true)
@@ -155,5 +215,19 @@ public class MomentService {
             return new MomentDtos.MomentItem(moment.getId(), MomentDtos.PublicUser.from(sender), moment.getCaption(), moment.getCreatedAt());
         }).toList();
         return new MomentDtos.MomentsPage(items, page, found.size() > 20);
+    }
+
+    @Transactional(readOnly = true)
+    public java.util.Optional<MomentDtos.MomentItem> latestMoment(UUID viewerId) {
+        users.getProfile(viewerId);
+        return moments.findLatestReceivedMoment(viewerId).map(moment -> {
+            User sender = accounts.findById(moment.getSenderId()).orElseThrow();
+            return new MomentDtos.MomentItem(
+                    moment.getId(),
+                    MomentDtos.PublicUser.from(sender),
+                    moment.getCaption(),
+                    moment.getCreatedAt()
+            );
+        });
     }
 }

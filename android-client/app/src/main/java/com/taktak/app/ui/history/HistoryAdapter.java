@@ -24,20 +24,30 @@ public final class HistoryAdapter extends RecyclerView.Adapter<RecyclerView.View
         void onMore();
     }
 
+    public interface OnMomentClickListener {
+        void onMomentClick(MomentItem item);
+    }
+
     private static final int TYPE_MOMENT = 0;
     private static final int TYPE_FOOTER = 1;
 
     private final RequestManager glide;
     private final HistoryViewModel viewModel;
     private final OnMoreClickListener moreListener;
+    private final OnMomentClickListener momentClickListener;
     private final List<MomentItem> items = new ArrayList<>();
     private boolean hasNext = false;
     private boolean busy = false;
 
     public HistoryAdapter(RequestManager glide, HistoryViewModel viewModel, OnMoreClickListener moreListener) {
+        this(glide, viewModel, moreListener, null);
+    }
+
+    public HistoryAdapter(RequestManager glide, HistoryViewModel viewModel, OnMoreClickListener moreListener, OnMomentClickListener momentClickListener) {
         this.glide = glide;
         this.viewModel = viewModel;
         this.moreListener = moreListener;
+        this.momentClickListener = momentClickListener;
     }
 
     public void submit(List<MomentItem> newItems, boolean hasNext, boolean busy) {
@@ -122,6 +132,12 @@ public final class HistoryAdapter extends RecyclerView.Adapter<RecyclerView.View
         } else {
             moment.binding.momentCaption.setVisibility(View.GONE);
         }
+
+        moment.itemView.setOnClickListener(v -> {
+            if (momentClickListener != null) {
+                momentClickListener.onMomentClick(item);
+            }
+        });
 
         moment.currentMomentId = item.id;
         moment.binding.momentImageProgress.setVisibility(View.VISIBLE);

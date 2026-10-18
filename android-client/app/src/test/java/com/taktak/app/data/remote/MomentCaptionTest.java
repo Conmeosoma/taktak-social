@@ -200,4 +200,214 @@ public class MomentCaptionTest {
             }
         }
     }
+
+    @Test public void deleteMomentSendsCorrectDeleteRequest() throws Exception {
+        String momentId = UUID.randomUUID().toString();
+        var called = new AtomicInteger();
+        try (var server = new TestHttpServer(request -> {
+            called.incrementAndGet();
+            assertEquals("/api/moments/" + momentId, request.path);
+            assertNotNull(request.authorization);
+            return new TestHttpServer.Reply(204, "");
+        })) {
+            var client = new ApiClient(server.baseUrl(), new Memory()); login(client);
+            new MomentRepository(client).delete(momentId);
+            assertEquals(1, called.get());
+        }
+    }
+
+    @Test public void deleteMomentRejectsInvalidUuid() throws Exception {
+        var called = new AtomicInteger();
+        try (var server = new TestHttpServer(request -> { called.incrementAndGet(); return new TestHttpServer.Reply(204, ""); })) {
+            var client = new ApiClient(server.baseUrl(), new Memory()); login(client);
+            var repo = new MomentRepository(client);
+            for (String bad : new String[]{"not-a-uuid", "", "12345", UUID.randomUUID().toString() + "extra"}) {
+                try {
+                    repo.delete(bad);
+                    fail();
+                } catch (ApiFailure failure) {
+                    assertEquals(ApiFailure.Kind.VALIDATION, failure.kind);
+                }
+            }
+            assertEquals(0, called.get());
+        }
+    }
+
+    @Test public void deleteMomentMapsForbiddenAndNotFoundCorrectly() throws Exception {
+        String momentId = UUID.randomUUID().toString();
+        try (var server = new TestHttpServer(request -> new TestHttpServer.Reply(403, "{\"status\":403,\"code\":\"FORBIDDEN\"}"))) {
+            var client = new ApiClient(server.baseUrl(), new Memory()); login(client);
+            try {
+                new MomentRepository(client).delete(momentId);
+                fail();
+            } catch (ApiFailure failure) {
+                assertEquals(403, failure.status);
+                assertEquals("FORBIDDEN", failure.code);
+            }
+        }
+
+        try (var server = new TestHttpServer(request -> new TestHttpServer.Reply(404, "{\"status\":404,\"code\":\"MOMENT_NOT_FOUND\"}"))) {
+            var client = new ApiClient(server.baseUrl(), new Memory()); login(client);
+            try {
+                new MomentRepository(client).delete(momentId);
+                fail();
+            } catch (ApiFailure failure) {
+                assertEquals(404, failure.status);
+                assertEquals("MOMENT_NOT_FOUND", failure.code);
+            }
+        }
+    }
+
+    @Test public void latestReturnsNullOn204NoContent() throws Exception {
+        try (var server = new TestHttpServer(request -> {
+            assertNotNull(request.authorization);
+            assertEquals("/api/moments/latest", request.path);
+            return new TestHttpServer.Reply(204, "");
+        })) {
+            var client = new ApiClient(server.baseUrl(), new Memory()); login(client);
+            var item = new MomentRepository(client).latest();
+            assertNull(item);
+        }
+    }
+
+    @Test public void latestReturnsMomentItemOn200Ok() throws Exception {
+        String momentId = UUID.randomUUID().toString();
+        String senderId = UUID.randomUUID().toString();
+        String json = "{"
+                + "\"id\":\"" + momentId + "\","
+                + "\"sender\":{\"id\":\"" + senderId + "\",\"username\":\"alice\",\"displayName\":\"Alice In Wonderland\"},"
+                + "\"caption\":\"Hello from Alice\","
+                + "\"createdAt\":\"2026-10-18T00:00:00Z\""
+                + "}";
+        try (var server = new TestHttpServer(request -> {
+            assertNotNull(request.authorization);
+            assertEquals("/api/moments/latest", request.path);
+            return new TestHttpServer.Reply(200, json);
+        })) {
+            var client = new ApiClient(server.baseUrl(), new Memory()); login(client);
+            var item = new MomentRepository(client).latest();
+            assertNotNull(item);
+            assertEquals(momentId, item.id);
+            assertEquals("alice", item.sender.username);
+            assertEquals("Alice In Wonderland", item.sender.displayName);
+            assertEquals("Hello from Alice", item.caption);
+        }
+    }
+
+    @Test public void latestThrowsUnauthorizedWhenNoSession() throws Exception {
+        try (var server = new TestHttpServer(request -> new TestHttpServer.Reply(200, "{}"))) {
+            var client = new ApiClient(server.baseUrl(), new Memory());
+            try {
+                new MomentRepository(client).latest();
+                fail();
+            } catch (ApiFailure failure) {
+                assertEquals(ApiFailure.Kind.UNAUTHORIZED, failure.kind);
+            }
+        }
+    }
+
+    @Test public void latestThrowsServerWhenInvalidJson() throws Exception {
+        try (var server = new TestHttpServer(request -> new TestHttpServer.Reply(200, "{\"id\":\"not-a-uuid\"}"))) {
+            var client = new ApiClient(server.baseUrl(), new Memory()); login(client);
+            try {
+                new MomentRepository(client).latest();
+                fail();
+            } catch (ApiFailure failure) {
+                assertEquals(ApiFailure.Kind.SERVER, failure.kind);
+            }
+        }
+    }
+
+    @Test public void sentCallsListWithSentType() throws Exception {
+        String momentId = UUID.randomUUID().toString();
+        String json = "{\"items\":[{"
+                + "\"id\":\"" + momentId + "\","
+                + "\"sender\":{\"id\":\"" + UUID.randomUUID() + "\",\"username\":\"me\",\"displayName\":\"My Name\"},"
+                + "\"caption\":\"Sent caption\","
+                + "\"createdAt\":\"2026-10-18T00:00:00Z\""
+                + "}],"
+                + "\"page\":0,\"hasNext\":false}";
+        try (var server = new TestHttpServer(request -> {
+            assertNotNull(request.authorization);
+            assertEquals("/api/moments?type=sent&page=0", request.path);
+            return new TestHttpServer.Reply(200, json);
+        })) {
+            var client = new ApiClient(server.baseUrl(), new Memory()); login(client);
+            var page = new MomentRepository(client).sent(0);
+            assertNotNull(page);
+            assertEquals(1, page.items.size());
+            assertEquals(momentId, page.items.get(0).id);
+            assertEquals("me", page.items.get(0).sender.username);
+            assertEquals("Sent caption", page.items.get(0).caption);
+            assertFalse(page.hasNext);
+        }
+    }
+
+    @Test public void sentRejectsNegativePageAndInvalidType() throws Exception {
+        try (var server = new TestHttpServer(request -> new TestHttpServer.Reply(200, "{}"))) {
+            var client = new ApiClient(server.baseUrl(), new Memory()); login(client);
+            var repo = new MomentRepository(client);
+            try { repo.sent(-1); fail(); }
+            catch (ApiFailure failure) { assertEquals(ApiFailure.Kind.VALIDATION, failure.kind); }
+            try { repo.list("invalid", 0); fail(); }
+            catch (ApiFailure failure) { assertEquals(ApiFailure.Kind.VALIDATION, failure.kind); }
+        }
+    }
+
+    @Test public void deleteCallsDeleteEndpointWithAuthorization() throws Exception {
+        String momentId = UUID.randomUUID().toString();
+        var called = new java.util.concurrent.atomic.AtomicBoolean();
+        try (var server = new TestHttpServer(request -> {
+            assertNotNull(request.authorization);
+            assertEquals("/api/moments/" + momentId, request.path);
+            called.set(true);
+            return new TestHttpServer.Reply(204, "");
+        })) {
+            var client = new ApiClient(server.baseUrl(), new Memory()); login(client);
+            new MomentRepository(client).delete(momentId);
+            assertTrue(called.get());
+        }
+    }
+
+    @Test public void deleteRejectsInvalidUuid() throws Exception {
+        try (var server = new TestHttpServer(request -> new TestHttpServer.Reply(204, ""))) {
+            var client = new ApiClient(server.baseUrl(), new Memory()); login(client);
+            var repo = new MomentRepository(client);
+            for (String bad : new String[]{null, "", "   ", "not-a-uuid", UUID.randomUUID() + "extra"}) {
+                try {
+                    repo.delete(bad);
+                    fail("Expected VALIDATION for: " + bad);
+                } catch (ApiFailure failure) {
+                    assertEquals(ApiFailure.Kind.VALIDATION, failure.kind);
+                }
+            }
+        }
+    }
+
+    @Test public void deleteThrowsUnauthorizedWhenNoSession() throws Exception {
+        try (var server = new TestHttpServer(request -> new TestHttpServer.Reply(204, ""))) {
+            var client = new ApiClient(server.baseUrl(), new Memory());
+            try {
+                new MomentRepository(client).delete(UUID.randomUUID().toString());
+                fail();
+            } catch (ApiFailure failure) {
+                assertEquals(ApiFailure.Kind.UNAUTHORIZED, failure.kind);
+            }
+        }
+    }
+
+    @Test public void deletePropagatesServerFailureWhenForbiddenOrNotFound() throws Exception {
+        String momentId = UUID.randomUUID().toString();
+        try (var server = new TestHttpServer(request -> new TestHttpServer.Reply(403, "{\"status\":403,\"code\":\"FORBIDDEN\"}"))) {
+            var client = new ApiClient(server.baseUrl(), new Memory()); login(client);
+            try {
+                new MomentRepository(client).delete(momentId);
+                fail();
+            } catch (ApiFailure failure) {
+                assertEquals(ApiFailure.Kind.SERVER, failure.kind);
+                assertEquals(403, failure.status);
+                assertEquals("FORBIDDEN", failure.code);
+            }
+        }
+    }
 }

@@ -1,0 +1,11 @@
+[Unit]
+Description=Run Taktak Automated Daily Backup at 02:00 AM
+Requires=taktak-backup.service
+
+[Timer]
+OnCalendar=*-*-* 02:00:00
+Persistent=true
+RandomizedDelaySec=300
+
+[Install]
+WantedBy=timers.target

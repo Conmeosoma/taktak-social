@@ -36,4 +36,5 @@ public class Moment {
     public String getPayloadHash() { return payloadHash; }
     public String getCaption() { return caption; }
     public Instant getCreatedAt() { return createdAt; }
+    public void markDeleted(Instant deletedAt) { this.deletedAt = deletedAt; }
 }

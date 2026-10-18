@@ -5,7 +5,6 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Handler;
 import android.os.Looper;
-import androidx.collection.LruCache;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
@@ -13,8 +12,10 @@ import com.taktak.app.R;
 import com.taktak.app.data.AuthGraph;
 import com.taktak.app.data.model.MomentModels.MomentItem;
 import com.taktak.app.data.model.MomentModels.MomentsPage;
+import com.taktak.app.data.push.PushEventBus;
 import com.taktak.app.data.remote.ApiFailure;
 import com.taktak.app.data.repository.MomentRepository;
+import com.taktak.app.ui.history.HistoryImageCache;
 import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
@@ -22,12 +23,17 @@ import java.util.concurrent.Executors;
 
 public final class HistoryViewModel extends AndroidViewModel {
 
+    public enum Tab {
+        RECEIVED, SENT
+    }
+
     public interface ImageCallback {
         void onLoaded(Bitmap bitmap);
         void onError();
     }
 
     public static final class State {
+        public final Tab activeTab;
         public final List<MomentItem> moments;
         public final boolean busy;
         public final boolean loaded;
@@ -36,6 +42,11 @@ public final class HistoryViewModel extends AndroidViewModel {
         public final int message;
 
         public State(List<MomentItem> moments, boolean busy, boolean loaded, boolean hasNext, boolean expired, int message) {
+            this(Tab.RECEIVED, moments, busy, loaded, hasNext, expired, message);
+        }
+
+        public State(Tab activeTab, List<MomentItem> moments, boolean busy, boolean loaded, boolean hasNext, boolean expired, int message) {
+            this.activeTab = activeTab;
             this.moments = moments;
             this.busy = busy;
             this.loaded = loaded;
@@ -48,41 +59,83 @@ public final class HistoryViewModel extends AndroidViewModel {
     private final Handler main = new Handler(Looper.getMainLooper());
     private final ExecutorService worker = Executors.newSingleThreadExecutor();
     private final MutableLiveData<State> state = new MutableLiveData<>();
-    private final LruCache<String, Bitmap> imageCache;
 
     private MomentRepository repository;
-    private final List<MomentItem> moments = new ArrayList<>();
-    private boolean busy, loaded, hasNext, expired;
-    private int page = 0, message = 0;
+    private Tab activeTab = Tab.RECEIVED;
+    private final List<MomentItem> receivedMoments = new ArrayList<>();
+    private final List<MomentItem> sentMoments = new ArrayList<>();
+    private boolean receivedLoaded, sentLoaded;
+    private boolean receivedHasNext, sentHasNext;
+    private int receivedPage = 0, sentPage = 0;
+    private boolean busy, expired;
+    private int message = 0;
     private volatile boolean cleared;
 
     public HistoryViewModel(Application application) {
         super(application);
-        int maxMemory = (int) (Runtime.getRuntime().maxMemory() / 1024);
-        int cacheSize = Math.min(maxMemory / 8, 20 * 1024); // max 20 MB or 1/8 heap
-        imageCache = new LruCache<>(cacheSize) {
-            @Override
-            protected int sizeOf(String key, Bitmap value) {
-                return value.getByteCount() / 1024;
-            }
-        };
+        PushEventBus.register(pushListener);
         publish();
     }
 
+    private final com.taktak.app.data.push.PushEventBus.Listener pushListener = new com.taktak.app.data.push.PushEventBus.Listener() {
+        @Override
+        public void onMomentCreated(String momentId) {
+            main.post(() -> {
+                if (cleared || expired || busy) { return; }
+                if (activeTab == Tab.RECEIVED && receivedLoaded) {
+                    sentLoaded = false;
+                    refresh();
+                } else if (activeTab == Tab.SENT && sentLoaded) {
+                    receivedLoaded = false;
+                    refresh();
+                }
+            });
+        }
+
+        @Override
+        public void onMomentDeleted(String momentId) {
+            main.post(() -> {
+                if (cleared || expired) { return; }
+                boolean removedR = receivedMoments.removeIf(m -> m.id.equals(momentId));
+                boolean removedS = sentMoments.removeIf(m -> m.id.equals(momentId));
+                if (removedR || removedS) {
+                    HistoryImageCache.remove(momentId);
+                    publish();
+                }
+            });
+        }
+    };
+
     public LiveData<State> state() { return state; }
+    public Tab currentTab() { return activeTab; }
+
+    public void switchTab(Tab tab) {
+        if (tab == null || tab == activeTab) { return; }
+        activeTab = tab;
+        message = 0;
+        publish();
+        boolean loaded = (activeTab == Tab.RECEIVED) ? receivedLoaded : sentLoaded;
+        if (!loaded && !busy && !expired && !cleared) {
+            refresh();
+        }
+    }
 
     public void acknowledgeSessionChange() {
         if (!expired || busy) { return; }
         repository = null;
-        loaded = hasNext = expired = false;
-        moments.clear();
-        imageCache.evictAll();
-        page = 0;
+        receivedLoaded = sentLoaded = false;
+        receivedHasNext = sentHasNext = false;
+        expired = false;
+        receivedMoments.clear();
+        sentMoments.clear();
+        HistoryImageCache.clear();
+        receivedPage = sentPage = 0;
         message = 0;
         publish();
     }
 
     public void load() {
+        boolean loaded = (activeTab == Tab.RECEIVED) ? receivedLoaded : sentLoaded;
         if (!loaded && !busy && !expired) {
             refresh();
         }
@@ -90,34 +143,54 @@ public final class HistoryViewModel extends AndroidViewModel {
 
     public void refresh() {
         if (busy || expired || cleared) { return; }
+        final Tab targetTab = activeTab;
+        final String apiType = (targetTab == Tab.RECEIVED) ? "received" : "sent";
         run(repo -> {
-            MomentsPage firstPage = repo.received(0);
+            MomentsPage firstPage = repo.list(apiType, 0);
             return () -> {
-                moments.clear();
-                moments.addAll(firstPage.items);
-                page = 0;
-                hasNext = firstPage.hasNext;
-                loaded = true;
+                if (targetTab == Tab.RECEIVED) {
+                    receivedMoments.clear();
+                    receivedMoments.addAll(firstPage.items);
+                    receivedPage = 0;
+                    receivedHasNext = firstPage.hasNext;
+                    receivedLoaded = true;
+                } else {
+                    sentMoments.clear();
+                    sentMoments.addAll(firstPage.items);
+                    sentPage = 0;
+                    sentHasNext = firstPage.hasNext;
+                    sentLoaded = true;
+                }
                 message = 0;
             };
         });
     }
 
     public void more() {
-        if (busy || expired || cleared || !hasNext) { return; }
-        int nextPage = page + 1;
+        if (busy || expired || cleared) { return; }
+        final Tab targetTab = activeTab;
+        final boolean hasNext = (targetTab == Tab.RECEIVED) ? receivedHasNext : sentHasNext;
+        if (!hasNext) { return; }
+        final int nextPage = (targetTab == Tab.RECEIVED ? receivedPage : sentPage) + 1;
+        final String apiType = (targetTab == Tab.RECEIVED) ? "received" : "sent";
         run(repo -> {
-            MomentsPage nextPageData = repo.received(nextPage);
+            MomentsPage nextPageData = repo.list(apiType, nextPage);
             return () -> {
+                List<MomentItem> targetList = (targetTab == Tab.RECEIVED) ? receivedMoments : sentMoments;
                 var existingIds = new HashSet<String>();
-                for (var item : moments) { existingIds.add(item.id); }
+                for (var item : targetList) { existingIds.add(item.id); }
                 for (var item : nextPageData.items) {
                     if (existingIds.add(item.id)) {
-                        moments.add(item);
+                        targetList.add(item);
                     }
                 }
-                page = nextPage;
-                hasNext = nextPageData.hasNext;
+                if (targetTab == Tab.RECEIVED) {
+                    receivedPage = nextPage;
+                    receivedHasNext = nextPageData.hasNext;
+                } else {
+                    sentPage = nextPage;
+                    sentHasNext = nextPageData.hasNext;
+                }
                 message = 0;
             };
         });
@@ -128,7 +201,7 @@ public final class HistoryViewModel extends AndroidViewModel {
             callback.onError();
             return;
         }
-        Bitmap cached = imageCache.get(momentId);
+        Bitmap cached = HistoryImageCache.get(momentId);
         if (cached != null) {
             callback.onLoaded(cached);
             return;
@@ -143,7 +216,7 @@ public final class HistoryViewModel extends AndroidViewModel {
                 if (bitmap == null) {
                     throw new IOException("Failed to decode JPEG bytes");
                 }
-                imageCache.put(momentId, bitmap);
+                HistoryImageCache.put(momentId, bitmap);
                 main.post(() -> {
                     if (!cleared) {
                         callback.onLoaded(bitmap);
@@ -192,7 +265,8 @@ public final class HistoryViewModel extends AndroidViewModel {
     private void failed(Exception failure) {
         if (failure instanceof ApiFailure api) {
             if (api.kind == ApiFailure.Kind.UNAUTHORIZED || api.kind == ApiFailure.Kind.CANCELLED) {
-                moments.clear();
+                receivedMoments.clear();
+                sentMoments.clear();
                 expired = true;
                 message = R.string.auth_invalid_credentials;
                 return;
@@ -208,12 +282,17 @@ public final class HistoryViewModel extends AndroidViewModel {
     }
 
     private void publish() {
-        state.setValue(new State(Collections.unmodifiableList(new ArrayList<>(moments)), busy, loaded, hasNext, expired, message));
+        List<MomentItem> currentMoments = (activeTab == Tab.RECEIVED) ? receivedMoments : sentMoments;
+        boolean currentLoaded = (activeTab == Tab.RECEIVED) ? receivedLoaded : sentLoaded;
+        boolean currentHasNext = (activeTab == Tab.RECEIVED) ? receivedHasNext : sentHasNext;
+        state.setValue(new State(activeTab, Collections.unmodifiableList(new ArrayList<>(currentMoments)),
+                busy, currentLoaded, currentHasNext, expired, message));
     }
 
     @Override
     protected void onCleared() {
         cleared = true;
+        com.taktak.app.data.push.PushEventBus.unregister(pushListener);
         main.removeCallbacksAndMessages(null);
         worker.shutdownNow();
     }
