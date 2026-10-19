@@ -1,11 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:theme="@style/Theme.TakTak.M3.Camera"
     android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical">
     <com.google.android.material.card.MaterialCardView android:layout_width="match_parent"
         android:layout_height="wrap_content" app:cardCornerRadius="28dp" app:cardElevation="0dp"
-        app:strokeWidth="0dp" app:cardBackgroundColor="?attr/colorSurfaceContainerHighest">
+        app:strokeWidth="1dp" app:strokeColor="?attr/colorOutline" app:cardBackgroundColor="?attr/colorSurfaceContainerHighest">
         <androidx.constraintlayout.widget.ConstraintLayout android:layout_width="match_parent" android:layout_height="wrap_content">
             <androidx.camera.view.PreviewView android:id="@+id/cameraPreview" android:layout_width="0dp" android:layout_height="0dp"
                 app:layout_constraintTop_toTopOf="parent" app:layout_constraintStart_toStartOf="parent"
@@ -23,15 +22,15 @@
     <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
         android:layout_marginTop="12dp" android:orientation="horizontal" android:baselineAligned="false">
         <com.google.android.material.button.MaterialButton android:id="@+id/switchCameraButton"
-            style="@style/Widget.Material3Expressive.Button.TonalButton"
+            style="?attr/ttMediaTonalStyle"
             android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content"
             android:minHeight="48dp" android:minWidth="0dp" android:enabled="false"
-            android:text="@string/camera_switch" />
+            app:icon="@drawable/ic_premium_switch" app:iconSize="20dp" android:text="@string/camera_switch" />
         <com.google.android.material.button.MaterialButton android:id="@+id/flashButton"
-            style="@style/Widget.Material3Expressive.Button.TonalButton"
+            style="?attr/ttMediaTonalStyle"
             android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content"
             android:layout_marginStart="8dp" android:minHeight="48dp" android:minWidth="0dp"
-            android:enabled="false" android:text="@string/camera_flash_off" />
+            android:enabled="false" app:icon="@drawable/ic_premium_flash" app:iconSize="20dp" android:text="@string/camera_flash_off" />
     </LinearLayout>
     <FrameLayout android:layout_width="match_parent" android:layout_height="@dimen/m3_space_12">
         <com.google.android.material.progressindicator.LinearProgressIndicator android:id="@+id/momentProgress"
@@ -48,15 +47,18 @@
         android:insetTop="0dp" android:insetBottom="0dp"
         android:contentDescription="@string/moment_capture" android:enabled="false"
         app:icon="@drawable/ic_camera_shutter" app:iconSize="32dp" app:iconPadding="0dp"
-        app:iconGravity="textStart" app:iconTint="@color/m3_shutter_icon" app:backgroundTint="@color/m3_shutter_background" />
+        app:iconGravity="textStart" app:iconTint="?attr/ttMediaShutterIcon" app:backgroundTint="?attr/ttMediaShutterBackground" />
     <com.google.android.material.textview.MaterialTextView android:layout_width="match_parent" android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/m3_space_8" android:gravity="center" android:text="@string/camera_shutter_label"
         android:textAppearance="@style/TextAppearance.Material3.BodyMedium" android:textColor="?attr/colorOnSurfaceVariant" />
     <com.google.android.material.card.MaterialCardView android:id="@+id/statusCard"
         android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/m3_space_16"
         app:cardCornerRadius="20dp" app:cardElevation="0dp" app:strokeWidth="0dp" app:cardBackgroundColor="?attr/colorSecondaryContainer">
-        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
-            android:orientation="vertical" android:padding="@dimen/m3_space_16">
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical"
+            android:orientation="horizontal" android:padding="16dp">
+            <ImageView android:layout_width="40dp" android:layout_height="40dp" android:layout_marginEnd="12dp"
+                android:padding="8dp" android:src="@drawable/ic_m3_lock" android:importantForAccessibility="no" android:contentDescription="@null" />
+            <LinearLayout android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:orientation="vertical">
             <com.google.android.material.textview.MaterialTextView android:id="@+id/statusTitle"
                 android:layout_width="match_parent" android:layout_height="wrap_content"
                 android:textAppearance="@style/TextAppearance.Material3.TitleSmall"
@@ -65,6 +67,7 @@
                 android:layout_width="match_parent" android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/m3_space_8" android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
                 android:textColor="?attr/colorOnSecondaryContainer" android:accessibilityLiveRegion="polite" android:saveEnabled="false" />
+            </LinearLayout>
         </LinearLayout>
     </com.google.android.material.card.MaterialCardView>
 </LinearLayout>

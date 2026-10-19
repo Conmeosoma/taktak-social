@@ -67,7 +67,7 @@ public class LoginM3Test {
                     var config = new Configuration(context.getResources().getConfiguration());
                     config.fontScale = 1.5f;
                     config.uiMode = (config.uiMode & ~Configuration.UI_MODE_NIGHT_MASK) | night;
-                    var themed = new androidx.appcompat.view.ContextThemeWrapper(context.createConfigurationContext(config), R.style.Theme_TakTak_M3_Login);
+                    var themed = new androidx.appcompat.view.ContextThemeWrapper(context.createConfigurationContext(config), R.style.Theme_TakTak_LoginReference);
                     float density = themed.getResources().getDisplayMetrics().density;
                     View root = LayoutInflater.from(themed).inflate(R.layout.activity_login, null, false);
                     ((TextInputLayout) root.findViewById(R.id.emailLayout)).setError(context.getString(R.string.auth_invalid_email));
@@ -81,12 +81,9 @@ public class LoginM3Test {
                     assertTrue(root.findViewById(R.id.loginContent).getWidth() <= Math.round(480 * density));
                     assertTrue(root.findViewById(R.id.submitButton).getHeight() >= Math.round(56 * density));
                     assertTrue(root.findViewById(R.id.switchButton).getHeight() >= Math.round(48 * density));
-                    int[][] pairs = {{R.color.m3_on_primary, R.color.m3_primary},
-                            {R.color.m3_on_surface, R.color.m3_surface},
-                            {R.color.m3_on_surface_variant, R.color.m3_surface},
-                            {R.color.m3_secondary, R.color.m3_surface},
-                            {R.color.m3_on_secondary_container, R.color.m3_secondary_container},
-                            {R.color.m3_error, R.color.m3_surface}};
+                    int[][] pairs = {{R.color.login_text, R.color.login_background},
+                            {R.color.login_hint, R.color.login_background},
+                            {R.color.login_accent, R.color.login_background}};
                     for (int[] pair : pairs) { assertTrue("Text contrast >= 4.5", ColorUtils.calculateContrast(
                             themed.getColor(pair[0]), themed.getColor(pair[1])) >= 4.5); }
                 }
@@ -124,6 +121,8 @@ public class LoginM3Test {
             ((TextInputLayout) activity.findViewById(R.id.passwordLayout)).setError(null);
             ((EditText) activity.findViewById(R.id.emailInput)).setText("layout@example.test");
             ((EditText) activity.findViewById(R.id.passwordInput)).setText(UUID.randomUUID().toString());
+            assertNotNull("Password initially masked before tapping eye",
+                    ((EditText) activity.findViewById(R.id.passwordInput)).getTransformationMethod());
         });
         onView(withId(R.id.passwordInput)).perform(scrollTo());
         onView(org.hamcrest.Matchers.allOf(withId(com.google.android.material.R.id.text_input_end_icon),

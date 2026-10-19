@@ -24,11 +24,13 @@ public class TokenService {
     private final JwtEncoder encoder;
     private final RefreshTokenRepository refreshTokens;
     private final Clock clock;
+    private final com.taktak.server.user.UserRepository users;
     private final long accessSeconds;
     private final long refreshDays;
     private final SecureRandom random = new SecureRandom();
 
     public TokenService(JwtEncoder encoder, RefreshTokenRepository refreshTokens, Clock clock,
+            com.taktak.server.user.UserRepository users,
             @Value("${taktak.jwt.access-minutes:15}") long accessMinutes,
             @Value("${taktak.jwt.refresh-days:30}") long refreshDays) {
         if (accessMinutes < 1 || accessMinutes > 60 || refreshDays < 1 || refreshDays > 90) {
@@ -37,6 +39,7 @@ public class TokenService {
         this.encoder = encoder;
         this.refreshTokens = refreshTokens;
         this.clock = clock;
+        this.users = users;
         this.accessSeconds = accessMinutes * 60;
         this.refreshDays = refreshDays;
     }
@@ -46,6 +49,7 @@ public class TokenService {
         Instant now = clock.instant().truncatedTo(ChronoUnit.SECONDS);
         var claims = JwtClaimsSet.builder().issuer(TokenConfiguration.ISSUER)
                 .audience(java.util.List.of(TokenConfiguration.AUDIENCE)).subject(userId.toString())
+                .claim("sv", users.findById(userId).orElseThrow(AuthFailure::new).getSecurityVersion())
                 .issuedAt(now).expiresAt(now.plusSeconds(accessSeconds)).id(UUID.randomUUID().toString()).build();
         String access = encoder.encode(JwtEncoderParameters.from(
                 JwsHeader.with(MacAlgorithm.HS256).type("JWT").build(), claims)).getTokenValue();

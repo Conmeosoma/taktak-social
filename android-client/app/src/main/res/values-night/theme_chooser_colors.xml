@@ -1,0 +1,11 @@
+<resources>
+    <color name="tc_ink">#F9F1FF</color><color name="tc_muted">#CCBEDA</color><color name="tc_on_primary">#241A30</color>
+    <color name="tc_original_bg">#19151D</color><color name="tc_original_primary">#FF9DBC</color>
+    <color name="tc_original_start">#733C57</color><color name="tc_original_end">#51396E</color>
+    <color name="tc_gradient_bg">#1B1435</color><color name="tc_gradient_primary">#E7A5F3</color>
+    <color name="tc_gradient_start">#8C365E</color><color name="tc_gradient_end">#4D3CA1</color>
+    <color name="tc_glass_bg">#09162F</color><color name="tc_glass_primary">#A5CBFF</color>
+    <color name="tc_glass_start">#175C77</color><color name="tc_glass_end">#4B3675</color>
+    <color name="tc_soft_bg">#211A2D</color><color name="tc_soft_primary">#D5B8FC</color>
+    <color name="tc_soft_start">#574163</color><color name="tc_soft_end">#483969</color>
+</resources>

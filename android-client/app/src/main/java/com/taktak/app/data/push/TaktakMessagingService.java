@@ -34,13 +34,26 @@ public class TaktakMessagingService extends FirebaseMessagingService {
     @Override
     public void onMessageReceived(@NonNull RemoteMessage remoteMessage) {
         super.onMessageReceived(remoteMessage);
-        Log.d(TAG, "From: " + remoteMessage.getFrom());
         if (!remoteMessage.getData().isEmpty()) {
             java.util.Map<String, String> data = remoteMessage.getData();
-            Log.d(TAG, "FCM data payload: " + data);
             String type = data.get("type");
             String momentId = data.get("momentId");
-            if ("moment_created".equals(type) && momentId != null) {
+            if ("chat_message".equals(type)) {
+                String conversationId = data.get("conversationId"), messageId = data.get("messageId");
+                if (!com.taktak.app.data.model.FriendModels.uuid(conversationId)
+                        || !com.taktak.app.data.model.FriendModels.uuid(messageId)) return;
+                // Push chỉ là tín hiệu: xác minh lại quyền bằng phiên hiện hành trước khi thông báo.
+                executor.execute(() -> {
+                    try {
+                        var repository = AuthGraph.repository(getApplicationContext()).chat();
+                        repository.conversation(conversationId);
+                        repository.publishIfCurrent(() -> {
+                            PushEventBus.emitChatChanged(conversationId, messageId);
+                            ChatNotifications.show(getApplicationContext(), conversationId);
+                        });
+                    } catch (Exception ignored) { Log.d(TAG, "Chat event unavailable for current session"); }
+                });
+            } else if ("moment_created".equals(type) && momentId != null) {
                 PushEventBus.emitMomentCreated(momentId);
                 com.taktak.app.widget.WidgetUpdater.enqueueOneTimeWork(getApplicationContext());
             } else if ("moment_deleted".equals(type) && momentId != null) {

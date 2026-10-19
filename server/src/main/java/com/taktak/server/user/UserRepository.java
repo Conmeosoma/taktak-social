@@ -7,6 +7,11 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 public interface UserRepository extends JpaRepository<User, UUID> {
+    @Query("select u.id from User u where lower(u.email) = lower(:email)")
+    Optional<UUID> findIdByEmail(@Param("email") String email);
+    @org.springframework.data.jpa.repository.Lock(jakarta.persistence.LockModeType.PESSIMISTIC_WRITE)
+    @Query("select u from User u where u.id = :id")
+    Optional<User> findLockedById(@Param("id") UUID id);
     @Query(value = "select * from users where id in (:ids) order by id for update", nativeQuery = true)
     java.util.List<User> lockAll(@Param("ids") java.util.Collection<UUID> ids);
 
@@ -25,4 +30,6 @@ public interface UserRepository extends JpaRepository<User, UUID> {
     // Cùng phép lower(email) với unique index của schema V1.
     @Query("select user from User user where lower(user.email) = lower(:email)")
     Optional<User> findByEmailIgnoreCase(@Param("email") String email);
+
+    boolean existsByUsername(String username);
 }

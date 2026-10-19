@@ -37,8 +37,14 @@ public final class PreviewActivity extends AppCompatActivity {
             new ActivityResultContracts.RequestPermission(), granted -> session.check(granted));
 
     @Override protected void onCreate(Bundle saved) {
+        com.taktak.app.ui.theme.ThemeManager.applyBeforeCreate(this,
+                new com.taktak.app.ui.theme.ThemePreferences(this).load(),
+                com.taktak.app.ui.theme.ThemeManager.ScreenRole.PREVIEW);
         super.onCreate(saved); EdgeToEdge.enable(this);
         binding = ActivityPreviewBinding.inflate(getLayoutInflater()); setContentView(binding.getRoot());
+        com.taktak.app.ui.theme.ThemeManager.configureBars(this,binding.getRoot(),
+                com.google.android.material.color.MaterialColors.getColor(binding.getRoot(),
+                        com.google.android.material.R.attr.colorSurface));
         images = Glide.with(this);
         ViewCompat.setOnApplyWindowInsetsListener(binding.getRoot(), (view, insets) -> {
             var safe = insets.getInsets(WindowInsetsCompat.Type.systemBars() | WindowInsetsCompat.Type.ime()

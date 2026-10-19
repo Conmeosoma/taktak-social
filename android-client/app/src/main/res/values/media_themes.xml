@@ -1,0 +1,212 @@
+<resources>
+ <attr name="ttMediaTonalStyle" format="reference" />
+ <attr name="ttMediaHeadlineStyle" format="reference" />
+ <attr name="ttMediaFieldStyle" format="reference" />
+ <attr name="ttMediaInputStyle" format="reference" />
+ <attr name="ttMediaPrimaryStyle" format="reference" />
+ <attr name="ttMediaOutlineStyle" format="reference" />
+ <attr name="ttMediaCardBackground" format="reference" />
+ <attr name="ttMediaTabIndicator" format="reference" />
+ <attr name="ttMediaTabSelectedColor" format="color|reference" />
+ <attr name="ttMediaTabUnselectedColor" format="color|reference" />
+ <attr name="ttMediaDividerColor" format="color|reference" />
+ <attr name="ttMediaNoticeBackground" format="reference" />
+ <attr name="ttMediaBackground" format="color|reference" />
+ <attr name="ttMediaShutterBackground" format="color" />
+ <attr name="ttMediaShutterIcon" format="color" />
+ <attr name="ttMediaNavBackground" format="reference" />
+ <attr name="ttMediaNavColors" format="color|reference" />
+ <attr name="ttMediaIndicatorStyle" format="reference" />
+ <attr name="ttViewerInk" format="color" />
+ <attr name="ttViewerMuted" format="color" />
+ <attr name="ttViewerError" format="color" />
+ <attr name="ttViewerImagePlate" format="color" />
+ <attr name="ttViewerCaptionPlate" format="color" />
+ <string name="theme_media_pending">Giao diện mới đã lưu. Màn đang mở giữ nguyên để bảo toàn thao tác; giao diện mới sẽ dùng khi mở lại.</string>
+ <style name="Theme.TakTak.Media.Main" parent="Theme.TakTak.Auth">
+  <item name="ttMediaTonalStyle">@style/Widget.TakTakPremium.Tonal</item>
+  <item name="ttMediaHeadlineStyle">@style/TextAppearance.TakTakPremium.Headline</item>
+  <item name="ttMediaFieldStyle">@style/Widget.TakTakPremium.Field</item>
+  <item name="ttMediaInputStyle">@style/Widget.TakTakAuth.OriginalInput</item>
+  <item name="ttMediaPrimaryStyle">@style/Widget.TakTakPremium.Primary</item>
+  <item name="ttMediaCardBackground">@drawable/premium_card_background</item>
+  <item name="ttMediaTabIndicator">@drawable/premium_tab_indicator</item>
+  <item name="ttMediaTabSelectedColor">@color/premium_pink</item>
+  <item name="ttMediaTabUnselectedColor">@color/premium_muted</item>
+  <item name="ttMediaDividerColor">@color/premium_outline</item>
+  <item name="ttMediaNoticeBackground">@drawable/premium_card_background</item>
+  <item name="ttMediaBackground">@color/premium_bg</item>
+  <item name="ttMediaShutterBackground">@color/m3_shutter_background</item>
+  <item name="ttMediaShutterIcon">@color/m3_shutter_icon</item>
+  <item name="ttMediaNavBackground">@drawable/premium_navigation_background</item>
+  <item name="ttMediaNavColors">@color/premium_navigation</item>
+  <item name="ttMediaIndicatorStyle">@style/Widget.TakTakPremium.NavigationIndicator</item>
+  <item name="ttMediaOutlineStyle">@style/Widget.TakTakPremium.Outline</item>
+ </style>
+ <style name="Theme.TakTak.Media.Preview" parent="Theme.TakTak.M3.Camera">
+  <item name="ttMediaTonalStyle">@style/Widget.TakTakPremium.Tonal</item>
+  <item name="ttMediaHeadlineStyle">@style/TextAppearance.TakTakM3.Headline</item>
+  <item name="ttMediaFieldStyle">@style/Widget.TakTakM3.Field</item>
+  <item name="ttMediaInputStyle">@style/Widget.TakTakAuth.OriginalInput</item>
+  <item name="ttMediaPrimaryStyle">@style/Widget.TakTakPremium.Primary</item>
+  <item name="ttMediaCardBackground">@drawable/premium_card_background</item>
+  <item name="ttMediaTabIndicator">@drawable/premium_tab_indicator</item>
+  <item name="ttMediaTabSelectedColor">@color/premium_pink</item>
+  <item name="ttMediaTabUnselectedColor">@color/premium_muted</item>
+  <item name="ttMediaDividerColor">@color/premium_outline</item>
+  <item name="ttMediaNoticeBackground">@drawable/premium_card_background</item>
+  <item name="ttMediaBackground">?attr/colorSurface</item>
+  <item name="ttMediaShutterBackground">@color/m3_shutter_background</item>
+  <item name="ttMediaShutterIcon">@color/m3_shutter_icon</item>
+  <item name="ttMediaNavBackground">@drawable/premium_navigation_background</item>
+  <item name="ttMediaNavColors">@color/premium_navigation</item>
+  <item name="ttMediaIndicatorStyle">@style/Widget.TakTakPremium.NavigationIndicator</item>
+  <item name="ttMediaOutlineStyle">@style/Widget.TakTakPremium.Outline</item>
+  <item name="ttAuthAlternate">false</item>
+ </style>
+ <style name="Theme.TakTak.Media.Viewer" parent="Theme.TakTak.M3">
+  <item name="ttViewerInk">#FFFFFF</item>
+  <item name="ttViewerMuted">#B0B5C1</item>
+  <item name="ttViewerError">#FF897D</item>
+  <item name="ttViewerImagePlate">#1A1C23</item>
+  <item name="ttViewerCaptionPlate">#22252D</item>
+  <item name="ttAuthAlternate">false</item>
+  <item name="ttMediaBackground">#0D0E11</item>
+ </style>
+ <style name="Theme.TakTak.Media.Main.Gradient" parent="Theme.TakTak.Auth.Gradient">
+  <item name="colorOnPrimary">@color/tc_on_primary</item>
+  <item name="colorSecondary">?attr/colorPrimary</item>
+  <item name="colorOnSecondary">@color/tc_on_primary</item>
+  <item name="colorPrimaryContainer">?attr/ttLoginField</item>
+  <item name="colorOnPrimaryContainer">?attr/colorOnSurface</item>
+  <item name="colorSecondaryContainer">?attr/ttLoginField</item>
+  <item name="colorOnSecondaryContainer">?attr/colorOnSurface</item>
+  <item name="colorSurfaceContainerLowest">?attr/colorSurface</item>
+  <item name="colorSurfaceContainerLow">?attr/ttLoginField</item>
+  <item name="colorSurfaceContainer">?attr/ttLoginField</item>
+  <item name="colorSurfaceContainerHigh">?attr/ttLoginField</item>
+  <item name="colorSurfaceContainerHighest">?attr/ttLoginField</item>
+  <item name="colorOutline">?attr/ttLoginOutline</item>
+  <item name="colorOutlineVariant">?attr/ttLoginOutline</item>
+  <item name="ttMediaTonalStyle">@style/Widget.TakTakAuth.Tonal</item>
+  <item name="ttMediaHeadlineStyle">@style/TextAppearance.TakTakAuth.Headline</item>
+  <item name="ttMediaFieldStyle">@style/Widget.TakTakAuth.Field</item>
+  <item name="ttMediaInputStyle">@style/Widget.TakTakAuth.Input</item>
+  <item name="ttMediaPrimaryStyle">@style/Widget.TakTakAuth.Primary</item>
+  <item name="ttMediaOutlineStyle">@style/Widget.TakTakMedia.Outline</item>
+  <item name="ttMediaCardBackground">?attr/colorSurfaceContainerLow</item>
+  <item name="ttMediaTabIndicator">@drawable/media_tab_indicator</item>
+  <item name="ttMediaTabSelectedColor">?attr/colorPrimary</item>
+  <item name="ttMediaTabUnselectedColor">?attr/colorOnSurfaceVariant</item>
+  <item name="ttMediaDividerColor">?attr/colorOutlineVariant</item>
+  <item name="ttMediaNoticeBackground">@drawable/login_notice</item>
+  <item name="ttMediaBackground">@drawable/media_background</item>
+  <item name="ttMediaShutterBackground">?attr/colorPrimary</item>
+  <item name="ttMediaShutterIcon">?attr/colorOnPrimary</item>
+  <item name="ttMediaNavBackground">@drawable/media_navigation_background</item>
+  <item name="ttMediaNavColors">@color/media_navigation</item>
+  <item name="ttMediaIndicatorStyle">@style/Widget.TakTakMedia.NavigationIndicator</item>
+  <item name="ttViewerInk">?attr/colorOnSurface</item>
+  <item name="ttViewerMuted">?attr/colorOnSurfaceVariant</item>
+  <item name="ttViewerError">?attr/colorError</item>
+  <item name="ttViewerImagePlate">?attr/ttLoginField</item>
+  <item name="ttViewerCaptionPlate">?attr/ttLoginField</item>
+ </style>
+ <style name="Theme.TakTak.Media.Preview.Gradient" parent="Theme.TakTak.Media.Main.Gradient" />
+ <style name="Theme.TakTak.Media.Viewer.Gradient" parent="Theme.TakTak.Media.Main.Gradient">
+  <item name="ttMediaBackground">?attr/colorSurface</item>
+ </style>
+ <style name="Theme.TakTak.Media.Main.Glass" parent="Theme.TakTak.Auth.Glass">
+  <item name="colorOnPrimary">@color/tc_on_primary</item>
+  <item name="colorSecondary">?attr/colorPrimary</item>
+  <item name="colorOnSecondary">@color/tc_on_primary</item>
+  <item name="colorPrimaryContainer">?attr/ttLoginField</item>
+  <item name="colorOnPrimaryContainer">?attr/colorOnSurface</item>
+  <item name="colorSecondaryContainer">?attr/ttLoginField</item>
+  <item name="colorOnSecondaryContainer">?attr/colorOnSurface</item>
+  <item name="colorSurfaceContainerLowest">?attr/colorSurface</item>
+  <item name="colorSurfaceContainerLow">?attr/ttLoginField</item>
+  <item name="colorSurfaceContainer">?attr/ttLoginField</item>
+  <item name="colorSurfaceContainerHigh">?attr/ttLoginField</item>
+  <item name="colorSurfaceContainerHighest">?attr/ttLoginField</item>
+  <item name="colorOutline">?attr/ttLoginOutline</item>
+  <item name="colorOutlineVariant">?attr/ttLoginOutline</item>
+  <item name="ttMediaTonalStyle">@style/Widget.TakTakAuth.Tonal</item>
+  <item name="ttMediaHeadlineStyle">@style/TextAppearance.TakTakAuth.Headline</item>
+  <item name="ttMediaFieldStyle">@style/Widget.TakTakAuth.Field</item>
+  <item name="ttMediaInputStyle">@style/Widget.TakTakAuth.Input</item>
+  <item name="ttMediaPrimaryStyle">@style/Widget.TakTakAuth.Primary</item>
+  <item name="ttMediaOutlineStyle">@style/Widget.TakTakMedia.Outline</item>
+  <item name="ttMediaCardBackground">?attr/colorSurfaceContainerLow</item>
+  <item name="ttMediaTabIndicator">@drawable/media_tab_indicator</item>
+  <item name="ttMediaTabSelectedColor">?attr/colorPrimary</item>
+  <item name="ttMediaTabUnselectedColor">?attr/colorOnSurfaceVariant</item>
+  <item name="ttMediaDividerColor">?attr/colorOutlineVariant</item>
+  <item name="ttMediaNoticeBackground">@drawable/login_notice</item>
+  <item name="ttMediaBackground">@drawable/media_background</item>
+  <item name="ttMediaShutterBackground">?attr/colorPrimary</item>
+  <item name="ttMediaShutterIcon">?attr/colorOnPrimary</item>
+  <item name="ttMediaNavBackground">@drawable/media_navigation_background</item>
+  <item name="ttMediaNavColors">@color/media_navigation</item>
+  <item name="ttMediaIndicatorStyle">@style/Widget.TakTakMedia.NavigationIndicator</item>
+  <item name="ttViewerInk">?attr/colorOnSurface</item>
+  <item name="ttViewerMuted">?attr/colorOnSurfaceVariant</item>
+  <item name="ttViewerError">?attr/colorError</item>
+  <item name="ttViewerImagePlate">?attr/ttLoginField</item>
+  <item name="ttViewerCaptionPlate">?attr/ttLoginField</item>
+ </style>
+ <style name="Theme.TakTak.Media.Preview.Glass" parent="Theme.TakTak.Media.Main.Glass" />
+ <style name="Theme.TakTak.Media.Viewer.Glass" parent="Theme.TakTak.Media.Main.Glass">
+  <item name="ttMediaBackground">?attr/colorSurface</item>
+ </style>
+ <style name="Theme.TakTak.Media.Main.Soft" parent="Theme.TakTak.Auth.Soft">
+  <item name="colorOnPrimary">@color/tc_on_primary</item>
+  <item name="colorSecondary">?attr/colorPrimary</item>
+  <item name="colorOnSecondary">@color/tc_on_primary</item>
+  <item name="colorPrimaryContainer">?attr/ttLoginField</item>
+  <item name="colorOnPrimaryContainer">?attr/colorOnSurface</item>
+  <item name="colorSecondaryContainer">?attr/ttLoginField</item>
+  <item name="colorOnSecondaryContainer">?attr/colorOnSurface</item>
+  <item name="colorSurfaceContainerLowest">?attr/colorSurface</item>
+  <item name="colorSurfaceContainerLow">?attr/ttLoginField</item>
+  <item name="colorSurfaceContainer">?attr/ttLoginField</item>
+  <item name="colorSurfaceContainerHigh">?attr/ttLoginField</item>
+  <item name="colorSurfaceContainerHighest">?attr/ttLoginField</item>
+  <item name="colorOutline">?attr/ttLoginOutline</item>
+  <item name="colorOutlineVariant">?attr/ttLoginOutline</item>
+  <item name="ttMediaTonalStyle">@style/Widget.TakTakAuth.Tonal</item>
+  <item name="ttMediaHeadlineStyle">@style/TextAppearance.TakTakAuth.Headline</item>
+  <item name="ttMediaFieldStyle">@style/Widget.TakTakAuth.Field</item>
+  <item name="ttMediaInputStyle">@style/Widget.TakTakAuth.Input</item>
+  <item name="ttMediaPrimaryStyle">@style/Widget.TakTakAuth.Primary</item>
+  <item name="ttMediaOutlineStyle">@style/Widget.TakTakMedia.Outline</item>
+  <item name="ttMediaCardBackground">?attr/colorSurfaceContainerLow</item>
+  <item name="ttMediaTabIndicator">@drawable/media_tab_indicator</item>
+  <item name="ttMediaTabSelectedColor">?attr/colorPrimary</item>
+  <item name="ttMediaTabUnselectedColor">?attr/colorOnSurfaceVariant</item>
+  <item name="ttMediaDividerColor">?attr/colorOutlineVariant</item>
+  <item name="ttMediaNoticeBackground">@drawable/login_notice</item>
+  <item name="ttMediaBackground">@drawable/media_background</item>
+  <item name="ttMediaShutterBackground">?attr/colorPrimary</item>
+  <item name="ttMediaShutterIcon">?attr/colorOnPrimary</item>
+  <item name="ttMediaNavBackground">@drawable/media_navigation_background</item>
+  <item name="ttMediaNavColors">@color/media_navigation</item>
+  <item name="ttMediaIndicatorStyle">@style/Widget.TakTakMedia.NavigationIndicator</item>
+  <item name="ttViewerInk">?attr/colorOnSurface</item>
+  <item name="ttViewerMuted">?attr/colorOnSurfaceVariant</item>
+  <item name="ttViewerError">?attr/colorError</item>
+  <item name="ttViewerImagePlate">?attr/ttLoginField</item>
+  <item name="ttViewerCaptionPlate">?attr/ttLoginField</item>
+ </style>
+ <style name="Theme.TakTak.Media.Preview.Soft" parent="Theme.TakTak.Media.Main.Soft" />
+ <style name="Theme.TakTak.Media.Viewer.Soft" parent="Theme.TakTak.Media.Main.Soft">
+  <item name="ttMediaBackground">?attr/colorSurface</item>
+ </style>
+ <style name="Widget.TakTakMedia.NavigationIndicator" parent="Widget.TakTakPremium.NavigationIndicator">
+  <item name="android:color">?attr/colorSecondaryContainer</item>
+ </style>
+ <style name="Widget.TakTakMedia.Outline" parent="Widget.TakTakLogin.ThemedButton">
+  <item name="android:background">?attr/ttLoginSecondary</item>
+  <item name="android:textColor">?attr/colorOnSurface</item>
+ </style>
+</resources>

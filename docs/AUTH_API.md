@@ -27,6 +27,8 @@ Refresh token là chuỗi opaque gồm 43 ký tự Base64url, được tạo t�
 
 ## Rotation, logout và đồng thời
 
+Ngoại lệ được người dùng duyệt19/10/2026: reset mật khẩu thành công tăng security_version và thu hồi tất cả refresh; JWT đã cấp trước reset bị401 ở request mới, kể cả JWT legacy thiếu sv. Logout thông thường bên dưới giữ nguyên chính sách. Các API xác minh email/recovery và yêu cầu SMTP: [ACCOUNT_RECOVERY.md](ACCOUNT_RECOVERY.md).
+
 Refresh đọc bản ghi bằng pessimistic write lock, kiểm tra revoked/expiry, revoke cũ và insert hash mới trong một transaction. Hai request đồng thời dùng một refresh: chỉ một request nhận 200, request còn lại 401, chỉ một refresh mới còn hiệu lực. Nếu cấp JWT thất bại, transaction rollback và token cũ vẫn dùng được.
 
 Logout chỉ thu hồi refresh token được gửi, không thu hồi các lần login độc lập khác. JWT đã cấp vẫn hợp lệ đến exp (mặc định tối đa 15 phút); không có access-token denylist. Token cũ đã xoay không dùng lại được nhưng hiện không có mô hình token-family/revoke cả lineage; logout phải dùng refresh hiện tại. Android ở 3B/3C cần đồng bộ refresh/logout và xóa local tokens. Không tuyên bố logout thu hồi tức thời mọi access JWT hoặc mọi thiết bị.

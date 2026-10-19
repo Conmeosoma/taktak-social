@@ -89,6 +89,8 @@ final class FriendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         Row row = rows.get(position);
         if (holder instanceof SectionHolder section) {
             var b = section.binding;
+            b.sectionIcon.setVisibility(row.title == R.string.friends_incoming || row.title == R.string.friends_list ? View.VISIBLE : View.GONE);
+            b.sectionIcon.setImageResource(row.title == R.string.friends_incoming ? R.drawable.ic_premium_add_friend : R.drawable.ic_premium_friends);
             ViewCompat.setAccessibilityHeading(b.sectionTitle, true);
             b.sectionTitle.setVisibility(row.title == 0 ? View.GONE : View.VISIBLE);
             if (row.title != 0) { b.sectionTitle.setText(row.title); }

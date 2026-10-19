@@ -1,6 +1,7 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item android:id="@+id/nav_camera" android:icon="@drawable/ic_camera_shutter" android:title="@string/camera_title" />
     <item android:id="@+id/nav_history" android:icon="@drawable/ic_nav_history" android:title="@string/nav_history" />
-    <item android:id="@+id/nav_friends" android:icon="@drawable/ic_m3_person" android:title="@string/friends_title" />
+    <item android:id="@+id/nav_messages" android:icon="@drawable/ic_chat" android:title="@string/chat_title" />
+    <item android:id="@+id/nav_friends" android:icon="@drawable/ic_premium_friends" android:title="@string/friends_title" />
     <item android:id="@+id/nav_profile" android:icon="@drawable/ic_nav_profile" android:title="@string/nav_profile" />
 </menu>

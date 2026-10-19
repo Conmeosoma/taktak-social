@@ -12,7 +12,7 @@ import java.util.Locale;
 
 public record RegisterRequest(
         @NotBlank @Email @Size(max = 254) String email,
-        @NotBlank @Size(max = 255) @Pattern(regexp = "[a-z0-9_]+") String username,
+        @NotBlank @Size(min = 3, max = 255) @Pattern(regexp = "^(?!.*__)[a-z0-9][a-z0-9_]{1,253}[a-z0-9]$") String username,
         @NotBlank @Size(max = 255) String displayName,
         @NotBlank @JsonProperty(access = JsonProperty.Access.WRITE_ONLY) String password) {
 

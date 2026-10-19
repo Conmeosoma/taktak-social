@@ -419,7 +419,7 @@ class AuthenticationIntegrationTest {
         String id = json.readTree(created.body).get("id").asText();
         var duplicate = new HashMap<>(registration);
         duplicate.put("email", "other_" + email);
-        assertCurlError(curl("POST", "/api/auth/register", duplicate, null), 409, "ACCOUNT_CONFLICT", "/api/auth/register");
+        assertCurlError(curl("POST", "/api/auth/register", duplicate, null), 409, "USERNAME_CONFLICT", "/api/auth/register");
         assertThat(jdbc.queryForObject("SELECT count(*) FROM users WHERE username = ?", Integer.class, username)).isEqualTo(1);
         assertCurlError(curl("GET", "/api/users/me", null, null), 401, "UNAUTHORIZED", "/api/users/me");
         assertCurlError(curl("POST", "/api/auth/login", Map.of("email", email, "password", UUID.randomUUID().toString()), null),
@@ -520,7 +520,7 @@ class AuthenticationIntegrationTest {
         assertThat(value.get("path").asText()).isEqualTo(path);
         assertThat(Instant.parse(value.get("timestamp").asText())).isEqualTo(clock.instant());
         assertThat(value.get("message").asText()).isIn("Thông tin xác thực không hợp lệ hoặc đã hết hạn.",
-                "Email hoặc username đã được sử dụng.");
+                "Email hoặc username đã được sử dụng.", "Email đã được sử dụng.", "Tên người dùng đã được sử dụng.");
     }
 
     private record CurlResponse(int status, String body) {

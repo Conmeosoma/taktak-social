@@ -1,0 +1,10 @@
+<ripple xmlns:android="http://schemas.android.com/apk/res/android" android:color="#30FF85AA">
+    <item><layer-list>
+        <item><shape><corners android:radius="1000dp" />
+            <gradient android:angle="0" android:startColor="#FF8D7B" android:centerColor="#F64F8B" android:endColor="#B760E8" />
+        </shape></item>
+        <item android:left="1.5dp" android:top="1.5dp" android:right="1.5dp" android:bottom="1.5dp">
+            <shape><corners android:radius="1000dp" /><solid android:color="@color/login_background" /></shape>
+        </item>
+    </layer-list></item>
+</ripple>

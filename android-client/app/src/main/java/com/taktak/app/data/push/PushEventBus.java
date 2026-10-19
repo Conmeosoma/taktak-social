@@ -8,6 +8,7 @@ public final class PushEventBus {
         void onMomentCreated(String momentId);
         void onMomentDeleted(String momentId);
         default void onSessionCleared() { }
+        default void onChatChanged(String conversationId, String messageId) { }
     }
 
     private static final List<Listener> listeners = new CopyOnWriteArrayList<>();
@@ -50,6 +51,14 @@ public final class PushEventBus {
 
     public static void clear() {
         listeners.clear();
+    }
+
+    public static void emitChatChanged(String conversationId, String messageId) {
+        if (!com.taktak.app.data.model.FriendModels.uuid(conversationId)
+                || !com.taktak.app.data.model.FriendModels.uuid(messageId)) return;
+        for (Listener listener : listeners) {
+            try { listener.onChatChanged(conversationId, messageId); } catch (Exception ignored) { }
+        }
     }
 
     // Sự kiện local, không phải payload FCM: ẩn dữ liệu đang hiển thị khi mất phiên.

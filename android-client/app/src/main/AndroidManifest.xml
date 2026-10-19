@@ -39,13 +39,23 @@
                 android:resource="@xml/widget_taktak_2x2_info" />
         </receiver>
         <activity android:name=".ui.auth.LoginActivity" android:exported="false" android:windowSoftInputMode="adjustResize"
-            android:theme="@style/Theme.TakTak.M3.Login" />
+            android:theme="@style/Theme.TakTak.LoginReference" />
+        <activity android:name=".ui.theme.ThemeSettingsActivity" android:exported="false"
+            android:theme="@style/Theme.TakTak.Chooser" />
         <activity android:name=".ui.auth.RegisterActivity" android:exported="false" android:windowSoftInputMode="adjustResize"
-            android:theme="@style/Theme.TakTak.M3.Register" />
+            android:theme="@style/Theme.TakTak.Premium" />
+        <activity android:name=".ui.auth.ForgotPasswordActivity" android:exported="false" android:windowSoftInputMode="adjustResize"
+            android:theme="@style/Theme.TakTak.Premium" />
+        <activity android:name=".ui.auth.EmailVerificationActivity" android:exported="false" android:windowSoftInputMode="adjustResize"
+            android:theme="@style/Theme.TakTak.Premium" />
+        <activity android:name=".ui.auth.ChangePasswordActivity" android:exported="false" android:windowSoftInputMode="adjustResize"
+            android:theme="@style/Theme.TakTak.Premium" />
         <activity android:name=".ui.camera.PreviewActivity" android:exported="false" android:windowSoftInputMode="adjustResize"
             android:theme="@style/Theme.TakTak.M3.Camera" />
         <activity android:name=".ui.history.MomentViewerActivity" android:exported="false"
             android:theme="@style/Theme.TakTak.M3" />
+        <activity android:name=".ui.chat.ChatActivity" android:exported="false" android:windowSoftInputMode="adjustResize" />
+        <activity android:name=".ui.chat.NewChatActivity" android:exported="false" android:windowSoftInputMode="adjustResize" />
         <activity
             android:name=".MainActivity"
             android:exported="true"

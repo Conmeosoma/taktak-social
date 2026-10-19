@@ -1,9 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/main" android:theme="@style/Theme.TakTak.M3"
+    android:id="@+id/main"
     android:layout_width="match_parent" android:layout_height="match_parent"
-    android:orientation="vertical" android:saveEnabled="false">
+    android:saveEnabled="false" android:background="?attr/ttMediaBackground">
+    <com.taktak.app.ui.theme.MediaBackdropView android:id="@+id/premiumBackdrop"
+        android:layout_width="match_parent" android:layout_height="match_parent" android:importantForAccessibility="no" />
+    <LinearLayout android:id="@+id/mainSafeContent" android:layout_width="match_parent" android:layout_height="match_parent" android:orientation="vertical">
     <com.google.android.material.appbar.MaterialToolbar android:id="@+id/mainToolbar"
         style="@style/Widget.Material3Expressive.Toolbar"
         android:layout_width="match_parent" android:layout_height="wrap_content"
@@ -13,13 +16,17 @@
             android:orientation="horizontal" android:gravity="center_vertical" android:paddingHorizontal="16dp">
             <com.google.android.material.textview.MaterialTextView android:id="@+id/bootstrapMessage"
                 android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content"
-                android:text="@string/bootstrap_message" android:textColor="?attr/colorOnSurfaceVariant"
+                android:text="@string/bootstrap_message" android:textColor="?attr/colorSecondary"
                 android:textAppearance="@style/TextAppearance.Material3.TitleMedium" />
             <com.google.android.material.button.MaterialButton android:id="@+id/logoutButton"
                 style="@style/Widget.TakTakM3.TextButton" android:layout_width="wrap_content"
                 android:minWidth="0dp" android:text="@string/session_logout" android:visibility="gone" />
         </LinearLayout>
     </com.google.android.material.appbar.MaterialToolbar>
+    <com.google.android.material.textview.MaterialTextView android:id="@+id/themeMediaNotice"
+        android:layout_width="match_parent" android:layout_height="wrap_content" android:padding="12dp"
+        android:text="@string/theme_media_pending" android:textColor="?attr/colorOnSurface"
+        android:background="?attr/colorSurface" android:accessibilityLiveRegion="polite" android:visibility="gone" />
     <FrameLayout android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1">
         <ScrollView android:id="@+id/sessionScroll" android:layout_width="match_parent"
             android:layout_height="match_parent" android:fillViewport="true" android:saveEnabled="false">
@@ -64,5 +71,12 @@
         android:layout_width="match_parent" android:layout_height="wrap_content"
         android:visibility="gone" android:saveEnabled="false"
         app:menu="@menu/main_tabs" app:labelVisibilityMode="labeled"
-        app:itemHorizontalTranslationEnabled="false" />
+        app:itemHorizontalTranslationEnabled="false"
+        android:layout_marginHorizontal="12dp" android:layout_marginBottom="8dp"
+        android:background="?attr/ttMediaNavBackground" app:elevation="0dp"
+        app:itemIconSize="28dp" app:itemIconTint="?attr/ttMediaNavColors" app:itemTextColor="?attr/ttMediaNavColors"
+        app:itemActiveIndicatorStyle="?attr/ttMediaIndicatorStyle"
+        app:itemTextAppearanceActive="@style/TextAppearance.TakTakPremium.Navigation"
+        app:itemTextAppearanceInactive="@style/TextAppearance.TakTakPremium.Navigation" />
 </LinearLayout>
+</FrameLayout>

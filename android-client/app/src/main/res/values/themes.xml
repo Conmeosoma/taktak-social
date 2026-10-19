@@ -1,8 +1,24 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <!-- Base application theme. -->
     <style name="Base.Theme.TakTak" parent="Theme.Material3.DayNight.NoActionBar">
-        <!-- Customize your light theme here. -->
-        <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
+        <item name="ttMediaTonalStyle">@style/Widget.TakTakPremium.Tonal</item>
+        <item name="ttMediaHeadlineStyle">@style/TextAppearance.TakTakPremium.Headline</item>
+        <item name="ttMediaFieldStyle">@style/Widget.TakTakPremium.Field</item>
+        <item name="ttMediaInputStyle">@style/Widget.TakTakAuth.OriginalInput</item>
+        <item name="ttMediaPrimaryStyle">@style/Widget.TakTakPremium.Primary</item>
+        <item name="ttMediaCardBackground">@drawable/premium_card_background</item>
+        <item name="ttMediaTabIndicator">@drawable/premium_tab_indicator</item>
+        <item name="ttMediaTabSelectedColor">@color/premium_pink</item>
+        <item name="ttMediaTabUnselectedColor">@color/premium_muted</item>
+        <item name="ttMediaDividerColor">@color/premium_outline</item>
+        <item name="ttMediaNoticeBackground">@drawable/premium_card_background</item>
+        <item name="ttMediaBackground">@color/premium_bg</item>
+        <item name="ttMediaShutterBackground">@color/m3_shutter_background</item>
+        <item name="ttMediaShutterIcon">@color/m3_shutter_icon</item>
+        <item name="ttMediaNavBackground">@drawable/premium_navigation_background</item>
+        <item name="ttMediaNavColors">@color/premium_navigation</item>
+        <item name="ttMediaIndicatorStyle">@style/Widget.TakTakPremium.NavigationIndicator</item>
+        <item name="ttMediaOutlineStyle">@style/Widget.TakTakPremium.Outline</item>
     </style>
 
     <style name="Theme.TakTak" parent="Base.Theme.TakTak" />

@@ -14,10 +14,27 @@ public final class AuthRepository {
         return checked(client.auth.register(new RegisterRequest(email, username, name, password)).execute());
     }
 
+    public boolean checkUsername(String username) throws IOException {
+        Response<UsernameAvailabilityResponse> response = client.auth.checkUsername(username).execute();
+        if (!response.isSuccessful()) { throw ApiFailure.from(response); }
+        UsernameAvailabilityResponse body = response.body();
+        return body != null && body.available;
+    }
+
     public UserProfile login(String email, String password) throws IOException {
+        com.taktak.app.data.session.ResetSessionVault.clear();
         long attempt = client.sessions.beginLogin();
         Response<TokenResponse> response = client.auth.login(new LoginRequest(email, password)).execute();
         if (!response.isSuccessful()) { throw ApiFailure.from(response); }
+        TokenResponse tokens=response.body();
+        if (tokens!=null && tokens.resetRequired) {
+            if (tokens.accessToken!=null || tokens.refreshToken!=null) throw new ApiFailure(ApiFailure.Kind.SERVER);
+            // Không publish kết quả login cũ nếu đã có phiên khác trong lúc request chạy.
+            if (!client.sessions.runIfLoginAttempt(attempt, () -> com.taktak.app.data.session.ResetSessionVault.put(tokens.resetToken,tokens.expiresIn))) {
+                throw new ApiFailure(ApiFailure.Kind.CANCELLED);
+            }
+            throw new PasswordResetRequired();
+        }
         client.sessions.completeLogin(attempt, response.body());
         return profile();
     }
@@ -25,6 +42,7 @@ public final class AuthRepository {
     public UserProfile profile() throws IOException { return checked(client.users.me().execute()); }
 
     public boolean hasSession() { return client.sessions.snapshot() != null; }
+    public ChatRepository chat() { return new ChatRepository(client); }
     public boolean publishIfCurrent(long generation, Runnable action) { return client.sessions.runIfCurrent(generation, action); }
     public boolean publishIfLoggedOut(Runnable action) { return client.sessions.runIfLoggedOut(action); }
     public long sessionGeneration() throws ApiFailure {
@@ -43,6 +61,7 @@ public final class AuthRepository {
     }
     public MomentRepository moments() { return new MomentRepository(client); }
     public ProfileRepository profiles() { return new ProfileRepository(client); }
+    public AccountRecoveryRepository recovery() { return new AccountRecoveryRepository(client.auth); }
     public FriendRepository friends() { return new FriendRepository(client); }
 
     private UserProfile checked(Response<UserProfile> response) throws IOException {

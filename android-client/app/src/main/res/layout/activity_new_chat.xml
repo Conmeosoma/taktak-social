@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent" android:layout_height="match_parent">
+    <com.taktak.app.ui.theme.MediaBackdropView android:layout_width="match_parent" android:layout_height="match_parent" />
+    <LinearLayout android:id="@+id/newChatContent" android:layout_width="match_parent" android:layout_height="match_parent" android:orientation="vertical" android:paddingHorizontal="20dp">
+        <com.google.android.material.button.MaterialButton android:id="@+id/newChatBack" style="?attr/ttMediaTonalStyle" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/chat_back" />
+        <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/chat_new" android:textAppearance="?attr/ttMediaHeadlineStyle" android:textSize="30sp" />
+        <com.google.android.material.textfield.TextInputLayout style="?attr/ttMediaFieldStyle" android:layout_width="match_parent" android:layout_height="wrap_content" android:hint="@string/chat_search_friend" android:layout_marginTop="16dp">
+            <com.google.android.material.textfield.TextInputEditText android:id="@+id/newChatSearch" style="?attr/ttMediaInputStyle" android:layout_width="match_parent" android:layout_height="wrap_content" android:inputType="text" android:maxLines="1" android:saveEnabled="false" />
+        </com.google.android.material.textfield.TextInputLayout>
+        <com.google.android.material.progressindicator.LinearProgressIndicator android:id="@+id/newChatProgress" android:layout_width="match_parent" android:layout_height="wrap_content" android:indeterminate="true" android:contentDescription="@string/chat_loading" android:visibility="invisible" />
+        <TextView android:id="@+id/newChatStatus" android:layout_width="match_parent" android:layout_height="wrap_content" android:textColor="?attr/colorOnSurface" android:padding="8dp" android:accessibilityLiveRegion="polite" />
+        <com.google.android.material.button.MaterialButton android:id="@+id/newChatRefresh" style="?attr/ttMediaTonalStyle" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/chat_refresh" />
+        <androidx.recyclerview.widget.RecyclerView android:id="@+id/newChatList" android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:saveEnabled="false" />
+        <com.google.android.material.button.MaterialButton android:id="@+id/newChatMore" style="?attr/ttMediaTonalStyle" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/chat_more" android:visibility="gone" />
+    </LinearLayout>
+</FrameLayout>

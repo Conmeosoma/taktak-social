@@ -1,6 +1,53 @@
 # Taktak — Công việc và cổng xác nhận
 
+## Hiện hành — CHAT-01–05 được duyệt, 20/10/2026
+
+- [x] CHAT-01: V4/REST/phân quyền/read/idempotency/FCM after-commit; 11 ca chat, full backend 163 PASS.
+- [x] CHAT-02: Main 5 tab + Inbox/search/empty/unread; Chat USB đạt.
+- [x] CHAT-03: chọn bạn/mở hội thoại; Chat USB đạt.
+- [x] CHAT-04: text/moment private/read/retry/recreate/IME; Chat USB đạt.
+- [x] CHAT-05: FCM event + sync foreground + generic notification nền; cloud thật trên USB đạt 1/1, ChatThemeUiTest 6/6.
+- [x] Hồi quy Media/List/Profile USB chạy lại 11/11 PASS sau sửa helper MIUI; giữ assertion, không sửa production Viewer. Review/tài liệu bàn giao [QA_CHAT.md](QA_CHAT.md) đã cập nhật. CHAT-01–05 PASS local/USB, chưa deploy/production.
+
+Mục CHAT chưa tích ở phần kế hoạch cũ bên dưới là lịch sử trước phê duyệt, không ghi đè kết quả hiện hành này. Không deploy/commit/push hoặc mở tiểu bước mới.
+
+## Phạm vi hiện hành — Multi-theme,19/10/2026
+
+- [x] UI-THEME-01: audit/kế hoạch/tokens tại [UI_THEME_AUDIT.md](UI_THEME_AUDIT.md);92XML0invalid; Original baseline AVD4/4 PASS. Không sửa source ứng dụng/backend.
+- [ ] Người dùng duyệt ánh xạ Gradient=ảnh3,Glass=ảnh2,Soft=ảnh1 (prompt mô tả ảnh1/3 ngược attachments).
+- [x] UI-THEME-02: người dùng đã duyệt; preferences riêng/IDs/mode/revision/manager/resolver và fallback Original đã triển khai. Build/lint0errors,93JVM,8/8AVD+hai probe1/1qua process restart đạt; xem [QA_THEME_FOUNDATION.md](QA_THEME_FOUNDATION.md). Chưa nối manager vào màn hoặc tạo3style visual.
+- [x] UI-THEME-03: **PASS phạm vi chooser**.4card/preview/mode/Apply/Cancel/error/retry vàentrypoints Login/Hồ sơ;101JVM/build/lint0errors,15/15UI cuối110.614s,72layout combinations đạt.3style chưa áp lên màn nghiệp vụ. [QA_THEME_CHOOSER.md](QA_THEME_CHOOSER.md).
+- [x] UI-THEME-04: **PASS phạm vi Login4theme**; Original fixed-dark, ba style mới sáng/tối; pending giữ draft/loading. Build debug/test/release,101JVM,lint0errors,20/20UI AVD124.809s;72layout Login đạt. [QA_THEME_LOGIN.md](QA_THEME_LOGIN.md).
+- [x] UI-THEME-05: **PASS Register/Recovery4theme trên USB**; build45s,101JVM,lint0errors,8/8UI110.116s,32lượt form/144layout combinations,restore appearance/session byte checks đạt. Đã sửa hint contrast từ ảnh QA. [QA_THEME_AUTH.md](QA_THEME_AUTH.md).
+- [x] UI-THEME-06: **PASS phạm vi Media 4 theme trên AVD**; tokens media_themes.xml, MediaBackdropView shader native, ThemeManager 3 roles (MAIN, PREVIEW, VIEWER), ScrollView responsive chống nghẽn landscape/font 2.0x; 5/5 UI tests PASS (138.247s), 105 JVM tests PASS, 152 server tests PASS. Xem [QA_THEME_MEDIA.md](QA_THEME_MEDIA.md).
+- [x] UI-THEME-07: **PASS phạm vi History, Friends & List Items 4 theme trên AVD**; tokens media_themes.xml & fallback themes.xml, gỡ hardcoded theme trên fragment_history/friends/item_friend/item_friends_section/item_history_footer, fix layout weight/singleLine username chống tràn biên; 4/4 UI tests PASS (31.607s), 5/5 Media regression tests PASS (116.985s), 105 JVM tests PASS, 152 server tests PASS. Đóng AVD an toàn. Xem [QA_THEME_LISTS.md](QA_THEME_LISTS.md).
+- [x] UI-THEME-08: **PASS phạm vi Profile screen, Avatar upload & Logout 4 theme trên AVD**; tokens media_themes.xml (ttMediaOutlineStyle, Widget.TakTakMedia.Outline) & fallback themes.xml, gỡ hardcoded theme trên fragment_profile, tích hợp mock UserApi/DeviceApi trong MediaThemeFixture; 3/3 Profile UI tests PASS (24.209s), 5/5 Media regression tests PASS (114.147s), 4/4 List regression tests PASS (29.027s), 105 JVM tests PASS, 152 server tests PASS. Đóng AVD an toàn. Xem [QA_THEME_PROFILE.md](QA_THEME_PROFILE.md).
+- [ ] UI-THEME-09: Chuẩn bị kiểm tra và tối ưu Dark mode contrast, Dynamic color audit & WCAG compliance across all 4 themes.
+
+Quyền chạy emulator thay điện thoại áp dụng yêu cầu mới; recovery/Gmail vẫn chờ App Password,không chạy lại gửi thư trong audit.
+
+## Phạm vi mới nhất — 20/10/2026: Module Tin nhắn & Chat khoảnh khắc (Direct Messaging & Moment Chat)
+
+Người dùng yêu cầu đưa module Tin nhắn (thiết kế 5 màn hình: Hộp thư đến, Khung chat 1-1 text/ảnh, Bàn phím ảo IME insets, Soạn tin mới chọn bạn bè, Trạng thái rỗng "Chưa có tin nhắn") vào kế hoạch triển khai chính thức. Điều hướng Bottom Navigation mở rộng từ 4 tab thành 5 tab: **Camera (0) | Lịch sử (1) | Tin nhắn (2) | Bạn bè (3) | Hồ sơ (4)**.
+
+- [ ] **CHAT-01**: Backend Database & REST API (Spring Boot 3, Flyway V4, PostgreSQL). Migration `V4__direct_messaging.sql` (bảng `conversations`, `messages`), Entities/Repositories/Services/Controllers: danh sách hội thoại, tạo/lấy chat với bạn bè, lấy lịch sử tin nhắn, gửi tin nhắn text & đính kèm moment, đánh dấu đã đọc `read_at`, kiểm tra quyền bạn bè & block hai chiều, FCM data message `chat_message`. Maven verify integration tests.
+- [ ] **CHAT-02**: Android Navigation 5 Tabs & Messages Inbox UI (Màn 1 & 5). Cập nhật `res/menu/main_tabs.xml` thêm `nav_messages`, điều chỉnh `MainActivity` & `MainPagerAdapter` (5 tabs). Triển khai `MessagesFragment` & `fragment_messages.xml`: danh sách hội thoại RecyclerView, avatar, last message, thời gian, unread badge, ô tìm kiếm cuộc trò chuyện, nút `+` tạo tin mới, empty state "Chưa có tin nhắn" kèm nút CTA "Tìm bạn ngay". Hỗ trợ 4 theme (Original, Gradient, Glass, Soft).
+- [ ] **CHAT-03**: Android New Chat / Select Friend UI (Màn 4). Triển khai `NewChatActivity` & `activity_new_chat.xml`: danh sách bạn bè hiện có, tìm kiếm bạn bè, nhấp chọn bạn bè -> `POST /api/conversations/with-friend/{friendId}` -> mở `ChatActivity`. Hỗ trợ 4 theme.
+- [ ] **CHAT-04**: Android Chat Room UI & Send Text/Moment (Màn 2 & 3). Triển khai `ChatActivity` & `activity_chat.xml`: top bar bạn bè, RecyclerView tin nhắn đa dạng (text người gửi/nhận, moment ảnh 1:1 kèm caption), trạng thái "Đã xem", thanh input bar (nút đính kèm ảnh, input text, nút gửi gradient), xử lý WindowInsets bàn phím ảo IME không che nội dung. Hỗ trợ 4 theme.
+- [ ] **CHAT-05**: Realtime Sync & FCM Integration & UI Automation Tests. Lắng nghe FCM `chat_message` qua `PushEventBus` và `TaktakMessagingService`, đồng bộ realtime khi đang mở chat, cập nhật unread badge trên tab Tin nhắn và danh sách hội thoại, Local Notification khi chạy ngầm. Bộ kiểm thử tự động UI Instrumentation `ChatThemeUiTest` trên AVD qua 4 theme.
+
+- [x] Feature A (Account Recovery & Email Verification): Backend migration V3, verification flow, temporary reset session, 151/151 tests PASS, UI USB 10/10 PASS, Gmail acceptance test PASS.
+- [x] Feature B (Registration Validation): Hoàn tất đầy đủ 7 hạng mục (min 3 ký tự username, quy tắc dấu gạch dưới, min 1 ký tự displayName, phân biệt lỗi 409 EMAIL_CONFLICT vs USERNAME_CONFLICT, inline validation onFocusChange, visual indicator độ mạnh mật khẩu, debounce kiểm tra tồn tại username theo thời gian thực).
+- [x] Đóng nghiệm thu Feature B: Backend verify 152/152 tests PASS; Android verify 105/105 JVM tests PASS, lint 0 errors, assembleDebug APK PASS. SIGNED OFF.
+- [x] UI-THEME-06: **PASS TOÀN DIỆN Media 4 theme (Camera / Preview / Navigation / Viewer)**. 5/5 AVD UI tests PASS, 105/105 JVM tests PASS, 152/152 server tests PASS. Đóng AVD an toàn.
+- [x] UI-THEME-07: **PASS TOÀN DIỆN History, Friends & List Items 4 theme**. 4/4 AVD UI tests PASS, 5/5 Media regression tests PASS, 105/105 JVM tests PASS, 152/152 server tests PASS. Đóng AVD an toàn.
+- [x] UI-THEME-08: **PASS TOÀN DIỆN Profile screen, Avatar upload & Logout 4 theme**. 3/3 AVD UI tests PASS, 5/5 Media regression tests PASS, 4/4 List regression tests PASS, 105/105 JVM tests PASS, 152/152 server tests PASS. Đóng AVD an toàn. Dừng chờ duyệt bước tiếp theo.
+
 Cập nhật: 18/10/2026. Nguồn đối chiếu: [đặc tả](TAKTAK_PROJECT.md), [trạng thái](PROJECT_STATUS.md), [bàn giao](SESSION_HANDOFF.md) và lịch sử yêu cầu trong cuộc trò chuyện.
+
+Phạm vi hiện hành: **redesign cả5 màn Register/Camera/History/Friends/Profile theo ảnh**, đã được người dùng xác nhận sau khi làm rõ prompt Login-only. Giữ phần Login đang có, dùng USB, không mở emulator. PASS build/unit/UI7/7; chưa nghiệm thu lại các mutation/API/FCM/widget. Không tự commit/push/deploy hoặc mở chức năng tiếp theo. Xem [QA_PREMIUM_FIVE_SCREENS.md](QA_PREMIUM_FIVE_SCREENS.md).
+
+Phạm vi trước: **Login theo ảnh tham chiếu**, chỉ Java/XML/UI; kết quả và giới hạn tại [QA_LOGIN_REFERENCE.md](QA_LOGIN_REFERENCE.md). Quyền Login-only đã được thay bằng xác nhận5 màn, không mở rộng nghiệp vụ/backend.
 
 Quyền mới nhất: **Hồ sơ cá nhân + Avatar cá nhân + FCM/widget thực tế**, người dùng chọn emulator trước vì đang dùng điện thoại. Hồ sơ/avatar đã triển khai, Firebase cloud/QA AppWidgetHost đã test trên AVD; USB/OEM và VPS còn chờ nghiệm thu. Bằng chứng hiện hành: [QA_PROFILE_AVATAR_FCM.md](QA_PROFILE_AVATAR_FCM.md). Giữ toàn bộ bản vá review chưa commit; không commit/push/deploy hoặc tự chuyển tính năng mới.
 
@@ -10,6 +57,13 @@ Bản vá review được giữ nguyên; baseline hiện hành sau Hồ sơ/avat
 
 | Mã | Công việc | Trạng thái | Bằng chứng / điều kiện |
 |---|---|---|---|
+| CHAT-01 | Backend Database & REST API (Spring Boot 3, Flyway V4, PostgreSQL) | CHỜ PHÊ DUYỆT BẮT ĐẦU | Migration V4 conversations/messages, REST APIs, Friend/Block Auth, FCM push, Integration tests |
+| CHAT-02 | Android Navigation 5 Tabs & Messages Inbox UI (Màn 1 & 5) | KẾ HOẠCH | 5 tabs BottomNav, MessagesFragment, danh sách hội thoại, unread badge, empty state, 4 theme |
+| CHAT-03 | Android New Chat / Select Friend UI (Màn 4) | KẾ HOẠCH | NewChatActivity, danh sách bạn bè, tìm kiếm bạn, khởi tạo chat, 4 theme |
+| CHAT-04 | Android Chat Room UI & Send Text/Moment (Màn 2 & 3) | KẾ HOẠCH | ChatActivity, bong bóng chat text/moment, đã xem, input bar gửi text/ảnh, IME insets, 4 theme |
+| CHAT-05 | Realtime Sync & FCM Integration & UI Automation Tests | KẾ HOẠCH | PushEventBus sync, realtime chat, Local Notification, UI Instrumentation test 4 theme trên AVD |
+| PREMIUM-05 | Redesign Register/Camera/History/Friends/Profile và navbar theo5ảnh | PASS build/unit/UI USB |72JVM;7UI gồm Login;54 tổ hợp layout/font;0lint errors;ảnh native;QA_PREMIUM_FIVE_SCREENS |
+| LOGIN-REFERENCE | Login tối/gradient theo ảnh,logo gốc,form/keyboard/responsive/native | PASS build/unit/UI USB; API USB cuối NOT VERIFIED |72JVM;4UI thật;0lint errors/15warnings;QA_LOGIN_REFERENCE;không thay phiên cá nhân |
 | PROFILE | Xem/sửa hồ sơ, bản nháp/recreate/logout, Java/XML M3E | PASS local/AVD | ProfileFragment/Repository/ViewModel; QA_PROFILE_AVATAR_FCM |
 | AVATAR | Upload/tải JPEG private, friend/block, transaction/race, UI bạn bè/lịch sử | PASS local/AVD | 6 backend cases,3JVM mới,5 UI cases; snapshot chứaavatars |
 | FCM-REAL-AVD | Firebase cloud thật tới AVD, Worker cập nhật QA RemoteViews | PASS AVD | Foreground/background, xóa/logout; real opt-in test1/1 rồi batch6/6;4ảnhwidget |

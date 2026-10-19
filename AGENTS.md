@@ -35,7 +35,7 @@
 - Server kiểm tra toàn bộ người nhận, quan hệ bạn bè và block hai chiều. `recipientIds=[]` là ảnh chỉ mình tôi, chỉ sender xem và không gửi FCM.
 - FCM chỉ báo thay đổi, không chứa ảnh, caption, image URL, token xác thực; Worker vẫn phải xác thực khi tải ảnh. `AppWidgetProvider` enqueue WorkManager, không gọi mạng trực tiếp.
 - HTTP chỉ được phép cho debug local có kiểm soát trên mạng tin cậy, bằng cấu hình riêng debug; ưu tiên tunnel HTTPS. Release bắt buộc HTTPS và chặn cleartext. Không đưa địa chỉ HTTP local vào release.
-- Giữ bốn tab Camera / Lịch sử / Bạn bè / Hồ sơ; caption tối đa 50 ký tự Unicode; ảnh vuông, nén mục tiêu 500–800 KB; chỉ lưu vào gallery khi người dùng chọn.
+- Điều hướng nền có bốn tab Camera / Lịch sử / Bạn bè / Hồ sơ. Ngoại lệ người dùng duyệt ngày 20/10/2026 cho CHAT-01–05: thêm Tin nhắn ở vị trí 2, thành Camera / Lịch sử / Tin nhắn / Bạn bè / Hồ sơ. Caption tối đa 50 ký tự Unicode; ảnh vuông, nén mục tiêu 500–800 KB; chỉ lưu vào gallery khi người dùng chọn.
 
 ## Kiểm tra và bàn giao
 

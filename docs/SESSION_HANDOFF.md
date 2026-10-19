@@ -1,5 +1,188 @@
 # Taktak — Bàn giao phiên khôi phục
 
+## Hiện hành — CHAT-01–05 PASS local/USB (20/10/2026)
+
+Quyền mới nhất: triển khai CHAT-01 tới CHAT-05 cùng lượt, dùng điện thoại USB, không emulator/commit/push/deploy. Đã đọc đặc tả/decisions/Git/source, giữ nguyên toàn bộ dirty/untracked có sẵn. Skill backend-development-feature-development tổ chức phần backend/UI/QA; android_ui_verification dùng cho kiểm thử native trên USB.
+
+Đã có: server/chat, V4 migration, 11 ca integration chat; Android ChatModels/ChatApi/ChatRepository/ChatViewModel, Main 5 tab, Inbox/New Chat/phòng chat, private moment, read/retry/draft, foreground sync và FCM/notification không text. Bảo vệ bản nháp theo process/thế hệ phiên; không cấp thêm quyền ảnh khi chat.
+
+Bằng chứng: backend full 163/163; targeted cuối 11/11; Android 115 JVM/build/lint; ChatThemeUiTest USB 6/6; ChatCloudAcceptanceTest qua Firebase thật 1/1, notification permission đã xác nhận granted và assertion thông báo chung đạt. 14 ảnh trong `.local/artifacts/chat-usb-images`. Hồi quy Media/List/Profile chạy lại 11/11 PASS (167,056s), sau sửa helper mở Main qua shell foreground và chờ đúng lifecycle/instance trên MIUI; không bỏ assertion, không sửa production Viewer. Log lỗi đầu giữ ở `chat-usb-regression.log`; log đạt `chat-usb-regression-final.log`.
+
+Server cloud QA dùng cluster PostgreSQL mới, hai tài khoản QA, chỉ loopback. Đã dừng sau test, không ảnh/avatar/file media, bỏ đúng adb reverse 58143. Không thay JWT/DB user, không gửi thư. Quyền thông báo bật theo xác nhận của người dùng. Không deploy V4 lên VPS; không đổi BASE_URL đang có.
+
+Bản APK bàn giao cuối build 37s đạt và đã cài app/test qua USB; ChatThemeUiTest cuối **6/6 PASS (35,025s)** (`chat-usb-final-acceptance.log`). Một lượt kiểm tra lại trước đó timeout Main cold-start; đã sửa riêng harness clean màn QA sau fixture + NEW_TASK|CLEAR_TOP + assert shell launch, giữ timeout/assertion và chạy lại đủ sáu ca. Không thay production để che lỗi kiểm thử. Lint còn 36 warning debug/44 release, 0 error.
+
+Danh sách và giới hạn chi tiết: [QA_CHAT.md](QA_CHAT.md), [CHAT_API.md](CHAT_API.md). Dừng bàn giao, không triển khai tính năng mới. Đề xuất tiếp theo duy nhất: người dùng duyệt cập nhật backend/V4 lên môi trường đang dùng và nghiệm thu hai thiết bị; chưa có quyền thực hiện deploy đó.
+
+## Lịch sử — Kế hoạch triển khai Module Tin nhắn & Chat khoảnh khắc (CHAT-01 -> CHAT-05), 20/10/2026
+
+**Đã hoàn thành đưa Module Tin nhắn vào kế hoạch triển khai của dự án Taktak.**
+- Yêu cầu người dùng: Đưa module Tin nhắn (dựa trên thiết kế tham chiếu 5 màn hình: Hộp thư đến, Khung chat 1-1, Xử lý IME insets, Soạn tin mới chọn bạn bè, Trạng thái rỗng "Chưa có tin nhắn") vào kế hoạch triển khai chính thức theo chuẩn `AGENTS.md`.
+- Thay đổi cấu trúc điều hướng: Bottom Navigation mở rộng từ 4 tab thành **5 tab**: Camera (0) | Lịch sử (1) | **Tin nhắn (2)** | Bạn bè (3) | Hồ sơ (4).
+- Phân rã 5 tiểu bước:
+  1. `CHAT-01`: Backend Database & REST API (Spring Boot 3, Flyway Migration `V4__direct_messaging.sql`, Conversations & Messages tables/entities/repositories/services/controllers, phân quyền Friend/Block, FCM push data-only `chat_message`, Spring Boot Integration tests).
+  2. `CHAT-02`: Android Navigation 5 Tabs & Messages Inbox UI (Màn 1 & 5). Menu `main_tabs.xml` 5 items, `MainActivity` & `MainPagerAdapter` 5 fragments, `MessagesFragment` & `fragment_messages.xml`, danh sách hội thoại, avatar bạn bè, last message, relative time, unread badge, tìm kiếm, nút `+`, empty state + CTA "Tìm bạn ngay", 4 theme.
+  3. `CHAT-03`: Android New Chat / Select Friend UI (Màn 4). `NewChatActivity` & `activity_new_chat.xml`, danh sách bạn bè, tìm kiếm bạn, khởi tạo chat 1-1, 4 theme.
+  4. `CHAT-04`: Android Chat Room UI & Send Text/Moment (Màn 2 & 3). `ChatActivity` & `activity_chat.xml`, bong bóng chat text/moment, trạng thái "Đã xem", thanh input bar gửi text/ảnh khoảnh khắc, WindowInsets bàn phím ảo IME không che nội dung, 4 theme.
+  5. `CHAT-05`: Realtime Sync & FCM Integration & UI Automation Tests. Lắng nghe FCM `chat_message` qua `PushEventBus` và `TaktakMessagingService`, đồng bộ realtime khi đang mở chat, cập nhật unread badge, Local Notification khi chạy ngầm, bộ test tự động `ChatThemeUiTest` trên AVD qua 4 theme.
+- Tài liệu đã cập nhật: `docs/TASKS.md`, `docs/PROJECT_DECISIONS.md`, `docs/SESSION_HANDOFF.md`.
+- Trạng thái: **Sẵn sàng triển khai tiểu bước CHAT-01 (Backend Database & REST API)**. Dừng chờ người dùng phê duyệt bắt đầu CHAT-01.
+
+## Lịch sử — Nghiệm thu UI-THEME-08 (Profile screen, Avatar upload & Logout 4 theme), 20/10/2026
+
+**Đã hoàn thành và nghiệm thu UI-THEME-08: PASS TOÀN DIỆN.**
+- Phạm vi: Triển khai 4 theme (Original, Gradient, Glass, Soft) cho tab Hồ sơ cá nhân (`fragment_profile.xml`), bao gồm thông tin tài khoản, chỉnh sửa tên hiển thị (display name), tải lên ảnh đại diện (avatar upload), chuyển giao diện (Theme settings) và đăng xuất an toàn (logout).
+- Triển khai:
+  - Theme tokens & styles: Bổ sung `<attr name="ttMediaOutlineStyle" format="reference" />` và style `@style/Widget.TakTakMedia.Outline` trong `res/values/media_themes.xml`; cấu hình trên 4 theme và khai báo fallback an toàn trong `Base.Theme.TakTak` (`res/values/themes.xml`).
+  - Layout: `fragment_profile.xml` gỡ bỏ hardcoded `@style/Theme.TakTak.Premium`, liên kết động với tokens (`ttMediaHeadlineStyle`, `ttMediaTonalStyle`, `ttMediaFieldStyle`, `ttMediaInputStyle`, `ttMediaPrimaryStyle`, `ttMediaOutlineStyle`, `colorPrimary`, `colorOnPrimary`).
+  - Fixture: `MediaThemeFixture` hỗ trợ mock UserApi (`me`, `update`, `uploadAvatar`, `avatar`) và DeviceApi (`devices`) để test tải hồ sơ, đổi avatar, sửa tên và đăng xuất không phụ thuộc mạng ngoại vi.
+  - Tests: Viết mới `ProfileThemeUiTest.java` (3 test cases), cập nhật assertions trong `MediaThemeUiTest.java` xác minh cả 4 tab chính của `MainActivity` đều áp dụng context theme động.
+- Kiểm tra thực tế:
+  - Android Emulator AVD `Medium_Phone` (Android 17 / API 37, headless 1.5GB RAM):
+    - `ProfileThemeUiTest`: **3/3 tests PASS (24.209s)** (72 tổ hợp layout bounds/WCAG contrast >= 4.5:1, chỉnh sửa tên hiển thị trên 4 theme & khôi phục sau recreate, tải avatar JPEG & đăng xuất an toàn xóa phiên).
+    - `MediaThemeUiTest`: **5/5 tests PASS (114.147s)** (kiểm tra hồi quy Media và xác nhận `fragment_profile` cùng `fragment_history`, `fragment_friends` đều áp dụng context theme động).
+    - `ListThemeUiTest`: **4/4 tests PASS (29.027s)** (kiểm tra hồi quy Lists).
+  - Android JVM: **105/105 tests PASS** (27s).
+  - Server Spring Boot: **152/152 tests PASS** (1m 39s).
+- Emulator AVD đã được đóng an toàn sau khi hoàn tất kiểm thử, giải phóng RAM.
+- Báo cáo chi tiết: [QA_THEME_PROFILE.md](QA_THEME_PROFILE.md).
+- Không commit/push/deploy.
+
+## Lịch sử — Nghiệm thu UI-THEME-07 (History, Friends & List Items 4 theme), 19/10/2026
+
+**Đã hoàn thành và nghiệm thu UI-THEME-07: PASS TOÀN DIỆN.**
+- Phạm vi: Triển khai 4 theme (Original, Gradient, Glass, Soft) cho tab Lịch sử (Đã nhận / Đã gửi), tab Bạn bè, các danh sách (Moments, Invitations, Friends, Search results, Section headers, Footers) và hộp thoại xác nhận.
+- Triển khai:
+  - Theme tokens & styles: Bổ sung 7 attributes/tokens trong `res/values/media_themes.xml` (`ttMediaPrimaryStyle`, `ttMediaTonalStyle`, `ttMediaCardBackground`, `ttMediaTabIndicator`, `ttMediaTabSelectedColor`, `ttMediaTabUnselectedColor`, `ttMediaDividerColor`, `ttMediaNoticeBackground`) và fallback đầy đủ trong `res/values/themes.xml`.
+  - Drawables: `res/drawable/media_tab_indicator.xml`.
+  - Layouts: `fragment_history.xml`, `fragment_friends.xml`, `item_friend.xml`, `item_friends_section.xml`, `item_history_footer.xml` đã gỡ bỏ hardcoded theme, liên kết động với tokens.
+  - Sửa lỗi layout: `item_history_moment.xml` tối ưu `momentSenderUsername` với `layout_weight="1"` và `singleLine="true"`, giải quyết dứt điểm lỗi tràn biên ngang trên viewport hẹp 280dp với font trợ năng 2.0x.
+  - Fixture: `MediaThemeFixture.java` cập nhật mock `MomentModels.PublicUser`, đầy đủ các trường bắt buộc của `FriendModels.Invitation` và các mock mutations bạn bè.
+- Kiểm tra thực tế:
+  - Android Emulator AVD `Medium_Phone` (Android 17 / API 37, headless 1.5GB RAM):
+    - `ListThemeUiTest`: **4/4 tests PASS (31.607s)** (144 tổ hợp layout, chuyển tab Đã nhận / Đã gửi & khôi phục khi đổi theme, danh sách bạn bè & tìm kiếm & hộp thoại MaterialAlertDialog, tương tác mở MomentViewerActivity).
+    - `MediaThemeUiTest`: **5/5 tests PASS (116.985s)** (hồi quy Media đạt 100%).
+  - Android JVM: **105/105 tests PASS** (12s).
+  - Server Spring Boot: **152/152 tests PASS** (2m 01s).
+- Emulator AVD đã được đóng an toàn sau khi hoàn tất kiểm thử, giải phóng RAM.
+- Báo cáo chi tiết: [QA_THEME_LISTS.md](QA_THEME_LISTS.md).
+- Không commit/push/deploy. Trạng thái: **Sẵn sàng cho UI-THEME-08 (Profile screen, Avatar upload & Logout bốn theme)**. Dừng chờ chỉ đạo tiếp theo của người dùng.
+
+## Hiện hành — Nghiệm thu UI-THEME-06 (Media bốn theme: Camera / Preview / Navigation / Viewer), 19/10/2026
+
+**Đã hoàn thành và nghiệm thu UI-THEME-06: PASS TOÀN DIỆN.**
+- Phạm vi: Triển khai 4 theme (Original, Gradient, Glass, Soft) cho 3 screen roles: `MAIN`, `PREVIEW`, `VIEWER`.
+- Triển khai:
+  - Theme tokens & styles: `res/values/media_themes.xml` hỗ trợ đầy đủ 4 phong cách và Light/Dark mode.
+  - Native background: `MediaBackdropView.java` vẽ shader 60fps, không chụp/blur bitmap.
+  - ThemeManager: Mở rộng ScreenRole cho `MAIN`, `PREVIEW`, `VIEWER`.
+  - Layouts: `activity_main.xml` (bottom navigation 4 tabs, theme styling), `fragment_camera_page.xml` / `fragment_camera.xml` (CameraX 1:1, shutter/controls), `activity_preview.xml` (bản nháp 1:1, caption, recipients, retry retention), `activity_moment_viewer.xml` (top bar, 1:1 photo card, caption card, responsive ScrollView chống nghẽn layout ở mọi viewport và fontScale 2.0x).
+- Kiểm tra thực tế:
+  - Android Emulator AVD `Medium_Phone` (Android 17 / API 37): `MediaThemeUiTest` **5/5 tests PASS (138.247s)**. 144 tổ hợp layout đạt chuẩn WCAG tương phản >= 4.5:1, không tràn viền/cắt chữ; draft/caption/recipients/retry/survive recreation đạt; camera navigation & settings đạt; 1 real QA capture 1:1 & retake cache discard đạt; viewer dialog/revocation 403 ẩn ảnh riêng tư đạt.
+  - Android JVM: **105/105 tests PASS** (14 suites).
+  - Server Spring Boot: **152/152 tests PASS**.
+- Emulator AVD đã được đóng an toàn sau khi hoàn tất kiểm thử, giải phóng RAM.
+- Chi tiết file, kết quả và bằng chứng: [QA_THEME_MEDIA.md](QA_THEME_MEDIA.md).
+- Không commit/push/deploy. Dừng chờ chỉ đạo tiếp theo của người dùng.
+
+## Hiện hành — Đóng nghiệm thu Feature B, 19/10/2026
+
+**Đã hoàn thành và đóng nghiệm thu Feature B: PASS.** Đã triển khai và xác minh đầy đủ 7 hạng mục validation:
+1. Username min length: Ít nhất 3 ký tự (tối đa 255), chỉ ký tự `[a-z0-9_]`.
+2. Username không bắt đầu/kết thúc bằng `_`, không có `__` liên tiếp; regex `^(?!.*__)[a-z0-9][a-z0-9_]{1,253}[a-z0-9]$`.
+3. Display name tối thiểu 1 ký tự sau strip (bảo đảm bằng `@NotBlank @Size(max = 255)` và `AuthInputValidator.displayNameError`).
+4. Phân biệt mã lỗi 409 PostgreSQL (SQLState 23505): `EMAIL_CONFLICT` (*"Email đã được sử dụng."*) vs `USERNAME_CONFLICT` (*"Tên người dùng đã được sử dụng."*), fallback `ACCOUNT_CONFLICT`. Android client ánh xạ lỗi và tự động highlight/focus trường bị trùng tương ứng.
+5. Inline validation: Lắng nghe `onFocusChangeListener` trên cả 5 trường (`displayName`, `username`, `email`, `password`, `confirmPassword`); TextWatcher tự động xóa lỗi cũ khi bắt đầu gõ.
+6. Password strength indicator: `LinearProgressIndicator` + `MaterialTextView` trong `activity_register.xml` đánh giá 3 mức (Yếu/Trung bình/Mạnh) tương thích cả 4 theme.
+7. Username availability check: Endpoint `GET /api/auth/check-username?username=...` không yêu cầu xác thực, `CacheControl.noStore()`. Android debounce 400ms qua `Handler`.
+Kiểm tra thực tế:
+- Server verify: **152/152 tests PASS** (gồm kiểm thử concurrency, unique constraint, integration curl, recovery, token).
+- Android JVM: **105/105 tests PASS** (14 test suites, bao gồm `AuthInputValidatorTest` và `AuthSessionTest`).
+- Android Lint: `lintDebug` **0 errors**.
+- Android Build: `assembleDebug` **BUILD SUCCESSFUL**.
+Không commit/push/deploy. Trạng thái: **Sẵn sàng chuyển sang UI-THEME-06 (Camera / Preview / recipients / navigation / viewer 4 theme)**.
+
+
+## Hiện hành — UI-THEME-05, 19/10/2026
+
+**Hoàn tất UI05 và dừng: PASS trong phạm vi UI.** Người dùng duyệt Register/Recovery và USB; không mở AVD. Trước đó04PASS, dirty changes cũ giữ nguyên.9main files,6test files và5hồ sơ liên quan được tạo/sửa như [QA_THEME_AUTH.md](QA_THEME_AUTH.md); không quy mọi Git diff cũ vào05. Thêm AuthBackdropView và auth_themes.xml, AUTH đủ4theme; giữ Original renderer/Premium, tái dùng3theme Login; không thay API/VM/Repository/backend/DB/JWT/FCM/widget. Không commit/push/deploy.
+
+Build cuối .local/artifacts/theme05-build-hint-fixed.log SUCCESS45s,101/101JVM,lint0errors/21debug+29release warnings (tăng1debug unused legacy Register style, không suppress/xóa). Batch cuối .local/artifacts/theme05-usb-hint-fixed-final.log **8/8,110.116s**,Xiaomi23129RAA4G/Android15/1080×2400:32lượt form,144layout/font/night tổ hợp,text/hint contrast,loading/expiry/secret non-persistence/eye/IME. Appearance restored và session bytes unchanged đều assert đạt.38ảnh chuẩn tại .local/artifacts/theme05-usb-final/theme05/; parent chứa ảnh pull trước đó, không dùng nhầm. Review ảnh USB đã phát hiện hint Register sáng nhạt và sửa/test lại.
+
+Lượt đầu3/8lỗi mở màn từ nền MIUI, đã sửa helper foreground launcher; lượt sau7/8do session bytes đổi trong startup launcher có luồng kiểm tra/refresh, không đọc token hoặc khôi phục token cũ, không bỏ assertion. Lặp cùng APK8/8rồi mới sửa hint; bản cuối8/8trên đúng APK hint mới. Chi tiết log/giới hạn ở QA, không coi các lượt lỗi làPASS. Appearance local cuối Gradient/System/schema1/revision1, không ép về map rỗng từng quan sát ở lượt trước.
+
+103XML0invalid,diffcheck0,scoped key/JWT patterns0findings,index rỗng,artifacts ignored; không có baseline hash bền vững sau interruption để tuyên bố kiểm hash toàn repo. Không gửi Gmail/đăng ký/reset thật hoặc kiểm thu hồi phiên server trong05; blocker App Password cũ giữ nguyên. Không đổi settings màn hình/IME của điện thoại,APK đã cập nhật giữ dữ liệu. Không cần thao tác thủ công ngoài mở app xem UI. Chỉ đề xuất **UI-THEME-06 — Camera/Preview/recipients/navigation/viewer**, chờ duyệt.
+
+## Hiện hành — UI-THEME-04, 19/10/2026
+
+**Đã hoàn tất và dừng tại04: PASS phạm vi Login bốn theme.** Trước phiên03PASS, source/dirty worktree có sẵn được bảo toàn. Thêm5resource main, sửa8main file đúng phạm vi cùng4test và hồ sơ; chi tiết [QA_THEME_LOGIN.md](QA_THEME_LOGIN.md). Login dùng manager trước inflate; Original fixed-dark, ba kiểu mới sáng/tối; pending đổi theme không làm mất draft/loading hoặc ghi file phiên. Các màn khác vẫn Original, chưa làm05.
+
+Build cuối .local/artifacts/theme04-build-contrast-fixed.log SUCCESS39s; debug/test/release, **101/101 JVM**, lint0errors/20debug+29release warnings. Bộ UI cuối .local/artifacts/theme04-ui-final-retry.log **20/20,124.809s** (5LoginTheme+7chooser+4prefs+4Original), Login72layout/font/night và chooser72tổ hợp.11ảnh ở .local/artifacts/theme04-final-screens/; đã xem đủ8theme sáng/tối và Glass/IME. Lượt trước19/20 do CTA Gradient sáng4.208:1 đã sửa màu riêng; cold instrumentation2lượt LOW_MEMORY được lưu log, không tính PASS. Không skip assertion.
+
+Snapshot308file trước phiên:8main cũ đổi,5main mới,0xóa; server/src83file và deploy/scripts/API/Repository/ViewModel/session/FCM/widget giữ nguyên hash.102resource XML hợp lệ, diffcheck0, quét mẫu key/JWT phạm vi04 không phát hiện, index rỗng, artifacts ignored. Đã hoàn trả IME/density, đóng AVD QA để giải phóng RAM; không xóa AVD. Không dùng điện thoại, tài khoản thật hoặc Gmail; giới hạn OS-mode transition/OEM/TalkBack/performance/API thật ghi rõ trong QA. Không commit/push/deploy. Không cần người dùng thao tác cho04; **đề xuất05 — Register/Recovery bốn theme và chờ duyệt**. Blocker Gmail/App Password trước đây chưa thay đổi.
+
+## Hiện hành — UI-THEME-03,19/10/2026
+
+User duyệt riêng03. Đã triển khai ThemeSettingsActivity/ViewModel/PreviewView,4palette chooser native/DayNight, preview/mode/draft/Apply/Cancel/Back/loading/error/retry, entrypoints Login/Profile. Không áp theme lên màn nghiệp vụ hoặc recreate parent; resolver02 vẫn fallback Original. Chi tiết files/contracts/tests tại [QA_THEME_CHOOSER.md](QA_THEME_CHOOSER.md). Worktree dirty cũ giữ nguyên; hash300file trước/sau chỉ6file cũ đổi có chủ đích+8main files mới, không backend/scripts/deploy/VM nghiệp vụ/API/JWT/FCM. Không commit/push/deploy.
+
+**PASS03.** App review build58s,fulltasks với helper39s,test APK cuối23s;101/101JVM,lint0errors/20debug+29release warnings cũ. Batch cuối **15/15PASS110.614s**,log `.local/artifacts/theme03-ui-isolated-retry.log` (7chooser+4prefs+4Login,gồm physicalIME),72layout/font/night tổ hợp đạt. Source app không đổi sau sửa decor background/icon system bars; helper LoginReferenceTest sửa trả đúng instance +chờ focus và không gọi launcher trong từng ca AVD để tránh session routing cướp focus,giữ workaround máy thật. Không bỏ assertion/skip test.
+
+Lượt trước gặp LOW_MEMORY/SystemUI ANR,14/15vìIME/focus; giữ toàn bộ log fail trong QA,không gọi làPASS. Dùng AVD Medium_Phone cold/read-only/headless2GB/720x1280/density320; dừng tạm7app phụ của bản sao AVD,không SystemUI/GMS,không clear data; không build song song.10ảnh chooser+5Login/IME cuối tại `.local/artifacts/theme03-final-screens/`,đã xem light/dark system bars từ app review. Đã hoàn trảIME0/densityreset và đóng đúng AVD của phiên,không xóa AVD.97XML0invalid,diffcheck0,sourcehash300chỉ6mainfilecũđổi,backend/scripts/deploy/VMnghiệp vụgiữ nguyên. Chi tiết QA và scope thực tế ở link trên. Chưa test điện thoại/OEM/API account thật/OS transition/reboot/performance; Profile entry kiểm tra source/layout,Login quay về giữ form/sessionbytes đã test. Không cần thao tác thủ công03. Đề xuất **UI-THEME-04** rồi dừng chờ xác nhận. Gmail blocker giữ nguyên,không resume recovery hoặc tự đổi bước.
+
+## Hiện hành — UI-THEME-02,19/10/2026
+
+User duyệt riêng02. Đã thêm package ui.theme gồm AppTheme/ColorMode/ThemeSelection/ThemeStore/ThemePreferences/ThemeRepository/ThemeManager và3file tests. File private taktak_appearance_v1 tách auth/device; ID ổn định, schema/revision, no-op, synchronous commit worker, IOException/rollback, unknown/corrupt fallback không ghi, future schema không overwrite. Resolver giữ requested và effective riêng: Original resources đúng5role,3style mới availability=false, không alias giả UI. Apply-before-create là entrypoint chưa gọi production; không sửa Activity/Manifest/layout/resources, không thêm chooser/ViewModel chưa có consumer. Không tự recreate/password/draft/session.
+
+VERIFY bản cuối `.local/artifacts/theme02-final-build.log`: BUILD SUCCESSFUL59s, debug/test/release/unit/lint; **93/93JVM**,0fail/error/skipped;lint0errors,20debug/29release warnings,0new-theme findings. AVD Medium_Phone read-only/headless API37/1080x2400/1536MB/2core: batch **8/8PASS23.635s** (4prefs+4Login), sau đó probe write1/1→force-stop app/test→read1/1 ở process khác PASS. Session isolation chỉ file sentinel QA, không login/logout API hoặc đổi tài khoản thật.5ảnh Login đã pull,đã xem login.png. IME0→1→0,AVD của phiên được đóng sau QA, không xóa AVD. Logs theme02-device/process-write/process-read,ảnh theme02-login;ignored.
+
+REVIEW hash293file main/server/deploy/scripts trước/sau:0file cũ sửa/mất,chỉ thêm7main themefiles. Giữ dirty cũ HEADf73b43d/nhánh chore/push-current-project; không commit/push/deploy. Danh sách/contract/task kiểm thử/giới hạn tại [QA_THEME_FOUNDATION.md](QA_THEME_FOUNDATION.md). Không tuyên bố3theme visual/chooser/runtime/reboot/performance/OEM đã đạt. Gmail App Password vẫn blocker riêng, không resume recovery. Đề xuất **UI-THEME-03**, dừng chờ xác nhận. Mục01 dưới đây là lịch sử trước user duyệt02; ánh xạ3ảnh chưa triển khai visual nên vẫn chờ chốt.
+
+## Hiện hành — UI-THEME-01,19/10/2026
+
+User gửi prompt Multi-theme3ảnh,chỉ duyệt01audit và cho phép tự chạy emulator vì không có điện thoại. Đọc AGENTS/README/đặc tả/quyết định/status/tasks/handoff,theme/resources/source UI/draft/widget; worktree dirty cũ được giữ. Skill ui-ux-pro-max đã chạy CLI --design-system/domainstyle với Python có sẵn (sửa cp1252 bằng envUTF8),không áp gợi ý landing/web/Compose. android_ui_verification dùng AVD Medium_Phone read-only/headless1536MB/2core,không dùng USB.
+
+Đầu ra [UI_THEME_AUDIT.md](UI_THEME_AUDIT.md): A–I audit/palette/tokens/architecture/fileplan/Native effects/persistence/lifecycle/01–09/gates. Prompt đảo thứ tự ảnh1/3; đề xuất theo visual Gradient=ảnh3,Glass=ảnh2,Soft=ảnh1 chờ user chốt. Original giữ đúng theme cũ theo screenRole (Login fixed-dark),3style mới có light/dark riêng. Cần chuyển hard-code/root overlays chứ không chỉ setTheme. Không ép recreate Preview/worker/draft/password; pending revision khi unsafe,không sửa ViewModel nghiệp vụ.
+
+VERIFY:92resource XML0invalid; contrast cặp màu đề xuất đã tính,không giả toàn gradient PASS. AVD1080x2400,cài APK/testAPK cũ; ADB unauthorized đầu giải quyết bằng restart daemon cùng environment không xóa keys/AVD. Baseline4Login tests đầu1FAIL doIME setting0,đổi tạm1 và chạy lại **4/4 PASS21.68giây**,đã trả0. `.local/artifacts/theme-audit-baseline-retest.log`,ảnh `.local/artifacts/theme-audit-baseline-final/` đã xem Login/IME. Không build mới,không có screenshot/test cho3theme mới; không regression auth/backend/camera trongaudit. Chỉ4filedocs tạo/cập nhật,không commit/push/deploy. Dừng chờ user duyệt02; Recovery/Gmail vẫn chờ App Password,không tự chuyển B.
+
+Review cuối hash317file source/script/deploy giữ nguyên trước/sauauditdocs,0file mất;diffcheck0,link local0missing,artifactsignored. AVD của phiên đã được đóng bằng emulator console để giải phóngRAM; không xóa/reset AVD.
+
+## Hiện hành — Recovery A,19/10/2026
+
+### Kết quả tiếp nối USB/Gmail (mới nhất)
+
+Người dùng cung cấp fileSMTP local ignored và xác nhận USB; đã cài APK/test APK giữ origin/dữ liệu. Lượt đầu9test/1FAIL tìm ra lỗi LiveData idle xóa expired notice. Sửa renderer, thêm IME+unit retry; build cuối **79/79 JVM + assemble debug/test/release/lint PASS** (`recovery-usb-fix-build.log`). Batch cuối **10/10 USB PASS32.942giây** (`recovery-usb-retest.log`),6Recovery+4Login,5screenshot đã pull/xem. Không logout/reset tài khoản cá nhân/không emulator. Backend production không sửa trong lượt này;151/151 regression/JAR là bằng chứng lượt trước.
+
+Gmail bị auto-review chặn trước lần gửi; sau user xác nhận email nhận cho3thưQA mới chạy test thật. Verification/request503 ở thư đầu; connection-only probe không gửi thư cũng FAILAuthenticationFailedException. **0SMTP accept được xác nhận**, không giả delivery. User trả lời chưa có App Password, cần hướng dẫn Google. Đã thêm `GmailRecoveryAcceptanceIT` opt-in và helperPowerShell parse credential local không evaluate/log, chỉ class-error an toàn; credentials không bị sửa. Script syntax/Gitignore/diffcheck đạt. Tài khoản QA chỉ ở PostgreSQL nhúng riêng, cluster/context đã đóng theo try-with-resources.
+
+**BLOCKED riêng Gmail App Password/inbox**; UI gate đã đóng. Hành động tối thiểu: user tạo App Password cho đúng MAIL_USERNAME, thay MAIL_PASSWORD trong filelocal rồi báo xong. Chạy Connection trước, sau khi đạt mới Acceptance tới đúng recipient user đã duyệt; không cần hỏi lại nội dung3emailQA nhưng không gửi credentials vào chat. Chưa SMTP accept/inbox nên chưa chuyển B hoặc đánh dấu DONE toàn bộ A. Các mô tả USB chưa chạy bên dưới là lịch sử trước lượt tiếp nối.
+
+Người dùng duyệt bổ sung verification và revoke ngay mọi phiên sau reset. Đã đọc yêu cầu/đặc tả/source auth/Git, dùng auth-implementation-patterns và android_ui_verification; giữ worktree UI cũ tại HEADf73b43d. Backend migrationV3, security_version/DB-check JWT, user-row-lock login/refresh/reset, hash-only temporary/verification/reset credential và SMTP STARTTLS bounded. Android thêm Forgot/Verification/Change Java/XML, ViewBinding/Repository/ViewModel; reset token chỉ memory, không full session/Intent/Bundle. Chi tiết API/policy/config/file: [ACCOUNT_RECOVERY.md](ACCOUNT_RECOVERY.md).
+
+VERIFY: backend45/45 chọn lọc,145/145 rồi bản cuối **151/151,0fail/error/skipped + JAR**. Gồm13test recovery qua HTTP/PostgreSQL,2SMTP; race reset/reset,temporary-login,refresh/reset,old-login/reset,JWT legacy,policy,expiry/replay và notification failure đều có assertion. Log cuối `.local/artifacts/recovery-backend-final.log`. Android bản cuối **78/78JVM,0fail/error/skipped; assemble debug/test/release và lint debug/release PASS** (`.local/artifacts/recovery-android-reviewed-build.log`,52giây); lint0errors,20debug/29release warnings. Hardening không nhận mixed reset/full-session response và clear vault khi clear session đã build/test lại. Quét mẫu credentials phạm vi source/docs0findings, git diff --check0, index rỗng, V1/V2 không diff; artifacts ignored. Không tuyên bố audit toàn bộ secret hoặc UI chưa chạy.
+
+Điện thoại8e90fdff ban đầu nhận USB1080x2400 nhưng khóa/Dozing, rồi mất kết nối; hai lượt `adb devices` (sandbox và ngoài sandbox) đều rỗng. Lượt `adb install -r` trảdevice-not-found, chưa thay APK/phiên trên máy; **chưa chạy5UI recovery/4Login regression hoặc chụp ảnh mới**. Không mở emulator/tự mở khóa/đăng xuất/reset tài khoản cá nhân. Không có MAIL_* trong environment; đã hỏi config local, chưa được cung cấp. Gmail/inbox thật chưa kiểm tra, fixture mail không tính delivery thật.
+
+Trạng thái **BLOCKED nghiệm thu toàn bộ A** vì cần Gmail SMTP và phone USB mở khóa. Không staged/commit/push/deploy, không truy cập DB production, V1/V2 không sửa. Tiếp tục chỉ A khi người dùng cung cấp điều kiện, không chuyển B. Hành động tối thiểu: cắm lại USB/mở Taktak và cung cấp đường dẫn file SMTP local ignored (không gửi mật khẩu); dùng tài khoản QA riêng để nghiệm thu email/reset. Đối chiếu [ACCOUNT_RECOVERY.md](ACCOUNT_RECOVERY.md) trước chạy; giữ API origin cá nhân khi cài APK, không chạy AuthUiTest có logout setup trên điện thoại cá nhân.
+
+## Hiện hành — Redesign cả5 màn theo ảnh,18/10/2026
+
+Người dùng gửi5 ảnh nhưng prompt vẫn Login-only; đã hỏi và người dùng xác nhận redesign cả5 Register/Camera/History/Friends/Profile. Đây là phạm vi duyệt hiện tại, không tự mở roadmap/nghiệp vụ. HEAD `f73b43d`, giữ thay đổi Login chưa commit. Dùng ui-ux-pro-max và android_ui_verification. Không mở emulator, chỉ USB; người dùng đồng ý hướng camera an toàn.
+
+Thêm theme/tokens Premium sáng/tối, background canvas nhẹ, gradient/outlined CTA và navbar nổi; sửa5 màn, cards/empty vector, vòng avatar/camera picker cùng handler cũ. Giữ MVVM/data/API/JWT/FCM/widget/backend/schema. Sửa lỗi XML ảnh Lịch sử height0 bằng ratio trên ImageView con; có assert nonzero/square và ảnh JWT thật hiện đúng. Scope/chi tiết/file tại [QA_PREMIUM_FIVE_SCREENS.md](QA_PREMIUM_FIVE_SCREENS.md).
+
+VERIFY: assemble debug/test/release,lint debug/release PASS;72JVM0fail;lint0errors,18debug/27release warnings. Batch cuối **7/7 USB PASS37.632s**, gồm3Premium và4Login;54 tổ hợp layout/theme/font1.5,empty layout,Received/Sent,notice validation search,Register/eye/loading/IME. Các lượt thất bại và fixture corrections ghi riêng, không skip. Có8 ảnh UI ở `.local/artifacts/premium-five-final-screenshots/` và thêm camera-live.png chụp sau Surface ổn định3giây, đã xem xác nhận preview thật. Không nhấn shutter/upload/đổi avatar/save/logout hay thay quan hệ bạn bè trên tài khoản cá nhân; không đổi settings/clear data/đổi API origin.
+
+Khác ảnh mẫu: vector thay asset inbox3D; font OEM; không blur/glass3D; Camera giữ1:1 và cuộn nếu thiếu chiều cao; nội dung thật có thể khác empty/avatar trong ảnh. PASS chỉ build/unit/UI đã chạy, không nghiệm thu lại toàn mutation/backend/FCM/widget/production. Đã cài APK mới, dừng để người dùng duyệt5 màn; không commit/push/deploy.
+
+## Lịch sử — Login theo ảnh tham chiếu,18/10/2026
+
+Người dùng duyệt prompt pixel-precise Login rồi cung cấp asset PNG và yêu cầu tắt emulator/chạy điện thoại USB do laptop lag. Dùng ui-ux-pro-max + android_ui_verification; đọc đặc tả/quyết định/source trước sửa. HEAD đầu phiên `f73b43d`,worktree sạch. Chỉ Login/asset/resources/test, ngoài ra escape đường dẫn Windows trong gradle.properties để sửa lỗi lint có sẵn, giữ API origin/JDK/dependencies. Không đổi backend/DB/AuthRepository/ViewModel/session/FCM hay redesign Register.
+
+Đã cài app giữ dữ liệu/API origin trên điện thoại Android15,1080×2400/font1.0. Theme tối riêng,background trang trí edge-to-edge,logo gốc không sửa bytes,TextInputLayout/eye,gradient CTA/ripple/loading,Register routing. Recovery/language chưa có nghiệp vụ nên không tạo hành động giả. Lint debug/release0errors/15warnings,assemble debug/test/release và72JVM PASS;4/4 UI-only USB PASS16.897s,5 ảnh tại `.local/artifacts/login-reference-usb-final-screenshots/` đã kéo về và xem Login/IME cuối. Các lượt lỗi AAPT/API26/fixture và5-test emulator đầu có2fail được ghi rõ, không tính PASS toàn batch.
+
+Emulator đã tắt theo yêu cầu,smoke server/cluster fixture dừng sạch0rows/files. Không tự logout hoặc thay tài khoản cá nhân; UI tests cuối không gửi credentials hợp lệ. API/retry trên APK cuối ở điện thoại **NOT VERIFIED**, không suy ra toàn bộ Login hay production đã nghiệm thu. Chi tiết/file/lệnh/bằng chứng/khác biệt: [QA_LOGIN_REFERENCE.md](QA_LOGIN_REFERENCE.md). Không commit/push/deploy; không chuyển Register. Hành động tiếp theo tối thiểu nếu cần đóng cổng API USB: người dùng tự đăng nhập kiểm tra trên điện thoại hoặc cho phép phiên QA riêng, không cung cấp mật khẩu vào chat.
+
 ## Hiện hành — Hồ sơ/avatar và Firebase/widget thật trên AVD, 18/10/2026
 
 Người dùng duyệt ba hạng mục sau báo cáo phần thiếu. Đã tạo ProfileFragment Java/XML theo foundation M3E, ProfileRepository/ViewModel, chọn/upload/tải avatar riêng tư; hiển thị avatar ở Bạn bè/Lịch sử/Viewer. Backend có POST avatar, GET self/friend, giữ PUT me chỉ sửa displayName, row lock chống tên/avatar cập nhật đồng thời. Tái sử dụng cột V1 và storage sanitizer; không migration/dependency mới. Backup/restore hỗ trợ avatars.

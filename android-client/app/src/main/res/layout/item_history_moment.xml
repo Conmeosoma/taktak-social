@@ -57,8 +57,11 @@
 
                     <TextView
                         android:id="@+id/momentSenderUsername"
-                        android:layout_width="wrap_content"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
                         android:layout_height="wrap_content"
+                        android:singleLine="true"
+                        android:ellipsize="end"
                         android:textAppearance="@style/TextAppearance.Material3.BodySmall"
                         android:textColor="?attr/colorOnSurfaceVariant"
                         android:saveEnabled="false" />
@@ -86,13 +89,13 @@
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
-                android:layout_height="0dp"
-                app:layout_constraintDimensionRatio="1:1">
+                android:layout_height="wrap_content">
 
                 <ImageView
                     android:id="@+id/momentImage"
                     android:layout_width="0dp"
                     android:layout_height="0dp"
+                    app:layout_constraintDimensionRatio="1:1"
                     android:scaleType="centerCrop"
                     android:contentDescription="@string/moment_server_image"
                     app:layout_constraintTop_toTopOf="parent"

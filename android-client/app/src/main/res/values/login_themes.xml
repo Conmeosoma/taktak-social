@@ -1,0 +1,54 @@
+<resources>
+    <attr name="ttLoginKind" format="integer" />
+    <attr name="ttLoginField" format="color" />
+    <attr name="ttLoginOutline" format="color" />
+    <attr name="ttLoginNotice" format="color" />
+    <attr name="ttLoginStart" format="color" />
+    <attr name="ttLoginEnd" format="color" />
+    <attr name="ttLoginPrimary" format="reference" />
+    <attr name="ttLoginSecondary" format="reference" />
+    <attr name="ttLoginButtonText" format="color|reference" />
+    <string name="theme_login_pending">Giao diện mới đã lưu. Để giữ nội dung đang nhập, màn này sẽ đổi khi form trống hoặc khi mở lại.</string>
+    <style name="Theme.TakTak.Login" parent="Theme.TakTak.LoginReference">
+        <item name="android:windowBackground">@color/tc_gradient_bg</item>
+        <item name="android:colorBackground">@color/tc_gradient_bg</item>
+        <item name="colorSurface">@color/tc_gradient_bg</item>
+        <item name="colorOnSurface">@color/tc_ink</item>
+        <item name="colorOnSurfaceVariant">@color/lt_muted</item>
+        <item name="colorPrimary">@color/tc_gradient_primary</item>
+        <item name="colorError">@color/lt_error</item>
+        <item name="ttLoginKind">1</item>
+        <item name="ttLoginField">@color/lt_field</item>
+        <item name="ttLoginOutline">@color/lt_outline</item>
+        <item name="ttLoginNotice">@color/lt_notice</item>
+        <item name="ttLoginStart">@color/tc_gradient_start</item>
+        <item name="ttLoginEnd">@color/lt_gradient_end</item>
+        <item name="ttLoginPrimary">@drawable/login_theme_primary</item>
+        <item name="ttLoginSecondary">@drawable/login_theme_secondary</item>
+        <item name="ttLoginButtonText">?attr/colorOnSurface</item>
+    </style>
+    <style name="Theme.TakTak.Login.Gradient" parent="Theme.TakTak.Login" />
+    <style name="Theme.TakTak.Login.Glass" parent="Theme.TakTak.Login">
+        <item name="ttLoginKind">2</item>
+        <item name="android:windowBackground">@color/tc_glass_bg</item>
+        <item name="android:colorBackground">@color/tc_glass_bg</item>
+        <item name="colorSurface">@color/tc_glass_bg</item>
+        <item name="colorPrimary">@color/tc_glass_primary</item>
+        <item name="ttLoginField">@color/lt_glass_field</item>
+        <item name="ttLoginStart">@color/tc_glass_start</item>
+        <item name="ttLoginEnd">@color/tc_glass_end</item>
+    </style>
+    <style name="Theme.TakTak.Login.Soft" parent="Theme.TakTak.Login">
+        <item name="ttLoginKind">3</item>
+        <item name="android:windowBackground">@color/tc_soft_bg</item>
+        <item name="android:colorBackground">@color/tc_soft_bg</item>
+        <item name="colorSurface">@color/tc_soft_bg</item>
+        <item name="colorPrimary">@color/tc_soft_primary</item>
+        <item name="ttLoginField">@color/lt_soft_field</item>
+        <item name="ttLoginStart">@color/tc_soft_start</item>
+        <item name="ttLoginEnd">@color/tc_soft_end</item>
+    </style>
+    <style name="Widget.TakTakLogin.ThemedButton" parent="Widget.TakTakLogin.GradientButton">
+        <item name="android:textColor">?attr/ttLoginButtonText</item>
+    </style>
+</resources>

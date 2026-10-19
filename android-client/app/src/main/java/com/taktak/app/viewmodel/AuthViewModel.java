@@ -18,8 +18,13 @@ public final class AuthViewModel extends AndroidViewModel {
         public final int message;
         public final int retryAfterSeconds;
         public final boolean success;
+        public final boolean resetRequired;
         private State(boolean loading, int message, int retryAfterSeconds, boolean success) {
+            this(loading,message,retryAfterSeconds,success,false);
+        }
+        private State(boolean loading, int message, int retryAfterSeconds, boolean success, boolean resetRequired) {
             this.loading = loading; this.message = message; this.retryAfterSeconds = retryAfterSeconds; this.success = success;
+            this.resetRequired=resetRequired;
         }
     }
     private final MutableLiveData<State> state = new MutableLiveData<>(new State(false, 0, 0, false));
@@ -52,12 +57,22 @@ public final class AuthViewModel extends AndroidViewModel {
             try {
                 operation.run(AuthGraph.repository(getApplication()));
                 result = new State(false, successMessage, 0, true);
+            } catch (com.taktak.app.data.repository.PasswordResetRequired required) {
+                result = new State(false, 0, 0, false, true);
             } catch (ApiFailure failure) {
                 int message;
                 switch (failure.kind) {
                     case NETWORK: message = R.string.auth_network_error; break;
                     case UNAUTHORIZED: message = R.string.auth_invalid_credentials; break;
-                    case CONFLICT: message = R.string.auth_account_conflict; break;
+                    case CONFLICT:
+                        if ("EMAIL_CONFLICT".equals(failure.code)) {
+                            message = R.string.auth_email_conflict;
+                        } else if ("USERNAME_CONFLICT".equals(failure.code)) {
+                            message = R.string.auth_username_conflict;
+                        } else {
+                            message = R.string.auth_account_conflict;
+                        }
+                        break;
                     case VALIDATION: message = R.string.auth_server_validation; break;
                     case RATE_LIMIT: message = R.string.auth_rate_limited; break;
                     case STORAGE: message = R.string.auth_storage_error; break;
@@ -78,6 +93,28 @@ public final class AuthViewModel extends AndroidViewModel {
                         retryLoginAfter = android.os.SystemClock.elapsedRealtime() + completed.retryAfterSeconds * 1000L;
                     }
                     state.setValue(completed);
+                }
+            });
+        });
+    }
+
+    public interface UsernameCheckCallback {
+        void onResult(Boolean available);
+    }
+
+    public void checkUsername(String username, UsernameCheckCallback callback) {
+        if (cleared) { return; }
+        executor.execute(() -> {
+            Boolean available;
+            try {
+                available = AuthGraph.repository(getApplication()).checkUsername(username);
+            } catch (Exception e) {
+                available = null;
+            }
+            Boolean result = available;
+            new android.os.Handler(android.os.Looper.getMainLooper()).post(() -> {
+                if (!cleared && callback != null) {
+                    callback.onResult(result);
                 }
             });
         });

@@ -20,6 +20,7 @@ public final class AuthGraph {
                 client.sessions.setOnCleared(() -> {
                     com.taktak.app.ui.history.HistoryImageCache.clear();
                     com.taktak.app.data.push.PushEventBus.emitSessionCleared();
+                    com.taktak.app.data.push.ChatNotifications.clear(app);
                     com.taktak.app.widget.WidgetUpdater.clearForLogout(app);
                 });
                 repository = new AuthRepository(client);

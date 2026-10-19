@@ -348,7 +348,7 @@ public class PreviewAcceptanceTest {
             for (int night : new int[]{android.content.res.Configuration.UI_MODE_NIGHT_NO,android.content.res.Configuration.UI_MODE_NIGHT_YES}) {
                 var config=new android.content.res.Configuration(context.getResources().getConfiguration()); config.fontScale=1.5f;
                 config.uiMode=(config.uiMode & ~android.content.res.Configuration.UI_MODE_NIGHT_MASK)|night;
-                var themed=new androidx.appcompat.view.ContextThemeWrapper(context.createConfigurationContext(config),R.style.Theme_TakTak_M3_Camera);
+                var themed=new androidx.appcompat.view.ContextThemeWrapper(context.createConfigurationContext(config),R.style.Theme_TakTak_Media_Preview);
                 float density=themed.getResources().getDisplayMetrics().density;
                 for(int[] size:new int[][]{{280,560},{360,800},{840,420}}) {
                     View root=LayoutInflater.from(themed).inflate(R.layout.activity_preview,null,false);

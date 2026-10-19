@@ -1,0 +1,52 @@
+<resources>
+    <color name="login_background">#19191F</color>
+    <color name="login_text">#FFF4ED</color>
+    <color name="login_hint">#B8B6C0</color>
+    <color name="login_outline">#49474F</color>
+    <color name="login_accent">#FF85AA</color>
+    <string name="login_back">Quay lại</string>
+    <string name="login_language">Tiếng Việt</string>
+    <string name="login_forgot">Quên mật khẩu?</string>
+    <string name="login_forgot_unavailable">Quên mật khẩu? Chức năng khôi phục mật khẩu chưa được hỗ trợ.</string>
+    <string name="login_create_account">Tạo tài khoản mới</string>
+    <string name="login_wordmark">Taktak:</string>
+    <style name="Theme.TakTak.LoginReference" parent="Theme.TakTak.M3.Login">
+        <item name="android:windowBackground">@color/login_background</item>
+        <item name="android:colorBackground">@color/login_background</item>
+        <item name="colorSurface">@color/login_background</item>
+        <item name="colorOnSurface">@color/login_text</item>
+        <item name="colorOnSurfaceVariant">@color/login_hint</item>
+        <item name="colorPrimary">@color/login_accent</item>
+        <item name="colorError">#FFB4AB</item>
+        <item name="android:windowLightStatusBar">false</item>
+        <item name="ttLoginKind">0</item>
+        <item name="ttLoginField">#202026</item>
+        <item name="ttLoginOutline">@color/login_outline</item>
+        <item name="ttLoginNotice">#392B37</item>
+        <item name="ttLoginPrimary">@drawable/login_primary</item>
+        <item name="ttLoginSecondary">@drawable/login_secondary</item>
+        <item name="ttLoginButtonText">@color/login_button_text</item>
+    </style>
+    <style name="Widget.TakTakLogin.Field" parent="Widget.Material3.TextInputLayout.OutlinedBox">
+        <item name="android:layout_width">match_parent</item><item name="android:layout_height">wrap_content</item>
+        <item name="hintEnabled">false</item><item name="boxBackgroundColor">?attr/ttLoginField</item>
+        <item name="boxStrokeColor">@color/login_field_stroke</item>
+        <item name="boxStrokeWidth">1dp</item><item name="boxStrokeWidthFocused">2dp</item>
+        <item name="boxCornerRadiusTopStart">24dp</item><item name="boxCornerRadiusTopEnd">24dp</item>
+        <item name="boxCornerRadiusBottomStart">24dp</item><item name="boxCornerRadiusBottomEnd">24dp</item>
+        <item name="startIconTint">?attr/colorOnSurfaceVariant</item><item name="endIconTint">?attr/colorOnSurfaceVariant</item>
+        <item name="errorTextColor">?attr/colorError</item>
+    </style>
+    <style name="Widget.TakTakLogin.Input" parent="">
+        <item name="android:layout_width">match_parent</item><item name="android:layout_height">wrap_content</item>
+        <item name="android:minHeight">56dp</item><item name="android:paddingTop">16dp</item><item name="android:paddingBottom">16dp</item>
+        <item name="android:singleLine">true</item><item name="android:textSize">16sp</item>
+        <item name="android:textColor">?attr/colorOnSurface</item><item name="android:textColorHint">?attr/colorOnSurfaceVariant</item>
+    </style>
+    <style name="Widget.TakTakLogin.GradientButton" parent="Widget.AppCompat.Button">
+        <item name="android:layout_width">match_parent</item><item name="android:layout_height">wrap_content</item>
+        <item name="android:minHeight">56dp</item><item name="android:padding">14dp</item><item name="android:textSize">17sp</item>
+        <item name="android:fontFamily">sans-serif-medium</item><item name="android:textColor">@color/login_button_text</item>
+        <item name="android:textAllCaps">false</item><item name="backgroundTint">@null</item><item name="android:stateListAnimator">@null</item>
+    </style>
+</resources>

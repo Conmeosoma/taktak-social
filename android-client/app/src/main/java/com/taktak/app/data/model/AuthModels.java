@@ -32,12 +32,14 @@ public final class AuthModels {
     }
 
     public static final class TokenResponse {
+        public boolean resetRequired;
+        public String resetToken;
         public String accessToken;
         public String refreshToken;
         public long expiresIn;
         public String tokenType;
         public boolean isValid() {
-            return accessToken != null && accessToken.matches("[A-Za-z0-9_-]+\\.[A-Za-z0-9_-]+\\.[A-Za-z0-9_-]+")
+            return !resetRequired && resetToken == null && accessToken != null && accessToken.matches("[A-Za-z0-9_-]+\\.[A-Za-z0-9_-]+\\.[A-Za-z0-9_-]+")
                     && accessToken.length() <= 4096 && refreshToken != null && refreshToken.matches("[A-Za-z0-9_-]{43}")
                     && "Bearer".equals(tokenType) && expiresIn >= 1 && expiresIn <= 3600;
         }
@@ -64,5 +66,16 @@ public final class AuthModels {
         public String message;
         public String path;
         @Override public String toString() { return "ApiError[redacted]"; }
+    }
+
+    public static final class UsernameAvailabilityResponse {
+        public String username;
+        public boolean available;
+        public UsernameAvailabilityResponse() { }
+        public UsernameAvailabilityResponse(String username, boolean available) {
+            this.username = username;
+            this.available = available;
+        }
+        @Override public String toString() { return "UsernameAvailabilityResponse[username=" + username + ", available=" + available + "]"; }
     }
 }

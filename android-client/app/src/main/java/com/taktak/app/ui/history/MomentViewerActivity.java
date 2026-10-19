@@ -75,10 +75,16 @@ public final class MomentViewerActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        com.taktak.app.ui.theme.ThemeManager.applyBeforeCreate(this,
+                new com.taktak.app.ui.theme.ThemePreferences(this).load(),
+                com.taktak.app.ui.theme.ThemeManager.ScreenRole.VIEWER);
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
         binding = ActivityMomentViewerBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+        var viewerBackground = new android.util.TypedValue();
+        getTheme().resolveAttribute(R.attr.ttMediaBackground,viewerBackground,true);
+        com.taktak.app.ui.theme.ThemeManager.configureBars(this,binding.getRoot(),viewerBackground.data);
         images = Glide.with(this);
         avatars=new com.taktak.app.ui.profile.AvatarLoader(images);
         try { repository = AuthGraph.repository(getApplication()).moments(); }

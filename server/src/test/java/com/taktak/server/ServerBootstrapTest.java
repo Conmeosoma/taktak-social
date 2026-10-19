@@ -97,15 +97,15 @@ class ServerBootstrapTest {
     }
 
     @Test
-    void migrationCreatesEightTablesIndexesAndIsRepeatableWithoutReapplying() {
+    void migrationCreatesTablesIndexesAndIsRepeatableWithoutReapplying() {
         assertThat(jdbc.queryForList("""
                 SELECT table_name FROM information_schema.tables
                 WHERE table_schema = 'public' AND table_name <> 'flyway_schema_history'
                 ORDER BY table_name
-                """, String.class)).containsExactly("blocks", "device_tokens", "friend_requests", "friendships",
-                "moment_recipients", "moments", "refresh_tokens", "users");
+                """, String.class)).containsExactly("account_recovery", "blocks", "conversations", "device_tokens", "friend_requests", "friendships",
+                "messages", "moment_recipients", "moments", "refresh_tokens", "users");
         assertThat(jdbc.queryForObject("SELECT count(*) FROM flyway_schema_history WHERE success", Integer.class))
-                .isEqualTo(2);
+                .isEqualTo(4);
         assertThat(jdbc.queryForObject("SELECT indexdef FROM pg_indexes WHERE indexname = ?", String.class,
                 "uq_moments_sender_idempotency")).contains("sender_id, idempotency_key");
         assertThat(jdbc.queryForObject("SELECT indexdef FROM pg_indexes WHERE indexname = ?", String.class,
@@ -202,10 +202,10 @@ class ServerBootstrapTest {
         assertThat(postRegistration(first).statusCode()).isEqualTo(201);
         var sameUsername = registration(username.toUpperCase(java.util.Locale.ROOT), UUID.randomUUID().toString());
         sameUsername.put("email", "other_" + suffix() + "@example.test");
-        assertApiError(postRegistration(sameUsername), 409, "ACCOUNT_CONFLICT");
+        assertApiError(postRegistration(sameUsername), 409, "USERNAME_CONFLICT");
         var sameEmail = registration("other_" + suffix(), UUID.randomUUID().toString());
         sameEmail.put("email", first.get("email").toString().toUpperCase(java.util.Locale.ROOT));
-        assertApiError(postRegistration(sameEmail), 409, "ACCOUNT_CONFLICT");
+        assertApiError(postRegistration(sameEmail), 409, "EMAIL_CONFLICT");
         assertThat(jdbc.queryForObject("SELECT count(*) FROM users WHERE username = ? OR lower(email) = ?",
                 Integer.class, username, first.get("email"))).isEqualTo(1);
     }
@@ -216,7 +216,7 @@ class ServerBootstrapTest {
         var first = registration(username, UUID.randomUUID().toString());
         var second = registration(username.toUpperCase(java.util.Locale.ROOT), UUID.randomUUID().toString());
         second.put("email", "other_" + suffix() + "@example.test");
-        assertConcurrentConflict(first, second);
+        assertConcurrentConflict(first, second, "USERNAME_CONFLICT");
         assertThat(jdbc.queryForObject("SELECT count(*) FROM users WHERE username = ?", Integer.class, username))
                 .isEqualTo(1);
     }
@@ -226,7 +226,7 @@ class ServerBootstrapTest {
         var first = registration("email_" + suffix(), UUID.randomUUID().toString());
         var second = registration("other_" + suffix(), UUID.randomUUID().toString());
         second.put("email", first.get("email").toString().toUpperCase(java.util.Locale.ROOT));
-        assertConcurrentConflict(first, second);
+        assertConcurrentConflict(first, second, "EMAIL_CONFLICT");
         assertThat(jdbc.queryForObject("SELECT count(*) FROM users WHERE lower(email) = ?",
                 Integer.class, first.get("email"))).isEqualTo(1);
     }
@@ -244,6 +244,8 @@ class ServerBootstrapTest {
         }
         for (var invalid : List.of(Map.entry("email", "not-an-email"),
                 Map.entry("email", "x".repeat(255) + "@example.test"),
+                Map.entry("username", "ab"), Map.entry("username", "_user"),
+                Map.entry("username", "user_"), Map.entry("username", "us__er"),
                 Map.entry("username", "invalid-name"), Map.entry("username", "é_user"),
                 Map.entry("username", "x".repeat(256)), Map.entry("displayName", "x".repeat(256)),
                 Map.entry("password", "x".repeat(7)), Map.entry("password", "x".repeat(73)),
@@ -286,7 +288,36 @@ class ServerBootstrapTest {
         }
     }
 
-    private void assertConcurrentConflict(Map<String, Object> first, Map<String, Object> second) throws Exception {
+    @Test
+    void checkUsernameAvailabilityEndpoint() throws Exception {
+        String existing = "user_" + suffix();
+        addUser(existing, existing + "@example.test");
+
+        // Existing username
+        var res1 = get("/api/auth/check-username?username=" + existing);
+        assertThat(res1.statusCode()).isEqualTo(200);
+        var json1 = new ObjectMapper().readTree(res1.body());
+        assertThat(json1.get("username").asText()).isEqualTo(existing);
+        assertThat(json1.get("available").asBoolean()).isFalse();
+
+        // Available username
+        String fresh = "fresh_" + suffix();
+        var res2 = get("/api/auth/check-username?username=" + fresh.toUpperCase(java.util.Locale.ROOT));
+        assertThat(res2.statusCode()).isEqualTo(200);
+        var json2 = new ObjectMapper().readTree(res2.body());
+        assertThat(json2.get("username").asText()).isEqualTo(fresh);
+        assertThat(json2.get("available").asBoolean()).isTrue();
+
+        // Invalid format usernames
+        for (String invalid : List.of("ab", "_user", "user_", "us__er", "bad-name")) {
+            var res = get("/api/auth/check-username?username=" + invalid);
+            assertThat(res.statusCode()).isEqualTo(200);
+            var json = new ObjectMapper().readTree(res.body());
+            assertThat(json.get("available").asBoolean()).isFalse();
+        }
+    }
+
+    private void assertConcurrentConflict(Map<String, Object> first, Map<String, Object> second, String expectedCode) throws Exception {
         var executor = Executors.newFixedThreadPool(2);
         var ready = new CountDownLatch(2);
         var start = new CountDownLatch(1);
@@ -301,7 +332,7 @@ class ServerBootstrapTest {
             var responses = List.of(tasks.get(0).get(20, TimeUnit.SECONDS), tasks.get(1).get(20, TimeUnit.SECONDS));
             assertThat(responses.stream().map(HttpResponse::statusCode).toList()).containsExactlyInAnyOrder(201, 409);
             for (var response : responses) {
-                if (response.statusCode() == 409) { assertApiError(response, 409, "ACCOUNT_CONFLICT"); }
+                if (response.statusCode() == 409) { assertApiError(response, 409, expectedCode); }
             }
         } finally {
             start.countDown();
@@ -319,7 +350,7 @@ class ServerBootstrapTest {
         assertThat(json.get("path").asText()).isEqualTo("/api/auth/register");
         assertThat(java.time.Instant.parse(json.get("timestamp").asText())).isNotNull();
         assertThat(json.get("message").asText()).isIn("Dữ liệu yêu cầu không hợp lệ.",
-                "Email hoặc username đã được sử dụng.", "Yêu cầu JSON.");
+                "Email hoặc username đã được sử dụng.", "Email đã được sử dụng.", "Tên người dùng đã được sử dụng.", "Yêu cầu JSON.");
     }
 
     private Map<String, Object> registration(String username, String password) {

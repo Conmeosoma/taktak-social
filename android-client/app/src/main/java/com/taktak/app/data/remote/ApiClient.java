@@ -18,6 +18,7 @@ public final class ApiClient {
     public final MomentApi moments;
     public final FriendApi friends;
     public final DeviceApi devices;
+    public final ChatApi chat;
     public final SessionManager sessions;
     private final OkHttpClient apiHttp;
     private final HttpUrl base;
@@ -57,6 +58,7 @@ public final class ApiClient {
         moments = retrofit(baseUrl, apiHttp).create(MomentApi.class);
         friends = retrofit(baseUrl, apiHttp).create(FriendApi.class);
         devices = retrofit(baseUrl, apiHttp).create(DeviceApi.class);
+        chat = retrofit(baseUrl, apiHttp).create(ChatApi.class);
     }
 
     private boolean protectedTarget(HttpUrl target) {

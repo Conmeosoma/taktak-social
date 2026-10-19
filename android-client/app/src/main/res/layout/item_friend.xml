@@ -1,10 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:theme="@style/Theme.TakTak.M3.Friends"
     android:layout_width="match_parent" android:layout_height="wrap_content"
     android:layout_marginBottom="@dimen/m3_space_12" android:saveEnabled="false"
-    app:cardCornerRadius="24dp" app:cardElevation="0dp" app:strokeWidth="0dp"
+    app:cardCornerRadius="24dp" app:cardElevation="0dp" app:strokeWidth="1dp" app:strokeColor="?attr/colorOutlineVariant"
     app:cardBackgroundColor="?attr/colorSurfaceContainerLow">
     <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
         android:orientation="vertical" android:padding="@dimen/m3_space_16">
@@ -23,10 +22,13 @@
     </LinearLayout>
     <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical">
         <com.google.android.material.button.MaterialButton android:id="@+id/friendPrimary"
-            style="@style/Widget.TakTakM3.Button" android:layout_marginTop="@dimen/m3_space_12" />
+            style="?attr/ttMediaPrimaryStyle" android:layout_width="match_parent"
+            android:layout_height="wrap_content" android:minHeight="48dp"
+            android:layout_marginTop="@dimen/m3_space_12" />
         <com.google.android.material.button.MaterialButton android:id="@+id/friendSecondary"
-            style="@style/Widget.Material3Expressive.Button.TonalButton" android:layout_width="match_parent"
-            android:layout_height="wrap_content" android:minHeight="48dp" android:text="@string/friends_reject" />
+            style="?attr/ttMediaTonalStyle" android:layout_width="match_parent"
+            android:layout_height="wrap_content" android:minHeight="48dp"
+            android:layout_marginTop="@dimen/m3_space_8" android:text="@string/friends_reject" />
         <com.google.android.material.button.MaterialButton android:id="@+id/friendOptions"
             style="@style/Widget.TakTakM3.TextButton" android:text="@string/friends_options_short" />
     </LinearLayout>

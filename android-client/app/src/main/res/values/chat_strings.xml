@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="chat_title">Tin nhắn</string>
+    <string name="chat_notification">Bạn có tin nhắn mới trên Taktak.</string>
+    <string name="chat_enable_notifications">Bật thông báo tin nhắn</string>
+    <string name="chat_new">Tin nhắn mới</string>
+    <string name="chat_search">Tìm cuộc trò chuyện</string>
+    <string name="chat_search_friend">Tìm bạn bè</string>
+    <string name="chat_empty_title">Chưa có tin nhắn</string>
+    <string name="chat_empty_detail">Bắt đầu cuộc trò chuyện với bạn bè của bạn</string>
+    <string name="chat_find_friends">Tìm bạn ngay</string>
+    <string name="chat_no_results">Không có kết quả phù hợp</string>
+    <string name="chat_refresh">Tải lại</string>
+    <string name="chat_more">Xem thêm</string>
+    <string name="chat_loading">Đang tải tin nhắn…</string>
+    <string name="chat_error">Không thể hoàn tất. Hãy thử lại.</string>
+    <string name="chat_network_error">Mất kết nối. Chưa xác nhận được kết quả; hãy thử lại.</string>
+    <string name="chat_forbidden">Bạn không thể trò chuyện với người này lúc này.</string>
+    <string name="chat_session_expired">Phiên đã thay đổi. Vui lòng đăng nhập lại.</string>
+    <string name="chat_invalid_text">Tin nhắn cần có từ 1 đến 2000 ký tự.</string>
+    <string name="chat_unavailable">Cuộc trò chuyện không khả dụng.</string>
+    <string name="chat_invalid">Tin nhắn cần có từ 1 đến 2000 ký tự.</string>
+    <string name="chat_retry">Thử lại</string>
+    <string name="chat_edit_retry">Hủy lần gửi để sửa</string>
+    <string name="chat_discard_pending_warning">Lần gửi trước có thể đã được nhận nếu kết nối bị gián đoạn. Hãy tải lại cuộc trò chuyện trước khi gửi lại để tránh tin nhắn trùng. Chỉ bỏ lần thử trên thiết bị này?</string>
+    <string name="chat_message_hint">Nhắn tin…</string>
+    <string name="chat_send">Gửi</string>
+    <string name="chat_attach">Gửi khoảnh khắc</string>
+    <string name="chat_moment">Khoảnh khắc</string>
+    <string name="chat_choose_moment">Chọn khoảnh khắc đã chia sẻ</string>
+    <string name="chat_no_moments">Chưa có khoảnh khắc phù hợp. Chỉ có thể đính kèm ảnh mà cả hai đã có quyền xem.</string>
+    <string name="chat_moment_unavailable">Ảnh không khả dụng.</string>
+    <string name="chat_seen">Đã xem</string>
+    <string name="chat_sent">Đã gửi</string>
+    <string name="chat_start">Bắt đầu trò chuyện</string>
+    <string name="chat_back">Quay lại</string>
+    <string name="chat_unread">%1$d tin chưa đọc</string>
+    <string name="chat_private">Chỉ bạn bè mới có thể trò chuyện với nhau.</string>
+</resources>

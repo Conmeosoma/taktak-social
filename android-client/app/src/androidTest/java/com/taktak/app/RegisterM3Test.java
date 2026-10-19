@@ -54,7 +54,7 @@ public class RegisterM3Test {
                     var config = new Configuration(context.getResources().getConfiguration());
                     config.fontScale = 1.5f;
                     config.uiMode = (config.uiMode & ~Configuration.UI_MODE_NIGHT_MASK) | night;
-                    var themed = new androidx.appcompat.view.ContextThemeWrapper(context.createConfigurationContext(config), R.style.Theme_TakTak_M3_Register);
+                    var themed = new androidx.appcompat.view.ContextThemeWrapper(context.createConfigurationContext(config), R.style.Theme_TakTak_Auth);
                     float density = themed.getResources().getDisplayMetrics().density;
                     View root = LayoutInflater.from(themed).inflate(R.layout.activity_register, null, false);
                     for (int field : new int[]{R.id.displayNameLayout, R.id.usernameLayout, R.id.emailLayout,

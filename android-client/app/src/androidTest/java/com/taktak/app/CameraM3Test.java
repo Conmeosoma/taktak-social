@@ -60,10 +60,10 @@ public class CameraM3Test {
                 for (int[] size : new int[][]{{280, 560}, {360, 800}, {840, 420}}) {
                     var config = new Configuration(context.getResources().getConfiguration()); config.fontScale = 1.5f;
                     config.uiMode = (config.uiMode & ~Configuration.UI_MODE_NIGHT_MASK) | night;
-                    var themed = new androidx.appcompat.view.ContextThemeWrapper(context.createConfigurationContext(config), R.style.Theme_TakTak_Camera);
+                    var themed = new androidx.appcompat.view.ContextThemeWrapper(context.createConfigurationContext(config), R.style.Theme_TakTak_Media_Main);
                     float density = themed.getResources().getDisplayMetrics().density;
                     View root = LayoutInflater.from(themed).inflate(R.layout.activity_main, null, false);
-                    assertEquals("Main shell gets Expressive palette", themed.getColor(R.color.m3_primary),
+                    assertEquals("Original Main shell keeps Premium palette", themed.getColor(R.color.premium_pink),
                             MaterialColors.getColor(root.getContext(), androidx.appcompat.R.attr.colorPrimary, 0));
                     View page = LayoutInflater.from(root.getContext()).inflate(R.layout.fragment_camera_page, null, false);
                     // FragmentContainerView chỉ nhận View thuộc Fragment; dùng slot cùng context trong đo layout tách rời.

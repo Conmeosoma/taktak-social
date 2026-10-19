@@ -24,8 +24,13 @@ public class MainActivity extends AppCompatActivity {
     private boolean authenticated;
     private boolean imeVisible;
     private int selectedTab;
+    private com.taktak.app.ui.theme.ThemeSelection createdTheme;
     private androidx.activity.OnBackPressedCallback tabBack;
-    private static final int[] TAB_IDS = {R.id.nav_camera, R.id.nav_history, R.id.nav_friends, R.id.nav_profile};
+    private static final int[] TAB_IDS = {R.id.nav_camera, R.id.nav_history, R.id.nav_messages, R.id.nav_friends, R.id.nav_profile};
+    private com.taktak.app.viewmodel.ChatViewModel chatModel;
+    private String notificationConversation;
+    private final ActivityResultLauncher<String> notifications = registerForActivityResult(
+            new ActivityResultContracts.RequestPermission(), granted -> { });
     private final ActivityResultLauncher<String> permission = registerForActivityResult(
             new ActivityResultContracts.RequestPermission(), granted -> {
                 if (granted) { viewModel.check(true); }
@@ -41,12 +46,25 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override protected void onCreate(Bundle savedInstanceState) {
-        setTheme(R.style.Theme_TakTak_Camera);
+        createdTheme = new com.taktak.app.ui.theme.ThemePreferences(this).load();
+        com.taktak.app.ui.theme.ThemeManager.applyBeforeCreate(this,createdTheme,
+                com.taktak.app.ui.theme.ThemeManager.ScreenRole.MAIN);
         super.onCreate(savedInstanceState);
+        com.taktak.app.data.push.ChatNotifications.initialize(getApplication());
+        notificationConversation = getIntent().getStringExtra("chat.conversation");
         EdgeToEdge.enable(this);
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
-        selectedTab = savedInstanceState == null ? 0 : Math.max(0, Math.min(3, savedInstanceState.getInt("selectedTab")));
+        com.taktak.app.ui.theme.ThemeManager.configureBars(this,binding.getRoot(),
+                com.google.android.material.color.MaterialColors.getColor(binding.getRoot(),
+                        com.google.android.material.R.attr.colorSurface));
+        selectedTab = savedInstanceState == null ? 0 : Math.max(0, Math.min(4, savedInstanceState.getInt("selectedTab")));
+        chatModel = new ViewModelProvider(this).get(com.taktak.app.viewmodel.ChatViewModel.class);
+        chatModel.state().observe(this, chat -> {
+            long unread = chat.totalUnreadCount;
+            var badge = binding.bottomNavigation.getOrCreateBadge(R.id.nav_messages);
+            badge.setNumber((int) Math.min(99, unread)); badge.setVisible(authenticated && unread > 0);
+        });
         // Fragment khôi phục không được mở camera trước khi phiên được xác minh lại.
         clearPages();
         tabBack = new androidx.activity.OnBackPressedCallback(false) {
@@ -56,7 +74,10 @@ public class MainActivity extends AppCompatActivity {
         binding.bottomNavigation.setOnItemSelectedListener(item -> {
             if (!authenticated) { return false; }
             for (int i = 0; i < TAB_IDS.length; i++) {
-                if (TAB_IDS[i] == item.getItemId()) { binding.mainPager.setCurrentItem(i, false); return true; }
+                if (TAB_IDS[i] == item.getItemId()) {
+                    binding.mainPager.setCurrentItem(i, false);
+                    return true;
+                }
             }
             return false;
         });
@@ -73,7 +94,7 @@ public class MainActivity extends AppCompatActivity {
             imeVisible = insets.isVisible(WindowInsetsCompat.Type.ime());
             Insets safe = insets.getInsets(WindowInsetsCompat.Type.systemBars() | WindowInsetsCompat.Type.ime()
                     | WindowInsetsCompat.Type.displayCutout());
-            view.setPadding(safe.left, safe.top, safe.right, safe.bottom);
+            binding.mainSafeContent.setPadding(safe.left, safe.top, safe.right, safe.bottom);
             renderNavigation();
             return insets;
         });
@@ -95,6 +116,14 @@ public class MainActivity extends AppCompatActivity {
             binding.cameraPanel.setVisibility(camera ? View.VISIBLE : View.GONE);
             authenticated = camera;
             renderContent();
+            if (camera) {
+                chatModel.startSync();
+                if (com.taktak.app.data.model.FriendModels.uuid(notificationConversation)) {
+                    String id = notificationConversation; notificationConversation = null;
+                    getIntent().removeExtra("chat.conversation");
+                    startActivity(new Intent(this, com.taktak.app.ui.chat.ChatActivity.class).putExtra("conversationId", id));
+                }
+            } else { chatModel.stopSync(); }
             binding.sessionMessage.setVisibility(state.message == 0 ? View.GONE : View.VISIBLE);
             if (state.message != 0) { binding.sessionMessage.setText(state.message); }
             binding.retryButton.setVisibility(state.destination == SessionViewModel.Destination.ERROR
@@ -110,8 +139,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void renderContent() {
-        binding.getRoot().setBackgroundColor(androidx.core.content.ContextCompat.getColor(this,
-                R.color.m3_surface));
         binding.sessionScroll.setVisibility(authenticated ? View.GONE : View.VISIBLE);
         renderNavigation();
         if (!authenticated) { clearPages(); }
@@ -124,8 +151,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void renderNavigation() {
+        binding.premiumBackdrop.setCameraMode(selectedTab == 0);
         binding.bottomNavigation.setVisibility(authenticated && !imeVisible ? View.VISIBLE : View.GONE);
-        binding.mainToolbar.setVisibility(authenticated && (selectedTab == 2 || selectedTab == 3) ? View.GONE : View.VISIBLE);
+        binding.mainToolbar.setVisibility(authenticated && selectedTab >= 2 ? View.GONE : View.VISIBLE);
         if (tabBack != null) { tabBack.setEnabled(authenticated && selectedTab != 0); }
     }
 
@@ -141,10 +169,31 @@ public class MainActivity extends AppCompatActivity {
     public boolean isCameraPageActive() {
         return authenticated && selectedTab == 0 && binding.cameraPanel.isShown();
     }
+    public void openFriendsTab() { if (authenticated) binding.mainPager.setCurrentItem(3, false); }
+    public void requestChatNotifications() {
+        if (Build.VERSION.SDK_INT >= 33 && checkSelfPermission("android.permission.POST_NOTIFICATIONS")
+                != PackageManager.PERMISSION_GRANTED) notifications.launch("android.permission.POST_NOTIFICATIONS");
+    }
+
+    @Override protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent); setIntent(intent);
+        notificationConversation = intent.getStringExtra("chat.conversation");
+        if (authenticated && com.taktak.app.data.model.FriendModels.uuid(notificationConversation)) {
+            String id = notificationConversation; notificationConversation = null; intent.removeExtra("chat.conversation");
+            startActivity(new Intent(this, com.taktak.app.ui.chat.ChatActivity.class).putExtra("conversationId", id));
+        }
+    }
+
+    @Override protected void onStop() { chatModel.stopSync(); super.onStop(); }
 
     @Override protected void onResumeFragments() {
         super.onResumeFragments();
-        if (binding != null) { renderContent(); }
+        if (binding != null) {
+            var saved = new com.taktak.app.ui.theme.ThemePreferences(this).load();
+            boolean pending = saved.style() != createdTheme.style() || saved.colorMode() != createdTheme.colorMode();
+            binding.themeMediaNotice.setVisibility(pending ? View.VISIBLE : View.GONE);
+            renderContent();
+        }
     }
 
     @Override protected void onSaveInstanceState(Bundle outState) {

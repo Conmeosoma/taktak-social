@@ -28,7 +28,10 @@ public final class ProfileFragment extends Fragment {
         binding.profileSave.setOnClickListener(v -> model.save());
         binding.profileRetry.setOnClickListener(v -> model.load());
         binding.profileChangeAvatar.setOnClickListener(v -> ((com.taktak.app.MainActivity)requireActivity()).chooseProfileAvatar());
+        binding.profileAvatarEdit.setOnClickListener(v -> binding.profileChangeAvatar.performClick());
         binding.profileLogout.setOnClickListener(v -> session.logout());
+        binding.profileThemeButton.setOnClickListener(v -> startActivity(new android.content.Intent(
+                requireContext(), com.taktak.app.ui.theme.ThemeSettingsActivity.class)));
         androidx.core.view.ViewCompat.setAccessibilityHeading(binding.profileTitle,true);
         model.state().observe(getViewLifecycleOwner(),state -> {
             if(state.expired) { session.check(true); return; }
@@ -38,9 +41,11 @@ public final class ProfileFragment extends Fragment {
             boolean ready=state.profile!=null;
             binding.profileSave.setEnabled(ready && !state.busy);
             binding.profileChangeAvatar.setEnabled(ready && !state.busy);
+            binding.profileAvatarEdit.setEnabled(ready && !state.busy);
             binding.profileNameInput.setEnabled(ready && !state.busy);
             binding.profileRetry.setEnabled(!state.busy);
             binding.profileLogout.setEnabled(!state.busy);
+            binding.profileThemeButton.setEnabled(!state.busy);
             binding.profileIdentity.setVisibility(ready ? View.VISIBLE : View.GONE);
             binding.profileUsername.setVisibility(ready ? View.VISIBLE : View.GONE);
             if(ready) {

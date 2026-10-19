@@ -1,142 +1,60 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@id/historyPage"
-    android:theme="@style/Theme.TakTak.M3"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:saveEnabled="false">
-
-    <androidx.coordinatorlayout.widget.CoordinatorLayout
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        app:layout_constraintWidth_max="@dimen/m3_form_max_width"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent">
-
-        <com.google.android.material.appbar.AppBarLayout
-            android:id="@+id/historyAppBar"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="?attr/colorSurface"
-            app:elevation="0dp"
-            app:liftOnScroll="false">
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:paddingHorizontal="@dimen/m3_space_16"
-                app:layout_scrollFlags="scroll|enterAlways">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:gravity="center_vertical"
-                    android:layout_marginTop="@dimen/m3_space_8">
-
-                    <com.google.android.material.textview.MaterialTextView
-                        android:id="@+id/historyTitle"
-                        android:layout_width="0dp"
-                        android:layout_weight="1"
-                        android:layout_height="wrap_content"
-                        android:text="@string/history_title"
-                        android:textAppearance="@style/TextAppearance.TakTakM3.Headline" />
-
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/historyRefresh"
-                        style="@style/Widget.Material3Expressive.Button.TonalButton"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:minHeight="@dimen/m3_button_height"
-                        android:minWidth="0dp"
-                        android:insetTop="0dp"
-                        android:insetBottom="0dp"
-                        android:text="@string/history_refresh" />
+    xmlns:app="http://schemas.android.com/apk/res-auto" android:id="@id/historyPage"
+    android:layout_width="match_parent" android:layout_height="match_parent" android:saveEnabled="false">
+    <androidx.coordinatorlayout.widget.CoordinatorLayout android:layout_width="0dp" android:layout_height="0dp"
+        app:layout_constraintWidth_max="480dp" app:layout_constraintStart_toStartOf="parent" app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" app:layout_constraintBottom_toBottomOf="parent">
+        <com.google.android.material.appbar.AppBarLayout android:id="@+id/historyAppBar"
+            android:layout_width="match_parent" android:layout_height="wrap_content" android:background="@android:color/transparent"
+            app:elevation="0dp" app:liftOnScroll="false">
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:orientation="vertical" android:paddingHorizontal="20dp" app:layout_scrollFlags="scroll|enterAlways">
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:orientation="horizontal" android:gravity="center_vertical" android:layout_marginTop="8dp">
+                    <com.google.android.material.textview.MaterialTextView android:id="@+id/historyTitle"
+                        android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content"
+                        android:text="@string/history_title" android:textAppearance="?attr/ttMediaHeadlineStyle" android:textSize="32sp" />
+                    <com.google.android.material.button.MaterialButton android:id="@+id/historyRefresh"
+                        style="?attr/ttMediaTonalStyle" android:layout_width="wrap_content" android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp" android:minWidth="0dp" android:textSize="14sp" android:text="@string/history_refresh"
+                        app:icon="@drawable/ic_premium_plus" app:iconSize="18dp" />
                 </LinearLayout>
-
-                <com.google.android.material.tabs.TabLayout
-                    android:id="@+id/historyTabs"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/m3_space_8"
-                    android:background="@android:color/transparent"
-                    app:tabIndicatorColor="?attr/colorPrimary"
-                    app:tabSelectedTextColor="?attr/colorPrimary"
-                    app:tabTextColor="?attr/colorOnSurfaceVariant"
-                    app:tabMode="fixed"
-                    app:tabGravity="fill" />
-
-                <FrameLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="@dimen/m3_space_12">
-
-                    <com.google.android.material.progressindicator.LinearProgressIndicator
-                        android:id="@+id/historyProgress"
-                        style="@style/Widget.Material3Expressive.LinearProgressIndicator"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center_vertical"
-                        android:indeterminate="true"
-                        android:contentDescription="@string/history_loading"
-                        android:visibility="invisible" />
+                <com.google.android.material.tabs.TabLayout android:id="@+id/historyTabs"
+                    android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="16dp"
+                    android:background="@android:color/transparent" app:tabIndicator="?attr/ttMediaTabIndicator"
+                    app:tabIndicatorColor="@android:color/transparent" app:tabIndicatorHeight="4dp" app:tabIndicatorFullWidth="false"
+                    app:tabSelectedTextColor="?attr/ttMediaTabSelectedColor" app:tabTextColor="?attr/ttMediaTabUnselectedColor" app:tabMode="fixed" app:tabGravity="fill" />
+                <View android:layout_width="match_parent" android:layout_height="1dp" android:background="?attr/ttMediaDividerColor" android:alpha="0.4" />
+                <FrameLayout android:layout_width="match_parent" android:layout_height="12dp">
+                    <com.google.android.material.progressindicator.LinearProgressIndicator android:id="@+id/historyProgress"
+                        android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_gravity="center_vertical"
+                        android:indeterminate="true" android:contentDescription="@string/history_loading" android:visibility="invisible" />
                 </FrameLayout>
-
-                <com.google.android.material.textview.MaterialTextView
-                    android:id="@+id/historyMessage"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="@dimen/m3_space_12"
-                    android:padding="@dimen/m3_space_16"
-                    android:background="@drawable/m3_notice_background"
-                    android:visibility="gone"
-                    android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
-                    android:textColor="?attr/colorOnErrorContainer"
-                    android:accessibilityLiveRegion="polite"
-                    android:saveEnabled="false" />
+                <com.google.android.material.textview.MaterialTextView android:id="@+id/historyMessage"
+                    android:layout_width="match_parent" android:layout_height="wrap_content" android:padding="12dp"
+                    android:layout_marginBottom="12dp" android:background="?attr/ttMediaNoticeBackground"
+                    android:textColor="?attr/colorOnSurface" android:visibility="gone" android:accessibilityLiveRegion="polite" android:saveEnabled="false" />
             </LinearLayout>
         </com.google.android.material.appbar.AppBarLayout>
-
-        <LinearLayout
-            android:id="@+id/historyEmptyView"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:gravity="center"
-            android:orientation="vertical"
-            android:padding="@dimen/m3_space_24"
-            android:visibility="gone"
-            app:layout_behavior="@string/appbar_scrolling_view_behavior">
-
-            <com.google.android.material.textview.MaterialTextView
-                android:id="@+id/historyEmptyTitle"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/history_empty"
-                android:textAppearance="@style/TextAppearance.Material3.TitleLarge"
-                android:textColor="?attr/colorOnSurface" />
-
-            <com.google.android.material.textview.MaterialTextView
-                android:id="@+id/historyEmptyDetail"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/m3_space_8"
-                android:gravity="center"
-                android:text="@string/history_empty_detail"
-                android:textAppearance="@style/TextAppearance.TakTakM3.Body" />
-        </LinearLayout>
-
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/historyRecycler"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            app:layout_behavior="@string/appbar_scrolling_view_behavior"
-            android:saveEnabled="false"
-            android:clipToPadding="false"
-            android:paddingHorizontal="@dimen/m3_space_16"
-            android:paddingBottom="@dimen/m3_space_24" />
-
+        <androidx.core.widget.NestedScrollView android:id="@+id/historyEmptyView"
+            android:layout_width="match_parent" android:layout_height="match_parent" android:fillViewport="true"
+            android:visibility="gone" app:layout_behavior="@string/appbar_scrolling_view_behavior">
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical"
+                android:gravity="center" android:paddingHorizontal="24dp" android:paddingTop="24dp" android:paddingBottom="64dp">
+                <ImageView android:layout_width="176dp" android:layout_height="176dp" android:src="@drawable/premium_inbox"
+                    android:importantForAccessibility="no" android:contentDescription="@null" />
+                <com.google.android.material.textview.MaterialTextView android:id="@+id/historyEmptyTitle"
+                    android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="20dp"
+                    android:gravity="center" android:text="@string/history_empty" android:textSize="22sp" android:textColor="?attr/colorOnSurface" />
+                <com.google.android.material.textview.MaterialTextView android:id="@+id/historyEmptyDetail"
+                    android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp"
+                    android:gravity="center" android:text="@string/history_empty_detail" android:textSize="16sp" android:textColor="?attr/colorOnSurfaceVariant" />
+            </LinearLayout>
+        </androidx.core.widget.NestedScrollView>
+        <androidx.recyclerview.widget.RecyclerView android:id="@+id/historyRecycler"
+            android:layout_width="match_parent" android:layout_height="match_parent"
+            app:layout_behavior="@string/appbar_scrolling_view_behavior" android:saveEnabled="false" android:clipToPadding="false"
+            android:paddingHorizontal="20dp" android:paddingBottom="24dp" />
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

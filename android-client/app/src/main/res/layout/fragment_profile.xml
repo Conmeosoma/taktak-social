@@ -1,37 +1,55 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@id/profilePage" android:layout_width="match_parent" android:layout_height="match_parent"
-    android:theme="@style/Theme.TakTak.M3">
+    xmlns:app="http://schemas.android.com/apk/res-auto" android:id="@id/profilePage"
+    android:layout_width="match_parent" android:layout_height="match_parent">
     <androidx.core.widget.NestedScrollView android:layout_width="0dp" android:layout_height="0dp" android:fillViewport="true"
-        app:layout_constraintWidth_max="@dimen/m3_form_max_width" app:layout_constraintStart_toStartOf="parent" app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintWidth_max="480dp" app:layout_constraintStart_toStartOf="parent" app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" app:layout_constraintBottom_toBottomOf="parent">
-    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="24dp" android:gravity="center_horizontal">
-        <TextView android:id="@+id/profileTitle" android:layout_width="match_parent" android:layout_height="wrap_content"
-            android:text="@string/nav_profile" android:textAppearance="@style/TextAppearance.TakTakM3.Headline" />
-        <com.google.android.material.progressindicator.LinearProgressIndicator android:id="@+id/profileProgress"
-            android:layout_width="match_parent" android:layout_height="4dp" android:layout_marginTop="16dp" android:indeterminate="true" />
-        <com.google.android.material.imageview.ShapeableImageView android:id="@+id/profileAvatar" android:layout_width="112dp" android:layout_height="112dp"
-            android:layout_marginTop="24dp" android:src="@drawable/friend_avatar" android:contentDescription="@string/profile_avatar" android:scaleType="centerCrop" />
-        <com.google.android.material.button.MaterialButton android:id="@+id/profileChangeAvatar" style="@style/Widget.Material3.Button.TonalButton"
-            android:layout_width="wrap_content" android:layout_height="wrap_content" android:minHeight="56dp" android:layout_marginTop="12dp" android:text="@string/profile_change_avatar" />
-        <TextView android:id="@+id/profileUsername" android:layout_width="match_parent" android:layout_height="wrap_content"
-            android:layout_marginTop="16dp" android:gravity="center" android:maxLines="1" android:ellipsize="end" android:textAppearance="@style/TextAppearance.TakTakM3.Body" />
-        <TextView android:id="@+id/profileIdentity" android:layout_width="match_parent" android:layout_height="wrap_content"
-            android:layout_marginTop="4dp" android:gravity="center" android:maxLines="1" android:ellipsize="end" android:textAppearance="@style/TextAppearance.TakTakM3.Body" />
-        <com.google.android.material.textfield.TextInputLayout android:id="@+id/profileNameLayout" style="@style/Widget.TakTakM3.Field"
-            android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="28dp" android:hint="@string/profile_display_name">
-            <com.google.android.material.textfield.TextInputEditText android:id="@+id/profileNameInput" android:layout_width="match_parent" android:layout_height="wrap_content"
-                android:inputType="textPersonName|textCapWords" android:maxLength="255" android:maxLines="2" android:saveEnabled="false" />
-        </com.google.android.material.textfield.TextInputLayout>
-        <TextView android:id="@+id/profileMessage" android:layout_width="match_parent" android:layout_height="wrap_content"
-            android:layout_marginTop="16dp" android:accessibilityLiveRegion="polite" android:textAppearance="@style/TextAppearance.TakTakM3.Body" />
-        <com.google.android.material.button.MaterialButton android:id="@+id/profileSave" android:layout_width="match_parent" android:layout_height="wrap_content"
-            android:minHeight="56dp" android:layout_marginTop="16dp" android:text="@string/profile_save" />
-        <com.google.android.material.button.MaterialButton android:id="@+id/profileRetry" style="@style/Widget.Material3.Button.TextButton"
-            android:layout_width="match_parent" android:layout_height="wrap_content" android:minHeight="48dp" android:text="@string/profile_reload" />
-        <com.google.android.material.button.MaterialButton android:id="@+id/profileLogout" style="@style/Widget.Material3.Button.OutlinedButton"
-            android:layout_width="match_parent" android:layout_height="wrap_content" android:minHeight="56dp" android:layout_marginTop="24dp" android:text="@string/profile_logout" />
-    </LinearLayout>
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical"
+            android:padding="20dp" android:gravity="center_horizontal">
+            <TextView android:id="@+id/profileTitle" android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:layout_marginTop="16dp" android:text="@string/nav_profile" android:textAppearance="?attr/ttMediaHeadlineStyle" android:textSize="40sp" />
+            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="8dp"
+                android:text="@string/premium_profile_detail" android:textSize="16sp" android:textColor="?attr/colorOnSurfaceVariant" />
+            <com.google.android.material.progressindicator.LinearProgressIndicator android:id="@+id/profileProgress"
+                android:layout_width="match_parent" android:layout_height="4dp" android:layout_marginTop="12dp" android:indeterminate="true" />
+            <FrameLayout android:layout_width="148dp" android:layout_height="148dp" android:layout_marginTop="16dp">
+                <com.google.android.material.imageview.ShapeableImageView android:id="@+id/profileAvatar"
+                    android:layout_width="match_parent" android:layout_height="match_parent" android:padding="3dp"
+                    android:src="@drawable/friend_avatar" android:contentDescription="@string/profile_avatar" android:scaleType="centerCrop"
+                    app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.TakTakPremium.Avatar"
+                    app:strokeWidth="3dp" app:strokeColor="?attr/colorPrimary" />
+                <com.google.android.material.button.MaterialButton android:id="@+id/profileAvatarEdit"
+                    style="@style/Widget.Material3Expressive.Button.IconButton.Filled" android:layout_width="48dp" android:layout_height="48dp"
+                    android:layout_gravity="bottom|end" android:contentDescription="@string/profile_change_avatar"
+                    app:icon="@drawable/ic_camera_shutter" app:iconTint="?attr/colorOnPrimary" app:backgroundTint="?attr/colorPrimary" app:iconSize="24dp" />
+            </FrameLayout>
+            <com.google.android.material.button.MaterialButton android:id="@+id/profileChangeAvatar"
+                style="?attr/ttMediaTonalStyle" android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:layout_marginTop="8dp" app:icon="@drawable/ic_camera_shutter" android:text="@string/profile_change_avatar" />
+            <TextView android:id="@+id/profileUsername" android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:layout_marginTop="16dp" android:gravity="center" android:maxLines="1" android:ellipsize="end" android:textSize="16sp" android:textColor="?attr/colorOnSurface" />
+            <TextView android:id="@+id/profileIdentity" android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:layout_marginTop="8dp" android:gravity="center" android:maxLines="1" android:ellipsize="end" android:textSize="15sp" android:textColor="?attr/colorOnSurfaceVariant" />
+            <com.google.android.material.textfield.TextInputLayout android:id="@+id/profileNameLayout"
+                style="?attr/ttMediaFieldStyle" android:layout_marginTop="24dp"
+                android:hint="@string/profile_display_name" app:startIconDrawable="@drawable/ic_m3_person">
+                <com.google.android.material.textfield.TextInputEditText android:id="@+id/profileNameInput"
+                    android:layout_width="match_parent" android:layout_height="wrap_content" android:minHeight="56dp"
+                    android:theme="?attr/ttMediaInputStyle"
+                    android:inputType="textPersonName|textCapWords" android:maxLength="255" android:maxLines="2" android:saveEnabled="false" />
+            </com.google.android.material.textfield.TextInputLayout>
+            <TextView android:id="@+id/profileMessage" android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:layout_marginTop="12dp" android:accessibilityLiveRegion="polite" android:textAppearance="@style/TextAppearance.TakTakM3.Body" />
+            <androidx.appcompat.widget.AppCompatButton android:id="@+id/profileSave" style="?attr/ttMediaPrimaryStyle"
+                android:layout_marginTop="12dp" android:text="@string/profile_save" />
+            <com.google.android.material.button.MaterialButton android:id="@+id/profileRetry" style="@style/Widget.TakTakM3.TextButton"
+                android:layout_width="match_parent" android:layout_height="wrap_content" android:minHeight="48dp" android:textColor="?attr/colorPrimary" android:text="@string/profile_reload" />
+            <androidx.appcompat.widget.AppCompatButton android:id="@+id/profileLogout" style="?attr/ttMediaOutlineStyle"
+                android:layout_marginTop="20dp" android:text="@string/profile_logout" />
+            <com.google.android.material.button.MaterialButton android:id="@+id/profileThemeButton" style="@style/Widget.TakTakM3.TextButton"
+                android:layout_width="match_parent" android:layout_height="wrap_content" android:minHeight="48dp"
+                android:layout_marginTop="12dp" android:text="@string/theme_open" />
+        </LinearLayout>
     </androidx.core.widget.NestedScrollView>
 </androidx.constraintlayout.widget.ConstraintLayout>

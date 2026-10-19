@@ -50,6 +50,26 @@ public class AuthInputValidatorTest {
         assertEquals(R.string.auth_required, AuthInputValidator.passwordError(null));
     }
 
+    @Test public void usernameUnderscoreAndLengthRules() {
+        assertEquals(R.string.auth_username_too_short, AuthInputValidator.usernameError("ab"));
+        assertEquals(0, AuthInputValidator.usernameError("abc"));
+        assertEquals(0, AuthInputValidator.usernameError("a_b"));
+        assertEquals(R.string.auth_username_underscore_edge, AuthInputValidator.usernameError("_abc"));
+        assertEquals(R.string.auth_username_underscore_edge, AuthInputValidator.usernameError("abc_"));
+        assertEquals(R.string.auth_username_double_underscore, AuthInputValidator.usernameError("a__bc"));
+        assertEquals(0, AuthInputValidator.usernameError("a_b_c"));
+    }
+
+    @Test public void passwordStrengthEvaluatesComplexity() {
+        assertEquals(AuthInputValidator.PasswordStrength.NONE, AuthInputValidator.calculatePasswordStrength(""));
+        assertEquals(AuthInputValidator.PasswordStrength.NONE, AuthInputValidator.calculatePasswordStrength(null));
+        assertEquals(AuthInputValidator.PasswordStrength.WEAK, AuthInputValidator.calculatePasswordStrength("1234567"));
+        assertEquals(AuthInputValidator.PasswordStrength.WEAK, AuthInputValidator.calculatePasswordStrength("abcdefgh"));
+        assertEquals(AuthInputValidator.PasswordStrength.MEDIUM, AuthInputValidator.calculatePasswordStrength("Password12"));
+        assertEquals(AuthInputValidator.PasswordStrength.STRONG, AuthInputValidator.calculatePasswordStrength("Password12!@#"));
+        assertEquals(AuthInputValidator.PasswordStrength.STRONG, AuthInputValidator.calculatePasswordStrength("LongPassword123"));
+    }
+
     @Test public void confirmationMustMatchIncludingWhitespace() {
         String fixture = java.util.UUID.randomUUID().toString();
         assertEquals(0, AuthInputValidator.confirmationError(fixture, fixture));

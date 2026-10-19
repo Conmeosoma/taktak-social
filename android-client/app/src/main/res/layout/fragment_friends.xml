@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:theme="@style/Theme.TakTak.M3.Friends"
     android:layout_width="match_parent" android:layout_height="match_parent"
     android:saveEnabled="false">
     <androidx.coordinatorlayout.widget.CoordinatorLayout android:layout_width="0dp" android:layout_height="0dp"
@@ -10,7 +9,7 @@
         app:layout_constraintTop_toTopOf="parent" app:layout_constraintBottom_toBottomOf="parent">
         <com.google.android.material.appbar.AppBarLayout android:id="@+id/friendsAppBar"
             android:layout_width="match_parent" android:layout_height="wrap_content"
-            android:background="?attr/colorSurface" app:elevation="0dp" app:liftOnScroll="false">
+            android:background="@android:color/transparent" app:elevation="0dp" app:liftOnScroll="false">
             <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
                 android:orientation="vertical" android:paddingHorizontal="@dimen/m3_space_16"
                 app:layout_scrollFlags="scroll|enterAlways">
@@ -26,11 +25,15 @@
                 <com.google.android.material.textview.MaterialTextView android:id="@+id/friendsTitle"
                     android:layout_width="match_parent" android:layout_height="wrap_content"
                     android:layout_marginTop="@dimen/m3_space_8" android:text="@string/friends_title"
-                    android:textAppearance="@style/TextAppearance.TakTakM3.Headline" />
+                    android:textAppearance="?attr/ttMediaHeadlineStyle" />
+                <com.google.android.material.textview.MaterialTextView android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp" android:text="@string/premium_friends_detail"
+                    android:textSize="16sp" android:textColor="?attr/colorOnSurfaceVariant" />
                 <com.google.android.material.textfield.TextInputLayout android:id="@+id/friendsQueryLayout"
-                    style="@style/Widget.TakTakM3.Field" android:layout_marginTop="@dimen/m3_space_16"
+                    style="?attr/ttMediaFieldStyle" android:layout_marginTop="@dimen/m3_space_16"
                     android:hint="@string/friends_query" app:startIconDrawable="@drawable/ic_m3_search">
                     <com.google.android.material.textfield.TextInputEditText android:id="@+id/friendsQuery"
+                        style="?attr/ttMediaInputStyle"
                         android:layout_width="match_parent" android:layout_height="wrap_content"
                         android:minHeight="@dimen/m3_button_height" android:textSize="16sp"
                         android:inputType="textVisiblePassword" android:imeOptions="actionSearch" android:maxLength="255"
@@ -40,10 +43,10 @@
                     android:layout_marginTop="@dimen/m3_space_8" android:orientation="horizontal"
                     android:baselineAligned="false">
                     <com.google.android.material.button.MaterialButton android:id="@+id/friendsSearch"
-                        style="@style/Widget.TakTakM3.Button" android:layout_width="0dp"
+                        style="?attr/ttMediaPrimaryStyle" android:layout_width="0dp"
                         android:layout_weight="1" android:minWidth="0dp" android:text="@string/friends_search" />
                     <com.google.android.material.button.MaterialButton android:id="@+id/friendsRefresh"
-                        style="@style/Widget.Material3Expressive.Button.TonalButton" android:layout_width="0dp"
+                        style="?attr/ttMediaTonalStyle" android:layout_width="0dp"
                         android:layout_weight="1" android:layout_height="wrap_content" android:layout_marginStart="@dimen/m3_space_8"
                         android:minHeight="@dimen/m3_button_height" android:minWidth="0dp"
                         android:insetTop="0dp" android:insetBottom="0dp" android:text="@string/friends_refresh" />
@@ -58,7 +61,7 @@
                 <com.google.android.material.textview.MaterialTextView android:id="@+id/friendsMessage"
                     android:layout_width="match_parent" android:layout_height="wrap_content"
                     android:layout_marginBottom="@dimen/m3_space_12" android:padding="@dimen/m3_space_16"
-                    android:background="@drawable/m3_notice_background" android:visibility="gone"
+                    android:background="?attr/ttMediaNoticeBackground" android:visibility="gone"
                     android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
                     android:textColor="?attr/colorOnSecondaryContainer"
                     android:accessibilityLiveRegion="polite" android:saveEnabled="false" />

@@ -7,9 +7,11 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -26,6 +28,14 @@ public class AuthController {
         this.loginRateLimiter = loginRateLimiter;
     }
 
+    @GetMapping(value = "/check-username", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<UsernameAvailabilityResponse> checkUsername(@RequestParam(value = "username", required = false) String username) {
+        return ResponseEntity.ok()
+                .cacheControl(CacheControl.noStore())
+                .header(HttpHeaders.PRAGMA, "no-cache")
+                .body(auth.checkUsernameAvailability(username));
+    }
+
     @PostMapping(value = "/register", consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
     public RegisterResponse register(@Valid @RequestBody RegisterRequest request) {
@@ -33,7 +43,7 @@ public class AuthController {
     }
 
     @PostMapping(value = "/login", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<TokenPair> login(@Valid @RequestBody LoginRequest request, HttpServletRequest http) {
+    public ResponseEntity<?> login(@Valid @RequestBody LoginRequest request, HttpServletRequest http) {
         loginRateLimiter.check(http.getRemoteAddr(), request.email());
         return tokenResponse(sessions.login(request));
     }
@@ -49,7 +59,7 @@ public class AuthController {
         sessions.logout(request.refreshToken());
     }
 
-    private ResponseEntity<TokenPair> tokenResponse(TokenPair tokens) {
+    private <T> ResponseEntity<T> tokenResponse(T tokens) {
         return ResponseEntity.ok().cacheControl(CacheControl.noStore()).header(HttpHeaders.PRAGMA, "no-cache").body(tokens);
     }
 }

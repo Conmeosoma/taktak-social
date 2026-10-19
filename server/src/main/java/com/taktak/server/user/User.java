@@ -35,6 +35,16 @@ public class User {
     @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt;
 
+    @Column(name = "email_verified_at")
+    private Instant emailVerifiedAt;
+    @Column(name = "security_version", nullable = false)
+    private long securityVersion;
+
+    @JsonIgnore public boolean isEmailVerified() { return emailVerifiedAt != null; }
+    @JsonIgnore public long getSecurityVersion() { return securityVersion; }
+    public void verifyEmail(Instant now) { emailVerifiedAt = now; }
+    public void resetPassword(String hash) { passwordHash = hash; securityVersion = Math.addExact(securityVersion, 1); }
+
     protected User() {
     }
 

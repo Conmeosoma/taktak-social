@@ -37,7 +37,7 @@ public class MainCameraAcceptanceTest {
     private final Context context = InstrumentationRegistry.getInstrumentation().getTargetContext();
     private final android.content.SharedPreferences fixture = context.getSharedPreferences("qa5a_fixture", Context.MODE_PRIVATE);
     private boolean ownsSession;
-    private static final int[] TABS = {R.id.nav_camera, R.id.nav_history, R.id.nav_friends, R.id.nav_profile};
+    private static final int[] TABS = {R.id.nav_camera, R.id.nav_history, R.id.nav_messages, R.id.nav_friends, R.id.nav_profile};
 
     @Before public void preservePersonalSession() throws Exception {
         if (new EncryptedSessionStore(context, BuildConfig.BASE_URL).load() != null) {
@@ -62,18 +62,18 @@ public class MainCameraAcceptanceTest {
         }
     }
 
-    @Test public void fourTabShellFitsLargeTextAndBothThemes() {
+    @Test public void fiveTabShellFitsLargeTextAndBothThemes() {
         InstrumentationRegistry.getInstrumentation().runOnMainSync(() -> {
             for (int night : new int[]{Configuration.UI_MODE_NIGHT_NO, Configuration.UI_MODE_NIGHT_YES}) {
                 var config = new Configuration(context.getResources().getConfiguration()); config.fontScale = 1.5f;
                 config.uiMode = (config.uiMode & ~Configuration.UI_MODE_NIGHT_MASK) | night;
-                var themed = new androidx.appcompat.view.ContextThemeWrapper(context.createConfigurationContext(config), R.style.Theme_TakTak_M3);
+                var themed = new androidx.appcompat.view.ContextThemeWrapper(context.createConfigurationContext(config), R.style.Theme_TakTak_Media_Main);
                 float density = themed.getResources().getDisplayMetrics().density;
                 for (int[] size : new int[][]{{280, 560}, {360, 800}, {840, 420}}) {
                     View root = LayoutInflater.from(themed).inflate(R.layout.activity_main, null, false);
                     BottomNavigationView nav = root.findViewById(R.id.bottomNavigation); nav.setVisibility(View.VISIBLE);
-                    assertEquals(4, nav.getMenu().size());
-                    for (int i = 0; i < 4; i++) { assertEquals(TABS[i], nav.getMenu().getItem(i).getItemId()); }
+                    assertEquals(TABS.length, nav.getMenu().size());
+                    for (int i = 0; i < TABS.length; i++) { assertEquals(TABS[i], nav.getMenu().getItem(i).getItemId()); }
                     root.measure(View.MeasureSpec.makeMeasureSpec(Math.round(size[0] * density), View.MeasureSpec.EXACTLY),
                             View.MeasureSpec.makeMeasureSpec(Math.round(size[1] * density), View.MeasureSpec.EXACTLY));
                     root.layout(0, 0, root.getMeasuredWidth(), root.getMeasuredHeight());

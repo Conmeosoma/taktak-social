@@ -38,6 +38,11 @@ public final class SessionManager {
         return generation;
     }
 
+    public synchronized boolean runIfLoginAttempt(long expectedGeneration, Runnable action) {
+        if (current!=null || generation!=expectedGeneration) return false;
+        action.run(); return true;
+    }
+
     public synchronized void completeLogin(long expectedGeneration, TokenResponse tokens) throws IOException {
         if (generation != expectedGeneration) { throw new ApiFailure(ApiFailure.Kind.CANCELLED); }
         persist(tokens);
@@ -52,6 +57,7 @@ public final class SessionManager {
     }
 
     public synchronized void clear() throws IOException {
+        ResetSessionVault.clear();
         generation++;
         current = null;
         failedRefresh = null;

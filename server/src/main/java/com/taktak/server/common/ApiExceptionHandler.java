@@ -23,6 +23,19 @@ import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 @RestControllerAdvice
 public class ApiExceptionHandler {
+    @ExceptionHandler(com.taktak.server.chat.ChatFailure.class)
+    ResponseEntity<ApiError> chatFailure(com.taktak.server.chat.ChatFailure failure, HttpServletRequest request) {
+        return error(failure.status, failure.code, "Không thể xử lý hội thoại hoặc bạn không có quyền truy cập.", request);
+    }
+    @ExceptionHandler(com.taktak.server.auth.RecoveryService.RecoveryValidation.class)
+    ResponseEntity<ApiError> recoveryValidation(HttpServletRequest request) {
+        return error(HttpStatus.BAD_REQUEST, "VALIDATION_ERROR", "Mật khẩu mới không hợp lệ hoặc trùng mật khẩu cũ/tạm thời.", request);
+    }
+    @ExceptionHandler(org.springframework.mail.MailException.class)
+    ResponseEntity<ApiError> mailFailure(HttpServletRequest request) {
+        org.slf4j.LoggerFactory.getLogger(ApiExceptionHandler.class).error("Account mail failed; no delivery confirmed.");
+        return error(HttpStatus.SERVICE_UNAVAILABLE, "MAIL_UNAVAILABLE", "Chưa thể gửi email. Vui lòng thử lại sau.", request);
+    }
     @ExceptionHandler(com.taktak.server.friend.FriendFailure.class)
     ResponseEntity<ApiError> friendFailure(com.taktak.server.friend.FriendFailure failure, HttpServletRequest request) {
         return error(failure.status, failure.code, "Không thể xử lý yêu cầu kết bạn hoặc dữ liệu tìm kiếm.", request);
@@ -128,6 +141,12 @@ public class ApiExceptionHandler {
                 String msg = sql.getMessage();
                 if (msg != null && msg.contains("uq_moments_sender_idempotency")) {
                     return error(HttpStatus.CONFLICT, "IDEMPOTENCY_CONFLICT", "Yêu cầu upload đang được xử lý hoặc xung đột khóa idempotency.", request);
+                }
+                if (msg != null && (msg.contains("uq_users_email_lower") || msg.contains("users_email") || msg.contains("lower(email"))) {
+                    return error(HttpStatus.CONFLICT, "EMAIL_CONFLICT", "Email đã được sử dụng.", request);
+                }
+                if (msg != null && (msg.contains("users_username_key") || msg.contains("users_username") || msg.contains("(username)"))) {
+                    return error(HttpStatus.CONFLICT, "USERNAME_CONFLICT", "Tên người dùng đã được sử dụng.", request);
                 }
                 return error(HttpStatus.CONFLICT, "ACCOUNT_CONFLICT", "Email hoặc username đã được sử dụng.", request);
             }

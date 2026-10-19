@@ -1,0 +1,10 @@
+<resources>
+ <color name="lt_field">#E6FFF8FF</color>
+ <color name="lt_glass_field">#C7FFFFFF</color>
+ <color name="lt_soft_field">#FFF8FF</color>
+ <color name="lt_outline">#87718D</color>
+ <color name="lt_notice">#F0DDED</color>
+ <color name="lt_error">#A32342</color>
+ <color name="lt_muted">#574260</color>
+ <color name="lt_gradient_end">#B18AF9</color>
+</resources>

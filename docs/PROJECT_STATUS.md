@@ -1,9 +1,129 @@
 # Taktak — Trạng thái dự án
 
+## Hiện hành — Triển khai CHAT-01–05, 20/10/2026
+
+**PASS CHAT-01–05 trong phạm vi local/USB; chưa nghiệm thu production.** Người dùng đã duyệt cả năm tiểu bước; không mở emulator/commit/push/deploy. Đã triển khai V4/REST và Android 5 tab/Inbox/New Chat/Chat text–moment/FCM. Backend 163/163, Android 115 JVM + build/lint debug/release đạt. Chat USB 6/6 (36,605s), FCM cloud + notification nền chung 1/1 (3,354s), hồi quy Media/List/Profile 11/11 (167,056s) đạt; phiên cá nhân byte-for-byte không thay đổi. Đã sửa helper mở Activity/chờ lifecycle trên MIUI để chạy lại hồi quy, không bỏ assertion hoặc sửa production Viewer. Xem [QA_CHAT.md](QA_CHAT.md), [CHAT_API.md](CHAT_API.md).
+
+V4 chỉ được chạy trên PostgreSQL test mới; server/VPS và database production chưa cập nhật. App đã cài APK debug mới nhưng các endpoint chat trên môi trường người dùng trỏ tới chỉ có sau khi backend tương ứng được cập nhật theo yêu cầu riêng.
+
+Bản bàn giao cuối: build toàn bộ 37s đạt; Chat USB chạy lại 6/6 (35,025s) sau sửa helper cold-start xác minh shell/instance. Log cuối `chat-usb-final-acceptance.log`; các timeout trước được giữ và giải thích tại QA_CHAT, không tính là PASS.
+
+## Lịch sử — Kế hoạch triển khai Module Tin nhắn & Chat khoảnh khắc (20/10/2026)
+
+**ĐÃ BỔ SUNG MODULE TIN NHẮN VÀO ROADMAP TRIỂN KHAI THEO CHUẨN AGENTS.MD.**
+- Nguồn yêu cầu: Người dùng yêu cầu đưa module Tin nhắn (thiết kế tham chiếu 5 màn hình: Hộp thư đến, Khung chat 1-1, Xử lý bàn phím IME, Soạn tin mới chọn bạn bè, Trạng thái rỗng) vào kế hoạch triển khai.
+- Thay đổi cấu trúc điều hướng: Bottom Navigation Bar mở rộng từ 4 tab thành **5 tab**: Camera (0) | Lịch sử (1) | **Tin nhắn (2)** | Bạn bè (3) | Hồ sơ (4).
+- Phân rã 5 tiểu bước độc lập:
+  - `CHAT-01`: Backend Database & REST API (Spring Boot 3, Flyway Migration `V4__direct_messaging.sql`, bảng `conversations` & `messages`, REST APIs, phân quyền bạn bè & chặn 2 chiều, FCM push `chat_message`, Integration tests).
+  - `CHAT-02`: Android Navigation 5 Tabs & Messages Inbox UI (Màn 1 & 5). Menu `main_tabs.xml` 5 items, `MainActivity` & `MainPagerAdapter` 5 fragments, `MessagesFragment` & `fragment_messages.xml`, danh sách hội thoại, avatar bạn bè, last message, relative time, unread badge, tìm kiếm, nút `+`, empty state + CTA "Tìm bạn ngay", 4 theme.
+  - `CHAT-03`: Android New Chat / Select Friend UI (Màn 4). `NewChatActivity` & `activity_new_chat.xml`, danh sách bạn bè, tìm kiếm bạn, khởi tạo chat 1-1, 4 theme.
+  - `CHAT-04`: Android Chat Room UI & Send Text/Moment (Màn 2 & 3). `ChatActivity` & `activity_chat.xml`, bong bóng chat text/moment, trạng thái "Đã xem", thanh input bar gửi text/ảnh khoảnh khắc, WindowInsets bàn phím ảo IME không che nội dung, 4 theme.
+  - `CHAT-05`: Realtime Sync & FCM Integration & UI Automation Tests. Lắng nghe FCM `chat_message` qua `PushEventBus` và `TaktakMessagingService`, đồng bộ realtime khi đang mở chat, cập nhật unread badge, Local Notification khi chạy ngầm, bộ test tự động `ChatThemeUiTest` trên AVD qua 4 theme.
+- Trạng thái hiện tại: **Chờ người dùng phê duyệt bắt đầu tiểu bước CHAT-01 (Backend Database & REST API)**.
+
+## Lịch sử — Nghiệm thu UI-THEME-08 (Profile screen, Avatar upload & Logout 4 theme), 20/10/2026
+
+**ĐÃ NGHIỆM THU UI-THEME-08 (Profile screen, Avatar upload & Logout bốn theme): PASS TOÀN DIỆN.**
+- Phạm vi: Triển khai 4 theme (Original, Gradient, Glass, Soft) cho tab Hồ sơ cá nhân (`fragment_profile.xml`), bao gồm thông tin tài khoản, chỉnh sửa tên hiển thị (display name), tải lên ảnh đại diện (avatar upload), chuyển giao diện (Theme settings) và đăng xuất an toàn (logout).
+- Thành phần:
+  - Theme tokens & styles: Bổ sung `<attr name="ttMediaOutlineStyle" format="reference" />` và style `@style/Widget.TakTakMedia.Outline` trong `res/values/media_themes.xml`; cấu hình trên 4 theme và khai báo fallback an toàn trong `Base.Theme.TakTak` (`res/values/themes.xml`).
+  - Layout: `fragment_profile.xml` gỡ bỏ hardcoded `@style/Theme.TakTak.Premium`, liên kết động với tokens (`ttMediaHeadlineStyle`, `ttMediaTonalStyle`, `ttMediaFieldStyle`, `ttMediaInputStyle`, `ttMediaPrimaryStyle`, `ttMediaOutlineStyle`, `colorPrimary`, `colorOnPrimary`).
+  - Fixture: `MediaThemeFixture` hỗ trợ mock UserApi (`me`, `update`, `uploadAvatar`, `avatar`) và DeviceApi (`devices`) để test tải hồ sơ, đổi avatar, sửa tên và đăng xuất không phụ thuộc mạng ngoại vi.
+- Kiểm tra thực tế:
+  - Android Emulator `Medium_Phone` (Android 17 / API 37, headless 1.5GB RAM):
+    - `ProfileThemeUiTest`: **3/3 tests PASS (24.209s)** (72 tổ hợp layout bounds/WCAG contrast >= 4.5:1, chỉnh sửa tên hiển thị trên 4 theme & khôi phục sau recreate, tải avatar JPEG & đăng xuất an toàn xóa phiên).
+    - `MediaThemeUiTest`: **5/5 tests PASS (114.147s)** (kiểm tra hồi quy Media và xác nhận `fragment_profile` cùng `fragment_history`, `fragment_friends` đều áp dụng context theme động).
+    - `ListThemeUiTest`: **4/4 tests PASS (29.027s)** (kiểm tra hồi quy Lists).
+  - Android JVM: **105/105 tests PASS** (27s).
+  - Spring Boot Server: **152/152 tests PASS** (1m 39s).
+- Emulator AVD đã được đóng an toàn sau kiểm thử qua `adb emu kill`.
+- Báo cáo chi tiết: [QA_THEME_PROFILE.md](QA_THEME_PROFILE.md).
+- Không commit/push/deploy. Dừng chờ chỉ đạo tiếp theo của người dùng.
+
+## Lịch sử — Nghiệm thu UI-THEME-07 (History, Friends & List Items 4 theme), 19/10/2026
+
+**ĐÃ NGHIỆM THU UI-THEME-07 (History, Friends & List Items bốn theme): PASS TOÀN DIỆN.**
+- Phạm vi: Triển khai 4 theme (Original, Gradient, Glass, Soft) cho tab Lịch sử (Đã nhận / Đã gửi), tab Bạn bè, các danh sách (Moments, Invitations, Friends, Search results, Section headers, Footers) và hộp thoại xác nhận.
+- Thành phần:
+  - Theme tokens & styles: Bổ sung 7 attributes/tokens trong `res/values/media_themes.xml` (`ttMediaPrimaryStyle`, `ttMediaTonalStyle`, `ttMediaCardBackground`, `ttMediaTabIndicator`, `ttMediaTabSelectedColor`, `ttMediaTabUnselectedColor`, `ttMediaDividerColor`, `ttMediaNoticeBackground`) và fallback đầy đủ trong `res/values/themes.xml`.
+  - Drawables: `res/drawable/media_tab_indicator.xml`.
+  - Layouts: `fragment_history.xml`, `fragment_friends.xml`, `item_friend.xml`, `item_friends_section.xml`, `item_history_footer.xml` đã gỡ bỏ hardcoded theme, liên kết động với tokens.
+  - Sửa lỗi layout: `item_history_moment.xml` tối ưu `momentSenderUsername` với `layout_weight="1"` và `singleLine="true"`, giải quyết dứt điểm lỗi tràn biên ngang trên viewport hẹp 280dp với font trợ năng 2.0x.
+- Kiểm tra thực tế:
+  - Android Emulator `Medium_Phone` (Android 17 / API 37, headless 1.5GB RAM):
+    - `ListThemeUiTest`: **4/4 tests PASS (31.607s)** (144 tổ hợp layout, chuyển tab Đã nhận / Đã gửi & khôi phục khi đổi theme, danh sách bạn bè & tìm kiếm & hộp thoại MaterialAlertDialog, tương tác mở MomentViewerActivity).
+    - `MediaThemeUiTest`: **5/5 tests PASS (116.985s)** (không hồi quy Media).
+  - Android JVM: **105/105 tests PASS** (12s).
+  - Spring Boot Server: **152/152 tests PASS** (2m 01s).
+- Emulator AVD đã được đóng an toàn sau kiểm thử qua `adb emu kill`.
+- Báo cáo chi tiết: [QA_THEME_LISTS.md](QA_THEME_LISTS.md).
+- Không commit/push/deploy. Dừng chờ chỉ đạo tiếp theo của người dùng.
+
+## Hiện hành — Nghiệm thu UI-THEME-06 (Camera / Preview / Navigation / Viewer 4 theme), 19/10/2026
+
+**ĐÃ NGHIỆM THU UI-THEME-06 (Media bốn theme): PASS TOÀN DIỆN.**
+- Phạm vi: Triển khai 4 theme (Original, Gradient, Glass, Soft) cho 3 screen roles: `MAIN`, `PREVIEW`, `VIEWER`.
+- Thành phần:
+  - Theme tokens & styles: `res/values/media_themes.xml` với đầy đủ Light/Dark mode.
+  - Native background: `MediaBackdropView.java` vẽ shader 60fps, không chụp/blur bitmap.
+  - ThemeManager: Mở rộng ScreenRole cho `MAIN`, `PREVIEW`, `VIEWER`.
+  - Layouts: `activity_main.xml` (bottom navigation 4 tabs, theme styling), `fragment_camera_page.xml` / `fragment_camera.xml` (CameraX 1:1, shutter/controls), `activity_preview.xml` (bản nháp 1:1, caption, recipients, retry retention), `activity_moment_viewer.xml` (top bar, 1:1 photo card, caption card, responsive ScrollView chống nghẽn layout ở mọi viewport và fontScale 2.0x).
+- Kiểm tra thực tế:
+  - Android Emulator AVD `Medium_Phone` (Android 17 / API 37): `MediaThemeUiTest` **5/5 tests PASS (138.247s)**. 144 tổ hợp layout đạt chuẩn WCAG tương phản >= 4.5:1, không tràn viền/cắt chữ; draft/caption/recipients/retry/survive recreation đạt; camera navigation & settings đạt; 1 real QA capture 1:1 & retake cache discard đạt; viewer dialog/revocation 403 ẩn ảnh riêng tư đạt.
+  - Android JVM: **105/105 tests PASS** (14 suites).
+  - Server Spring Boot: **152/152 tests PASS**.
+- Emulator AVD đã được đóng an toàn sau khi hoàn tất kiểm thử.
+- Chi tiết file, kết quả và bằng chứng: [QA_THEME_MEDIA.md](QA_THEME_MEDIA.md).
+- Không commit/push/deploy. Dừng chờ chỉ đạo tiếp theo của người dùng.
+
+## Hiện hành — Đóng nghiệm thu Feature B, 19/10/2026
+
+**ĐÃ ĐÓNG NGHIỆM THU FEATURE B (Validation đăng ký đầy đủ): PASS TOÀN DIỆN.**
+6: Đã hoàn thành và xác minh đầy đủ 7 hạng mục:
+7: 1. Username min length: Ít nhất 3 ký tự (tối đa 255), chỉ `[a-z0-9_]`.
+8: 2. Username không bắt đầu/kết thúc bằng `_`, không có `__` liên tiếp; regex `^(?!.*__)[a-z0-9][a-z0-9_]{1,253}[a-z0-9]$`.
+9: 3. Display name tối thiểu 1 ký tự sau strip (`@NotBlank @Size(max = 255)`).
+10: 4. Phân biệt mã lỗi 409 PostgreSQL (SQLState 23505): `EMAIL_CONFLICT` (*"Email đã được sử dụng."*) vs `USERNAME_CONFLICT` (*"Tên người dùng đã được sử dụng."*), fallback `ACCOUNT_CONFLICT`. Android client tự động highlight/focus trường bị trùng tương ứng.
+11: 5. Inline validation: Lắng nghe `onFocusChangeListener` trên cả 5 trường (`displayName`, `username`, `email`, `password`, `confirmPassword`); TextWatcher xóa lỗi cũ khi bắt đầu gõ.
+12: 6. Password strength indicator: `LinearProgressIndicator` + `MaterialTextView` trong `activity_register.xml` đánh giá 3 mức (Yếu/Trung bình/Mạnh) tương thích 4 theme.
+13: 7. Username availability check: Endpoint `GET /api/auth/check-username?username=...` không yêu cầu xác thực, `CacheControl.noStore()`. Android debounce 400ms qua `Handler`.
+14: Kiểm tra thực tế:
+15: - Server verify: **152/152 tests PASS** (gồm concurrency, unique constraints, curl integration, recovery, token).
+16: - Android JVM: **105/105 tests PASS** (14 test suites).
+17: - Android Lint: `lintDebug` **0 errors**.
+18: - Android Build: `assembleDebug` APK **BUILD SUCCESSFUL**.
+19: Không commit/push/deploy. Nghiệm thu hoàn tất.
+
+## Hiện hành — UI-THEME-05, 19/10/2026
+
+**PASS phạm vi Register/Recovery bốn theme.** Register/Forgot/Verify/Change dùng AUTH theme trước inflate, Original giữ Premium, ba theme mới đồng bộ Login; không recreate form trên onResume. Đã sửa placeholder sáng từ ảnh thật và bổ sung test tương phản input. Build cuối45s, **101/101 JVM**, lint0errors/21debug+29release warnings; **8/8 USB,110.116s** trên Xiaomi Android15,32lượt form và144layout/font/night combinations. Restore appearance và bytes phiên đạt trong batch cuối; ghi riêng các lượt lỗi MIUI và startup session comparison, không bỏ assertion.38ảnh/log/file/giới hạn: [QA_THEME_AUTH.md](QA_THEME_AUTH.md). Không mở emulator,không đổi backend/DB/API/VM/session,không gửi Gmail/reset thật. Không commit/push/deploy/sang06; Gmail blocker cũ giữ nguyên. Các mục dưới đây là lịch sử.
+
+## Hiện hành — UI-THEME-04, 19/10/2026
+
+**PASS trong phạm vi Login bốn theme đã được duyệt.** Original giữ fixed-dark; Gradient/Glass/Soft hỗ trợ sáng/tối, dùng token và nền native. Áp trước inflate; đổi từ chooser hoãn khi có draft/loading, không xóa form hoặc ghi phiên. Các role khác giữ fallback Original. Build debug/test/release cuối39s, **101/101 JVM**, lint0errors (20debug/29release warnings); **20/20 UI AVD,124.809s**,72tổ hợp layout Login đạt. Đã sửa lỗi tương phản CTA Gradient sáng từ lượt19/20, không bỏ test. Xem [QA_THEME_LOGIN.md](QA_THEME_LOGIN.md) để biết file, log,11ảnh Login/IME, các lượt LOW_MEMORY và giới hạn. Backend/DB/API/VM/Repository/JWT/FCM/widget không đổi. Hồ sơ bên dưới là lịch sử. Không commit/push/deploy hoặc sang05; Gmail blocker cũ giữ nguyên.
+
+## Hiện hành — UI-THEME-03,19/10/2026
+
+**PASS phạm vi UI-THEME-03.** Người dùng duyệt chooser/preview/Apply/Cancel/entrypoints. Đã thêm Activity/LiveData ViewModel/Canvas preview/4palette chooser, lối mở Login/Hồ sơ; chỉ chooser recreate sau save,các màn khác giữ Original. App review build58s,full tasks với helper39s,test APK cuối23s;101/101JVM,lint0errors/20debug+29release warnings cũ. Batch cuối **15/15PASS110.614s** (7chooser+4prefs+4Login),gồm IME thật;72tổ hợp layout/font/night đạt,system bars đã sửa từ ảnhQA. Sửa helper Login bắt đúng instance/có focus và tách launcher routing khỏi test AVD,không bỏ assertion. Chi tiết file/log/ảnh/các lượt lỗi môi trường và giới hạn tại [QA_THEME_CHOOSER.md](QA_THEME_CHOOSER.md). Không sang04,không commit/push/deploy; giữ blocker Gmail riêng. Các mục02 bên dưới là lịch sử.
+
+## Hiện hành — UI-THEME-02,19/10/2026
+
+**PASS foundation theo quyền mới nhất của người dùng.** Thêm7 class Java IDs/mode/selection/store/preferences/repository/manager, file settings riêng không đụng phiên; resolver giữ Original theo role và khai báo rõ3style mới chưa khả dụng. Chưa chooser, chưa đổi màn/resources/Manifest hoặc nối manager production, không tự sang03. Build debug/test/release và lint đạt; **93/93 JVM**, AVD **8/8** (4preferences+4Login), probe persistence qua2process **1/1+1/1 PASS**. Lint0errors,20/29warnings cũ. Hash293file source/script/deploy cũ giữ nguyên. Chi tiết/file/log/giới hạn [QA_THEME_FOUNDATION.md](QA_THEME_FOUNDATION.md). Không commit/push/deploy. Đề xuất03 và dừng chờ duyệt; Gmail blocker cũ giữ nguyên. Mục01 bên dưới là lịch sử trước quyền02.
+
+## Hiện hành — UI-THEME-01,19/10/2026
+
+**PASS phạm vi audit/kế hoạch**, không phải PASS Theme Engine. User duyệt chỉ01,cho chạy máy ảo thay điện thoại. Audit resources/Activity/Fragment/draft/widget và3ảnh, phát hiện prompt đảo ảnh1/3 so với phong cách; đề xuất Gradient=ảnh3,Glass=ảnh2,Soft=ảnh1 chờ duyệt. Dùng ui-ux-pro-max và android_ui_verification;92resource XML hợp lệ,Original baseline AVD4/4 PASS21.68giây sau sửa settingIME trong AVD,không sửa appsource. Không build/test3theme chưa tồn tại. Chỉ cập nhật4filedocs; [UI_THEME_AUDIT.md](UI_THEME_AUDIT.md) có architecture/tokens/files/lifecycle/gates01–09. Dừng chờ UI-THEME-02,không tự triển khai. Recovery/Gmail bên dưới vẫn BLOCKED App Password,không bị coi đã hoàn tất.
+
+## Hiện hành — Recovery A,19/10/2026
+
+Đã triển khai xác minh email trước recovery và thu hồi ngay mọi phiên sau reset. Backend regression **151/151 PASS + JAR** từ lượt trước. Lượt tiếp nối USB phát hiện và sửa expired-notice bị LiveData idle ẩn; bản cuối **79/79 Android JVM + assemble debug/test/release + lint PASS**, **10/10 USB PASS32.942giây**,5ảnh đã xem; tài khoản cá nhân không bị logout/reset. **BLOCKED riêng Gmail thật**: file local đã được ignore/nạp an toàn, nhưng verification gửi thật trả503 và connection-only probe báoAuthenticationFailedException; chưa có SMTP accept/inbox confirmation. Người dùng xác nhận chưa tạo App Password, đang chờ thao tác này. Không làm B/commit/push/deploy; V1/V2/DB production không sửa. Chi tiết [ACCOUNT_RECOVERY.md](ACCOUNT_RECOVERY.md).
+
 Cập nhật: 18/10/2026 (Asia/Saigon). Nguồn: workspace/Git, bằng chứng kiểm thử, ảnh Firebase Console và xác nhận thủ công của người dùng.
 
 ## Trạng thái và quyền thực hiện
 
+- **Hiện hành — redesign5 màn theo ảnh,18/10/2026:** người dùng xác nhận cả Register/Camera/History/Friends/Profile và navbar; quyền thay scope Login-only cho hạng mục này. PASS build/unit/UI USB:72JVM,7/7 UI gồm hồi quy Login,54 tổ hợp layout/font1.5/light-dark; lint0errors,debug18/release27warnings. Sửa thêm lỗi UI ảnh History height0, không đổi loader/API. Camera live đã xem lại sau ổn định Surface. Không sửa backend/data/VM/Repository/JWT/FCM/widget, không mở emulator; không sửa tài khoản cá nhân/commit/push/deploy. Xem [QA_PREMIUM_FIVE_SCREENS.md](QA_PREMIUM_FIVE_SCREENS.md). Dừng để người dùng duyệt5 màn.
+- **Hiện hành — Login theo ảnh tham chiếu,18/10/2026:** triển khai theme tối riêng, logo gốc, gradient/form native và edge-to-edge; giữ auth/API/FCM/backend. Theo yêu cầu mới đã tắt emulator, cài cập nhật giữ dữ liệu/API origin trên điện thoại USB Android15. Build/lint debug/release PASS (0errors/15warnings),72JVM và4/4UI USB PASS; có5 screenshot cuối. API/retry trên bản cuối ở điện thoại cá nhân chưa nghiệm thu để không thay phiên. HEAD lúc bắt đầu `f73b43d`;không commit/push/deploy. Xem [QA_LOGIN_REFERENCE.md](QA_LOGIN_REFERENCE.md). Các quyền/mốc bên dưới là lịch sử, không mở rộng phạm vi hiện tại.
 - **Hiện tại: Hồ sơ/avatar PASS local/AVD; Firebase cloud + widget PASS trên AVD.** Backend136tests/JAR, Android72JVM/build/lint đạt (0 errors/9warnings mỗi variant), batch6/6 mới và11contract cóavatar đạt. Đã thay tab Hồ sơ placeholder, upload/tải avatar private, nối vào Bạn bè/Lịch sử/Viewer; giữ schema/stack. FCM gửi/nhận thực qua Firebase và WorkManager cập nhật QA RemoteViews foreground/background/xóa/logout. Người dùng chọn emulator trước; **điện thoại/launcher OEM và VPS/production chưa nghiệm thu**. Toàn bộ sửa review đang có được giữ; HEAD6a7f51e, không commit/push/deploy. Xem [QA_PROFILE_AVATAR_FCM.md](QA_PROFILE_AVATAR_FCM.md). Các mốc bên dưới là lịch sử, không thay bằng chứng hiện hành.
 - **Mốc trước: 8B — Nginx Reverse Proxy, TLS Let's Encrypt & Tường lửa UFW: PASS.** Người dùng duyệt triển khai 8B sau 8A. Hoàn thiện toàn bộ hạ tầng bảo mật mạng và dịch vụ cho Taktak trên VPS Ubuntu: cấu hình Nginx reverse proxy (`deploy/nginx/taktak.conf`) chuyển tiếp an toàn tới Spring Boot `127.0.0.1:8080`, chuyển hướng HTTP port 80 sang HTTPS port 443 bằng 301, hỗ trợ TLSv1.2 & TLSv1.3 Let's Encrypt Certbot, HSTS (`max-age=31536000`), Security Headers (`X-Frame-Options DENY`, `X-Content-Type-Options nosniff`, `X-XSS-Protection`); cơ chế Rate Limiting phân tầng (API chung: 10 req/s burst 20; Auth: 5 req/phút burst 5 chống brute-force) trả mã 429; giới hạn upload `client_max_body_size 10M`, timeout hợp lý (30s-60s); bảo vệ tuyệt đối thư mục ảnh riêng tư (không tạo alias hay static mapping tới `/var/taktak/private-images`, chặn toàn bộ dotfiles); script cài đặt SSL `deploy/scripts/setup-ssl.sh` và script tường lửa `deploy/scripts/setup-ufw.sh` (mở 22, 80, 443; chặn 8080 & 5432); cấu hình xoay vòng nhật ký `deploy/logrotate/taktak` cho app và Nginx; giải pháp sao lưu & khôi phục tự động toàn diện: `deploy/scripts/backup.sh` (PostgreSQL dump + private images tarball + env backup, retention 14 ngày, phân quyền 700), `deploy/scripts/restore.sh` (xác nhận an toàn, khôi phục database, giải nén ảnh, cấp lại `chmod 700 taktak:taktak`, kiểm tra healthcheck), và systemd timer `taktak-backup.timer` kích hoạt hàng ngày lúc 02:00 AM; cập nhật tài liệu [DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md). Tất cả các script bash đều PASS cú pháp (`bash -n`), Backend giữ vững **123/123 tests PASS** (`mvn test`), build executable JAR thành công. Xem [QA_NGINX_SSL_BACKUP.md](QA_NGINX_SSL_BACKUP.md). Giữ HEAD `ed9fde6`, không commit/push/deploy.
 - **Mốc trước: 8A — Chuẩn bị môi trường VPS Ubuntu & Cấu hình dịch vụ (VPS Ubuntu Setup & System Services): PASS.** Người dùng duyệt triển khai 8A sau khi hoàn tất Giai đoạn 7. Chuẩn bị hoàn chỉnh môi trường máy chủ VPS Ubuntu 22.04 / 24.04 LTS cho Taktak Server: thiết lập user hệ thống non-root `taktak`; thiết lập thư mục lưu trữ ảnh riêng tư `IMAGE_STORAGE_ROOT=/var/taktak/private-images` nằm hoàn toàn ngoài web root công khai của Nginx, phân quyền nghiêm ngặt `chmod 700` thuộc sở hữu `taktak:taktak`; cấu hình PostgreSQL chỉ lắng nghe local loopback `127.0.0.1` hoặc private docker network (tuyệt đối không expose port 5432 ra internet); xây dựng `application-prod.yml` nạp toàn bộ cấu hình bí mật qua biến môi trường (DB URL/credentials, JWT access secret, image storage root, FCM service account), cấm `ddl-auto=update` (bắt buộc `validate` kết hợp Flyway migration V1, V2); cung cấp file dịch vụ systemd sandbox hardening `taktak.service` và giải pháp container hóa `Dockerfile` (multi-stage build JRE 17 Alpine non-root) + `docker-compose.yml` có healthcheck tự động; script tự động hóa `deploy/scripts/setup-vps.sh` và tài liệu [DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md); cấu hình tường lửa UFW chặn toàn bộ truy cập internet vào port 8080 và 5432. Backend đạt **123/123 tests PASS** (`mvn test`), build executable JAR thành công. Xem [QA_VPS_SETUP.md](QA_VPS_SETUP.md). Giữ HEAD `ed9fde6`, không commit/push/deploy.

@@ -1,18 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/cameraScroll" android:theme="@style/Theme.TakTak.M3.Camera"
+    android:id="@+id/cameraScroll"
     android:layout_width="match_parent" android:layout_height="match_parent"
     android:fillViewport="true" android:saveEnabled="false">
     <androidx.constraintlayout.widget.ConstraintLayout android:layout_width="match_parent"
-        android:layout_height="wrap_content" android:padding="16dp">
+        android:layout_height="wrap_content" android:paddingHorizontal="16dp" android:paddingBottom="16dp">
         <LinearLayout android:id="@+id/cameraPage" android:layout_width="0dp" android:layout_height="wrap_content"
             android:orientation="vertical" app:layout_constraintWidth_max="@dimen/m3_form_max_width"
             app:layout_constraintStart_toStartOf="parent" app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent">
             <com.google.android.material.textview.MaterialTextView android:id="@+id/cameraTitle"
                 android:layout_width="match_parent" android:layout_height="wrap_content"
-                android:text="@string/camera_title" android:textAppearance="@style/TextAppearance.TakTakM3.Headline" />
+                android:text="@string/camera_title" android:textAppearance="?attr/ttMediaHeadlineStyle" android:textSize="32sp" />
             <androidx.fragment.app.FragmentContainerView android:id="@+id/cameraContent"
                 android:layout_width="match_parent" android:layout_height="wrap_content"
                 android:layout_marginTop="12dp" />

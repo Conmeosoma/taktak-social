@@ -13,7 +13,7 @@ class TokenConfigurationTest {
     @Test
     void unsafeTokenLifetimesFailFast() {
         for (long[] values : List.of(new long[]{0, 30}, new long[]{61, 30}, new long[]{15, 0}, new long[]{15, 91})) {
-            assertThatThrownBy(() -> new TokenService(null, null, java.time.Clock.systemUTC(), values[0], values[1]))
+            assertThatThrownBy(() -> new TokenService(null, null, java.time.Clock.systemUTC(), null, values[0], values[1]))
                     .isInstanceOf(IllegalStateException.class)
                     .hasMessage("JWT access minutes must be 1..60; refresh days must be 1..90.");
         }

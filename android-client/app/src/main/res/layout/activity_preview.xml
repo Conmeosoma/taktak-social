@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/previewRoot" android:layout_width="match_parent" android:layout_height="match_parent"
-    android:orientation="vertical" android:saveEnabled="false">
+    android:orientation="vertical" android:saveEnabled="false" android:background="?attr/ttMediaBackground">
     <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
         android:paddingHorizontal="16dp" android:gravity="center_vertical" android:orientation="horizontal">
         <com.google.android.material.button.MaterialButton android:id="@+id/retakeButton"
@@ -43,8 +43,8 @@
                     </androidx.constraintlayout.widget.ConstraintLayout>
                 </com.google.android.material.card.MaterialCardView>
                 <com.google.android.material.textfield.TextInputLayout android:id="@+id/captionLayout"
-                    style="@style/Widget.TakTakM3.Field" android:layout_marginTop="20dp" android:hint="@string/preview_caption">
-                    <com.google.android.material.textfield.TextInputEditText android:id="@+id/captionInput"
+                    style="?attr/ttMediaFieldStyle" android:layout_marginTop="20dp" android:hint="@string/preview_caption">
+                    <com.google.android.material.textfield.TextInputEditText style="?attr/ttMediaInputStyle" android:id="@+id/captionInput"
                         android:layout_width="match_parent" android:layout_height="wrap_content" android:minHeight="56dp"
                         android:inputType="textCapSentences|textMultiLine|textNoSuggestions" android:maxLines="3"
                         android:saveEnabled="false" android:imeOptions="flagNoExtractUi" />

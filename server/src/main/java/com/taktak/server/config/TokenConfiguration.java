@@ -52,7 +52,7 @@ public class TokenConfiguration {
     }
 
     @Bean
-    JwtDecoder jwtDecoder(SecretKey jwtSigningKey, Clock clock) {
+    JwtDecoder jwtDecoder(SecretKey jwtSigningKey, Clock clock, com.taktak.server.user.UserRepository users) {
         var decoder = NimbusJwtDecoder.withSecretKey(jwtSigningKey).macAlgorithm(MacAlgorithm.HS256).build();
         var timestamp = new JwtTimestampValidator(Duration.ZERO);
         timestamp.setClock(clock);
@@ -63,6 +63,19 @@ public class TokenConfiguration {
                 new JwtClaimValidator<Instant>("iat", value -> value != null && !value.isAfter(clock.instant())),
                 new JwtClaimValidator<String>("sub", value -> value != null && value.matches(
                         "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}"))));
-        return decoder;
+        return token -> {
+            var jwt = decoder.decode(token);
+            // JWT cũ không có sv chỉ hợp lệ ở version 0; reset tăng version và chặn ngay.
+            Object claim = jwt.getClaim("sv");
+            if (claim != null && !(claim instanceof Long || claim instanceof Integer)) {
+                throw new org.springframework.security.oauth2.jwt.BadJwtException("Invalid session version.");
+            }
+            long version = claim == null ? 0 : ((Number) claim).longValue();
+            var user = users.findById(java.util.UUID.fromString(jwt.getSubject()));
+            if (user.isEmpty() || user.get().getSecurityVersion() != version) {
+                throw new org.springframework.security.oauth2.jwt.BadJwtException("Session revoked.");
+            }
+            return jwt;
+        };
     }
 }

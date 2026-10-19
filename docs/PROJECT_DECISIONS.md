@@ -1,5 +1,97 @@
 # Taktak — Quyết định kỹ thuật đã khóa
 
+## Module Tin nhắn & Chat khoảnh khắc (Direct Messaging & Moment Chat) — 20/10/2026
+
+Phạm vi CHAT-01–05 đã được người dùng phê duyệt triển khai cùng lượt ngày 20/10/2026, nghiệm thu trên USB, không emulator/commit/push/deploy. Đối chiếu schema thực tế: friendship hợp lệ là bản ghi cặp chuẩn hóa trong `friendships` (không có cột status); chặn nằm ở `blocks`, không tạo bảng `user_blocks`. V4 dùng `CHECK(user1_id < user2_id)` + `UNIQUE(user1_id,user2_id)` thay biểu thức `LEAST/GREATEST` trong UNIQUE constraint không hợp lệ của bản kế hoạch. Không sửa migration V1–V3.
+
+Chat chỉ liên kết moment mà **cả hai** đã có quyền xem, không âm thầm cấp thêm người nhận cho ảnh. Tin văn bản tối đa 2.000 ký tự Unicode. Retry dùng `clientMessageId` duy nhất theo sender; đổi nội dung với cùng mã bị 409. Đồng bộ foreground bằng FCM báo thay đổi + polling 5 giây trong lifecycle đang mở; không WebSocket hoặc cam kết delivery tức thì khi OEM/force-stop chặn nền. Bản nháp/pending giữ qua activity recreation nhưng chủ động bỏ sau process death hoặc đổi thế hệ phiên để không phục hồi nội dung tài khoản cũ. Chi tiết hợp đồng: [CHAT_API.md](CHAT_API.md).
+
+Người dùng yêu cầu đưa module Tin nhắn vào kế hoạch triển khai của ứng dụng Taktak dựa trên thiết kế 5 màn hình tham chiếu.
+- **Mở rộng điều hướng (Navigation)**: Bottom Navigation Bar chuyển đổi từ 4 tab lên **5 tab**: Camera (0) | Lịch sử (1) | **Tin nhắn (2)** | Bạn bè (3) | Hồ sơ (4).
+- **Thiết kế 5 màn hình**:
+  1. *Hộp thư đến (`MessagesFragment` / `fragment_messages.xml`)*: Danh sách cuộc trò chuyện 1-1, avatar bạn bè, tên hiển thị, trích đoạn tin nhắn gần nhất, thời gian tương đối, huy hiệu (badge) đếm tin nhắn chưa đọc, ô tìm kiếm hội thoại, nút `+` góc trên phải để mở màn hình chọn bạn bè tạo cuộc trò chuyện mới.
+  2. *Khung chat 1-1 (`ChatActivity` / `activity_chat.xml`)*: Bong bóng chat văn bản (bên phải: người gửi - gradient/accent; bên trái: người nhận - tonal/card), bong bóng ảnh khoảnh khắc 1:1 kèm caption, trạng thái "Đã xem" (read receipt) hiển thị dưới tin nhắn cuối cùng đã được đối phương đọc.
+  3. *Xử lý bàn phím ảo IME*: Sử dụng WindowInsets API để đẩy mượt mà khung chat và input bar lên trên khi bàn phím ảo hiển thị, đảm bảo không che khuất tin nhắn hoặc ô nhập liệu ở mọi kích thước màn hình.
+  4. *Soạn tin mới (`NewChatActivity` / `activity_new_chat.xml`)*: Danh sách bạn bè hiện có từ API bạn bè, ô tìm kiếm bạn bè, nhấp chọn bạn bè để mở hoặc tạo mới cuộc trò chuyện 1-1.
+  5. *Trạng thái rỗng (Empty state)*: Minh họa icon viền cam, headline "Chưa có tin nhắn", phụ đề "Bắt đầu cuộc trò chuyện với bạn bè của bạn", nút CTA "Tìm bạn ngay" (chuyển hướng sang tab Bạn bè).
+- **Tương thích giao diện 4 theme**: Đầy đủ 4 phong cách (Original, Gradient, Glass, Soft) hỗ trợ DayNight thông qua semantic tokens của `ThemeManager`.
+- **Kiến trúc Cơ sở dữ liệu (Flyway Migration V4)**:
+  - Bảng `conversations`: `id UUID PRIMARY KEY`, `user1_id UUID NOT NULL REFERENCES users(id)`, `user2_id UUID NOT NULL REFERENCES users(id)`, `last_message_id UUID`, `created_at TIMESTAMP WITH TIME ZONE NOT NULL`, `updated_at TIMESTAMP WITH TIME ZONE NOT NULL`. `CHECK(user1_id < user2_id)` và `CONSTRAINT uq_conversations_pair UNIQUE(user1_id,user2_id)` đảm bảo cặp chuẩn hóa duy nhất.
+  - Bảng `messages`: `id UUID PRIMARY KEY`, `conversation_id UUID NOT NULL REFERENCES conversations(id) ON DELETE CASCADE`, `sender_id UUID NOT NULL REFERENCES users(id)`, `recipient_id UUID NOT NULL REFERENCES users(id)`, `message_type VARCHAR(20) NOT NULL` (giá trị: `TEXT`, `MOMENT`), `content TEXT`, `moment_id UUID REFERENCES moments(id) ON DELETE SET NULL`, `read_at TIMESTAMP WITH TIME ZONE`, `created_at TIMESTAMP WITH TIME ZONE NOT NULL`. Chỉ mục `idx_messages_conversation_created` phục vụ phân trang tin nhắn hiệu năng cao.
+- **Phân quyền & Bảo mật**:
+  - Chỉ người dùng có bản ghi cặp bạn bè chuẩn hóa trong `friendships` và không bị chặn hai chiều trong `blocks` mới được phép nhắn tin, đọc hoặc tạo hội thoại.
+  - Khi gửi `MOMENT`, server kiểm tra quyền xem hiện có của cả sender và recipient, xác nhận moment chưa bị xóa (`deleted_at IS NULL`); không cấp thêm người nhận qua chat.
+  - Ảnh trong tin nhắn chat phải tải qua endpoint bảo mật có xác thực JWT, không dùng public URL.
+  - FCM thông báo tin nhắn mới là data-only message (loại sự kiện `chat_message`), tuyệt đối không truyền nội dung tin nhắn, access token hay private path trong payload FCM.
+- **Lộ trình phân rã 5 tiểu bước**:
+  - `CHAT-01`: Backend Database & REST API (Spring Boot 3, Flyway V4, PostgreSQL, Controller/Service/Repo, Integration Tests).
+  - `CHAT-02`: Android Navigation 5 Tabs & Messages Inbox UI (Màn 1 & 5).
+  - `CHAT-03`: Android New Chat / Select Friend UI (Màn 4).
+  - `CHAT-04`: Android Chat Room UI & Send Text/Moment (Màn 2 & 3).
+  - `CHAT-05`: Realtime Sync & FCM Integration & UI Automation Tests.
+
+## UI-THEME-08 — Profile screen, Avatar upload & Logout bốn theme, 20/10/2026
+
+Nghiệm thu UI-THEME-08: Triển khai 4 theme (Original, Gradient, Glass, Soft) cho tab Hồ sơ cá nhân (`fragment_profile.xml`), bao gồm thông tin tài khoản, chỉnh sửa tên hiển thị, tải lên ảnh đại diện, chuyển giao diện và đăng xuất an toàn.
+- Bổ sung `<attr name="ttMediaOutlineStyle" format="reference" />` và style `@style/Widget.TakTakMedia.Outline` trong `res/values/media_themes.xml`; cấu hình trên 4 theme và khai báo fallback an toàn trong `Base.Theme.TakTak` (`res/values/themes.xml`).
+- Layout `fragment_profile.xml` gỡ bỏ hardcoded `@style/Theme.TakTak.Premium`, liên kết động với tokens (`ttMediaHeadlineStyle`, `ttMediaTonalStyle`, `ttMediaFieldStyle`, `ttMediaInputStyle`, `ttMediaPrimaryStyle`, `ttMediaOutlineStyle`, `colorPrimary`, `colorOnPrimary`).
+- Fixture `MediaThemeFixture` hỗ trợ mock UserApi (`me`, `update`, `uploadAvatar`, `avatar`) và DeviceApi (`devices`) để test tải hồ sơ, đổi avatar, sửa tên và đăng xuất không phụ thuộc mạng ngoại vi.
+- Kiểm tra thực tế: `ProfileThemeUiTest` 3/3 PASS (24.209s), `MediaThemeUiTest` 5/5 PASS (114.147s), `ListThemeUiTest` 4/4 PASS (29.027s) trên emulator `Medium_Phone` (Android 17 / API 37, headless 1.5GB RAM). 105/105 Android JVM unit tests PASS, 152/152 Spring Boot server tests PASS. Đóng emulator an toàn qua `adb emu kill`. Chi tiết: [QA_THEME_PROFILE.md](QA_THEME_PROFILE.md).
+
+Nghiệm thu UI-THEME-07: Triển khai 4 theme (Original, Gradient, Glass, Soft) cho tab Lịch sử (Đã nhận / Đã gửi), tab Bạn bè, các phần tử danh sách (Moments, Invitations, Friends, Search results, Section headers, Footers) và hộp thoại xác nhận.
+- Gỡ bỏ hardcoded `@style/Theme.TakTak.Premium` trong `fragment_history.xml` và `fragment_friends.xml`, thừa hưởng Context Theme từ MainActivity.
+- Bổ sung 7 theme attributes và styles (`ttMediaPrimaryStyle`, `ttMediaTonalStyle`, `ttMediaCardBackground`, `ttMediaTabIndicator`, `ttMediaTabSelectedColor`, `ttMediaTabUnselectedColor`, `ttMediaDividerColor`, `ttMediaNoticeBackground`) trong `res/values/media_themes.xml`.
+- Bổ sung fallback tokens đầy đủ trong `Base.Theme.TakTak` (`res/values/themes.xml`).
+- Sửa lỗi tràn biên ngang trên viewport hẹp (280dp + fontScale 2.0x): cấp `layout_weight="1"` và `singleLine="true"` cho `momentSenderUsername` trong `item_history_moment.xml`.
+- Cập nhật mock model `MomentModels.PublicUser`, đầy đủ các trường bắt buộc của `FriendModels.Invitation` và các mock mutations quan hệ bạn bè trong `MediaThemeFixture.java`.
+- Kiểm tra thực tế: `ListThemeUiTest` 4/4 PASS (31.607s), `MediaThemeUiTest` 5/5 PASS (116.985s) trên emulator `Medium_Phone` (Android 17 / API 37, headless 1.5GB RAM). 105/105 Android JVM unit tests PASS, 152/152 Spring Boot server tests PASS. Đóng emulator an toàn qua `adb emu kill`. Chi tiết: [QA_THEME_LISTS.md](QA_THEME_LISTS.md).
+
+## UI-THEME-06 — Media bốn theme (Camera / Preview / Navigation / Viewer), 19/10/2026
+
+Người dùng duyệt nghiệm thu UI-THEME-06. Mở rộng `ThemeManager.ScreenRole` cho 3 vai trò `MAIN`, `PREVIEW`, `VIEWER`. Cung cấp đầy đủ style tokens và color palettes trong `res/values/media_themes.xml` cho cả 4 phong cách (Original, Gradient, Glass, Soft) hỗ trợ DayNight.
+- Nền native `MediaBackdropView` vẽ Canvas shader 60fps, không chụp/blur bitmap.
+- Khung hình 1:1 vuông được bảo toàn tuyệt đối cho CameraX preview, ảnh chụp nháp và ảnh trong Viewer.
+- Bảo toàn idempotency key, retry retention, caption UTF-8 50 ký tự, lựa chọn người nhận và không upload khi Retake.
+- Moment Viewer ẩn ảnh/tên người gửi và khóa các nút hành động khi bị thu hồi quyền (403).
+- Bổ sung `ScrollView` responsive cho `activity_moment_viewer.xml` đảm bảo không bị nén chiều cao chữ ở mọi viewport ({280, 560}, {360, 720}, landscape {840, 420}) và fontScale 2.0x.
+- Kiểm tra thực tế: `MediaThemeUiTest` trên AVD 5/5 tests PASS (138.247s), 105/105 JVM tests PASS, 152/152 server tests PASS. Đóng AVD an toàn sau kiểm thử.
+
+## Feature B — Validation đăng ký tài khoản đầy đủ, 19/10/2026
+
+Người dùng duyệt nghiệm thu Feature B. Đã hoàn thành 7 yêu cầu:
+1. Username min length: Ít nhất 3 ký tự (tối đa 255), chỉ `[a-z0-9_]`.
+2. Username không được bắt đầu hoặc kết thúc bằng `_` và không có 2 dấu `__` liên tiếp; regex `^(?!.*__)[a-z0-9][a-z0-9_]{1,253}[a-z0-9]$`.
+3. Display name tối thiểu 1 ký tự sau strip (đã bảo đảm bằng `@NotBlank @Size(max = 255)` và `AuthInputValidator.displayNameError`).
+4. Phân biệt mã lỗi 409 PostgreSQL (SQLState 23505): index `uq_users_email_lower` trả về `EMAIL_CONFLICT` (*"Email đã được sử dụng."*), constraint `users_username_key` trả về `USERNAME_CONFLICT` (*"Tên người dùng đã được sử dụng."*), fallback `ACCOUNT_CONFLICT`. Android ánh xạ lỗi và tự động highlight/focus trường bị trùng.
+5. Inline validation: Lắng nghe `onFocusChangeListener` trên cả 5 trường (`displayName`, `username`, `email`, `password`, `confirmPassword`); TextWatcher xóa lỗi cũ khi người dùng bắt đầu sửa ký tự.
+6. Password strength indicator: `LinearProgressIndicator` + `MaterialTextView` trong `activity_register.xml` đánh giá 3 mức (Yếu/Trung bình/Mạnh) theo độ dài Unicode code point và 4 nhóm ký tự (hoa, thường, số, đặc biệt), hiển thị màu sắc tương thích toàn bộ 4 theme.
+7. Username availability check: Endpoint `GET /api/auth/check-username?username=...` không yêu cầu xác thực, `CacheControl.noStore()`, trả về `UsernameAvailabilityResponse(username, available)`. Android debounce 400ms bằng `Handler`, hiển thị trạng thái đang kiểm tra và tính khả dụng của tên người dùng.
+Kiểm tra thực tế: 152/152 server tests PASS, 105/105 Android JVM tests PASS, lint 0 errors, assembleDebug APK PASS.
+
+## UI-THEME-05 — Register/Recovery và QA USB, 19/10/2026
+
+Người dùng duyệt05, yêu cầu dùng điện thoại thay emulator. AUTH resolver hỗ trợ4theme qua Theme.TakTak.Auth; Original kế thừa Premium và dùng renderer cũ,3style mới tái dùng palette/Canvas Login với style input/field/CTA/headline riêng. Áp style/local night mode trước super.onCreate; không global mode, không ép recreate form/password/reset-session. Placeholder mới dùng semantic tokens để đạt contrast; không thay màu cũ toàn app. MAIN/PREVIEW/VIEWER vẫn fallback, cần duyệt06trở đi. Giữ Material1.14.0,Java/XML/ViewBinding và toàn bộ auth/recovery/SMTP/session/backend/DB/FCM/widget. QA dùng dữ liệu sai/fixture RAM, appearance tạm có restore và bytes-session assertion, không gửi email hoặc reset thật. [Kết quả và hạn chế](QA_THEME_AUTH.md).
+
+## UI-THEME-04 — tích hợp riêng Login, 19/10/2026
+
+Người dùng duyệt Login4theme. LOGIN resolver nay hỗ trợ Original/Gradient/Glass/Soft; role AUTH/MAIN/PREVIEW/VIEWER giữ fallback cũ, không tuyên bố toàn app đã hỗ trợ. Original Login giữ fixed-dark theo audit; ba style mới dùng DayNight, token Login riêng và Canvas tĩnh, giữ logo và Material1.14.0. Chọn style/mode được áp trước super.onCreate/inflate, local night mode, không đổi default toàn app. Khi quay từ chooser, chỉ recreate Login đang RESUMED/idle/form trống và chưa success/reset; nếu có draft/loading thì báo pending riêng, không lưu password hoặc sửa AuthViewModel để giữ theme. Không thay API/JWT/backend/DB/FCM/widget. Khác biệt màu tím CTA sáng được điều chỉnh vì kiểm thử tương phản, không đổi palette chooser toàn cục. [Bằng chứng/giới hạn](QA_THEME_LOGIN.md).05 phải được duyệt riêng.
+
+## UI-THEME-03 — chooser riêng,19/10/2026
+
+Người dùng duyệt riêng màn chọn theme.4style chooser có preview/tokens DayNight riêng, không đổi resource hoặc availability5role nghiệp vụ02. Chọn chỉ giữ draft; Apply mới save qua repository/executor, commit đạt mới báo thành công và recreate riêng chooser. Hủy/Back bỏ draft, không hủy giả commit đang chạy. Login/Hồ sơ mở bằng Activity thông thường, không restart task/ép recreate màn cha hoặc đổi AppCompat default night mode toàn app. System bars của chooser đồng bộ surface và icon contrast. Không nâng Material1.14.0/stack,không đổi API/backend/DB/JWT/FCM/widget. Tích hợp từng màn thuộc04–08 phải được duyệt tiếp; chi tiết/bằng chứng [QA_THEME_CHOOSER.md](QA_THEME_CHOOSER.md).
+
+## UI-THEME-02 — nền tảng lựa chọn giao diện,19/10/2026
+
+Người dùng duyệt riêng02 theo audit. IDs original/gradient/glass/soft và mode system/light/dark độc lập, lưu trong SharedPreferences private taktak_appearance_v1 tách auth/device, schema1/revision. Unknown/corrupt đọc fallback không tự sửa; future schema chặn ghi; save worker/commit đạt mới trả thành công, không auto recreate. Resolver theo5screenRole giữ Original resources cũ;3style chưa render phải trả availability=false/effective Original, không giả đã có theme mới. Chưa chuyển các Activity/layout, chưa thêm chooser hoặc đổi stack/Material1.14.0/backend/database; tích hợp từng bước sau khi được duyệt. Chi tiết [QA_THEME_FOUNDATION.md](QA_THEME_FOUNDATION.md).
+
+## Xác minh email và thu hồi phiên sau reset —19/10/2026
+
+Người dùng duyệt bổ sung xác minh email trước recovery và vô hiệu ngay mọi JWT/refresh cũ khi reset thành công. Đây là ngoại lệ được duyệt thay chính sách access-JWT-còn-hạn **riêng cho reset**, không thay logout thông thường. Dùng security_version đối chiếu DB mỗi request, khóa user thống nhất login/refresh/reset, migrationV3 mới; không sửa V1/V2 hoặc DB production. Tài khoản cũ không được tự đánh dấu verified; cần mật khẩu hiện tại + mã mailbox trước recovery. Mật khẩu tạm15phút chỉ cấp reset session opaque một lần, không full access. SMTP STARTTLS, không log secrets; không coi HTTP200 generic/mock mail là đã giao Gmail thật. Chi tiết: [ACCOUNT_RECOVERY.md](ACCOUNT_RECOVERY.md). Phần B validation đăng ký chưa được duyệt.
+
+## Ghi nhận phạm vi UI5 màn —18/10/2026
+
+Người dùng xác nhận redesign Register,Camera,History,Friends,Profile và navbar theo5 ảnh, thay giới hạn Login-only ở prompt trước. Đây là thay đổi presentation, không đổi stack/version/API/nghiệp vụ. Theme Premium opt-in và palette DayNight riêng; giữ theme Login/foundation, widget RemoteViews và Preview/Viewer ngoài phạm vi. Nền canvas tĩnh thay blur đắt, controls native; không hard-code nội dung/ảnh cá nhân từ ảnh mẫu. Camera giữ1:1 theo đặc tả, có thể cuộn thay vì đổi aspect để khớp ảnh tham chiếu. Scope và kiểm thử: [QA_PREMIUM_FIVE_SCREENS.md](QA_PREMIUM_FIVE_SCREENS.md).
+
 ## Hồ sơ/avatar và FCM thật — 18/10/2026
 
 Người dùng duyệt Hồ sơ cá nhân, Avatar cá nhân và nghiệm thu FCM/widget; sau đó chọn emulator trước khi có thể dành điện thoại cho QA. ProfileFragment thay tab placeholder, dùng ProfileRepository/ViewModel và session gate hiện có. PUT me vẫn chỉ sửa displayName; avatar dùng POST multipart riêng, GET có JWT cho chính chủ/bạn accepted không block. Stranger/block nhận404; chưa có avatar trả204. Không đưa private path vào DTO, không public URL/cache đĩa Glide.
@@ -197,3 +289,8 @@ Friends opt-in Theme.TakTak.M3.Friends trên cây View/rows; dialog xác nhận 
 Người dùng duyệt riêng 5A sau bốn màn M3E. Main dùng ViewPager2/FragmentStateAdapter và BottomNavigationView Expressive có sẵn trong Material1.14.0; thứ tự Camera/Lịch sử/Bạn bè/Hồ sơ, cold authenticated entry vào Camera, Back từ tab khác về Camera, giữ tab qua recreate. Friends giữ chức năng4C. History/Profile chỉ là điểm đến có thông báo chưa triển khai; không giả dữ liệu hoặc thực hiện5E/7C. Navigation ẩn khi IME mở; private pager bị gỡ trước xác minh lại phiên, không bind Camera từ restored Fragment khi chưa được session gate cho phép.
 
 CameraX tái sử dụng3D, chỉ bind khi tab Camera RESUMED và phiên hợp lệ; ticket async chống bind muộn, chỉ unbind use case của chính Fragment khi pause/destroy. Đổi trước/sau và flash ImageCapture Off/Auto/On theo khả năng phần cứng; không torch hoặc flash giả trên camera không hỗ trợ. Activity ViewModel giữ lens/flash qua recreate trong RAM, không lưu ảnh/token hoặc thay session. OrientationEventListener cập nhật targetRotation; xử lý JPEG vẫn qua PhotoProcessor hiện có. Không triển khai cache/Preview/caption/recipient/mirror của5B. Giữ API owner-only3D, JWT/Repository/backend/DB/FCM/dependency và các quyết định cố định. Chi tiết bằng chứng và giới hạn [QA_MAIN_CAMERA.md](QA_MAIN_CAMERA.md); dừng trước5B.
+
+## Bổ sung UI-THEME-08 — 20/10/2026
+
+Profile screen (`fragment_profile.xml`) gỡ bỏ hoàn toàn `@style/Theme.TakTak.Premium`, kế thừa Context Theme động của Activity theo người dùng chọn (Original, Gradient, Glass, Soft). Bổ sung token `ttMediaOutlineStyle` và style `Widget.TakTakMedia.Outline` dùng `?attr/ttLoginSecondary` và `?attr/colorOnSurface`. Hoàn thiện kiểm thử ProfileThemeUiTest trên RAM qua MediaThemeFixture (hỗ trợ UserApi và DeviceApi unregister khi logout). Hoàn tất chuyển đổi toàn bộ 4 tab chính của ứng dụng sang kiến trúc 4 theme. Chi tiết nghiệm thu tại [QA_THEME_PROFILE.md](QA_THEME_PROFILE.md).
+

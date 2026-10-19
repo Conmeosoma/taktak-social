@@ -1,0 +1,75 @@
+<resources>
+ <attr name="ttAuthAlternate" format="boolean" />
+ <attr name="ttAuthFieldStyle" format="reference" />
+ <attr name="ttAuthPrimaryStyle" format="reference" />
+ <attr name="ttAuthTonalStyle" format="reference" />
+ <attr name="ttAuthHeadlineStyle" format="reference" />
+ <attr name="ttAuthNotice" format="reference" />
+ <attr name="ttAuthInputStyle" format="reference" />
+ <style name="Theme.TakTak.Auth" parent="Theme.TakTak.Premium">
+  <item name="ttAuthAlternate">false</item>
+  <item name="ttAuthInputStyle">@style/Widget.TakTakAuth.OriginalInput</item>
+  <item name="ttAuthFieldStyle">@style/Widget.TakTakPremium.Field</item>
+  <item name="ttAuthPrimaryStyle">@style/Widget.TakTakPremium.Primary</item>
+  <item name="ttAuthTonalStyle">@style/Widget.TakTakPremium.Tonal</item>
+  <item name="ttAuthHeadlineStyle">@style/TextAppearance.TakTakPremium.Headline</item>
+  <item name="ttAuthNotice">@drawable/premium_card_background</item>
+ </style>
+ <style name="Widget.TakTakAuth.OriginalInput" parent="" />
+ <style name="Widget.TakTakAuth.Input" parent="">
+  <item name="android:textColor">?attr/colorOnSurface</item>
+  <item name="android:textColorHint">?attr/colorOnSurfaceVariant</item>
+ </style>
+ <style name="Widget.TakTakAuth.Field" parent="Widget.TakTakPremium.Field">
+  <item name="boxBackgroundColor">?attr/ttLoginField</item>
+  <item name="boxStrokeColor">@color/login_field_stroke</item>
+  <item name="startIconTint">?attr/colorOnSurfaceVariant</item>
+  <item name="endIconTint">?attr/colorOnSurfaceVariant</item>
+  <item name="hintTextColor">?attr/colorOnSurfaceVariant</item>
+  <item name="helperTextTextColor">?attr/colorOnSurfaceVariant</item>
+  <item name="errorTextColor">?attr/colorError</item>
+ </style>
+ <style name="Widget.TakTakAuth.Primary" parent="Widget.TakTakLogin.ThemedButton">
+  <item name="android:background">?attr/ttLoginPrimary</item>
+ </style>
+ <style name="Widget.TakTakAuth.Tonal" parent="Widget.Material3Expressive.Button.TonalButton">
+  <item name="android:minHeight">48dp</item>
+  <item name="backgroundTint">?attr/ttLoginField</item>
+  <item name="android:textColor">?attr/colorOnSurface</item>
+  <item name="iconTint">?attr/colorOnSurface</item>
+ </style>
+ <style name="TextAppearance.TakTakAuth.Headline" parent="TextAppearance.Material3.HeadlineLarge">
+  <item name="android:textSize">36sp</item><item name="android:fontFamily">sans-serif</item>
+  <item name="android:textColor">?attr/colorOnSurface</item>
+ </style>
+ <style name="Theme.TakTak.Auth.Gradient" parent="Theme.TakTak.Login.Gradient">
+  <item name="ttAuthInputStyle">@style/Widget.TakTakAuth.Input</item>
+  <item name="colorSecondary">?attr/colorPrimary</item>
+  <item name="ttAuthAlternate">true</item>
+  <item name="ttAuthFieldStyle">@style/Widget.TakTakAuth.Field</item>
+  <item name="ttAuthPrimaryStyle">@style/Widget.TakTakAuth.Primary</item>
+  <item name="ttAuthTonalStyle">@style/Widget.TakTakAuth.Tonal</item>
+  <item name="ttAuthHeadlineStyle">@style/TextAppearance.TakTakAuth.Headline</item>
+  <item name="ttAuthNotice">@drawable/login_notice</item>
+ </style>
+ <style name="Theme.TakTak.Auth.Glass" parent="Theme.TakTak.Login.Glass">
+  <item name="ttAuthInputStyle">@style/Widget.TakTakAuth.Input</item>
+  <item name="colorSecondary">?attr/colorPrimary</item>
+  <item name="ttAuthAlternate">true</item>
+  <item name="ttAuthFieldStyle">@style/Widget.TakTakAuth.Field</item>
+  <item name="ttAuthPrimaryStyle">@style/Widget.TakTakAuth.Primary</item>
+  <item name="ttAuthTonalStyle">@style/Widget.TakTakAuth.Tonal</item>
+  <item name="ttAuthHeadlineStyle">@style/TextAppearance.TakTakAuth.Headline</item>
+  <item name="ttAuthNotice">@drawable/login_notice</item>
+ </style>
+ <style name="Theme.TakTak.Auth.Soft" parent="Theme.TakTak.Login.Soft">
+  <item name="ttAuthInputStyle">@style/Widget.TakTakAuth.Input</item>
+  <item name="colorSecondary">?attr/colorPrimary</item>
+  <item name="ttAuthAlternate">true</item>
+  <item name="ttAuthFieldStyle">@style/Widget.TakTakAuth.Field</item>
+  <item name="ttAuthPrimaryStyle">@style/Widget.TakTakAuth.Primary</item>
+  <item name="ttAuthTonalStyle">@style/Widget.TakTakAuth.Tonal</item>
+  <item name="ttAuthHeadlineStyle">@style/TextAppearance.TakTakAuth.Headline</item>
+  <item name="ttAuthNotice">@drawable/login_notice</item>
+ </style>
+</resources>

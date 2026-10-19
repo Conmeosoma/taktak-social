@@ -208,4 +208,50 @@ public class AuthSessionTest {
         try { new AuthRepository(client).profile(); fail(); } catch (IOException expected) { }
         assertSame(before, client.sessions.snapshot());
     }
+
+    @Test public void checkUsernameAvailabilityReturnsServerStatus() throws Exception {
+        try (var server = new TestHttpServer(request -> {
+            if (request.path.equals("/api/auth/check-username?username=alice")) {
+                return new TestHttpServer.Reply(200, "{\"username\":\"alice\",\"available\":true}");
+            }
+            if (request.path.equals("/api/auth/check-username?username=bob")) {
+                return new TestHttpServer.Reply(200, "{\"username\":\"bob\",\"available\":false}");
+            }
+            return new TestHttpServer.Reply(404, "{}");
+        })) {
+            ApiClient client = new ApiClient(server.baseUrl(), new MemoryStore());
+            AuthRepository repo = new AuthRepository(client);
+            assertTrue(repo.checkUsername("alice"));
+            assertFalse(repo.checkUsername("bob"));
+        }
+    }
+
+    @Test public void conflictErrorParsesEmailAndUsernameConflictCodes() throws Exception {
+        try (var server = new TestHttpServer(request -> {
+            if (request.path.equals("/api/auth/register")) {
+                if (request.body.contains("dup_user")) {
+                    return new TestHttpServer.Reply(409, "{\"timestamp\":\"2026-10-19T00:00:00Z\",\"status\":409,\"code\":\"USERNAME_CONFLICT\",\"message\":\"Tên người dùng đã được sử dụng.\",\"path\":\"/api/auth/register\"}");
+                }
+                return new TestHttpServer.Reply(409, "{\"timestamp\":\"2026-10-19T00:00:00Z\",\"status\":409,\"code\":\"EMAIL_CONFLICT\",\"message\":\"Email đã được sử dụng.\",\"path\":\"/api/auth/register\"}");
+            }
+            return new TestHttpServer.Reply(404, "{}");
+        })) {
+            ApiClient client = new ApiClient(server.baseUrl(), new MemoryStore());
+            AuthRepository repo = new AuthRepository(client);
+            try {
+                repo.register("user@test.com", "dup_user", "Name", "password123");
+                fail();
+            } catch (ApiFailure failure) {
+                assertEquals(ApiFailure.Kind.CONFLICT, failure.kind);
+                assertEquals("USERNAME_CONFLICT", failure.code);
+            }
+            try {
+                repo.register("dup@test.com", "valid_user", "Name", "password123");
+                fail();
+            } catch (ApiFailure failure) {
+                assertEquals(ApiFailure.Kind.CONFLICT, failure.kind);
+                assertEquals("EMAIL_CONFLICT", failure.code);
+            }
+        }
+    }
 }

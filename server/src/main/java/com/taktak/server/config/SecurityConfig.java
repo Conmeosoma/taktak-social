@@ -21,11 +21,14 @@ public class SecurityConfig {
     @Bean
     @Order(1)
     SecurityFilterChain publicAuthChain(HttpSecurity http, SecurityErrorHandler errors) throws Exception {
-        Set<String> endpoints = Set.of("/api/auth/register", "/api/auth/login", "/api/auth/refresh", "/api/auth/logout");
+        Set<String> endpoints = Set.of("/api/auth/register", "/api/auth/login", "/api/auth/refresh", "/api/auth/logout",
+                "/api/auth/verification/request", "/api/auth/verification/confirm",
+                "/api/auth/forgot-password", "/api/auth/reset-password");
         // Không chạy bearer filter ở auth endpoints: refresh dùng credential trong body,
         // kể cả khi interceptor client gửi kèm access JWT đã hết hạn.
         return defaults(http, errors).securityMatcher(request ->
-                ("GET".equals(request.getMethod()) && "/actuator/health".equals(request.getServletPath()))
+                ("GET".equals(request.getMethod()) && ("/actuator/health".equals(request.getServletPath())
+                        || "/api/auth/check-username".equals(request.getServletPath())))
                 || ("POST".equals(request.getMethod()) && endpoints.contains(request.getServletPath())))
                 .authorizeHttpRequests(requests -> requests.anyRequest().permitAll()).build();
     }

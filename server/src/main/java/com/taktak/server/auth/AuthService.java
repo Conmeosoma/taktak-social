@@ -23,4 +23,17 @@ public class AuthService {
         // Database quyết định unique, kể cả khi hai request đến đồng thời.
         return RegisterResponse.from(users.saveAndFlush(user));
     }
+
+    @Transactional(readOnly = true)
+    public UsernameAvailabilityResponse checkUsernameAvailability(String rawUsername) {
+        if (rawUsername == null) {
+            return new UsernameAvailabilityResponse("", false);
+        }
+        String username = rawUsername.strip().toLowerCase(java.util.Locale.ROOT);
+        if (!username.matches("^(?!.*__)[a-z0-9][a-z0-9_]{1,253}[a-z0-9]$")) {
+            return new UsernameAvailabilityResponse(username, false);
+        }
+        boolean exists = users.existsByUsername(username);
+        return new UsernameAvailabilityResponse(username, !exists);
+    }
 }

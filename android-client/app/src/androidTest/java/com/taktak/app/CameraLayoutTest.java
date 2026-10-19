@@ -22,7 +22,7 @@ public class CameraLayoutTest {
                 config.fontScale = 1.5f;
                 config.uiMode = (config.uiMode & ~Configuration.UI_MODE_NIGHT_MASK) | night;
                 var themed = new androidx.appcompat.view.ContextThemeWrapper(target.createConfigurationContext(config),
-                        R.style.Theme_TakTak_Camera);
+                        R.style.Theme_TakTak_Media_Main);
                 View root = LayoutInflater.from(themed).inflate(R.layout.fragment_camera, null, false);
                 int width = Math.round(280 * themed.getResources().getDisplayMetrics().density);
                 root.measure(View.MeasureSpec.makeMeasureSpec(width, View.MeasureSpec.EXACTLY),

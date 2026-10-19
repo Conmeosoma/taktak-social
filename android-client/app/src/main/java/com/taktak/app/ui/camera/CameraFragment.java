@@ -175,10 +175,20 @@ public final class CameraFragment extends Fragment {
         updateControls();
     }
     private void styleStatus(int title, int background, int foreground) {
+        int backgroundColor = ContextCompat.getColor(requireContext(), background);
+        int foregroundColor = ContextCompat.getColor(requireContext(), foreground);
+        var alternate = new android.util.TypedValue();
+        if (binding.getRoot().getContext().getTheme().resolveAttribute(R.attr.ttAuthAlternate,alternate,true) && alternate.data != 0) {
+            boolean error = background == R.color.m3_error_container;
+            backgroundColor = com.google.android.material.color.MaterialColors.getColor(binding.getRoot(),error
+                    ? com.google.android.material.R.attr.colorErrorContainer : com.google.android.material.R.attr.colorSecondaryContainer);
+            foregroundColor = com.google.android.material.color.MaterialColors.getColor(binding.getRoot(),error
+                    ? com.google.android.material.R.attr.colorOnErrorContainer : com.google.android.material.R.attr.colorOnSecondaryContainer);
+        }
         binding.statusTitle.setText(title);
-        binding.statusTitle.setTextColor(ContextCompat.getColor(requireContext(), foreground));
-        binding.momentStatus.setTextColor(ContextCompat.getColor(requireContext(), foreground));
-        binding.statusCard.setCardBackgroundColor(ContextCompat.getColor(requireContext(), background));
+        binding.statusTitle.setTextColor(foregroundColor);
+        binding.momentStatus.setTextColor(foregroundColor);
+        binding.statusCard.setCardBackgroundColor(backgroundColor);
     }
     private void unbindOwned() {
         if (provider != null) {

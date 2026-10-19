@@ -46,6 +46,15 @@ public abstract class AuthFormActivity extends AppCompatActivity {
 
     protected int initialNotice() { return 0; }
 
+    protected final void configureAuthBars(View root) {
+        int surface = com.google.android.material.color.MaterialColors.getColor(root,
+                com.google.android.material.R.attr.colorSurface);
+        var bars = androidx.core.view.WindowCompat.getInsetsController(getWindow(), root);
+        boolean light = androidx.core.graphics.ColorUtils.calculateLuminance(surface) > .5;
+        bars.setAppearanceLightStatusBars(light);
+        bars.setAppearanceLightNavigationBars(light);
+    }
+
     protected boolean ensureNetworkPermission() {
         if (BuildConfig.DEBUG && Build.VERSION.SDK_INT >= 37
                 && checkSelfPermission("android.permission.ACCESS_LOCAL_NETWORK") != PackageManager.PERMISSION_GRANTED) {

@@ -10,6 +10,8 @@ lang: vi
 
 ## 1. Mục tiêu và phạm vi
 
+> Bổ sung được người dùng duyệt ngày 20/10/2026: triển khai CHAT-01–05 theo [PROJECT_DECISIONS.md](PROJECT_DECISIONS.md) và [CHAT_API.md](CHAT_API.md). Module chat 1–1 giữa bạn bè mở rộng điều hướng thành Camera / Lịch sử / Tin nhắn / Bạn bè / Hồ sơ. Đây là ngoại lệ có phê duyệt đối với quy tắc bốn tab ở bản đặc tả gốc bên dưới; không cho phép chatbot AI, nhóm chat, public feed hoặc triển khai VPS tự động.
+
 **Tên sản phẩm:** Taktak. **Nền tảng:** Android. **Ý tưởng:** người dùng chụp một khoảnh khắc, chọn nhóm bạn thân và gửi trực tiếp; ảnh mới nhất nhận được có thể xuất hiện trên widget 2×2 của bạn bè. Taktak ưu tiên riêng tư, sự đơn giản và cảm giác kết nối gần gũi.
 
 ### 1.1. Chức năng của MVP

@@ -1,0 +1,7 @@
+<resources>
+    <color name="premium_bg">#131216</color><color name="premium_surface">#27212B</color>
+    <color name="premium_ink">#F9F1F4</color><color name="premium_muted">#C4B8C6</color>
+    <color name="premium_pink">#FF8DBD</color><color name="premium_lavender">#D4B7F5</color>
+    <color name="premium_outline">#8C748B</color><color name="premium_tonal">#503B6B</color>
+    <color name="premium_nav">#26212D</color>
+</resources>

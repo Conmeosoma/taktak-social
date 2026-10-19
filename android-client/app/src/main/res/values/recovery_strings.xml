@@ -1,0 +1,28 @@
+<resources>
+<string name="recovery_forgot_title">Quên mật khẩu</string>
+<string name="recovery_forgot_detail">Chỉ email đã xác minh mới được khôi phục. Mật khẩu tạm có hiệu lực 15 phút, chỉ dùng để đổi mật khẩu.</string>
+<string name="recovery_send">Gửi mật khẩu tạm thời</string>
+<string name="recovery_generic">Nếu email này đã được đăng ký, chúng tôi sẽ gửi mật khẩu tạm thời đến hộp thư của bạn.</string>
+<string name="recovery_verify_title">Xác minh email</string>
+<string name="recovery_verify_detail">Xác nhận mật khẩu hiện tại rồi nhập mã gửi tới email đăng ký. Hãy xác minh trước khi cần khôi phục tài khoản.</string>
+<string name="recovery_request_code">Gửi mã xác minh</string>
+<string name="recovery_code">Mã xác minh trong email</string>
+<string name="recovery_code_sent">Nếu cần xác minh, mã đã được gửi tới email đăng ký. Mã có hiệu lực 15 phút.</string>
+<string name="recovery_confirm_email">Xác nhận email</string>
+<string name="recovery_verified">Email đã được xác minh. Bạn có thể dùng tính năng khôi phục mật khẩu.</string>
+<string name="recovery_change_title">Đặt mật khẩu mới</string>
+<string name="recovery_change_detail">Phiên này chỉ được đổi mật khẩu. Sau khi đổi, hãy đăng nhập lại; mọi phiên cũ bị thu hồi.</string>
+<string name="recovery_temporary">Mật khẩu tạm thời</string>
+<string name="recovery_current">Mật khẩu hiện tại</string>
+<string name="recovery_new">Mật khẩu mới</string>
+<string name="recovery_confirm">Xác nhận mật khẩu mới</string>
+<string name="recovery_save">Xác nhận đổi mật khẩu</string>
+<string name="recovery_changed">Mật khẩu đã thay đổi. Vui lòng đăng nhập lại.</string>
+<string name="recovery_back">Quay về Đăng nhập</string>
+<string name="recovery_retry">Thử lại</string>
+<string name="recovery_invalid_code">Nhập đúng mã 43 ký tự được gửi trong email.</string>
+<string name="recovery_different">Mật khẩu mới không được trùng mật khẩu hiện tại hoặc tạm thời.</string>
+<string name="recovery_invalid">Mật khẩu hoặc mã không hợp lệ, đã dùng hoặc hết hạn. Hãy kiểm tra lại hoặc yêu cầu mã mới.</string>
+<string name="recovery_expired">Phiên đổi mật khẩu không còn hiệu lực. Hãy yêu cầu mật khẩu tạm mới.</string>
+<string name="recovery_wait">Quá nhiều yêu cầu. Vui lòng đợi rồi thử lại.</string>
+</resources>

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent" android:layout_height="match_parent">
+    <com.taktak.app.ui.theme.MediaBackdropView android:layout_width="match_parent" android:layout_height="match_parent" />
+    <LinearLayout android:id="@+id/chatContent" android:layout_width="match_parent" android:layout_height="match_parent" android:orientation="vertical" android:paddingHorizontal="16dp">
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical">
+            <com.google.android.material.button.MaterialButton android:id="@+id/chatBack" style="?attr/ttMediaTonalStyle" android:layout_width="wrap_content" android:layout_height="wrap_content" android:minWidth="48dp" android:text="‹" android:contentDescription="@string/chat_back" />
+            <TextView android:id="@+id/chatTitle" android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:text="@string/chat_title" android:textSize="22sp" android:textColor="?attr/colorOnSurface" android:maxLines="1" android:ellipsize="end" android:layout_marginStart="12dp" />
+            <com.google.android.material.button.MaterialButton android:id="@+id/chatRefresh" style="?attr/ttMediaTonalStyle" android:layout_width="wrap_content" android:layout_height="wrap_content" android:minWidth="0dp" android:text="@string/chat_refresh" />
+        </LinearLayout>
+        <com.google.android.material.progressindicator.LinearProgressIndicator android:id="@+id/chatProgress" android:layout_width="match_parent" android:layout_height="wrap_content" android:indeterminate="true" android:contentDescription="@string/chat_loading" android:visibility="invisible" />
+        <TextView android:id="@+id/chatStatus" android:layout_width="match_parent" android:layout_height="wrap_content" android:textColor="?attr/colorOnSurface" android:accessibilityLiveRegion="polite" android:visibility="gone" />
+        <com.google.android.material.button.MaterialButton android:id="@+id/chatRetry" style="?attr/ttMediaTonalStyle" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/chat_retry" android:visibility="gone" />
+        <com.google.android.material.button.MaterialButton android:id="@+id/chatEditRetry" style="?attr/ttMediaTonalStyle" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/chat_edit_retry" android:visibility="gone" />
+        <com.google.android.material.button.MaterialButton android:id="@+id/chatMore" style="?attr/ttMediaTonalStyle" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/chat_more" android:visibility="gone" />
+        <androidx.recyclerview.widget.RecyclerView android:id="@+id/chatList" android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:clipToPadding="false" android:saveEnabled="false" />
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="bottom" android:paddingVertical="8dp">
+            <com.google.android.material.button.MaterialButton android:id="@+id/chatAttach" style="?attr/ttMediaTonalStyle" android:layout_width="48dp" android:layout_height="wrap_content" android:minWidth="0dp" android:text="+" android:contentDescription="@string/chat_attach" android:padding="0dp" />
+            <com.google.android.material.textfield.TextInputLayout android:id="@+id/chatInputLayout" style="?attr/ttMediaFieldStyle" android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:hint="@string/chat_message_hint" android:layout_marginHorizontal="6dp">
+                <com.google.android.material.textfield.TextInputEditText android:id="@+id/chatInput" style="?attr/ttMediaInputStyle" android:layout_width="match_parent" android:layout_height="wrap_content" android:inputType="textCapSentences|textMultiLine" android:maxLines="4" android:saveEnabled="false" android:maxLength="4000" />
+            </com.google.android.material.textfield.TextInputLayout>
+            <com.google.android.material.button.MaterialButton android:id="@+id/chatSend" style="?attr/ttMediaPrimaryStyle" android:layout_width="wrap_content" android:layout_height="wrap_content" android:minWidth="48dp" android:text="@string/chat_send" />
+        </LinearLayout>
+    </LinearLayout>
+</FrameLayout>
