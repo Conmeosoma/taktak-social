@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:clipToPadding="false">
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:background="@drawable/taktak_bg_bottom_sheet"
+    android:paddingStart="@dimen/taktak_space_lg"
+    android:paddingEnd="@dimen/taktak_space_lg"
+    android:paddingTop="@dimen/taktak_space_md"
+    android:paddingBottom="@dimen/taktak_space_xl"
+    android:gravity="center_horizontal">
+
+    <!-- Bottom Sheet Drag Handle -->
+    <View
+        android:layout_width="48dp"
+        android:layout_height="4dp"
+        android:background="?attr/taktakColorBorder"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginBottom="@dimen/taktak_space_md" />
+
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/foundTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/qr_found_title"
+        android:textAppearance="@style/TextAppearance.Taktak.PageTitle"
+        android:textColor="?attr/taktakColorTextPrimary"
+        android:textStyle="bold" />
+
+    <com.google.android.material.card.MaterialCardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/taktak_space_md"
+        app:cardCornerRadius="20dp"
+        app:cardElevation="4dp"
+        app:strokeWidth="1dp"
+        app:strokeColor="?attr/taktakColorBorder"
+        app:cardBackgroundColor="?attr/taktakColorCardBackground">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="center_horizontal"
+            android:padding="@dimen/taktak_space_lg">
+
+            <ImageView
+                android:id="@+id/foundAvatar"
+                android:layout_width="64dp"
+                android:layout_height="64dp"
+                android:src="@drawable/ic_m3_person"
+                android:scaleType="centerCrop"
+                android:contentDescription="@string/profile_avatar_desc" />
+
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/foundDisplayName"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:textAppearance="@style/TextAppearance.Taktak.SectionTitle"
+                android:textColor="?attr/taktakColorTextPrimary"
+                android:textStyle="bold" />
+
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/foundUsername"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="@style/TextAppearance.Taktak.Caption"
+                android:textColor="?attr/taktakColorTextMuted" />
+
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/foundStatus"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/taktak_space_xs"
+                android:text="@string/qr_found_ready"
+                android:textAppearance="@style/TextAppearance.Taktak.Body"
+                android:textColor="?attr/taktakColorTextSecondary"
+                android:gravity="center" />
+        </LinearLayout>
+    </com.google.android.material.card.MaterialCardView>
+
+    <!-- Action Buttons -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginTop="@dimen/taktak_space_lg">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnFoundAddFriend"
+            style="@style/Widget.Taktak.Button.Primary"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/qr_btn_send_request"
+            app:icon="@drawable/ic_premium_add_friend"
+            app:iconGravity="textStart"     android:minHeight="@dimen/taktak_touch_target_min" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnFoundCancel"
+            style="@style/Widget.Taktak.Button.Ghost"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/taktak_space_sm"
+            android:text="@string/dialog_close"     android:minHeight="@dimen/taktak_touch_target_min" />
+    </LinearLayout>
+
+</LinearLayout>
+
+</androidx.core.widget.NestedScrollView>

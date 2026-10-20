@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="moment_reply_hint">फ़ोटो का जवाब दें…</string>
+    <string name="moment_reply_private">चैट में निजी जवाब दें। इसे केवल आप और फ़ोटो के मालिक देख सकते हैं।</string>
+    <string name="moment_reply_send">जवाब भेजें</string>
+    <string name="moment_reply_sending">जवाब भेजा जा रहा है…</string>
+    <string name="moment_reply_reference">एक पल का जवाब</string>
+</resources>

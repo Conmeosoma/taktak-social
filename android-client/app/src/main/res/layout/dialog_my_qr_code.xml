@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:clipToPadding="false">
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:background="@drawable/taktak_bg_bottom_sheet"
+    android:paddingStart="@dimen/taktak_space_lg"
+    android:paddingEnd="@dimen/taktak_space_lg"
+    android:paddingTop="@dimen/taktak_space_md"
+    android:paddingBottom="@dimen/taktak_space_xl"
+    android:gravity="center_horizontal">
+
+    <!-- Bottom Sheet Drag Handle -->
+    <View
+        android:layout_width="48dp"
+        android:layout_height="4dp"
+        android:background="?attr/taktakColorBorder"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginBottom="@dimen/taktak_space_md" />
+
+    <!-- Title & Subtitle -->
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/qrTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/qr_my_code_title"
+        android:textAppearance="@style/TextAppearance.Taktak.PageTitle"
+        android:textColor="?attr/taktakColorTextPrimary"
+        android:textStyle="bold" />
+
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/qrSubtitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/taktak_space_xxs"
+        android:text="@string/qr_my_code_subtitle"
+        android:textAppearance="@style/TextAppearance.Taktak.Caption"
+        android:textColor="?attr/taktakColorTextSecondary" />
+
+    <!-- QR Card Container -->
+    <com.google.android.material.card.MaterialCardView
+        android:layout_width="280dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/taktak_space_lg"
+        app:cardCornerRadius="24dp"
+        app:cardElevation="8dp"
+        app:strokeWidth="1.5dp"
+        app:strokeColor="?attr/taktakColorBrandPrimary"
+        app:cardBackgroundColor="?attr/taktakColorCardBackground">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="center_horizontal"
+            android:padding="@dimen/taktak_space_lg">
+
+            <!-- User Avatar & Info -->
+            <ImageView
+                android:id="@+id/qrUserAvatar"
+                android:layout_width="56dp"
+                android:layout_height="56dp"
+                android:src="@drawable/ic_m3_person"
+                android:scaleType="centerCrop"
+                android:contentDescription="@string/profile_avatar_desc" />
+
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/qrUserDisplayName"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/taktak_space_xs"
+                android:textAppearance="@style/TextAppearance.Taktak.SectionTitle"
+                android:textColor="?attr/taktakColorTextPrimary"
+                android:textStyle="bold" />
+
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/qrUserUsername"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="@style/TextAppearance.Taktak.Caption"
+                android:textColor="?attr/taktakColorTextMuted" />
+
+            <!-- QR Image in white framed background for optimal contrast/scanning -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="200dp"
+                android:layout_height="200dp"
+                android:layout_marginTop="@dimen/taktak_space_md"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="0dp"
+                app:cardBackgroundColor="@android:color/white">
+
+                <ImageView
+                    android:id="@+id/qrImageView"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:padding="@dimen/taktak_space_sm"
+                    android:scaleType="fitCenter"
+                    android:contentDescription="@string/qr_image_desc" />
+            </com.google.android.material.card.MaterialCardView>
+
+            <com.google.android.material.textview.MaterialTextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/taktak_space_sm"
+                android:text="@string/qr_scan_instruction"
+                android:textAppearance="@style/TextAppearance.Taktak.Caption"
+                android:textColor="?attr/taktakColorTextSecondary"
+                android:gravity="center" />
+        </LinearLayout>
+    </com.google.android.material.card.MaterialCardView>
+
+    <!-- Action Buttons -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginTop="@dimen/taktak_space_lg">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnShareQr"
+            style="@style/Widget.Taktak.Button.Primary"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/qr_btn_share"
+            app:icon="@drawable/ic_download"
+            app:iconGravity="textStart"     android:minHeight="@dimen/taktak_touch_target_min" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnCloseQr"
+            style="@style/Widget.Taktak.Button.Ghost"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/taktak_space_sm"
+            android:text="@string/dialog_close"     android:minHeight="@dimen/taktak_touch_target_min" />
+    </LinearLayout>
+
+</LinearLayout>
+
+</androidx.core.widget.NestedScrollView>

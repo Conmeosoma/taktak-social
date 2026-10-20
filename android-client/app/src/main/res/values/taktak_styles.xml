@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Shape Appearances -->
+    <style name="ShapeAppearance.Taktak.Pill" parent="ShapeAppearance.Material3.Corner.Full">
+        <item name="cornerSize">16dp</item>
+    </style>
+    <style name="ShapeAppearance.Taktak.Input" parent="ShapeAppearance.Material3.Corner.Medium">
+        <item name="cornerSize">@dimen/taktak_radius_input</item>
+    </style>
+    <style name="ShapeAppearance.Taktak.Button" parent="ShapeAppearance.Material3.Corner.Medium">
+        <item name="cornerSize">@dimen/taktak_radius_btn</item>
+    </style>
+    <style name="ShapeAppearance.Taktak.Card" parent="ShapeAppearance.Material3.Corner.Large">
+        <item name="cornerSize">@dimen/taktak_radius_card</item>
+    </style>
+
+    <!-- Typography Styles (Font Inter) -->
+    <style name="TextAppearance.Taktak.LargeTitle" parent="TextAppearance.Material3.HeadlineLarge">
+        <item name="android:fontFamily">@font/inter</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textSize">@dimen/taktak_text_size_large_title</item>
+        <item name="lineHeight">@dimen/taktak_line_height_large_title</item>
+        <item name="android:textColor">?attr/taktakColorTextPrimary</item>
+    </style>
+
+    <style name="TextAppearance.Taktak.PageTitle" parent="TextAppearance.Material3.HeadlineMedium">
+        <item name="android:fontFamily">@font/inter</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textSize">@dimen/taktak_text_size_page_title</item>
+        <item name="lineHeight">@dimen/taktak_line_height_page_title</item>
+        <item name="android:textColor">?attr/taktakColorTextPrimary</item>
+    </style>
+
+    <style name="TextAppearance.Taktak.SectionTitle" parent="TextAppearance.Material3.TitleMedium">
+        <item name="android:fontFamily">@font/inter</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textSize">@dimen/taktak_text_size_section_title</item>
+        <item name="lineHeight">@dimen/taktak_line_height_section_title</item>
+        <item name="android:textColor">?attr/taktakColorTextPrimary</item>
+    </style>
+
+    <style name="TextAppearance.Taktak.Body" parent="TextAppearance.Material3.BodyMedium">
+        <item name="android:fontFamily">@font/inter</item>
+        <item name="android:textStyle">normal</item>
+        <item name="android:textSize">@dimen/taktak_text_size_body</item>
+        <item name="lineHeight">@dimen/taktak_line_height_body</item>
+        <item name="android:textColor">?attr/taktakColorTextSecondary</item>
+    </style>
+
+    <style name="TextAppearance.Taktak.Button" parent="TextAppearance.Material3.LabelLarge">
+        <item name="android:fontFamily">@font/inter</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textSize">@dimen/taktak_text_size_button</item>
+        <item name="lineHeight">@dimen/taktak_line_height_button</item>
+        <item name="android:textAllCaps">false</item>
+    </style>
+
+    <style name="TextAppearance.Taktak.Secondary" parent="TextAppearance.Material3.BodySmall">
+        <item name="android:fontFamily">@font/inter</item>
+        <item name="android:textStyle">normal</item>
+        <item name="android:textSize">@dimen/taktak_text_size_secondary</item>
+        <item name="lineHeight">@dimen/taktak_line_height_secondary</item>
+        <item name="android:textColor">?attr/taktakColorTextMuted</item>
+    </style>
+
+    <style name="TextAppearance.Taktak.Caption" parent="TextAppearance.Material3.LabelSmall">
+        <item name="android:fontFamily">@font/inter</item>
+        <item name="android:textStyle">normal</item>
+        <item name="android:textSize">@dimen/taktak_text_size_caption</item>
+        <item name="lineHeight">@dimen/taktak_line_height_caption</item>
+        <item name="android:textColor">?attr/taktakColorTextMuted</item>
+    </style>
+
+    <!-- Button Components -->
+    <style name="Widget.Taktak.Button.Primary" parent="Widget.Material3.Button">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:minWidth">@dimen/taktak_touch_target_min</item>
+        <item name="android:minHeight">@dimen/taktak_btn_height_large</item>
+        <item name="android:background">@drawable/taktak_btn_primary_bg</item>
+        <item name="android:textAppearance">@style/TextAppearance.Taktak.Button</item>
+        <item name="android:textColor">@color/taktak_orig_light_text_primary</item>
+        <item name="iconTint">@color/taktak_orig_light_text_primary</item>
+        <item name="android:paddingStart">@dimen/taktak_space_xl</item>
+        <item name="android:paddingEnd">@dimen/taktak_space_xl</item>
+        <item name="android:insetTop">0dp</item>
+        <item name="android:insetBottom">0dp</item>
+        <item name="android:stateListAnimator">@null</item>
+        <item name="backgroundTint">@null</item>
+    </style>
+
+    <style name="Widget.Taktak.Button.Secondary" parent="Widget.Material3.Button">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:minHeight">@dimen/taktak_btn_height_large</item>
+        <item name="android:background">@drawable/taktak_btn_secondary_bg</item>
+        <item name="android:textAppearance">@style/TextAppearance.Taktak.Button</item>
+        <item name="android:textColor">?attr/taktakColorTextPrimary</item>
+        <item name="android:paddingStart">@dimen/taktak_space_xl</item>
+        <item name="android:paddingEnd">@dimen/taktak_space_xl</item>
+        <item name="android:insetTop">0dp</item>
+        <item name="android:insetBottom">0dp</item>
+        <item name="android:stateListAnimator">@null</item>
+        <item name="backgroundTint">@null</item>
+    </style>
+
+    <style name="Widget.Taktak.Button.Ghost" parent="Widget.Material3.Button.TextButton">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:minHeight">@dimen/taktak_btn_height_medium</item>
+        <item name="android:background">@drawable/taktak_btn_ghost_bg</item>
+        <item name="android:textAppearance">@style/TextAppearance.Taktak.Button</item>
+        <item name="android:textColor">?attr/taktakColorBrandPrimary</item>
+        <item name="android:paddingStart">@dimen/taktak_space_md</item>
+        <item name="android:paddingEnd">@dimen/taktak_space_md</item>
+        <item name="android:insetTop">0dp</item>
+        <item name="android:insetBottom">0dp</item>
+        <item name="backgroundTint">@null</item>
+    </style>
+
+    <style name="Widget.Taktak.Button.Danger" parent="Widget.Taktak.Button.Ghost">
+        <item name="android:textColor">@color/taktak_status_error</item>
+    </style>
+
+    <!-- Input Field Components -->
+    <style name="Widget.Taktak.TextInputLayout" parent="Widget.Material3.TextInputLayout.OutlinedBox">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="hintEnabled">false</item>
+        <item name="boxBackgroundColor">?attr/taktakColorInputBackground</item>
+        <item name="boxStrokeColor">?attr/taktakColorBorder</item>
+        <item name="boxStrokeWidth">1dp</item>
+        <item name="boxStrokeWidthFocused">2dp</item>
+        <item name="boxCornerRadiusTopStart">@dimen/taktak_radius_input</item>
+        <item name="boxCornerRadiusTopEnd">@dimen/taktak_radius_input</item>
+        <item name="boxCornerRadiusBottomStart">@dimen/taktak_radius_input</item>
+        <item name="boxCornerRadiusBottomEnd">@dimen/taktak_radius_input</item>
+        <item name="startIconTint">?attr/taktakColorTextMuted</item>
+        <item name="endIconTint">?attr/taktakColorTextMuted</item>
+        <item name="errorTextColor">@color/taktak_status_error</item>
+    </style>
+
+    <style name="Widget.Taktak.TextInputEditText" parent="">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:minHeight">@dimen/taktak_input_height</item>
+        <item name="android:paddingStart">@dimen/taktak_space_md</item>
+        <item name="android:paddingEnd">@dimen/taktak_space_md</item>
+        <item name="android:paddingTop">14dp</item>
+        <item name="android:paddingBottom">14dp</item>
+        <item name="android:singleLine">true</item>
+        <item name="android:fontFamily">@font/inter</item>
+        <item name="android:textSize">@dimen/taktak_text_size_body</item>
+        <item name="android:textColor">?attr/taktakColorInputText</item>
+        <item name="android:textColorHint">?attr/taktakColorInputHint</item>
+    </style>
+
+    <!-- Bottom Navigation Component -->
+    <style name="Widget.Taktak.BottomNavigationView" parent="Widget.Material3.BottomNavigationView">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">@dimen/taktak_bottom_nav_height</item>
+        <item name="android:background">?attr/taktakColorNavBackground</item>
+        <item name="itemActiveIndicatorStyle">@style/Widget.Taktak.BottomNav.Indicator</item>
+        <item name="itemIconSize">24dp</item>
+        <item name="labelVisibilityMode">unlabeled</item>
+    </style>
+
+    <style name="Widget.Taktak.BottomNav.Indicator" parent="Widget.Material3.BottomNavigationView.ActiveIndicator">
+        <item name="android:width">@dimen/taktak_bottom_nav_indicator_width</item>
+        <item name="android:height">@dimen/taktak_bottom_nav_indicator_height</item>
+        <item name="android:color">?attr/taktakColorNavIndicator</item>
+    </style>
+</resources>

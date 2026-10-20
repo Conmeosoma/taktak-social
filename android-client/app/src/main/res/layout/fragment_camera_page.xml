@@ -5,7 +5,7 @@
     android:layout_width="match_parent" android:layout_height="match_parent"
     android:fillViewport="true" android:saveEnabled="false">
     <androidx.constraintlayout.widget.ConstraintLayout android:layout_width="match_parent"
-        android:layout_height="wrap_content" android:paddingHorizontal="16dp" android:paddingBottom="16dp">
+        android:layout_height="wrap_content" android:paddingHorizontal="@dimen/taktak_space_md" android:paddingBottom="@dimen/taktak_space_md">
         <LinearLayout android:id="@+id/cameraPage" android:layout_width="0dp" android:layout_height="wrap_content"
             android:orientation="vertical" app:layout_constraintWidth_max="@dimen/m3_form_max_width"
             app:layout_constraintStart_toStartOf="parent" app:layout_constraintEnd_toEndOf="parent"
@@ -15,7 +15,7 @@
                 android:text="@string/camera_title" android:textAppearance="?attr/ttMediaHeadlineStyle" android:textSize="32sp" />
             <androidx.fragment.app.FragmentContainerView android:id="@+id/cameraContent"
                 android:layout_width="match_parent" android:layout_height="wrap_content"
-                android:layout_marginTop="12dp" />
+                android:layout_marginTop="@dimen/taktak_space_sm" />
         </LinearLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>
 </ScrollView>

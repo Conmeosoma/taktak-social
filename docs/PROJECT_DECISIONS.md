@@ -1,5 +1,16 @@
 # Taktak — Quyết định kỹ thuật đã khóa
 
+## MOMENT-REPLY-01 — Trả lời ảnh vào chat riêng, duyệt 20/10/2026
+
+Người dùng xác nhận triển khai tính năng bình luận ảnh dưới dạng trả lời riêng
+qua hội thoại 1–1 với chủ ảnh. Đây là phạm vi mới có phê duyệt, không phải bình
+luận công khai. Dùng MOMENT_REPLY, content tối đa 2000 Unicode và momentId;
+server xác minh ảnh thuộc peer, actor đã có grant và pair friend/block hợp lệ.
+Giữ reply text khi ảnh bị thu hồi, che tham chiếu ảnh. V5 chỉ mở rộng constraints
+của messages, không thêm bảng comments hoặc sửa migration cũ. Android dùng
+Java/XML/ViewBinding/MVVM, giữ JWT/FCM và toàn bộ stack hiện tại.
+Không tự commit/push/deploy/migrate production. Chi tiết [CHAT_API.md](CHAT_API.md).
+
 ## Module Tin nhắn & Chat khoảnh khắc (Direct Messaging & Moment Chat) — 20/10/2026
 
 Phạm vi CHAT-01–05 đã được người dùng phê duyệt triển khai cùng lượt ngày 20/10/2026, nghiệm thu trên USB, không emulator/commit/push/deploy. Đối chiếu schema thực tế: friendship hợp lệ là bản ghi cặp chuẩn hóa trong `friendships` (không có cột status); chặn nằm ở `blocks`, không tạo bảng `user_blocks`. V4 dùng `CHECK(user1_id < user2_id)` + `UNIQUE(user1_id,user2_id)` thay biểu thức `LEAST/GREATEST` trong UNIQUE constraint không hợp lệ của bản kế hoạch. Không sửa migration V1–V3.

@@ -1,16 +1,134 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent" android:layout_height="match_parent">
-    <com.taktak.app.ui.theme.MediaBackdropView android:layout_width="match_parent" android:layout_height="match_parent" />
-    <LinearLayout android:id="@+id/newChatContent" android:layout_width="match_parent" android:layout_height="match_parent" android:orientation="vertical" android:paddingHorizontal="20dp">
-        <com.google.android.material.button.MaterialButton android:id="@+id/newChatBack" style="?attr/ttMediaTonalStyle" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/chat_back" />
-        <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/chat_new" android:textAppearance="?attr/ttMediaHeadlineStyle" android:textSize="30sp" />
-        <com.google.android.material.textfield.TextInputLayout style="?attr/ttMediaFieldStyle" android:layout_width="match_parent" android:layout_height="wrap_content" android:hint="@string/chat_search_friend" android:layout_marginTop="16dp">
-            <com.google.android.material.textfield.TextInputEditText android:id="@+id/newChatSearch" style="?attr/ttMediaInputStyle" android:layout_width="match_parent" android:layout_height="wrap_content" android:inputType="text" android:maxLines="1" android:saveEnabled="false" />
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="?attr/taktakColorSurface">
+
+    <com.taktak.app.ui.theme.MediaBackdropView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <LinearLayout
+        android:id="@+id/newChatContent"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <!-- Top Header Bar -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:paddingHorizontal="@dimen/taktak_space_md"
+            android:paddingTop="@dimen/taktak_space_sm"
+            android:paddingBottom="@dimen/taktak_space_xs">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/newChatBack"
+                style="@style/Widget.Material3.Button.IconButton"
+                android:layout_width="@dimen/taktak_touch_target_min"
+                android:layout_height="@dimen/taktak_touch_target_min"
+                android:minWidth="@dimen/taktak_touch_target_min"
+                android:text="@string/ui_glyph_back"
+                android:textSize="24sp"
+                android:textColor="?attr/taktakColorTextPrimary"
+                android:contentDescription="@string/chat_back"     android:minHeight="@dimen/taktak_touch_target_min" />
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:text="@string/chat_new"
+                android:fontFamily="@font/inter"
+                android:textStyle="bold"
+                android:textSize="20sp"
+                android:textColor="?attr/taktakColorTextPrimary"
+                android:layout_marginStart="@dimen/taktak_space_xs" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/newChatRefresh"
+                style="@style/Widget.Material3.Button.TonalButton"
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/taktak_touch_target_min"
+                android:minWidth="0dp"
+                android:paddingHorizontal="14dp"
+                android:fontFamily="@font/inter"
+                android:textSize="13sp"
+                android:text="@string/chat_refresh"     android:minHeight="@dimen/taktak_touch_target_min" />
+        </LinearLayout>
+
+        <!-- Search Input Field -->
+        <com.google.android.material.textfield.TextInputLayout
+            style="@style/Widget.Material3.TextInputLayout.OutlinedBox.Dense"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="@dimen/taktak_space_md"
+            android:layout_marginTop="@dimen/taktak_space_xs"
+            android:layout_marginBottom="@dimen/taktak_space_sm"
+            android:hint="@string/chat_search_friend"
+            app:boxCornerRadiusTopStart="20dp"
+            app:boxCornerRadiusTopEnd="20dp"
+            app:boxCornerRadiusBottomStart="20dp"
+            app:boxCornerRadiusBottomEnd="20dp"
+            app:boxStrokeColor="?attr/taktakColorBorder"
+            app:boxStrokeWidthFocused="1.5dp"
+            app:expandedHintEnabled="false">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/newChatSearch"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/inter"
+                android:textSize="15sp"
+                android:textColor="?attr/taktakColorTextPrimary"
+                android:inputType="text"
+                android:maxLines="1"
+                android:paddingHorizontal="@dimen/taktak_space_md"
+                android:paddingVertical="@dimen/taktak_space_sm"
+                android:saveEnabled="false" />
         </com.google.android.material.textfield.TextInputLayout>
-        <com.google.android.material.progressindicator.LinearProgressIndicator android:id="@+id/newChatProgress" android:layout_width="match_parent" android:layout_height="wrap_content" android:indeterminate="true" android:contentDescription="@string/chat_loading" android:visibility="invisible" />
-        <TextView android:id="@+id/newChatStatus" android:layout_width="match_parent" android:layout_height="wrap_content" android:textColor="?attr/colorOnSurface" android:padding="8dp" android:accessibilityLiveRegion="polite" />
-        <com.google.android.material.button.MaterialButton android:id="@+id/newChatRefresh" style="?attr/ttMediaTonalStyle" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/chat_refresh" />
-        <androidx.recyclerview.widget.RecyclerView android:id="@+id/newChatList" android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:saveEnabled="false" />
-        <com.google.android.material.button.MaterialButton android:id="@+id/newChatMore" style="?attr/ttMediaTonalStyle" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/chat_more" android:visibility="gone" />
+
+        <!-- Loading & Status -->
+        <com.google.android.material.progressindicator.LinearProgressIndicator
+            android:id="@+id/newChatProgress"
+            android:layout_width="match_parent"
+            android:layout_height="3dp"
+            android:indeterminate="true"
+            android:contentDescription="@string/chat_loading"
+            android:visibility="invisible" />
+
+        <TextView
+            android:id="@+id/newChatStatus"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="?attr/taktakColorTextSecondary"
+            android:fontFamily="@font/inter"
+            android:textSize="13sp"
+            android:paddingHorizontal="@dimen/taktak_space_md"
+            android:paddingVertical="6dp"
+            android:accessibilityLiveRegion="polite" />
+
+        <!-- Friends List -->
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/newChatList"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:paddingBottom="@dimen/taktak_space_md"
+            android:clipToPadding="false"
+            android:saveEnabled="false" />
+
+        <!-- More Button -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/newChatMore"
+            style="@style/Widget.Material3.Button.TonalButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="@dimen/taktak_space_md"
+            android:layout_marginVertical="@dimen/taktak_space_xs"
+            android:fontFamily="@font/inter"
+            android:text="@string/chat_more"
+            android:visibility="gone"     android:minHeight="@dimen/taktak_touch_target_min" />
     </LinearLayout>
 </FrameLayout>

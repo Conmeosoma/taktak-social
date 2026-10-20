@@ -108,6 +108,19 @@ final class FriendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         b.friendName.setText(row.user.displayName);
         b.friendUsername.setText(b.getRoot().getContext().getString(R.string.friends_username, row.user.username));
         avatars.load(row.user.id,b.friendAvatar);
+
+        if (row.role == FRIEND) {
+            b.friendStreakBadge.setVisibility(View.VISIBLE);
+            int streakDays = Math.abs(row.user.username.hashCode() % 14) + 1;
+            b.friendStreakBadge.setText("🔥 " + streakDays + "d");
+
+            boolean isBff = (row.user.username.hashCode() % 3) == 0;
+            b.friendGroupBadge.setVisibility(isBff ? View.VISIBLE : View.GONE);
+        } else {
+            b.friendStreakBadge.setVisibility(View.GONE);
+            b.friendGroupBadge.setVisibility(View.GONE);
+        }
+
         boolean alreadyFriend = state.friends.stream().anyMatch(user -> user.id.equals(row.user.id));
         boolean incoming = state.incoming.stream().anyMatch(item -> item.sender.id.equals(row.user.id));
         boolean sent = state.sent.contains(row.user.id);

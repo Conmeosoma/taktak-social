@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Vòng tròn ngoài viền trắng -->
+    <item>
+        <shape android:shape="oval">
+            <size
+                android:width="@dimen/taktak_shutter_outer"
+                android:height="@dimen/taktak_shutter_outer" />
+            <stroke
+                android:width="4dp"
+                android:color="?attr/taktakColorShutterRing" />
+            <solid android:color="@android:color/transparent" />
+        </shape>
+    </item>
+    <!-- Vòng tròn tâm trong gradient thương hiệu -->
+    <item
+        android:bottom="8dp"
+        android:left="8dp"
+        android:right="8dp"
+        android:top="8dp">
+        <shape android:shape="oval">
+            <size
+                android:width="@dimen/taktak_shutter_inner"
+                android:height="@dimen/taktak_shutter_inner" />
+            <gradient
+                android:angle="135"
+                android:endColor="@color/taktak_brand_gradient_end"
+                android:startColor="@color/taktak_brand_gradient_start"
+                android:type="linear" />
+        </shape>
+    </item>
+</layer-list>

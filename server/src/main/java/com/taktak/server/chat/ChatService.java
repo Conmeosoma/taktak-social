@@ -57,11 +57,12 @@ public class ChatService {
     }
     private boolean grant(Moment m,UUID viewer) { return m.getSenderId().equals(viewer)||moments.isRecipient(m.getId(),viewer); }
     private Message safe(Message m) {
-        if(!"MOMENT".equals(m.messageType())) return m;
+        boolean reply="MOMENT_REPLY".equals(m.messageType());
+        if(!reply && !"MOMENT".equals(m.messageType())) return m;
         var moment=m.momentId()==null?null:moments.findById(m.momentId()).orElse(null);
         boolean visible=moment!=null && moment.getDeletedAt()==null && grant(moment,m.senderId()) && grant(moment,m.recipientId());
         return new Message(m.id(),m.conversationId(),m.senderId(),m.recipientId(),m.clientMessageId(),m.messageType(),
-                visible?moment.getCaption():null,visible?m.momentId():null,m.createdAt(),m.readAt());
+                reply?m.content():(visible?moment.getCaption():null),visible?m.momentId():null,m.createdAt(),m.readAt());
     }
     @Transactional(readOnly=true)
     public ConversationsPage list(UUID actor,int page) {
@@ -81,8 +82,10 @@ public class ChatService {
     public Message send(UUID actor,UUID id,SendRequest request) {
         var c=allowed(actor,id,true);
         String content=request.content();
-        if("TEXT".equals(request.messageType())) {
-            if(content==null||content.isBlank()||content.indexOf('\0')>=0||content.codePointCount(0,content.length())>2000||request.momentId()!=null) throw invalid();
+        boolean reply="MOMENT_REPLY".equals(request.messageType());
+        if("TEXT".equals(request.messageType()) || reply) {
+            if(content==null||content.isBlank()||content.indexOf('\0')>=0||content.codePointCount(0,content.length())>2000
+                    || (reply?request.momentId()==null:request.momentId()!=null)) throw invalid();
         } else if("MOMENT".equals(request.messageType())) {
             if(request.momentId()==null || content!=null) throw invalid();
             if(!chats.lockMoment(request.momentId())) throw missing();
@@ -95,6 +98,11 @@ public class ChatService {
             if(!prior.conversationId().equals(id)||!prior.messageType().equals(request.messageType())||!Objects.equals(prior.content(),content)||!Objects.equals(prior.momentId(),request.momentId()))
                 throw new ChatFailure(HttpStatus.CONFLICT,"CHAT_IDEMPOTENCY_CONFLICT");
             return safe(prior);
+        }
+        if(reply) {
+            if(!chats.lockMoment(request.momentId())) throw missing();
+            moments.findById(request.momentId()).filter(m->m.getDeletedAt()==null
+                    && m.getSenderId().equals(c.peer(actor)) && grant(m,actor)).orElseThrow(this::missing);
         }
         Instant now=clock.instant().truncatedTo(ChronoUnit.MICROS);
         if(!now.isAfter(c.updatedAt())) now=c.updatedAt().plus(1,ChronoUnit.MICROS);

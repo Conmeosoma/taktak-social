@@ -4,7 +4,7 @@
     android:theme="@style/Theme.TakTak.M3" android:layout_width="match_parent"
     android:layout_height="match_parent" android:fillViewport="true" android:saveEnabled="false">
     <androidx.constraintlayout.widget.ConstraintLayout android:layout_width="match_parent"
-        android:layout_height="wrap_content" android:padding="16dp">
+        android:layout_height="wrap_content" android:padding="@dimen/taktak_space_md">
         <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
             android:orientation="vertical" app:layout_constraintWidth_max="@dimen/m3_form_max_width"
             app:layout_constraintStart_toStartOf="parent" app:layout_constraintEnd_toEndOf="parent"
@@ -13,12 +13,12 @@
                 android:layout_width="match_parent" android:layout_height="wrap_content"
                 android:textAppearance="@style/TextAppearance.TakTakM3.Headline" />
             <com.google.android.material.card.MaterialCardView android:layout_width="match_parent"
-                android:layout_height="wrap_content" android:layout_marginTop="24dp"
+                android:layout_height="wrap_content" android:layout_marginTop="@dimen/taktak_space_xl"
                 app:cardCornerRadius="24dp" app:cardElevation="0dp" app:strokeWidth="0dp"
                 app:cardBackgroundColor="?attr/colorSecondaryContainer">
                 <com.google.android.material.textview.MaterialTextView android:id="@+id/pendingMessage"
                     android:layout_width="match_parent" android:layout_height="wrap_content"
-                    android:padding="24dp" android:textAppearance="@style/TextAppearance.Material3.BodyLarge"
+                    android:padding="@dimen/taktak_space_xl" android:textAppearance="@style/TextAppearance.Material3.BodyLarge"
                     android:textColor="?attr/colorOnSecondaryContainer" />
             </com.google.android.material.card.MaterialCardView>
         </LinearLayout>

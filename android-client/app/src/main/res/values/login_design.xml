@@ -14,6 +14,9 @@
         <item name="android:windowBackground">@color/login_background</item>
         <item name="android:colorBackground">@color/login_background</item>
         <item name="colorSurface">@color/login_background</item>
+        <item name="colorSurfaceContainer">#1E1E24</item>
+        <item name="colorSurfaceContainerHigh">#25242C</item>
+        <item name="colorSurfaceContainerHighest">#2F2E36</item>
         <item name="colorOnSurface">@color/login_text</item>
         <item name="colorOnSurfaceVariant">@color/login_hint</item>
         <item name="colorPrimary">@color/login_accent</item>

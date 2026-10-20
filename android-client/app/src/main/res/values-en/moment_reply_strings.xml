@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="moment_reply_hint">Reply to photo…</string>
+    <string name="moment_reply_private">Reply privately in chat. Only you and the photo owner can see it.</string>
+    <string name="moment_reply_send">Send reply</string>
+    <string name="moment_reply_sending">Sending reply…</string>
+    <string name="moment_reply_reference">Reply to a moment</string>
+</resources>

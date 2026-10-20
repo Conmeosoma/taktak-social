@@ -1,24 +1,186 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto" android:layout_width="match_parent" android:layout_height="match_parent" android:orientation="vertical" android:paddingHorizontal="20dp" android:saveEnabled="false">
-    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical">
-        <TextView android:id="@+id/messagesTitle" android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:text="@string/chat_title" android:textAppearance="?attr/ttMediaHeadlineStyle" android:textSize="32sp" />
-        <com.google.android.material.button.MaterialButton android:id="@+id/messagesNew" style="?attr/ttMediaTonalStyle" android:layout_width="wrap_content" android:layout_height="wrap_content" android:minWidth="48dp" android:text="+" android:contentDescription="@string/chat_new" />
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="?attr/taktakColorSurface"
+    android:orientation="vertical"
+    android:paddingHorizontal="@dimen/taktak_space_md"
+    android:paddingTop="@dimen/taktak_space_sm"
+    android:saveEnabled="false">
+
+    <!-- Header: Title & New Conversation Button -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/messagesTitle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/chat_title"
+            android:textAppearance="@style/TextAppearance.Taktak.LargeTitle"
+            android:textColor="?attr/taktakColorTextPrimary" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/messagesNew"
+            style="@style/Widget.Taktak.Button.Primary"
+            android:layout_width="@dimen/taktak_btn_height_medium"
+            android:layout_height="wrap_content"
+            android:contentDescription="@string/chat_new"
+            android:insetBottom="0dp"
+            android:insetLeft="0dp"
+            android:insetRight="0dp"
+            android:insetTop="0dp"
+            android:minWidth="0dp"
+            android:padding="0dp"
+            android:text="@string/ui_glyph_add"
+            android:textSize="20sp"     android:minHeight="@dimen/taktak_touch_target_min" />
     </LinearLayout>
-    <com.google.android.material.textfield.TextInputLayout android:layout_width="match_parent" android:layout_height="wrap_content" style="?attr/ttMediaFieldStyle" android:hint="@string/chat_search">
-        <com.google.android.material.textfield.TextInputEditText android:id="@+id/messagesSearch" style="?attr/ttMediaInputStyle" android:layout_width="match_parent" android:layout_height="wrap_content" android:inputType="text" android:maxLines="1" android:saveEnabled="false" />
+
+    <!-- Search Conversations -->
+    <com.google.android.material.textfield.TextInputLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/taktak_space_md"
+        android:hint="@string/chat_search"
+        app:startIconDrawable="@drawable/ic_m3_search"
+        style="@style/Widget.Taktak.TextInputLayout">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/messagesSearch"
+            style="@style/Widget.Taktak.TextInputEditText"
+            android:hint="@string/chat_search"
+            android:inputType="text"
+            android:maxLines="1"
+            android:saveEnabled="false" />
     </com.google.android.material.textfield.TextInputLayout>
-    <com.google.android.material.progressindicator.LinearProgressIndicator android:id="@+id/messagesProgress" android:layout_width="match_parent" android:layout_height="wrap_content" android:indeterminate="true" android:contentDescription="@string/chat_loading" android:visibility="invisible" />
-    <TextView android:id="@+id/messagesStatus" android:layout_width="match_parent" android:layout_height="wrap_content" android:textColor="?attr/colorOnSurface" android:accessibilityLiveRegion="polite" android:visibility="gone" android:padding="8dp" />
-    <com.google.android.material.button.MaterialButton android:id="@+id/messagesRefresh" style="?attr/ttMediaTonalStyle" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/chat_refresh" />
-    <com.google.android.material.button.MaterialButton android:id="@+id/messagesNotifications" style="?attr/ttMediaTonalStyle" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/chat_enable_notifications" android:visibility="gone" />
-    <androidx.core.widget.NestedScrollView android:id="@+id/messagesEmpty" android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:fillViewport="true" android:visibility="gone">
-        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:gravity="center" android:paddingVertical="32dp">
-            <ImageView android:layout_width="96dp" android:layout_height="96dp" android:src="@drawable/ic_chat" app:tint="#D46B23" android:importantForAccessibility="no" android:contentDescription="@null" />
-            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/chat_empty_title" android:textSize="24sp" android:textColor="?attr/colorOnSurface" android:gravity="center" android:layout_marginTop="24dp" />
-            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/chat_empty_detail" android:textSize="16sp" android:textColor="?attr/colorOnSurfaceVariant" android:gravity="center" android:layout_marginTop="12dp" />
-            <com.google.android.material.button.MaterialButton android:id="@+id/messagesFindFriends" style="?attr/ttMediaPrimaryStyle" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/chat_find_friends" android:layout_marginTop="24dp" />
+
+    <!-- Progress Indicator -->
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/taktak_space_sm"
+        android:layout_marginTop="@dimen/taktak_space_xs">
+
+        <com.google.android.material.progressindicator.LinearProgressIndicator
+            android:id="@+id/messagesProgress"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:contentDescription="@string/chat_loading"
+            android:indeterminate="true"
+            android:visibility="invisible"
+            app:indicatorColor="?attr/taktakColorBrandPrimary"
+            app:trackColor="?attr/taktakColorBorder" />
+    </FrameLayout>
+
+    <TextView
+        android:id="@+id/messagesStatus"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:accessibilityLiveRegion="polite"
+        android:padding="@dimen/taktak_space_sm"
+        android:textAppearance="@style/TextAppearance.Taktak.Secondary"
+        android:textColor="?attr/taktakColorTextPrimary"
+        android:visibility="gone" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/taktak_space_xs"
+        android:orientation="horizontal">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/messagesRefresh"
+            style="@style/Widget.Taktak.Button.Secondary"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:minHeight="@dimen/taktak_btn_height_small"
+            android:text="@string/chat_refresh" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/messagesNotifications"
+            style="@style/Widget.Taktak.Button.Ghost"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/taktak_space_sm"
+            android:layout_weight="1"
+            android:minHeight="@dimen/taktak_btn_height_small"
+            android:text="@string/chat_enable_notifications"
+            android:visibility="gone" />
+    </LinearLayout>
+
+    <!-- Empty State -->
+    <androidx.core.widget.NestedScrollView
+        android:id="@+id/messagesEmpty"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:fillViewport="true"
+        android:visibility="gone">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:paddingVertical="@dimen/taktak_space_xxl">
+
+            <ImageView
+                android:layout_width="120dp"
+                android:layout_height="120dp"
+                android:contentDescription="@null"
+                android:importantForAccessibility="no"
+                android:src="@drawable/ic_chat"
+                app:tint="?attr/taktakColorBrandPrimary" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/taktak_space_lg"
+                android:gravity="center"
+                android:text="@string/chat_empty_title"
+                android:textAppearance="@style/TextAppearance.Taktak.PageTitle"
+                android:textColor="?attr/taktakColorTextPrimary" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/taktak_space_xs"
+                android:gravity="center"
+                android:text="@string/chat_empty_detail"
+                android:textAppearance="@style/TextAppearance.Taktak.Body"
+                android:textColor="?attr/taktakColorTextSecondary" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/messagesFindFriends"
+                style="@style/Widget.Taktak.Button.Primary"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/taktak_space_lg"
+                android:text="@string/chat_find_friends"     android:minHeight="@dimen/taktak_touch_target_min" />
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
-    <androidx.recyclerview.widget.RecyclerView android:id="@+id/messagesList" android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:clipToPadding="false" android:paddingBottom="16dp" android:saveEnabled="false" />
-    <com.google.android.material.button.MaterialButton android:id="@+id/messagesMore" style="?attr/ttMediaTonalStyle" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/chat_more" android:visibility="gone" />
+
+    <!-- Conversations List -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/messagesList"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:clipToPadding="false"
+        android:paddingTop="@dimen/taktak_space_xs"
+        android:paddingBottom="@dimen/taktak_space_xl"
+        android:saveEnabled="false" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/messagesMore"
+        style="@style/Widget.Taktak.Button.Secondary"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/chat_more"
+        android:visibility="gone"     android:minHeight="@dimen/taktak_touch_target_min" />
 </LinearLayout>

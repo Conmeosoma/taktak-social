@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="moment_reply_hint">写真に返信…</string>
+    <string name="moment_reply_private">チャットで個別に返信します。あなたと写真の投稿者だけが閲覧できます。</string>
+    <string name="moment_reply_send">返信を送信</string>
+    <string name="moment_reply_sending">返信を送信中…</string>
+    <string name="moment_reply_reference">モーメントへの返信</string>
+</resources>

@@ -50,10 +50,16 @@ public final class ChatRepository {
         } else if ("MOMENT".equals(request.messageType)) {
             checkId(request.momentId);
             if (request.content != null) throw validation();
+        } else if ("MOMENT_REPLY".equals(request.messageType)) {
+            checkId(request.momentId);
+            if (!validText(request.content)) throw validation();
         } else throw validation();
         Message item = body(client.chat.send(id, request)); checkMessage(item);
         if (!id.equalsIgnoreCase(item.conversationId) || !request.clientMessageId.equalsIgnoreCase(item.clientMessageId)
                 || !request.messageType.equals(item.messageType)) throw invalid();
+        if ("MOMENT_REPLY".equals(request.messageType)
+                && (!request.content.equals(item.content)
+                || (item.momentId != null && !request.momentId.equalsIgnoreCase(item.momentId)))) throw invalid();
         return item;
     }
     public void read(String id, String messageId) throws IOException {
@@ -91,6 +97,8 @@ public final class ChatRepository {
         else if ("MOMENT".equals(item.messageType)) {
             if (item.momentId != null && !FriendModels.uuid(item.momentId)) throw invalid();
             if (item.content != null && item.content.codePointCount(0, item.content.length()) > 50) throw invalid();
+        } else if ("MOMENT_REPLY".equals(item.messageType)) {
+            if (!validText(item.content) || (item.momentId != null && !FriendModels.uuid(item.momentId))) throw invalid();
         } else throw invalid();
     }
     private static boolean timestamp(String value) {

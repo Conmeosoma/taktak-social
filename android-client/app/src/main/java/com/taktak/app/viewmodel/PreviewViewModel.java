@@ -105,6 +105,32 @@ public final class PreviewViewModel extends AndroidViewModel {
         saved.remove("idempotencyKey");
         publish();
     }
+    public void updateDraftImage(byte[] jpeg, Runnable onComplete) {
+        if (drafts == null || id == null || jpeg == null) {
+            if (onComplete != null) onComplete.run();
+            return;
+        }
+        worker.execute(() -> {
+            try {
+                File target = drafts.file(id);
+                try (var fos = new FileOutputStream(target)) {
+                    fos.write(jpeg);
+                }
+                main.post(() -> {
+                    if (current()) {
+                        file = target;
+                        publish();
+                    }
+                    if (onComplete != null) onComplete.run();
+                });
+            } catch (IOException failure) {
+                main.post(() -> {
+                    if (onComplete != null) onComplete.run();
+                });
+            }
+        });
+    }
+
     public void savePrivate() {
         transfer(false);
     }

@@ -18,6 +18,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+import androidx.lifecycle.ViewModelProvider;
 import com.bumptech.glide.Glide;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.taktak.app.R;
@@ -47,6 +48,8 @@ public final class MomentViewerActivity extends AppCompatActivity {
     private boolean isSender;
     private String caption;
     private boolean foreground, revoked;
+    private boolean imageReady;
+    private com.taktak.app.viewmodel.MomentReplyViewModel replyModel;
     private int imageRequest;
     private com.taktak.app.data.repository.MomentRepository repository;
     private com.bumptech.glide.RequestManager images;
@@ -93,7 +96,8 @@ public final class MomentViewerActivity extends AppCompatActivity {
         ViewCompat.setOnApplyWindowInsetsListener(binding.getRoot(), (view, insets) -> {
             var safe = insets.getInsets(WindowInsetsCompat.Type.systemBars()
                     | WindowInsetsCompat.Type.displayCutout());
-            view.setPadding(safe.left, safe.top, safe.right, safe.bottom);
+            int keyboard = insets.getInsets(WindowInsetsCompat.Type.ime()).bottom;
+            view.setPadding(safe.left, safe.top, safe.right, Math.max(safe.bottom, keyboard));
             return insets;
         });
 
@@ -126,7 +130,53 @@ public final class MomentViewerActivity extends AppCompatActivity {
         binding.viewerDeleteButton.setVisibility(isSender ? View.VISIBLE : View.GONE);
         binding.viewerDeleteButton.setOnClickListener(v -> confirmDelete());
 
+        replyModel = new ViewModelProvider(this).get(com.taktak.app.viewmodel.MomentReplyViewModel.class);
+        binding.viewerReplyInput.setText(replyModel.draft());
+        binding.viewerReplyInput.addTextChangedListener(new android.text.TextWatcher() {
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                replyModel.setDraft(s.toString());
+            }
+            public void afterTextChanged(android.text.Editable value) { }
+        });
+        binding.viewerReplySend.setOnClickListener(v -> {
+            if (!imageReady || revoked || isSender) return;
+            var state = replyModel.state().getValue();
+            if (state != null && state.pending) replyModel.retry();
+            else replyModel.send(getIntent().getStringExtra(EXTRA_SENDER_ID), momentId);
+        });
+        binding.viewerReplyDiscard.setOnClickListener(v -> new MaterialAlertDialogBuilder(this)
+                .setMessage(R.string.chat_discard_pending_warning)
+                .setNegativeButton(android.R.string.cancel, null)
+                .setPositiveButton(android.R.string.ok, (dialog, which) -> replyModel.discardPending()).show());
+        replyModel.state().observe(this, state -> renderReply());
+
         showLoading();
+    }
+
+    private void renderReply() {
+        if (binding == null || replyModel == null) return;
+        var state = replyModel.state().getValue();
+        if (state == null) return;
+        boolean available = foreground && imageReady && !revoked && !isSender
+                && com.taktak.app.data.model.FriendModels.uuid(getIntent().getStringExtra(EXTRA_SENDER_ID));
+        binding.viewerReplyPanel.setVisibility(available ? View.VISIBLE : View.GONE);
+        binding.viewerReplyInput.setEnabled(!state.busy && !state.pending && !state.revoked);
+        // Reset/session invalidation phải loại cả nội dung đang hiển thị, kể cả khi Activity còn sống.
+        String draft = replyModel.draft();
+        if (!draft.contentEquals(binding.viewerReplyInput.getText() == null ? "" : binding.viewerReplyInput.getText()))
+            binding.viewerReplyInput.setText(draft);
+        binding.viewerReplySend.setEnabled(available && !state.busy && !state.revoked);
+        binding.viewerReplySend.setText(state.pending ? R.string.chat_retry : R.string.moment_reply_send);
+        binding.viewerReplyDiscard.setVisibility(state.pending && !state.busy && !state.revoked ? View.VISIBLE : View.GONE);
+        binding.viewerReplyProgress.setVisibility(state.busy ? View.VISIBLE : View.GONE);
+        binding.viewerReplyStatus.setVisibility(state.error == 0 ? View.GONE : View.VISIBLE);
+        if (state.error != 0) binding.viewerReplyStatus.setText(state.error);
+        if (available && state.conversationId != null) {
+            String conversation = state.conversationId;
+            replyModel.consumeNavigation();
+            startActivity(com.taktak.app.ui.chat.ChatActivity.intent(this, conversation));
+        }
     }
 
     private void checkPermissionAndSave() {
@@ -273,6 +323,7 @@ public final class MomentViewerActivity extends AppCompatActivity {
     }
 
     private void privateVisible(boolean visible) {
+        imageReady = visible;
         int visibility = visible ? View.VISIBLE : View.INVISIBLE;
         binding.viewerSenderName.setVisibility(visibility);
         binding.viewerSenderUsername.setVisibility(visibility);
@@ -281,6 +332,7 @@ public final class MomentViewerActivity extends AppCompatActivity {
         binding.viewerCaptionCard.setVisibility(visible && caption != null && !caption.isBlank() ? View.VISIBLE : View.GONE);
         binding.viewerSaveButton.setEnabled(visible && !revoked);
         binding.viewerDeleteButton.setEnabled(visible && !revoked);
+        renderReply();
     }
     private boolean accessDenied(Exception failure) {
         return failure instanceof ApiFailure api && (api.status == 401 || api.status == 403 || api.status == 404
@@ -288,6 +340,7 @@ public final class MomentViewerActivity extends AppCompatActivity {
     }
     private void revoke() {
         revoked = true; imageRequest++;
+        if (replyModel != null) replyModel.invalidate();
         HistoryImageCache.remove(momentId); showError();
     }
     @Override protected void onStart() {

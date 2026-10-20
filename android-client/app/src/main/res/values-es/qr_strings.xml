@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="qr_lookup_failed">No se pudo verificar la cuenta. Comprueba la conexión e inténtalo de nuevo.</string>
+    <string name="qr_identity_not_found">Ninguna cuenta coincide con este código.</string>
+    <string name="qr_session_changed">La sesión ha cambiado. Abre de nuevo la pantalla QR.</string>
+    <string name="qr_checking_identity">Verificando la cuenta…</string>
+    <string name="qr_sending_request">Enviando solicitud de amistad…</string>
+    <string name="qr_retry">Reintentar</string>
+    <string name="qr_camera_permission">Permite el acceso a la cámara para escanear. También puedes elegir una imagen o abrir tu código.</string>
+    <string name="qr_camera_settings">Permiso de cámara</string>
+</resources>

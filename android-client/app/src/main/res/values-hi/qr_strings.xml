@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="qr_lookup_failed">खाते की पुष्टि नहीं हो सकी। कनेक्शन जाँचें और फिर कोशिश करें।</string>
+    <string name="qr_identity_not_found">इस कोड से मेल खाने वाला खाता नहीं मिला।</string>
+    <string name="qr_session_changed">आपका सत्र बदल गया है। QR स्क्रीन फिर से खोलें।</string>
+    <string name="qr_checking_identity">खाते की पुष्टि हो रही है…</string>
+    <string name="qr_sending_request">मित्र अनुरोध भेजा जा रहा है…</string>
+    <string name="qr_retry">फिर कोशिश करें</string>
+    <string name="qr_camera_permission">कोड स्कैन करने के लिए कैमरे की अनुमति दें। आप तस्वीर चुन सकते हैं या अपना कोड खोल सकते हैं।</string>
+    <string name="qr_camera_settings">कैमरे की अनुमति की सेटिंग</string>
+</resources>

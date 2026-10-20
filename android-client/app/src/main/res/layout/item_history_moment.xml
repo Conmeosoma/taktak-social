@@ -3,52 +3,54 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginBottom="@dimen/m3_space_16"
-    android:saveEnabled="false"
+    android:layout_marginBottom="@dimen/taktak_space_md"
     android:clickable="true"
     android:focusable="true"
     android:foreground="?attr/selectableItemBackground"
-    app:cardCornerRadius="24dp"
+    android:saveEnabled="false"
+    app:cardBackgroundColor="?attr/taktakColorSurface"
+    app:cardCornerRadius="@dimen/taktak_radius_card"
     app:cardElevation="0dp"
-    app:strokeWidth="0dp"
-    app:cardBackgroundColor="?attr/colorSurfaceContainerLow">
+    app:strokeColor="?attr/taktakColorBorder"
+    app:strokeWidth="1dp">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
+        <!-- Author / Sender Header -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center_vertical"
             android:orientation="horizontal"
-            android:paddingHorizontal="@dimen/m3_space_16"
-            android:paddingTop="@dimen/m3_space_12"
-            android:paddingBottom="@dimen/m3_space_8">
+            android:paddingHorizontal="@dimen/taktak_space_md"
+            android:paddingTop="@dimen/taktak_space_md"
+            android:paddingBottom="@dimen/taktak_space_xs">
 
             <ImageView
                 android:id="@+id/momentSenderAvatar"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
+                android:layout_width="@dimen/taktak_avatar_list"
+                android:layout_height="@dimen/taktak_avatar_list"
                 android:contentDescription="@null"
                 android:importantForAccessibility="no" />
 
             <LinearLayout
                 android:layout_width="0dp"
-                android:layout_weight="1"
                 android:layout_height="wrap_content"
+                android:layout_weight="1"
                 android:orientation="vertical"
-                android:paddingStart="12dp"
+                android:paddingStart="@dimen/taktak_space_sm"
                 android:paddingEnd="0dp">
 
                 <TextView
                     android:id="@+id/momentSenderName"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:textAppearance="@style/TextAppearance.Material3.TitleMedium"
-                    android:textColor="?attr/colorOnSurface"
-                    android:saveEnabled="false" />
+                    android:saveEnabled="false"
+                    android:textAppearance="@style/TextAppearance.Taktak.SectionTitle"
+                    android:textColor="?attr/taktakColorTextPrimary" />
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -58,34 +60,57 @@
                     <TextView
                         android:id="@+id/momentSenderUsername"
                         android:layout_width="0dp"
-                        android:layout_weight="1"
                         android:layout_height="wrap_content"
-                        android:singleLine="true"
+                        android:layout_weight="1"
                         android:ellipsize="end"
-                        android:textAppearance="@style/TextAppearance.Material3.BodySmall"
-                        android:textColor="?attr/colorOnSurfaceVariant"
-                        android:saveEnabled="false" />
+                        android:saveEnabled="false"
+                        android:singleLine="true"
+                        android:textAppearance="@style/TextAppearance.Taktak.Secondary"
+                        android:textColor="?attr/taktakColorTextMuted" />
 
                     <TextView
                         android:id="@+id/momentTimestamp"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:singleLine="true"
+                        android:ellipsize="end"
+                        android:layout_marginStart="@dimen/taktak_space_xs"
+                        android:saveEnabled="false"
+                        android:textAppearance="@style/TextAppearance.Taktak.Caption"
+                        android:textColor="?attr/taktakColorTextMuted" />
+
+                    <TextView
+                        android:id="@+id/momentExpiryBadge"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:maxWidth="72dp"
+                        android:singleLine="true"
+                        android:ellipsize="end"
                         android:layout_marginStart="6dp"
-                        android:textAppearance="@style/TextAppearance.Material3.BodySmall"
-                        android:textColor="?attr/colorOnSurfaceVariant"
-                        android:saveEnabled="false" />
+                        android:background="@drawable/taktak_badge_unread"
+                        android:backgroundTint="?attr/taktakColorSurfaceVariant"
+                        android:paddingHorizontal="6dp"
+                        android:paddingVertical="1dp"
+                        android:saveEnabled="false"
+                        android:text="@string/ui_expiry_preview"
+                        android:textColor="?attr/taktakColorBrandPrimary"
+                        android:textSize="11sp"
+                        android:textStyle="bold" />
                 </LinearLayout>
             </LinearLayout>
         </LinearLayout>
 
+        <!-- Square 1:1 Image Container -->
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginHorizontal="@dimen/m3_space_12"
-            app:cardCornerRadius="16dp"
+            android:layout_marginHorizontal="@dimen/taktak_space_sm"
+            android:layout_marginTop="@dimen/taktak_space_xs"
+            app:cardBackgroundColor="?attr/taktakColorSurfaceVariant"
+            app:cardCornerRadius="@dimen/taktak_radius_btn"
             app:cardElevation="0dp"
-            app:strokeWidth="0dp"
-            app:cardBackgroundColor="?attr/colorSurfaceContainerHighest">
+            app:strokeWidth="0dp">
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
@@ -95,53 +120,52 @@
                     android:id="@+id/momentImage"
                     android:layout_width="0dp"
                     android:layout_height="0dp"
-                    app:layout_constraintDimensionRatio="1:1"
-                    android:scaleType="centerCrop"
                     android:contentDescription="@string/moment_server_image"
-                    app:layout_constraintTop_toTopOf="parent"
+                    android:scaleType="centerCrop"
                     app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintDimensionRatio="1:1"
+                    app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent" />
+                    app:layout_constraintTop_toTopOf="parent" />
 
                 <com.google.android.material.progressindicator.CircularProgressIndicator
                     android:id="@+id/momentImageProgress"
-                    style="@style/Widget.Material3Expressive.CircularProgressIndicator"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:indeterminate="true"
                     android:contentDescription="@string/history_image_loading"
-                    app:layout_constraintTop_toTopOf="parent"
+                    android:indeterminate="true"
+                    app:indicatorColor="?attr/taktakColorBrandPrimary"
                     app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent" />
+                    app:layout_constraintTop_toTopOf="parent" />
 
                 <TextView
                     android:id="@+id/momentImageError"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/history_image_error"
-                    android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
-                    android:textColor="?attr/colorOnErrorContainer"
+                    android:textAppearance="@style/TextAppearance.Taktak.Secondary"
+                    android:textColor="@color/taktak_status_error"
                     android:visibility="gone"
-                    app:layout_constraintTop_toTopOf="parent"
                     app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent" />
-
+                    app:layout_constraintTop_toTopOf="parent" />
             </androidx.constraintlayout.widget.ConstraintLayout>
         </com.google.android.material.card.MaterialCardView>
 
+        <!-- Caption -->
         <TextView
             android:id="@+id/momentCaption"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:paddingHorizontal="@dimen/m3_space_16"
-            android:paddingTop="@dimen/m3_space_12"
-            android:paddingBottom="@dimen/m3_space_16"
-            android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
-            android:textColor="?attr/colorOnSurface"
-            android:visibility="gone"
-            android:saveEnabled="false" />
-
+            android:paddingHorizontal="@dimen/taktak_space_md"
+            android:paddingTop="@dimen/taktak_space_sm"
+            android:paddingBottom="@dimen/taktak_space_md"
+            android:saveEnabled="false"
+            android:textAppearance="@style/TextAppearance.Taktak.Body"
+            android:textColor="?attr/taktakColorTextPrimary"
+            android:visibility="gone" />
     </LinearLayout>
 </com.google.android.material.card.MaterialCardView>

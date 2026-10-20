@@ -1,0 +1,210 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/widget_root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/widget_background">
+
+    <!-- Moment Display Container (4x2 Wide) -->
+    <LinearLayout
+        android:id="@+id/widget_moment_container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="horizontal"
+        android:visibility="gone">
+
+        <!-- Image Left Section -->
+        <FrameLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1">
+
+            <ImageView
+                android:id="@+id/widget_image"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:scaleType="centerCrop"
+                android:contentDescription="@string/widget_4x2_name" />
+
+            <ImageView
+                android:id="@+id/widget_gradient"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:src="@drawable/widget_gradient_overlay"
+                android:scaleType="fitXY"
+                android:contentDescription="@null" android:importantForAccessibility="no" />
+
+            <!-- Emoji Burst Badge -->
+            <TextView
+                android:id="@+id/widget_reaction_burst"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:layout_gravity="center"
+                android:gravity="center"
+                android:textSize="32sp"
+                android:visibility="gone" />
+        </FrameLayout>
+
+        <!-- Details Right Section -->
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1.2"
+            android:orientation="vertical"
+            android:padding="@dimen/taktak_space_sm"
+            android:gravity="center_vertical">
+
+            <TextView
+                android:id="@+id/widget_sender_name"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="@color/taktak_color_neutral_white"
+                android:textSize="15sp"
+                android:textStyle="bold"
+                android:maxLines="1"
+                android:ellipsize="end" />
+
+            <TextView
+                android:id="@+id/widget_caption"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/taktak_space_xxs"
+                android:textColor="@color/taktak_fixed_e0e0e0"
+                android:textSize="13sp"
+                android:maxLines="2"
+                android:ellipsize="end"
+                android:visibility="gone" />
+
+            <!-- 4x2 Reaction Bar -->
+            <LinearLayout
+                android:id="@+id/widget_reaction_bar"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/widget_react_heart"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:gravity="center"
+                    android:text="@string/ui_glyph_heart"
+                android:contentDescription="@string/ui_reaction_heart"
+                    android:textSize="16sp" />
+
+                <TextView
+                    android:id="@+id/widget_react_fire"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:gravity="center"
+                    android:text="@string/ui_glyph_fire"
+                android:contentDescription="@string/ui_reaction_fire"
+                    android:textSize="16sp" />
+
+                <TextView
+                    android:id="@+id/widget_react_laugh"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:gravity="center"
+                    android:text="@string/ui_glyph_laugh"
+                android:contentDescription="@string/ui_reaction_laugh"
+                    android:textSize="16sp" />
+
+                <TextView
+                    android:id="@+id/widget_react_wow"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:gravity="center"
+                    android:text="@string/ui_glyph_wow"
+                android:contentDescription="@string/ui_reaction_wow"
+                    android:textSize="16sp" />
+            </LinearLayout>
+        </LinearLayout>
+    </LinearLayout>
+
+    <!-- Empty State -->
+    <LinearLayout
+        android:id="@+id/widget_empty_container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:orientation="horizontal"
+        android:padding="@dimen/taktak_space_md"
+        android:visibility="gone">
+
+        <ImageView
+            android:id="@+id/widget_empty_icon"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:src="@drawable/ic_widget_camera"
+            android:contentDescription="@string/widget_empty_title" />
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/taktak_space_sm"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/widget_empty_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/widget_empty_title"
+                android:textColor="@color/taktak_color_neutral_white"
+                android:textSize="15sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/widget_empty_subtitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:text="@string/widget_empty_subtitle"
+                android:textColor="@color/taktak_fixed_a0a0a0"
+                android:textSize="12sp" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <!-- Logged Out State -->
+    <LinearLayout
+        android:id="@+id/widget_logged_out_container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:orientation="horizontal"
+        android:padding="@dimen/taktak_space_md"
+        android:visibility="visible">
+
+        <ImageView
+            android:id="@+id/widget_logged_out_icon"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:src="@drawable/ic_widget_lock"
+            android:contentDescription="@string/widget_logged_out_title" />
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/taktak_space_sm"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/widget_logged_out_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/widget_logged_out_title"
+                android:textColor="@color/taktak_color_neutral_white"
+                android:textSize="15sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/widget_logged_out_subtitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:text="@string/widget_logged_out_subtitle"
+                android:textColor="@color/taktak_fixed_a0a0a0"
+                android:textSize="12sp" />
+        </LinearLayout>
+    </LinearLayout>
+</FrameLayout>

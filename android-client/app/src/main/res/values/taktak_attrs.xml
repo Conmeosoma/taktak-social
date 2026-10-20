@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Taktak Design System Semantic Attributes -->
+    <attr name="taktakColorBackground" format="color|reference" />
+    <attr name="taktakColorSurface" format="color|reference" />
+    <attr name="taktakColorSurfaceVariant" format="color|reference" />
+    <attr name="taktakColorBrandPrimary" format="color|reference" />
+    <attr name="taktakColorBrandSecondary" format="color|reference" />
+    <attr name="taktakColorBrandGradientStart" format="color|reference" />
+    <attr name="taktakColorBrandGradientEnd" format="color|reference" />
+    <attr name="taktakColorTextPrimary" format="color|reference" />
+    <attr name="taktakColorTextSecondary" format="color|reference" />
+    <attr name="taktakColorTextMuted" format="color|reference" />
+    <attr name="taktakColorBorder" format="color|reference" />
+    <attr name="taktakColorBorderFocused" format="color|reference" />
+    <attr name="taktakColorBorderError" format="color|reference" />
+    <attr name="taktakColorCardBackground" format="color|reference" />
+    <attr name="taktakColorCardBorder" format="color|reference" />
+    <attr name="taktakColorInputBackground" format="color|reference" />
+    <attr name="taktakColorInputText" format="color|reference" />
+    <attr name="taktakColorInputHint" format="color|reference" />
+    <attr name="taktakColorNavBackground" format="color|reference" />
+    <attr name="taktakColorNavIndicator" format="color|reference" />
+    <attr name="taktakColorNavActive" format="color|reference" />
+    <attr name="taktakColorNavInactive" format="color|reference" />
+    <attr name="taktakColorShutterRing" format="color|reference" />
+    <attr name="taktakColorShutterCenter" format="color|reference" />
+</resources>

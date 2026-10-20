@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="ui_glyph_back" translatable="false">‹</string>
+    <string name="ui_glyph_add" translatable="false">+</string>
+    <string name="ui_glyph_heart" translatable="false">❤️</string>
+    <string name="ui_glyph_fire" translatable="false">🔥</string>
+    <string name="ui_glyph_laugh" translatable="false">😂</string>
+    <string name="ui_glyph_wow" translatable="false">😮</string>
+    <string name="ui_streak_preview">🔥 3 ngày</string>
+    <string name="ui_close_friends_badge">Bạn thân</string>
+    <string name="ui_expiry_preview">⏳ 24 giờ</string>
+    <string name="ui_reaction_heart">Thả tim</string>
+    <string name="ui_reaction_fire">Thả lửa</string>
+    <string name="ui_reaction_laugh">Thả biểu cảm cười</string>
+    <string name="ui_reaction_wow">Thả biểu cảm ngạc nhiên</string>
+</resources>

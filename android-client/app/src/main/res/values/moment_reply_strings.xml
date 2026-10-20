@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="moment_reply_hint">Trả lời ảnh…</string>
+    <string name="moment_reply_private">Trả lời riêng qua tin nhắn. Chỉ bạn và chủ ảnh thấy nội dung.</string>
+    <string name="moment_reply_send">Gửi trả lời</string>
+    <string name="moment_reply_sending">Đang gửi trả lời…</string>
+    <string name="moment_reply_reference">Trả lời khoảnh khắc</string>
+</resources>

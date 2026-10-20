@@ -125,6 +125,14 @@ public final class HistoryAdapter extends RecyclerView.Adapter<RecyclerView.View
         moment.binding.momentSenderUsername.setText(ctx.getString(R.string.friends_username, item.sender.username));
         moment.binding.momentTimestamp.setText(HistoryTimeFormatter.format(ctx, item.createdAt));
 
+        String expiry = HistoryTimeFormatter.getExpiryRemaining(item.createdAt);
+        if (expiry != null) {
+            moment.binding.momentExpiryBadge.setVisibility(View.VISIBLE);
+            moment.binding.momentExpiryBadge.setText(expiry);
+        } else {
+            moment.binding.momentExpiryBadge.setVisibility(View.GONE);
+        }
+
         avatars.load(item.sender.id,moment.binding.momentSenderAvatar);
 
         if (item.caption != null && !item.caption.trim().isEmpty()) {

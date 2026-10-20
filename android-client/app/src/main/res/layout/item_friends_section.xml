@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="12dp"
-    android:orientation="horizontal" android:padding="16dp" android:gravity="center_vertical"
+    android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="@dimen/taktak_space_sm"
+    android:orientation="horizontal" android:padding="@dimen/taktak_space_md" android:gravity="center_vertical"
     android:background="?attr/ttMediaCardBackground">
     <ImageView android:id="@+id/sectionIcon" android:layout_width="52dp" android:layout_height="52dp"
-        android:padding="12dp" android:layout_marginEnd="14dp" android:background="@drawable/m3_brand_badge"
+        android:padding="@dimen/taktak_space_sm" android:layout_marginEnd="14dp" android:background="@drawable/m3_brand_badge"
         android:importantForAccessibility="no" android:contentDescription="@null" />
     <LinearLayout android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:orientation="vertical">
         <TextView android:id="@+id/sectionTitle" android:layout_width="match_parent" android:layout_height="wrap_content"
-            android:textColor="?attr/colorOnSurface" android:textAppearance="@style/TextAppearance.Material3.TitleMedium" />
+            android:textColor="?attr/taktakColorTextPrimary" android:textAppearance="@style/TextAppearance.Material3.TitleMedium" />
         <TextView android:id="@+id/sectionMessage" android:layout_width="match_parent" android:layout_height="wrap_content"
-            android:paddingTop="8dp" android:textColor="?attr/colorOnSurfaceVariant" android:textAppearance="@style/TextAppearance.Material3.BodyMedium" />
+            android:paddingTop="@dimen/taktak_space_xs" android:textColor="?attr/taktakColorTextSecondary" android:textAppearance="@style/TextAppearance.Material3.BodyMedium" />
         <com.google.android.material.button.MaterialButton android:id="@+id/sectionMore"
             style="?attr/ttMediaTonalStyle" android:layout_width="match_parent" android:layout_height="wrap_content"
             android:minHeight="48dp" android:text="@string/friends_more" />

@@ -1,6 +1,76 @@
 # Taktak — Công việc và cổng xác nhận
 
-## Hiện hành — CHAT-01–05 được duyệt, 20/10/2026
+## Nghiệm thu USB — MOMENT-REPLY-01, 21/10/2026
+
+- [x] Opt-in USB rõ ràng, fixture RAM, không sửa phiên hoặc gửi tin cá nhân.
+- [x] Sửa harness foreground cho MIUI; APK kiểm thử build đạt 17s.
+- [x] Điện thoại Android 15: 7/7 ca đạt, 36,257s; review 7 screenshot QA.
+- [x] Khôi phục appearance, xác minh file phiên mã hóa không đổi từng ca và trước/sau.
+- [ ] Nghiệm thu hai tài khoản qua staging/VPS V5 và FCM thật sau phê duyệt riêng.
+- [ ] Rà soát riêng icon quay lại/contrast timestamp và input Chat thấy trong ảnh QA;
+  ngoài phạm vi nghiệm thu chức năng reply, không đánh dấu toàn UI PASS.
+
+Log và giới hạn: [QA_MOMENT_REPLY.md](QA_MOMENT_REPLY.md). Không commit/push/deploy.
+
+## Hiện hành — MOMENT-REPLY-01, được duyệt 20/10/2026
+
+- [x] Khóa phạm vi trả lời ảnh riêng vào chat1–1, không bình luận công khai.
+- [x] Server MOMENT_REPLY + V5 mới, kiểm tra owner/grant/friend/block/validation/idempotency/redaction/FCM.
+- [x] Android Viewer composer, MVVM/Repository, pending retry/recreation và guard process/phiên.
+- [x] Chat hiển thị ảnh + reply text, không mất text khi image error hoặc thu hồi.
+- [x] Full server170/170; JVM122/122; APK debug/test/release unsigned build đạt.
+- [x] AVD18/18 hồi quy, bản cuối reply7/7, guard1/1; ảnh/log đã review/lưu.
+- [x] Ghi lint179errors có sẵn, không đánh dấu toàn app PASS hoặc suppress.
+- [ ] Nghiệm thu hai tài khoản Android→staging/VPS và FCM delivery thật sau phê duyệt riêng.
+
+**PASS local/AVD**, không tự deploy/migrate VPS/commit/push hoặc chuyển tiểu bước.
+Chi tiết [QA_MOMENT_REPLY.md](QA_MOMENT_REPLY.md). Các lỗi audit cũ vẫn giữ bên dưới.
+
+## Lịch sử — Rà soát UI/UX và tự sửa resource an toàn, 20/10/2026
+
+### Cập nhật AVD
+
+- [x] Người dùng cho phép tự chạy máy ảo; dùng userdata QA riêng, không wipe/reset.
+- [x] Chạy bộ UI 34 ca (31 đạt), targeted 12 ca (11 đạt), quyền riêng 1/1 đạt.
+- [x] Sửa minHeight Login, Preview grid/top bar, token input và badge History bằng resource.
+- [x] Build bàn giao 34s đạt; chạy mới 118 JVM tests không lỗi; lưu ảnh/log.
+- [ ] Ma trận List cắt chữ ở TextView không ID: cần test Java diagnostic được duyệt.
+- [ ] Chat attachment không ổn định khi chạy cả bộ: chưa giải quyết bằng retry.
+- [ ] 179 lỗi bản dịch cũ; TalkBack/RTL/widget launcher/phần cứng thật chưa nghiệm thu.
+
+Trạng thái hiện tại **IN PROGRESS/QA chưa đạt**, không còn blocker thiếu USB.
+Chi tiết [UI_UX_AUDIT.md](UI_UX_AUDIT.md); các dòng dưới là snapshot trước AVD.
+
+- [x] Đọc yêu cầu, AGENTS/tài liệu, kiểm tra dirty worktree và kiểm kê 29 layout.
+- [x] Xuất bảng phát hiện trước khi sửa; giữ nguyên toàn bộ android:id và Java.
+- [x] Sửa resource: tương thích API 26, vùng chạm, token/contrast, dialog và chuỗi mới bảy locale.
+- [x] Build debug/test/release unsigned: BUILD SUCCESSFUL (19s).
+- [x] Đọc kết quả 118 JVM test không lỗi; task cuối UP-TO-DATE, không claim chạy mới.
+- [x] Chạy lint debug/release và ghi đúng lỗi còn lại; không thêm baseline/suppress.
+- [ ] Xử lý 179 lỗi MissingTranslation cũ bằng bản dịch đã rà soát, không sao chép để làm xanh lint.
+- [ ] Nghiệm thu runtime sau sửa: USB, bốn theme/day-night, font lớn/IME/TalkBack/RTL, QR và widget.
+- [x] Ghi giới hạn ngoài phạm vi XML và checklist tại [UI_UX_AUDIT.md](UI_UX_AUDIT.md).
+
+Trạng thái: **IN PROGRESS**, nghiệm thu thiết bị **BLOCKED** vì ADB không nhận máy.
+Không đổi Java/backend hoặc mở bước roadmap mới; không commit/push/deploy.
+
+## Lịch sử — QR được duyệt kiểm tra tất cả luồng, 20/10/2026
+
+- [x] Tái hiện hai lỗi QR trước sửa trên USB: 2/2 FAIL có log.
+- [x] Sửa phần đọc ảnh, parsing, CameraX, quyền/lifecycle, xác minh bạn bè
+  và quản lý async qua Repository/ViewModel; giữ thay đổi người dùng.
+- [x] 118 JVM test đạt; tạo APK debug/test/release unsigned.
+- [x] Theo quyền mới chạy AVD riêng: 5 regression + 2 UI instrumentation
+  PASS 7/7 (44,265s), 8 ảnh QA; thêm permission deny/grant thật PASS 1/1
+  (14,942s). Sửa lỗi My QR dismiss không resume và harness Back quá sớm.
+- [x] USB: 7/7 regression/UI cuối PASS (20,863s); optical/torch thật 1/1
+  PASS (6,881s), picker chọn QR khác danh tính 1/1 PASS (12,990s).
+  Giữ phiên cá nhân, không gửi lời mời thật; dọn đúng hai ảnh QA đã cho phép.
+- [ ] Lint toàn dự án: **FAIL 201 lỗi ngoài phần QR**; không tự thay đổi
+  theme/ngôn ngữ đang được người dùng chỉnh. Xem [QA_QR.md](QA_QR.md).
+- [x] Nghiệm thu **phạm vi QR QA USB + AVD**, không tự đánh dấu production/toàn dự án PASS.
+
+## Lịch sử — CHAT-01–05 được duyệt, 20/10/2026
 
 - [x] CHAT-01: V4/REST/phân quyền/read/idempotency/FCM after-commit; 11 ca chat, full backend 163 PASS.
 - [x] CHAT-02: Main 5 tab + Inbox/search/empty/unread; Chat USB đạt.

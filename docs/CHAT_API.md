@@ -19,6 +19,34 @@ Trang 0–10000. Sắp xếp theo thời gian và UUID; Android khử trùng ID 
 
 TEXT có content 1–2000 ký tự Unicode, không trắng hoàn toàn/NUL, momentId null. MOMENT có momentId UUID, request content null; response content là caption đã kiểm tra quyền. Tin có id, conversationId, senderId, recipientId, clientMessageId, messageType, content, momentId, createdAt, readAt; không có đường dẫn ảnh/private URL. Peer có id, username, displayName, avatarVersion (hiện null).
 
+## Trả lời ảnh riêng tư — MOMENT-REPLY-01
+
+Người dùng duyệt ngày 20/10/2026: tại Viewer của ảnh đã nhận, nhập lời trả lời
+và gửi vào hội thoại riêng với chủ ảnh. Không tạo khu bình luận công khai.
+Dùng lại POST `/conversations/{id}/messages` với `messageType=MOMENT_REPLY`,
+`content` 1–2000 Unicode code point, không blank/NUL, và `momentId` UUID.
+Mở/tạo hội thoại bằng endpoint with-friend hiện có trước khi gửi; actor vẫn lấy
+từ JWT, không lấy từ body hoặc Android Intent.
+
+- Peer phải là chính chủ ảnh; actor đã có quyền xem và hai bên đang là bạn,
+  không bị block hai chiều. Không trả lời ảnh mình, ảnh người thứ ba hay ảnh
+  chỉ mình tôi. Chat không cấp thêm người nhận hoặc sao chép ảnh.
+- `content` response là lời trả lời của người dùng, không phải caption ảnh.
+  Khi ảnh xóa/mất quyền, `momentId=null` và nhãn ảnh không khả dụng; lời trả lời
+  đã gửi vẫn thuộc cuộc trò chuyện riêng và được giữ nguyên.
+- Retry cùng key/payload trả bản ghi cũ, không gửi push lần nữa. Với reply đã
+  được ghi trước đó, retry sau xóa ảnh chỉ trả kết quả có tham chiếu đã che;
+  không tạo tin mới hoặc cấp quyền ảnh. Pair authorization vẫn bắt buộc.
+- Android giữ pending bất biến, retry thủ công cùng key; không tự gửi sau
+  recreate. Draft/pending bị xóa khi đổi process/phiên hoặc nhận sự kiện thu hồi.
+- Push vẫn chỉ `type`, `conversationId`, `messageId`; không chứa bình luận,
+  caption, URL hay token. Ảnh chat tải bằng JWT, không dùng cache thay xác thực.
+- V5 mở rộng CHECK loại tin, không sửa V1–V4. Chưa áp dụng lên VPS/DB cá nhân.
+  Cần cập nhật backend và Android tương thích khi triển khai; client cũ chưa
+  hiểu MOMENT_REPLY. Không coi bản build local là đã rollout production.
+
+Kiểm thử và hạn chế: [QA_MOMENT_REPLY.md](QA_MOMENT_REPLY.md).
+
 ## Nhất quán và riêng tư
 
 - V4 thêm `conversations`/`messages`, cặp UUID có thứ tự + UNIQUE, UNIQUE(sender_id,client_message_id), index phân trang/unread. Không chạy migration lên production trong lượt phát triển này.

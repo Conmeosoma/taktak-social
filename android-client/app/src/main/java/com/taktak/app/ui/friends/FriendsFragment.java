@@ -20,6 +20,7 @@ public final class FriendsFragment extends Fragment {
     private FragmentFriendsBinding binding;
     private FriendsViewModel model;
     private androidx.appcompat.app.AlertDialog confirmation;
+    private boolean waitingForQr;
     @Override public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup parent, Bundle saved) {
         binding = FragmentFriendsBinding.inflate(inflater, parent, false); return binding.getRoot();
     }
@@ -44,6 +45,27 @@ public final class FriendsFragment extends Fragment {
             return false;
         });
         binding.friendsRefresh.setOnClickListener(v -> model.refresh());
+        binding.friendsScanQr.setOnClickListener(v -> {
+            startActivity(new android.content.Intent(requireContext(), com.taktak.app.ui.qr.QrScanActivity.class));
+        });
+        var qrModel = new ViewModelProvider(this).get(com.taktak.app.ui.qr.QrScanViewModel.class);
+        qrModel.profile().observe(getViewLifecycleOwner(), me -> {
+            if (me == null || !waitingForQr || !isResumed() || getChildFragmentManager().isStateSaved()) { return; }
+            waitingForQr = false; binding.friendsMyQr.setEnabled(true);
+            if (getChildFragmentManager().findFragmentByTag("MyQrCode") == null) {
+                com.taktak.app.ui.qr.MyQrCodeBottomSheet.newInstance(me.username, me.displayName, me.id)
+                        .show(getChildFragmentManager(), "MyQrCode");
+            }
+        });
+        qrModel.profileError().observe(getViewLifecycleOwner(), message -> {
+            if (message != null && waitingForQr) {
+                waitingForQr = false; binding.friendsMyQr.setEnabled(true);
+                android.widget.Toast.makeText(requireContext(), message, android.widget.Toast.LENGTH_LONG).show();
+            }
+        });
+        binding.friendsMyQr.setOnClickListener(v -> {
+            waitingForQr = true; binding.friendsMyQr.setEnabled(false); qrModel.loadProfile();
+        });
         model.state().observe(getViewLifecycleOwner(), state -> {
             if (state.expired) {
                 view.post(() -> {
@@ -87,6 +109,7 @@ public final class FriendsFragment extends Fragment {
                 }).show();
     }
     @Override public void onDestroyView() {
+        waitingForQr = false;
         if(binding.friendsRecycler.getAdapter() instanceof FriendsAdapter adapter) adapter.close();
         if (confirmation != null) { confirmation.dismiss(); confirmation = null; }
         binding.friendsRecycler.setAdapter(null);

@@ -1,24 +1,219 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent" android:layout_height="match_parent">
-    <com.taktak.app.ui.theme.MediaBackdropView android:layout_width="match_parent" android:layout_height="match_parent" />
-    <LinearLayout android:id="@+id/chatContent" android:layout_width="match_parent" android:layout_height="match_parent" android:orientation="vertical" android:paddingHorizontal="16dp">
-        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical">
-            <com.google.android.material.button.MaterialButton android:id="@+id/chatBack" style="?attr/ttMediaTonalStyle" android:layout_width="wrap_content" android:layout_height="wrap_content" android:minWidth="48dp" android:text="‹" android:contentDescription="@string/chat_back" />
-            <TextView android:id="@+id/chatTitle" android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:text="@string/chat_title" android:textSize="22sp" android:textColor="?attr/colorOnSurface" android:maxLines="1" android:ellipsize="end" android:layout_marginStart="12dp" />
-            <com.google.android.material.button.MaterialButton android:id="@+id/chatRefresh" style="?attr/ttMediaTonalStyle" android:layout_width="wrap_content" android:layout_height="wrap_content" android:minWidth="0dp" android:text="@string/chat_refresh" />
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="?attr/taktakColorSurface">
+
+    <com.taktak.app.ui.theme.MediaBackdropView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <LinearLayout
+        android:id="@+id/chatContent"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <!-- Top Header Bar -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:paddingHorizontal="@dimen/taktak_space_sm"
+            android:paddingVertical="10dp"
+            android:background="?attr/taktakColorSurface">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/chatBack"
+                style="@style/Widget.Material3.Button.IconButton"
+                android:layout_width="@dimen/taktak_touch_target_min"
+                android:layout_height="@dimen/taktak_touch_target_min"
+                android:minWidth="@dimen/taktak_touch_target_min"
+                android:text="@string/ui_glyph_back"
+                android:textSize="24sp"
+                android:textColor="?attr/taktakColorTextPrimary"
+                android:contentDescription="@string/chat_back"     android:minHeight="@dimen/taktak_touch_target_min" />
+
+            <TextView
+                android:id="@+id/chatTitle"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:text="@string/chat_title"
+                android:fontFamily="@font/inter"
+                android:textStyle="bold"
+                android:textSize="18sp"
+                android:textColor="?attr/taktakColorTextPrimary"
+                android:maxLines="1"
+                android:ellipsize="end"
+                android:layout_marginStart="@dimen/taktak_space_xs" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/chatRefresh"
+                style="@style/Widget.Material3.Button.TonalButton"
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/taktak_touch_target_min"
+                android:minWidth="0dp"
+                android:paddingHorizontal="14dp"
+                android:fontFamily="@font/inter"
+                android:textSize="13sp"
+                android:text="@string/chat_refresh"     android:minHeight="@dimen/taktak_touch_target_min" />
         </LinearLayout>
-        <com.google.android.material.progressindicator.LinearProgressIndicator android:id="@+id/chatProgress" android:layout_width="match_parent" android:layout_height="wrap_content" android:indeterminate="true" android:contentDescription="@string/chat_loading" android:visibility="invisible" />
-        <TextView android:id="@+id/chatStatus" android:layout_width="match_parent" android:layout_height="wrap_content" android:textColor="?attr/colorOnSurface" android:accessibilityLiveRegion="polite" android:visibility="gone" />
-        <com.google.android.material.button.MaterialButton android:id="@+id/chatRetry" style="?attr/ttMediaTonalStyle" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/chat_retry" android:visibility="gone" />
-        <com.google.android.material.button.MaterialButton android:id="@+id/chatEditRetry" style="?attr/ttMediaTonalStyle" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/chat_edit_retry" android:visibility="gone" />
-        <com.google.android.material.button.MaterialButton android:id="@+id/chatMore" style="?attr/ttMediaTonalStyle" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/chat_more" android:visibility="gone" />
-        <androidx.recyclerview.widget.RecyclerView android:id="@+id/chatList" android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:clipToPadding="false" android:saveEnabled="false" />
-        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="bottom" android:paddingVertical="8dp">
-            <com.google.android.material.button.MaterialButton android:id="@+id/chatAttach" style="?attr/ttMediaTonalStyle" android:layout_width="48dp" android:layout_height="wrap_content" android:minWidth="0dp" android:text="+" android:contentDescription="@string/chat_attach" android:padding="0dp" />
-            <com.google.android.material.textfield.TextInputLayout android:id="@+id/chatInputLayout" style="?attr/ttMediaFieldStyle" android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:hint="@string/chat_message_hint" android:layout_marginHorizontal="6dp">
-                <com.google.android.material.textfield.TextInputEditText android:id="@+id/chatInput" style="?attr/ttMediaInputStyle" android:layout_width="match_parent" android:layout_height="wrap_content" android:inputType="textCapSentences|textMultiLine" android:maxLines="4" android:saveEnabled="false" android:maxLength="4000" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="?attr/taktakColorBorder" />
+
+        <com.google.android.material.progressindicator.LinearProgressIndicator
+            android:id="@+id/chatProgress"
+            android:layout_width="match_parent"
+            android:layout_height="3dp"
+            android:indeterminate="true"
+            android:contentDescription="@string/chat_loading"
+            android:visibility="invisible" />
+
+        <!-- Status message / errors -->
+        <TextView
+            android:id="@+id/chatStatus"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="?attr/colorError"
+            android:fontFamily="@font/inter"
+            android:textSize="13sp"
+            android:gravity="center"
+            android:paddingHorizontal="@dimen/taktak_space_md"
+            android:paddingVertical="6dp"
+            android:accessibilityLiveRegion="polite"
+            android:visibility="gone" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center"
+            android:paddingHorizontal="@dimen/taktak_space_md">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/chatRetry"
+                style="@style/Widget.Material3.Button.TonalButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="@dimen/taktak_space_xs"
+                android:fontFamily="@font/inter"
+                android:text="@string/chat_retry"
+                android:visibility="gone"     android:minHeight="@dimen/taktak_touch_target_min" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/chatEditRetry"
+                style="@style/Widget.Material3.Button.TextButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/inter"
+                android:text="@string/chat_edit_retry"
+                android:visibility="gone"     android:minHeight="@dimen/taktak_touch_target_min" />
+        </LinearLayout>
+
+        <!-- Load older messages -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/chatMore"
+            style="@style/Widget.Material3.Button.TonalButton"
+            android:layout_width="wrap_content"
+            android:layout_height="@dimen/taktak_touch_target_min"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginVertical="6dp"
+            android:fontFamily="@font/inter"
+            android:textSize="12sp"
+            android:text="@string/chat_more"
+            android:visibility="gone"     android:minHeight="@dimen/taktak_touch_target_min" />
+
+        <!-- Message List -->
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/chatList"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:paddingHorizontal="@dimen/taktak_space_xs"
+            android:clipToPadding="false"
+            android:saveEnabled="false" />
+
+        <!-- Bottom Input Bar -->
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="?attr/taktakColorBorder" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:paddingHorizontal="@dimen/taktak_space_sm"
+            android:paddingVertical="10dp"
+            android:background="?attr/taktakColorSurface">
+
+            <!-- Attach button -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/chatAttach"
+                style="@style/Widget.Material3.Button.TonalButton"
+                android:layout_width="@dimen/taktak_touch_target_min"
+                android:layout_height="@dimen/taktak_touch_target_min"
+                android:minWidth="0dp"
+                android:padding="0dp"
+                android:insetTop="0dp"
+                android:insetBottom="0dp"
+                app:cornerRadius="22dp"
+                android:text="@string/ui_glyph_add"
+                android:textSize="22sp"
+                android:contentDescription="@string/chat_attach"     android:minHeight="@dimen/taktak_touch_target_min" />
+
+            <!-- Input text field -->
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/chatInputLayout"
+                style="@style/Widget.Material3.TextInputLayout.OutlinedBox.Dense"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="@dimen/taktak_space_xs"
+                android:hint="@string/chat_message_hint"
+                app:boxCornerRadiusTopStart="22dp"
+                app:boxCornerRadiusTopEnd="22dp"
+                app:boxCornerRadiusBottomStart="22dp"
+                app:boxCornerRadiusBottomEnd="22dp"
+                app:boxStrokeColor="?attr/taktakColorBorder"
+                app:boxStrokeWidthFocused="1.5dp"
+                app:expandedHintEnabled="false">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/chatInput"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/inter"
+                    android:textSize="15sp"
+                    android:textColor="?attr/taktakColorTextPrimary"
+                    android:inputType="textCapSentences|textMultiLine"
+                    android:maxLines="4"
+                    android:paddingHorizontal="14dp"
+                    android:paddingVertical="10dp"
+                    android:saveEnabled="false"
+                    android:maxLength="4000" />
             </com.google.android.material.textfield.TextInputLayout>
-            <com.google.android.material.button.MaterialButton android:id="@+id/chatSend" style="?attr/ttMediaPrimaryStyle" android:layout_width="wrap_content" android:layout_height="wrap_content" android:minWidth="48dp" android:text="@string/chat_send" />
+
+            <!-- Send button -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/chatSend"
+                style="@style/Widget.Material3.Button"
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/taktak_touch_target_min"
+                android:minWidth="@dimen/taktak_touch_target_min"
+                android:paddingHorizontal="@dimen/taktak_space_md"
+                android:insetTop="0dp"
+                android:insetBottom="0dp"
+                app:cornerRadius="22dp"
+                android:fontFamily="@font/inter"
+                android:textStyle="bold"
+                android:textSize="14sp"
+                android:text="@string/chat_send"     android:minHeight="@dimen/taktak_touch_target_min" />
         </LinearLayout>
     </LinearLayout>
 </FrameLayout>

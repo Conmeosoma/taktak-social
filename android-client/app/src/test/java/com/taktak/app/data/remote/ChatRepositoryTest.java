@@ -84,6 +84,51 @@ public class ChatRepositoryTest {
         assertFalse(ChatRepository.validText("😀".repeat(2001)));
         assertFalse(ChatRepository.validText("\u2003 \n"));assertFalse(ChatRepository.validText(null));
     }
+    @Test public void momentReplyRequiresTextAndMomentBeforeTransport() throws Exception {
+        AtomicInteger calls = new AtomicInteger();
+        try (var server = new TestHttpServer(request -> { calls.incrementAndGet(); return new TestHttpServer.Reply(200, "{}"); })) {
+            var client = new ApiClient(server.baseUrl(), new Memory()); seed(client);
+            var repo = new ChatRepository(client);
+            for (Send payload : new Send[]{new Send(KEY,"MOMENT_REPLY",null,MESSAGE),
+                    new Send(KEY,"MOMENT_REPLY"," \n",MESSAGE), new Send(KEY,"MOMENT_REPLY","a\0b",MESSAGE),
+                    new Send(KEY,"MOMENT_REPLY","😀".repeat(2001),MESSAGE), new Send(KEY,"MOMENT_REPLY","reply",null)}) {
+                fails(ApiFailure.Kind.VALIDATION, () -> repo.send(CHAT, payload));
+            }
+            assertEquals(0, calls.get());
+        }
+    }
+    @Test public void momentReplyRetryKeepsPayloadAndAcceptsRedactedImageButRetainsText() throws Exception {
+        AtomicInteger calls = new AtomicInteger();
+        String reply = TEXT.replace("\"TEXT\"", "\"MOMENT_REPLY\"");
+        try (var server = new TestHttpServer(request -> {
+            assertEquals("{\"clientMessageId\":\""+KEY+"\",\"messageType\":\"MOMENT_REPLY\",\"content\":\"hello\",\"momentId\":\""+MESSAGE+"\"}", request.body);
+            return calls.incrementAndGet() == 1 ? new TestHttpServer.Reply(503,"{}") : new TestHttpServer.Reply(200,reply);
+        })) {
+            var client = new ApiClient(server.baseUrl(), new Memory()); seed(client);
+            var repo = new ChatRepository(client); var payload = new Send(KEY,"MOMENT_REPLY","hello",MESSAGE);
+            fails(ApiFailure.Kind.SERVER, () -> repo.send(CHAT, payload));
+            var result = repo.send(CHAT, payload);
+            assertEquals("hello", result.content); assertNull(result.momentId); assertEquals(2,calls.get());
+        }
+    }
+    @Test public void momentReplyRejectsForeignReferenceAndChangedOrMissingText() throws Exception {
+        String reply = TEXT.replace("\"TEXT\"", "\"MOMENT_REPLY\"");
+        for (String body : new String[]{reply.replace("hello","different"),reply.replace("\"hello\"","null"),
+                reply.replace("\"hello\"","\"hello\",\"momentId\":\""+PEER+"\"")}) {
+            try (var server = new TestHttpServer(request -> new TestHttpServer.Reply(200,body))) {
+                var client = new ApiClient(server.baseUrl(), new Memory()); seed(client);
+                fails(ApiFailure.Kind.SERVER, () -> new ChatRepository(client).send(CHAT,new Send(KEY,"MOMENT_REPLY","hello",MESSAGE)));
+            }
+        }
+    }
+    @Test public void momentReplyPagesAcceptUnicodeAndRevokedReference() throws Exception {
+        String reply = TEXT.replace("\"TEXT\"", "\"MOMENT_REPLY\"").replace("hello","😀".repeat(2000));
+        try (var server = new TestHttpServer(request -> new TestHttpServer.Reply(200,"{\"items\":["+reply+"],\"hasNext\":false}"))) {
+            var client = new ApiClient(server.baseUrl(), new Memory()); seed(client);
+            var result = new ChatRepository(client).messages(CHAT,0).items.get(0);
+            assertEquals(2000,result.content.codePointCount(0,result.content.length())); assertNull(result.momentId);
+        }
+    }
     @Test public void successfulButForeignBodiesCannotEscape() throws Exception {
         for(String body:new String[]{TEXT.replace(CHAT,PEER),TEXT.replace(KEY,PEER),TEXT.replace("TEXT","UNKNOWN"),"null"}){
             try(var server=new TestHttpServer(request->new TestHttpServer.Reply(200,body))){

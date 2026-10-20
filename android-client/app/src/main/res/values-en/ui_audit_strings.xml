@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="ui_streak_preview">🔥 3 days</string>
+    <string name="ui_close_friends_badge">BFF</string>
+    <string name="ui_expiry_preview">⏳ 24 hours</string>
+    <string name="ui_reaction_heart">React with a heart</string>
+    <string name="ui_reaction_fire">React with fire</string>
+    <string name="ui_reaction_laugh">React with laughter</string>
+    <string name="ui_reaction_wow">React with surprise</string>
+</resources>

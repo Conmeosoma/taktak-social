@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="qr_lookup_failed">Không thể xác minh tài khoản. Kiểm tra kết nối và thử lại.</string>
+    <string name="qr_identity_not_found">Không tìm thấy tài khoản phù hợp với mã này.</string>
+    <string name="qr_session_changed">Phiên đã thay đổi. Hãy mở lại màn QR.</string>
+    <string name="qr_checking_identity">Đang xác minh tài khoản…</string>
+    <string name="qr_sending_request">Đang gửi lời mời…</string>
+    <string name="qr_retry">Thử lại</string>
+    <string name="qr_camera_permission">Cho phép Camera để quét mã. Bạn vẫn có thể chọn ảnh hoặc mở mã của tôi.</string>
+    <string name="qr_camera_settings">Cài đặt quyền Camera</string>
+</resources>

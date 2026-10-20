@@ -27,7 +27,7 @@
     <string name="theme_selected">Đang chọn</string>
     <string name="theme_open">Chọn giao diện</string>
     <string name="theme_back">Quay lại</string>
-    <style name="Theme.TakTak.Chooser" parent="Theme.Material3Expressive.DayNight.NoActionBar">
+    <style name="Theme.TakTak.Chooser" parent="Theme.TakTak.M3">
         <item name="colorPrimary">@color/tc_original_primary</item>
         <item name="colorOnPrimary">@color/tc_on_primary</item>
         <item name="colorSurface">@color/tc_original_bg</item>

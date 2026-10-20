@@ -75,6 +75,9 @@ public final class HistoryFragment extends Fragment {
 
         binding.historyRefresh.setOnClickListener(v -> model.refresh());
 
+        binding.btnViewRecap.setOnClickListener(v -> showRecapDialog());
+        binding.historyMemoriesCard.setOnClickListener(v -> showRecapDialog());
+
         model.state().observe(getViewLifecycleOwner(), state -> {
             if (state.expired) {
                 view.post(() -> {
@@ -115,6 +118,18 @@ public final class HistoryFragment extends Fragment {
         });
 
         model.load();
+    }
+
+    private void showRecapDialog() {
+        String content = getString(R.string.recap_stat_moments) + "\n\n"
+                + getString(R.string.recap_stat_friends) + "\n\n"
+                + getString(R.string.recap_stat_streak);
+
+        new com.google.android.material.dialog.MaterialAlertDialogBuilder(requireContext())
+                .setTitle(R.string.recap_dialog_title)
+                .setMessage(content)
+                .setPositiveButton(R.string.recap_close, null)
+                .show();
     }
 
     @Override

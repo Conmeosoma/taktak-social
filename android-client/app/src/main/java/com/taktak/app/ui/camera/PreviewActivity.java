@@ -67,7 +67,7 @@ public final class PreviewActivity extends AppCompatActivity {
         });
         binding.allFriendsCheck.setOnCheckedChangeListener((button, checked) -> { if (!rendering) { model.selectAll(checked); } });
         binding.friendsMoreButton.setOnClickListener(view -> model.loadFriends());
-        binding.sendFriendsButton.setOnClickListener(view -> model.sendFriends());
+        binding.sendFriendsButton.setOnClickListener(view -> commitEditsAndProceed(() -> model.sendFriends()));
         binding.previewLogoutButton.setOnClickListener(view -> session.logout());
         binding.retakeButton.setOnClickListener(view -> finish());
         binding.previewSessionRetry.setOnClickListener(view -> {
@@ -75,11 +75,14 @@ public final class PreviewActivity extends AppCompatActivity {
             else { permission.launch("android.permission.ACCESS_LOCAL_NETWORK"); }
         });
         binding.savePrivateButton.setOnClickListener(view -> {
-            if (model.state().getValue().retry()) { model.savePrivate(); return; }
+            if (model.state().getValue().retry()) { commitEditsAndProceed(() -> model.savePrivate()); return; }
             new MaterialAlertDialogBuilder(this).setMessage(R.string.preview_private_confirm)
                     .setNegativeButton(R.string.preview_cancel, null)
-                    .setPositiveButton(R.string.preview_confirm, (dialog, which) -> model.savePrivate()).show();
+                    .setPositiveButton(R.string.preview_confirm, (dialog, which) -> commitEditsAndProceed(() -> model.savePrivate())).show();
         });
+
+        setupCreativeTools();
+
         getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
             @Override public void handleOnBackPressed() { if (!model.state().getValue().sending()) { finish(); } }
         });
@@ -152,10 +155,90 @@ public final class PreviewActivity extends AppCompatActivity {
         adapter.update(value); rendering = false;
         Object image = value.downloaded() != null ? value.downloaded() : value.file();
         binding.previewImage.setContentDescription(getString(value.downloaded() == null ? R.string.preview_image : R.string.moment_server_image));
+        if (value.downloaded() != null) {
+            binding.creativeToolsBar.setVisibility(View.GONE);
+            binding.colorPaletteBar.setVisibility(View.GONE);
+            binding.stickerPaletteBar.setVisibility(View.GONE);
+            binding.doodleOverlay.setMode(DoodleOverlayView.Mode.DISABLED);
+        } else {
+            binding.creativeToolsBar.setVisibility(View.VISIBLE);
+        }
         if (!Objects.equals(image, shownImage)) {
             shownImage = image;
             if (image == null) { clearImage(); }
             else { images.load(image).diskCacheStrategy(DiskCacheStrategy.NONE).skipMemoryCache(true).into(binding.previewImage); }
+        }
+    }
+    private void commitEditsAndProceed(Runnable action) {
+        if (!binding.doodleOverlay.hasEdits()
+                || !(binding.previewImage.getDrawable() instanceof android.graphics.drawable.BitmapDrawable bd)) {
+            action.run();
+            return;
+        }
+        android.graphics.Bitmap original = bd.getBitmap();
+        if (original == null) {
+            action.run();
+            return;
+        }
+        android.graphics.Bitmap composite = binding.doodleOverlay.renderCompositeBitmap(original);
+        java.io.ByteArrayOutputStream baos = new java.io.ByteArrayOutputStream();
+        composite.compress(android.graphics.Bitmap.CompressFormat.JPEG, 88, baos);
+        model.updateDraftImage(baos.toByteArray(), action);
+    }
+    private void setupCreativeTools() {
+        binding.btnToolDoodle.setOnClickListener(v -> {
+            boolean active = binding.doodleOverlay.getMode() == DoodleOverlayView.Mode.DRAW;
+            if (active) {
+                binding.doodleOverlay.setMode(DoodleOverlayView.Mode.DISABLED);
+                binding.colorPaletteBar.setVisibility(View.GONE);
+            } else {
+                binding.doodleOverlay.setMode(DoodleOverlayView.Mode.DRAW);
+                binding.colorPaletteBar.setVisibility(View.VISIBLE);
+                binding.stickerPaletteBar.setVisibility(View.GONE);
+            }
+        });
+        binding.btnToolSticker.setOnClickListener(v -> {
+            boolean active = binding.doodleOverlay.getMode() == DoodleOverlayView.Mode.STICKER_DRAG;
+            if (active) {
+                binding.doodleOverlay.setMode(DoodleOverlayView.Mode.DISABLED);
+                binding.stickerPaletteBar.setVisibility(View.GONE);
+            } else {
+                binding.doodleOverlay.setMode(DoodleOverlayView.Mode.STICKER_DRAG);
+                binding.stickerPaletteBar.setVisibility(View.VISIBLE);
+                binding.colorPaletteBar.setVisibility(View.GONE);
+            }
+        });
+        binding.btnToolTag.setOnClickListener(v -> {
+            if (binding.doodleOverlay.isContextTagVisible()) {
+                binding.doodleOverlay.setContextTag("", false);
+            } else {
+                String timeStr = new java.text.SimpleDateFormat("HH:mm", java.util.Locale.getDefault()).format(new java.util.Date());
+                android.content.Intent batteryStatus = registerReceiver(null, new android.content.IntentFilter(android.content.Intent.ACTION_BATTERY_CHANGED));
+                int level = batteryStatus != null ? batteryStatus.getIntExtra(android.os.BatteryManager.EXTRA_LEVEL, -1) : -1;
+                int scale = batteryStatus != null ? batteryStatus.getIntExtra(android.os.BatteryManager.EXTRA_SCALE, -1) : -1;
+                int pct = (level >= 0 && scale > 0) ? (int)((level / (float)scale) * 100) : -1;
+                String tag = timeStr + (pct >= 0 ? " • 🔋 " + pct + "%" : "");
+                binding.doodleOverlay.setContextTag(tag, true);
+            }
+        });
+        binding.btnToolUndo.setOnClickListener(v -> binding.doodleOverlay.undo());
+        binding.btnToolClear.setOnClickListener(v -> binding.doodleOverlay.clearAll());
+        binding.colorWhite.setOnClickListener(v -> binding.doodleOverlay.setCurrentColor(android.graphics.Color.WHITE));
+        binding.colorYellow.setOnClickListener(v -> binding.doodleOverlay.setCurrentColor(android.graphics.Color.parseColor("#FFD600")));
+        binding.colorCoral.setOnClickListener(v -> binding.doodleOverlay.setCurrentColor(android.graphics.Color.parseColor("#FF3B5C")));
+        binding.colorMint.setOnClickListener(v -> binding.doodleOverlay.setCurrentColor(android.graphics.Color.parseColor("#00E676")));
+        binding.colorPurple.setOnClickListener(v -> binding.doodleOverlay.setCurrentColor(android.graphics.Color.parseColor("#7C4DFF")));
+        String[] emojis = {"🔥", "❤️", "✨", "😂", "🎉", "🚀", "📸", "🫶", "☕", "🐱", "🍕", "😴", "🌈", "⚡", "🍀"};
+        binding.stickerEmojiContainer.removeAllViews();
+        for (String emoji : emojis) {
+            android.widget.TextView tv = new android.widget.TextView(this);
+            tv.setText(emoji);
+            tv.setTextSize(android.util.TypedValue.COMPLEX_UNIT_SP, 24);
+            tv.setPadding(16, 8, 16, 8);
+            tv.setClickable(true);
+            tv.setFocusable(true);
+            tv.setOnClickListener(ev -> binding.doodleOverlay.addSticker(emoji));
+            binding.stickerEmojiContainer.addView(tv);
         }
     }
     private void clearImage() { images.clear(binding.previewImage); binding.previewImage.setImageDrawable(null); shownImage = null; }

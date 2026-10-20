@@ -86,18 +86,42 @@ public final class WidgetUpdater {
         );
     }
 
+    private static PendingIntent buildReactionIntent(Context context, String emoji, String momentId, int requestCode) {
+        Intent intent = new Intent(context, WidgetReactionReceiver.class);
+        intent.setAction(WidgetReactionReceiver.ACTION_REACT);
+        intent.putExtra(WidgetReactionReceiver.EXTRA_EMOJI, emoji);
+        intent.putExtra(WidgetReactionReceiver.EXTRA_MOMENT_ID, momentId);
+        return PendingIntent.getBroadcast(
+                context,
+                requestCode,
+                intent,
+                PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
+        );
+    }
+
     public static void renderMoment(Context context, MomentItem moment, Bitmap bitmap) {
         AppWidgetManager manager = AppWidgetManager.getInstance(context);
-        ComponentName component = new ComponentName(context, TaktakAppWidgetProvider.class);
+
+        // Update 2x2 widgets
+        renderMomentInternal(context, manager, TaktakAppWidgetProvider.class, R.layout.widget_taktak_2x2, moment, bitmap);
+
+        // Update 4x2 widgets
+        renderMomentInternal(context, manager, TaktakAppWidgetProvider4x2.class, R.layout.widget_taktak_4x2, moment, bitmap);
+    }
+
+    private static void renderMomentInternal(Context context, AppWidgetManager manager, Class<?> providerClass,
+                                             int layoutId, MomentItem moment, Bitmap bitmap) {
+        ComponentName component = new ComponentName(context, providerClass);
         int[] ids = manager.getAppWidgetIds(component);
         if (ids == null || ids.length == 0) { return; }
 
-        RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.widget_taktak_2x2);
+        RemoteViews views = new RemoteViews(context.getPackageName(), layoutId);
         views.setOnClickPendingIntent(R.id.widget_root, buildPendingIntent(context));
 
         views.setViewVisibility(R.id.widget_moment_container, View.VISIBLE);
         views.setViewVisibility(R.id.widget_empty_container, View.GONE);
         views.setViewVisibility(R.id.widget_logged_out_container, View.GONE);
+        views.setViewVisibility(R.id.widget_reaction_burst, View.GONE);
 
         if (bitmap != null) {
             views.setImageViewBitmap(R.id.widget_image, bitmap);
@@ -113,16 +137,30 @@ public final class WidgetUpdater {
         } else {
             views.setViewVisibility(R.id.widget_caption, View.GONE);
         }
+
+        // Attach reaction listeners
+        views.setOnClickPendingIntent(R.id.widget_react_heart,
+                buildReactionIntent(context, "❤️", moment.id, 101));
+        views.setOnClickPendingIntent(R.id.widget_react_fire,
+                buildReactionIntent(context, "🔥", moment.id, 102));
+        views.setOnClickPendingIntent(R.id.widget_react_laugh,
+                buildReactionIntent(context, "😂", moment.id, 103));
+
         manager.updateAppWidget(component, views);
     }
 
     public static void renderEmpty(Context context) {
         AppWidgetManager manager = AppWidgetManager.getInstance(context);
-        ComponentName component = new ComponentName(context, TaktakAppWidgetProvider.class);
+        renderEmptyInternal(context, manager, TaktakAppWidgetProvider.class, R.layout.widget_taktak_2x2);
+        renderEmptyInternal(context, manager, TaktakAppWidgetProvider4x2.class, R.layout.widget_taktak_4x2);
+    }
+
+    private static void renderEmptyInternal(Context context, AppWidgetManager manager, Class<?> providerClass, int layoutId) {
+        ComponentName component = new ComponentName(context, providerClass);
         int[] ids = manager.getAppWidgetIds(component);
         if (ids == null || ids.length == 0) { return; }
 
-        RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.widget_taktak_2x2);
+        RemoteViews views = new RemoteViews(context.getPackageName(), layoutId);
         views.setOnClickPendingIntent(R.id.widget_root, buildPendingIntent(context));
 
         views.setViewVisibility(R.id.widget_moment_container, View.GONE);
@@ -134,11 +172,16 @@ public final class WidgetUpdater {
 
     public static void renderLoggedOut(Context context) {
         AppWidgetManager manager = AppWidgetManager.getInstance(context);
-        ComponentName component = new ComponentName(context, TaktakAppWidgetProvider.class);
+        renderLoggedOutInternal(context, manager, TaktakAppWidgetProvider.class, R.layout.widget_taktak_2x2);
+        renderLoggedOutInternal(context, manager, TaktakAppWidgetProvider4x2.class, R.layout.widget_taktak_4x2);
+    }
+
+    private static void renderLoggedOutInternal(Context context, AppWidgetManager manager, Class<?> providerClass, int layoutId) {
+        ComponentName component = new ComponentName(context, providerClass);
         int[] ids = manager.getAppWidgetIds(component);
         if (ids == null || ids.length == 0) { return; }
 
-        RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.widget_taktak_2x2);
+        RemoteViews views = new RemoteViews(context.getPackageName(), layoutId);
         views.setOnClickPendingIntent(R.id.widget_root, buildPendingIntent(context));
 
         views.setViewVisibility(R.id.widget_moment_container, View.GONE);

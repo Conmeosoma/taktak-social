@@ -1,52 +1,210 @@
+<?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto" android:id="@+id/themeRoot"
-    android:layout_width="match_parent" android:layout_height="match_parent">
-    <androidx.core.widget.NestedScrollView android:id="@+id/themeScroll"
-        android:layout_width="0dp" android:layout_height="0dp" android:fillViewport="true"
-        app:layout_constraintWidth_max="600dp" app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent" app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintBottom_toTopOf="@id/themeActions">
-        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="20dp">
-            <com.google.android.material.button.MaterialButton android:id="@+id/themeBack"
-                style="@style/Widget.Material3.Button.TextButton" android:layout_width="wrap_content" android:layout_height="wrap_content"
-                android:minHeight="48dp" android:text="@string/theme_back" />
-            <TextView android:id="@+id/themeTitle" android:layout_width="match_parent" android:layout_height="wrap_content"
-                android:text="@string/theme_settings_title" android:textColor="?attr/colorOnSurface" android:textSize="32sp" />
-            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="8dp"
-                android:text="@string/theme_settings_detail" android:textColor="?attr/colorOnSurfaceVariant" android:textSize="16sp" />
-            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="16dp"
-                android:text="@string/theme_preview_label" android:textColor="?attr/colorOnSurface" android:textSize="18sp" />
-            <com.taktak.app.ui.theme.ThemePreviewView android:id="@+id/themePreview"
-                android:layout_width="match_parent" android:layout_height="144dp" android:layout_marginTop="12dp" android:importantForAccessibility="no" />
-            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="8dp"
-                android:text="@string/theme_preview_detail" android:textColor="?attr/colorOnSurfaceVariant" android:textSize="14sp" />
-            <LinearLayout android:id="@+id/themeOptions" android:layout_width="match_parent" android:layout_height="wrap_content"
-                android:orientation="vertical" android:layout_marginTop="16dp" />
-            <TextView android:id="@+id/themeModeHeading" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="16dp"
-                android:text="@string/theme_mode_label" android:textColor="?attr/colorOnSurface" android:textSize="18sp" />
-            <RadioGroup android:id="@+id/themeModes" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical">
-                <com.google.android.material.radiobutton.MaterialRadioButton android:id="@+id/themeSystem"
-                    android:layout_width="match_parent" android:layout_height="wrap_content" android:minHeight="48dp" android:text="@string/theme_system" />
-                <com.google.android.material.radiobutton.MaterialRadioButton android:id="@+id/themeLight"
-                    android:layout_width="match_parent" android:layout_height="wrap_content" android:minHeight="48dp" android:text="@string/theme_light" />
-                <com.google.android.material.radiobutton.MaterialRadioButton android:id="@+id/themeDark"
-                    android:layout_width="match_parent" android:layout_height="wrap_content" android:minHeight="48dp" android:text="@string/theme_dark" />
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/themeRoot"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="?attr/taktakColorSurface">
+
+    <androidx.core.widget.NestedScrollView
+        android:id="@+id/themeScroll"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:clipToPadding="false"
+        android:fillViewport="true"
+        app:layout_constraintBottom_toTopOf="@id/themeActions"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintWidth_max="600dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingHorizontal="@dimen/taktak_space_xl"
+            android:paddingTop="@dimen/taktak_space_md"
+            android:paddingBottom="@dimen/taktak_space_xl">
+
+            <!-- Back Button -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/themeBack"
+                style="@style/Widget.Taktak.Button.Ghost"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:minHeight="@dimen/taktak_btn_height_medium"
+                android:text="@string/theme_back"
+                app:icon="@drawable/login_back"
+                app:iconGravity="textStart"
+                app:iconSize="20dp"
+                app:iconTint="?attr/taktakColorBrandPrimary" />
+
+            <!-- Title & Details -->
+            <TextView
+                android:id="@+id/themeTitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/taktak_space_xs"
+                android:text="@string/theme_settings_title"
+                android:textAppearance="@style/TextAppearance.Taktak.LargeTitle"
+                android:textColor="?attr/taktakColorTextPrimary" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/taktak_space_xxs"
+                android:text="@string/theme_settings_detail"
+                android:textAppearance="@style/TextAppearance.Taktak.Body"
+                android:textColor="?attr/taktakColorTextSecondary" />
+
+            <!-- Theme Live Preview -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/taktak_space_lg"
+                android:text="@string/theme_preview_label"
+                android:textAppearance="@style/TextAppearance.Taktak.SectionTitle"
+                android:textColor="?attr/taktakColorTextPrimary" />
+
+            <com.taktak.app.ui.theme.ThemePreviewView
+                android:id="@+id/themePreview"
+                android:layout_width="match_parent"
+                android:layout_height="144dp"
+                android:layout_marginTop="@dimen/taktak_space_sm"
+                android:importantForAccessibility="no" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/taktak_space_xxs"
+                android:text="@string/theme_preview_detail"
+                android:textAppearance="@style/TextAppearance.Taktak.Caption"
+                android:textColor="?attr/taktakColorTextMuted" />
+
+            <!-- Theme Options (4 Styles: Original, Gradient, Glass, Soft) -->
+            <LinearLayout
+                android:id="@+id/themeOptions"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/taktak_space_md"
+                android:orientation="vertical" />
+
+            <!-- Mode Heading: Light / Dark / System -->
+            <TextView
+                android:id="@+id/themeModeHeading"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/taktak_space_lg"
+                android:text="@string/theme_mode_label"
+                android:textAppearance="@style/TextAppearance.Taktak.SectionTitle"
+                android:textColor="?attr/taktakColorTextPrimary" />
+
+            <RadioGroup
+                android:id="@+id/themeModes"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/taktak_space_xs"
+                android:orientation="vertical">
+
+                <com.google.android.material.radiobutton.MaterialRadioButton
+                    android:id="@+id/themeSystem"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:minHeight="@dimen/taktak_touch_target_min"
+                    android:text="@string/theme_system"
+                    android:textAppearance="@style/TextAppearance.Taktak.Body"
+                    android:textColor="?attr/taktakColorTextPrimary"
+                    app:buttonTint="?attr/taktakColorBrandPrimary" />
+
+                <com.google.android.material.radiobutton.MaterialRadioButton
+                    android:id="@+id/themeLight"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:minHeight="@dimen/taktak_touch_target_min"
+                    android:text="@string/theme_light"
+                    android:textAppearance="@style/TextAppearance.Taktak.Body"
+                    android:textColor="?attr/taktakColorTextPrimary"
+                    app:buttonTint="?attr/taktakColorBrandPrimary" />
+
+                <com.google.android.material.radiobutton.MaterialRadioButton
+                    android:id="@+id/themeDark"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:minHeight="@dimen/taktak_touch_target_min"
+                    android:text="@string/theme_dark"
+                    android:textAppearance="@style/TextAppearance.Taktak.Body"
+                    android:textColor="?attr/taktakColorTextPrimary"
+                    app:buttonTint="?attr/taktakColorBrandPrimary" />
             </RadioGroup>
-            <TextView android:id="@+id/themeScopeNotice" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="16dp"
-                android:text="@string/theme_scope_notice" android:textColor="?attr/colorOnSurfaceVariant" android:textSize="14sp" />
+
+            <TextView
+                android:id="@+id/themeScopeNotice"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/taktak_space_md"
+                android:text="@string/theme_scope_notice"
+                android:textAppearance="@style/TextAppearance.Taktak.Caption"
+                android:textColor="?attr/taktakColorTextMuted" />
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
-    <LinearLayout android:id="@+id/themeActions" android:layout_width="0dp" android:layout_height="wrap_content" android:orientation="vertical" android:padding="16dp"
-        app:layout_constraintWidth_max="600dp" app:layout_constraintStart_toStartOf="parent" app:layout_constraintEnd_toEndOf="parent" app:layout_constraintBottom_toBottomOf="parent">
-        <com.google.android.material.progressindicator.LinearProgressIndicator android:id="@+id/themeProgress" android:layout_width="match_parent"
-            android:layout_height="4dp" android:indeterminate="true" android:visibility="invisible" android:contentDescription="@string/theme_saving" />
-        <TextView android:id="@+id/themeNotice" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="8dp"
-            android:textColor="?attr/colorOnSurface" android:textSize="14sp" android:accessibilityLiveRegion="polite" android:visibility="gone" />
-        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal">
-            <com.google.android.material.button.MaterialButton android:id="@+id/themeCancel" style="@style/Widget.Material3.Button.OutlinedButton"
-                android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:minHeight="56dp" android:text="@string/theme_cancel" />
-            <com.google.android.material.button.MaterialButton android:id="@+id/themeApply" android:layout_marginStart="12dp"
-                android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:minHeight="56dp" android:text="@string/theme_apply" />
+
+    <!-- Bottom Actions: Cancel & Apply -->
+    <LinearLayout
+        android:id="@+id/themeActions"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingHorizontal="@dimen/taktak_space_xl"
+        android:paddingVertical="@dimen/taktak_space_md"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintWidth_max="600dp">
+
+        <com.google.android.material.progressindicator.LinearProgressIndicator
+            android:id="@+id/themeProgress"
+            android:layout_width="match_parent"
+            android:layout_height="4dp"
+            android:contentDescription="@string/theme_saving"
+            android:indeterminate="true"
+            android:visibility="invisible"
+            app:indicatorColor="?attr/taktakColorBrandPrimary"
+            app:trackColor="?attr/taktakColorBorder" />
+
+        <TextView
+            android:id="@+id/themeNotice"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/taktak_space_xs"
+            android:accessibilityLiveRegion="polite"
+            android:textAppearance="@style/TextAppearance.Taktak.Secondary"
+            android:textColor="?attr/taktakColorTextPrimary"
+            android:visibility="gone" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:baselineAligned="false"
+            android:orientation="horizontal">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/themeCancel"
+                style="@style/Widget.Taktak.Button.Secondary"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:minHeight="@dimen/taktak_btn_height_large"
+                android:text="@string/theme_cancel" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/themeApply"
+                style="@style/Widget.Taktak.Button.Primary"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/taktak_space_md"
+                android:layout_weight="1"
+                android:minHeight="@dimen/taktak_btn_height_large"
+                android:text="@string/theme_apply" />
         </LinearLayout>
     </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

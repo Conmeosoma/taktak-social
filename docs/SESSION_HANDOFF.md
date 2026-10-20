@@ -1,6 +1,134 @@
 # Taktak — Bàn giao phiên khôi phục
 
-## Hiện hành — CHAT-01–05 PASS local/USB (20/10/2026)
+## Bổ sung USB thật — MOMENT-REPLY-01, 21/10/2026
+
+Người dùng chuẩn bị điện thoại và cho phép QA ảnh/bình luận trong RAM, không
+camera, logout hay gửi tin thật. Xiaomi 23129RAA4G Android15, 1080×2400:
+**7/7 PASS, 36,257s**, runner PID26533 kết thúc 0 failed/ignored, không có
+FATAL EXCEPTION trong PID này. Build test APK cuối BUILD SUCCESSFUL17s.
+Skill android_ui_verification hướng dẫn review ảnh/trạng thái; không chạy AVD.
+
+Chỉ sửa MomentReplyUiTest và cập nhật bốn tài liệu QA/trạng thái trong lượt này.
+Harness thêm opt-in USB, kiểm tra session byte-for-byte và phục hồi appearance;
+MIUI chặn ActivityScenario từ nền nên đưa Main host với fixture đã inject lên
+foreground trước mỗi launch, không đổi bảo mật/cấu hình OEM hoặc code ứng dụng.
+Hai lượt đầu bị chặn/dừng chưa PASS; lượt cuối đủ7/7. Cài -r giữ dữ liệu;
+fingerprint session trước cài/sau QA trùng nhau. Không lộ hash/token trong báo cáo.
+
+Log .local/artifacts/moment-reply-usb-final-2.log; build
+moment-reply-usb-harness-build-2.log; 7 ảnh tại moment-reply-usb-images đã review.
+Ảnh fixture tím là có chủ đích. Ghi nhận icon back Chat khó nhận biết và tương
+phản timestamp/input thấp ở vài theme; chưa mở rộng sửa UI ngoài phạm vi.
+Không claim VPS hai tài khoản/FCM cloud PASS, không migrate DB/commit/push/deploy.
+Đề xuất duy nhất: duyệt nghiệm thu staging end-to-end với backend V5/client mới.
+
+## Hiện hành — MOMENT-REPLY-01 PASS local/AVD (20/10/2026)
+
+Người dùng duyệt tính năng người nhận bình luận ảnh vào chat riêng với chủ ảnh.
+Không còn giới hạn XML-only của lượt audit cho tính năng mới này; vẫn giữ stack,
+định danh và dirty/untracked đã kiểm tra. Dùng skill backend-development-feature-
+development điều phối server/data/security review và android_ui_verification
+cho AVD; không mở rộng analytics/deploy hoặc chỉnh lỗi audit ngoài phạm vi.
+
+Đã triển khai server MOMENT_REPLY/V5 mới, owner-directed grant/friend/block,
+validation1..2000Unicode/keyretry/pushonce/redaction; Android composer ở Viewer,
+ReplyVM+Repo pending/recreate/guard, Chat reference/text tách nhau và image retry.
+Không sửa V1–V4, không migrate DB cá nhân/production; không gửi FCM/email thật.
+Toàn bộ file/hợp đồng ở [QA_MOMENT_REPLY.md](QA_MOMENT_REPLY.md), [CHAT_API.md](CHAT_API.md).
+
+Bằng chứng: full Maven170tests BUILD SUCCESS3m03s; Android122JVM, build52s
+debug/test/release unsigned đạt; AVD18/18 mới+hồi quy190,294s; reply bản cuối7/7
+28,388s; test guard process/generation tách riêng1/1 0,041s. Fixture RAM riêng,
+AVD API37 headless1536MB/2core dùng userdata QA, không tài khoản cá nhân. Đã
+review ảnh reply/IME/retry/thu hồi, tắt AVD sau QA. Lint vẫn179/90 debug và179/98
+release do bản dịch có sẵn; không khẳng định toàn app/production PASS.
+
+Chưa có nghiệm thu Android→VPS hai tài khoản hoặc FCM cloud reply; khi triển khai
+phải cập nhật backend V5 và client hiểu MOMENT_REPLY đồng bộ. Không tự commit,
+push, deploy hoặc mở bước mới. Đề xuất duyệt nghiệm thu staging end-to-end riêng.
+Lỗi audit List/Chat flaky cũ vẫn ghi nhận; lần hồi quy Chat đạt không xóa lịch sử lỗi.
+
+## Lịch sử — UI/UX audit, sửa resource và chờ nghiệm thu (20/10/2026)
+
+### Bàn giao sau nghiệm thu bằng AVD
+
+Người dùng đã cho phép “tự chạy máy ảo”. Medium_Phone API37 headless 1536MB/2core
+dùng userdata QA riêng qr-avd-data, RUNNING_UNLOCKED; không wipe AVD gốc hay dùng
+phiên cá nhân. Skill android_ui_verification dùng cho kiểm thử/ảnh/log.
+Sửa thêm sáu resource: Login minHeight/links, Preview top bar và lưới công cụ,
+login_themes ánh xạ input semantic, badge item History và tab wrap_content.
+Không sửa Java/test Java. ID và 109 production Java giữ nguyên.
+
+Build cuối **34s đạt**, 118 JVM tests thực sự chạy không lỗi. UI bộ tổng31/34
+(383,796s); targeted11/12 (98,440s); Camera permission riêng1/1 (10,012s).
+Login/Media matrix đạt sau sửa, Auth/chooser/Profile tương tác đạt. List matrix
+vẫn Text fits height: TextView [none] trên APK bàn giao. Chat attachment timeout
+hai lần bộ tổng nhưng đạt khi chạy riêng; chưa điều tra đủ, không gọi đã sửa.
+Lint debug179/90, release179/98; giữ lỗi bản dịch và không baseline/suppress.
+Không claim production/WCAG/TalkBack/RTL/widget launcher/optical hardware PASS.
+Ảnh/log và lý do các lượt lỗi tại [UI_UX_AUDIT.md](UI_UX_AUDIT.md).
+
+Trạng thái **IN PROGRESS, chưa đạt nghiệm thu toàn bộ**, không còn bị chặn bởi USB.
+Đề xuất duyệt chỉ test Java diagnostic cho List và điều tra tính ổn định Chat;
+giữ nguyên nghiệp vụ/Repository/ViewModel, không tự mở rộng quyền sửa Java.
+Không commit/push/deploy. AVD tắt sau QA để trả RAM; không cần người dùng thao tác
+điện thoại để tiếp tục chẩn đoán AVD. Phần bên dưới là snapshot trước lượt AVD.
+
+Người dùng yêu cầu audit toàn Android UI/UX và tự sửa an toàn, chỉ resource XML,
+không đổi ID/Java/nghiệp vụ. Đã đọc prompt/tài liệu và dùng skill accessibility
+audit + android_ui_verification; bảo toàn dirty/untracked có sẵn.
+
+Đã sửa 28 layout, bốn file values và thêm chín resource mới; báo cáo chi tiết
+tại [UI_UX_AUDIT.md](UI_UX_AUDIT.md). Đối chiếu 29 layout không đổi ID;
+109 production Java giữ nguyên hash. Build debug/test/release unsigned đạt
+19s (`.local/artifacts/ui-audit-build-final.log`). Báo cáo JVM: 118 test,
+0 failures/errors; task cuối UP-TO-DATE nên không coi là lần chạy test mới.
+Lint cuối debug 179 errors/90 warnings, release 179/98; 22 NewApi đã hết,
+179 MissingTranslation cũ còn nguyên, không suppress hoặc giả bản dịch.
+
+**Chưa nghiệm thu UI runtime sau sửa.** ADB không nhận điện thoại; chưa cài APK,
+chạy instrumentation/TalkBack hay chụp ảnh mới. Không dùng kết quả QR/Chat cũ
+để xác nhận UI resource mới. Không tự mở emulator hoặc tác động tài khoản.
+Hành động tối thiểu tiếp theo: cắm lại USB, mở khóa, chấp nhận USB debugging
+để chạy hồi quy UI bằng fixture QA an toàn. Các vấn đề cần Java/thiết kế widget
+và độ phủ còn thiếu đã ghi rõ trong báo cáo; không tự mở rộng phạm vi.
+Trạng thái chung **IN PROGRESS**; nghiệm thu USB **BLOCKED**. Không commit/push/deploy.
+
+## Lịch sử — QR PASS nghiệm thu QA USB + AVD (20/10/2026)
+
+Điện thoại đã được cắm lại. Cài app/test giữ dữ liệu; USB Android 15 đạt
+7/7 regression/UI cuối (20,863s, `qr-usb-final-regression.log`) + gallery
+thật 1/1 (12,990s, `qr-usb-gallery-final.log`) + optical/torch 1/1 (6,881s,
+`qr-usb-optical-final.log`). Hai phase dùng QR khác username/UUID để chống
+false-positive từ trạng thái READY cũ; không inject callback/URI/payload.
+Log combined từng OK không dùng nghiệm thu vì review ảnh phát hiện rủi ro
+assertion cũ. Session bytes giữ nguyên, không gửi lời mời thật. Đã xóa đúng
+hai ảnh QA tạm trong Downloads sau đối chiếu hash; bản sao còn local.
+Ảnh chứng minh cuối `qr-usb-gallery-final.png`, `qr-usb-optical-final.png`.
+Chỉ sửa test/fixture và docs trong lượt USB, build test cuối 13s. Không
+commit/push/deploy/backend/DB. Lint ngoài QR còn 201 lỗi, không claim toàn
+dự án/production PASS. Không cần người dùng thao tác thêm cho nghiệm thu QR.
+
+### Hồ sơ AVD trước lượt USB
+
+Người dùng đã cho phép “tự chạy máy ảo” khi USB mất kết nối. Skill
+android_ui_verification dùng AVD Medium_Phone headless 1536 MB/2 core/API 37,
+userdata QA riêng vì AVD gốc khóa PIN/RUNNING_LOCKED. Không thử PIN/reset/wipe
+dữ liệu gốc, không dùng tài khoản cá nhân. Bảo toàn mọi dirty/untracked.
+
+Đã đạt 7/7 regression/UI, 44,265s (`qr-avd-final-retry.log`) + permission
+deny/grant 1/1, 14,942s (`qr-avd-permission.log`); session bytes giữ nguyên,
+mọi friend request ở fixture RAM, share bị chặn tại chooser. Sửa thêm lỗi
+My QR dismiss giữ scan pause bằng isMyCodeShown(); harness chờ picker thật
+trước Back, không bỏ assertion. 8 ảnh tại `.local/artifacts/qr-avd-final-images`.
+118 JVM và build APK debug/test/release đạt (`qr-avd-fixed-build.log`).
+
+Ở thời điểm AVD chưa kiểm tra optical/torch/picker trên điện thoại; các mục
+này đã bổ sung phía trên. Delivery share vẫn không thuộc lượt QA. Không claim production
+PASS. Chi tiết đầy đủ, log lượt lỗi và ca còn thiếu tại [QA_QR.md](QA_QR.md).
+Không commit/push/deploy/backend/DB.
+
+## Lịch sử — CHAT-01–05 PASS local/USB (20/10/2026)
 
 Quyền mới nhất: triển khai CHAT-01 tới CHAT-05 cùng lượt, dùng điện thoại USB, không emulator/commit/push/deploy. Đã đọc đặc tả/decisions/Git/source, giữ nguyên toàn bộ dirty/untracked có sẵn. Skill backend-development-feature-development tổ chức phần backend/UI/QA; android_ui_verification dùng cho kiểm thử native trên USB.
 

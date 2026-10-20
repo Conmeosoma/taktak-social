@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="ui_streak_preview">🔥 3 दिन</string>
+    <string name="ui_close_friends_badge">करीबी दोस्त</string>
+    <string name="ui_expiry_preview">⏳ 24 घंटे</string>
+    <string name="ui_reaction_heart">दिल की प्रतिक्रिया दें</string>
+    <string name="ui_reaction_fire">आग की प्रतिक्रिया दें</string>
+    <string name="ui_reaction_laugh">हँसी की प्रतिक्रिया दें</string>
+    <string name="ui_reaction_wow">आश्चर्य की प्रतिक्रिया दें</string>
+</resources>

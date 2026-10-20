@@ -1,111 +1,269 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_width="match_parent" android:layout_height="match_parent">
-    <com.taktak.app.ui.auth.AuthBackdropView android:layout_width="match_parent" android:layout_height="match_parent" android:importantForAccessibility="no" />
-    <androidx.constraintlayout.widget.ConstraintLayout android:id="@+id/registerSafeContent"
-        android:layout_width="match_parent" android:layout_height="match_parent">
-        <androidx.core.widget.NestedScrollView android:id="@+id/authScroll" android:layout_width="0dp" android:layout_height="0dp"
-            android:fillViewport="true" android:clipToPadding="false" app:layout_constraintWidth_max="480dp"
-            app:layout_constraintStart_toStartOf="parent" app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent" app:layout_constraintBottom_toBottomOf="parent">
-            <LinearLayout android:id="@+id/registerContent" android:layout_width="match_parent" android:layout_height="wrap_content"
-                android:orientation="vertical" android:paddingHorizontal="24dp" android:paddingBottom="16dp">
-                <FrameLayout android:layout_width="match_parent" android:layout_height="84dp">
-                    <androidx.appcompat.widget.AppCompatImageButton android:id="@+id/registerBack"
-                        android:layout_width="48dp" android:layout_height="48dp" android:padding="12dp"
-                        android:background="?attr/selectableItemBackgroundBorderless" android:src="@drawable/login_back"
-                        app:tint="?attr/colorOnSurface" android:contentDescription="@string/login_back" />
-                    <com.taktak.app.ui.auth.LoginLogoView android:layout_width="64dp" android:layout_height="64dp"
-                        android:layout_gravity="center_horizontal|bottom" android:contentDescription="@string/app_name" />
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="?attr/taktakColorSurface">
+
+    <com.taktak.app.ui.auth.AuthBackdropView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:importantForAccessibility="no" />
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/registerSafeContent"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <androidx.core.widget.NestedScrollView
+            android:id="@+id/authScroll"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:clipToPadding="false"
+            android:fillViewport="true"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintWidth_max="480dp">
+
+            <LinearLayout
+                android:id="@+id/registerContent"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingHorizontal="@dimen/taktak_space_xl"
+                android:paddingTop="@dimen/taktak_space_md"
+                android:paddingBottom="@dimen/taktak_space_xl">
+
+                <!-- Header Bar -->
+                <FrameLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="64dp">
+
+                    <androidx.appcompat.widget.AppCompatImageButton
+                        android:id="@+id/registerBack"
+                        android:layout_width="@dimen/taktak_touch_target_min"
+                        android:layout_height="@dimen/taktak_touch_target_min"
+                        android:background="?attr/selectableItemBackgroundBorderless"
+                        android:contentDescription="@string/login_back"
+                        android:padding="@dimen/taktak_space_sm"
+                        app:srcCompat="@drawable/login_back"
+                        app:tint="?attr/taktakColorTextPrimary" />
+
+                    <com.taktak.app.ui.auth.LoginLogoView
+                        android:layout_width="56dp"
+                        android:layout_height="56dp"
+                        android:layout_gravity="center"
+                        android:contentDescription="@string/app_name" />
                 </FrameLayout>
-                <com.google.android.material.textview.MaterialTextView android:id="@+id/authBrand"
-                    android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center"
-                    android:layout_marginTop="8dp" android:text="@string/login_wordmark" android:textSize="24sp"
-                    android:fontFamily="sans-serif-rounded" android:textStyle="bold" android:textColor="?attr/colorOnSurface" />
-                <com.google.android.material.textview.MaterialTextView android:id="@+id/authTitle"
-                    android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="16dp"
-                    android:text="@string/auth_register_title" android:textAppearance="?attr/ttAuthHeadlineStyle" android:textSize="30sp" />
-                <com.google.android.material.textview.MaterialTextView android:layout_width="match_parent" android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp" android:text="@string/auth_register_subtitle"
-                    android:textAppearance="@style/TextAppearance.TakTakM3.Body" />
-                <com.google.android.material.textview.MaterialTextView android:id="@+id/registerIdentity"
-                    android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="20dp"
-                    android:text="@string/register_identity_section" android:textAppearance="@style/TextAppearance.TakTakM3.Section" />
-                <com.google.android.material.textfield.TextInputLayout android:id="@+id/displayNameLayout"
-                    style="?attr/ttAuthFieldStyle" android:layout_marginTop="10dp"
-                    app:hintEnabled="false" app:startIconDrawable="@drawable/ic_m3_person" >
-                    <com.google.android.material.textfield.TextInputEditText style="?attr/ttAuthInputStyle" android:id="@+id/displayNameInput"
-                        android:layout_width="match_parent" android:layout_height="wrap_content" android:minHeight="52dp"
-                        android:paddingVertical="14dp" android:textSize="16sp" android:hint="@string/auth_display_name"
-                        android:inputType="textPersonName|textCapWords" android:autofillHints="personName" android:imeOptions="actionNext"
-                        android:singleLine="true"  />
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/authBrand"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/taktak_space_xs"
+                    android:fontFamily="@font/inter"
+                    android:gravity="center"
+                    android:text="@string/login_wordmark"
+                    android:textAppearance="@style/TextAppearance.Taktak.PageTitle"
+                    android:textColor="?attr/taktakColorTextPrimary" />
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/authTitle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/taktak_space_lg"
+                    android:text="@string/auth_register_title"
+                    android:textAppearance="@style/TextAppearance.Taktak.LargeTitle" />
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/taktak_space_xs"
+                    android:text="@string/auth_register_subtitle"
+                    android:textAppearance="@style/TextAppearance.Taktak.Body"
+                    android:textColor="?attr/taktakColorTextSecondary" />
+
+                <!-- Section: Thông tin cá nhân -->
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/registerIdentity"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/taktak_space_xl"
+                    android:text="@string/register_identity_section"
+                    android:textAppearance="@style/TextAppearance.Taktak.SectionTitle" />
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/displayNameLayout"
+                    style="@style/Widget.Taktak.TextInputLayout"
+                    android:layout_marginTop="@dimen/taktak_space_sm"
+                    android:hint="@string/auth_display_name"
+                    app:startIconDrawable="@drawable/ic_m3_person">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/displayNameInput"
+                        style="@style/Widget.Taktak.TextInputEditText"
+                        android:autofillHints="personName"
+                        android:hint="@string/auth_display_name"
+                        android:imeOptions="actionNext"
+                        android:inputType="textPersonName|textCapWords"
+                        android:singleLine="true" />
                 </com.google.android.material.textfield.TextInputLayout>
-                <com.google.android.material.textfield.TextInputLayout android:id="@+id/usernameLayout"
-                    style="?attr/ttAuthFieldStyle" android:layout_marginTop="10dp"
-                    app:hintEnabled="false" app:startIconDrawable="@drawable/ic_m3_username" app:helperText="@string/auth_username_help">
-                    <com.google.android.material.textfield.TextInputEditText style="?attr/ttAuthInputStyle" android:id="@+id/usernameInput"
-                        android:layout_width="match_parent" android:layout_height="wrap_content" android:minHeight="52dp"
-                        android:paddingVertical="14dp" android:textSize="16sp" android:hint="@string/auth_username"
-                        android:inputType="textVisiblePassword" android:autofillHints="newUsername" android:imeOptions="actionNext"
-                        android:singleLine="true"  />
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/usernameLayout"
+                    style="@style/Widget.Taktak.TextInputLayout"
+                    android:layout_marginTop="@dimen/taktak_space_sm"
+                    android:hint="@string/auth_username"
+                    app:helperText="@string/auth_username_help"
+                    app:helperTextTextColor="?attr/taktakColorTextMuted"
+                    app:startIconDrawable="@drawable/ic_m3_username">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/usernameInput"
+                        style="@style/Widget.Taktak.TextInputEditText"
+                        android:autofillHints="newUsername"
+                        android:hint="@string/auth_username"
+                        android:imeOptions="actionNext"
+                        android:inputType="textVisiblePassword"
+                        android:singleLine="true" />
                 </com.google.android.material.textfield.TextInputLayout>
-                <com.google.android.material.textfield.TextInputLayout android:id="@+id/emailLayout"
-                    style="?attr/ttAuthFieldStyle" android:layout_marginTop="10dp"
-                    app:hintEnabled="false" app:startIconDrawable="@drawable/ic_m3_mail" >
-                    <com.google.android.material.textfield.TextInputEditText style="?attr/ttAuthInputStyle" android:id="@+id/emailInput"
-                        android:layout_width="match_parent" android:layout_height="wrap_content" android:minHeight="52dp"
-                        android:paddingVertical="14dp" android:textSize="16sp" android:hint="@string/auth_email"
-                        android:inputType="textEmailAddress" android:autofillHints="emailAddress" android:imeOptions="actionNext"
-                        android:singleLine="true"  />
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/emailLayout"
+                    style="@style/Widget.Taktak.TextInputLayout"
+                    android:layout_marginTop="@dimen/taktak_space_sm"
+                    android:hint="@string/auth_email"
+                    app:startIconDrawable="@drawable/ic_m3_mail">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/emailInput"
+                        style="@style/Widget.Taktak.TextInputEditText"
+                        android:autofillHints="emailAddress"
+                        android:hint="@string/auth_email"
+                        android:imeOptions="actionNext"
+                        android:inputType="textEmailAddress"
+                        android:singleLine="true" />
                 </com.google.android.material.textfield.TextInputLayout>
-                <com.google.android.material.textview.MaterialTextView android:id="@+id/registerSecurity"
-                    android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="20dp"
-                    android:text="@string/register_security_section" android:textAppearance="@style/TextAppearance.TakTakM3.Section" />
-                <com.google.android.material.textfield.TextInputLayout android:id="@+id/passwordLayout"
-                    style="?attr/ttAuthFieldStyle" android:layout_marginTop="10dp"
-                    app:hintEnabled="false" app:startIconDrawable="@drawable/ic_m3_lock" app:helperText="@string/auth_password_help" app:endIconMode="password_toggle">
-                    <com.google.android.material.textfield.TextInputEditText style="?attr/ttAuthInputStyle" android:id="@+id/passwordInput"
-                        android:layout_width="match_parent" android:layout_height="wrap_content" android:minHeight="52dp"
-                        android:paddingVertical="14dp" android:textSize="16sp" android:hint="@string/auth_password"
-                        android:inputType="textPassword" android:autofillHints="newPassword" android:imeOptions="actionNext|flagNoPersonalizedLearning"
-                        android:singleLine="true" android:saveEnabled="false" />
+
+                <!-- Section: Bảo mật -->
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/registerSecurity"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/taktak_space_xl"
+                    android:text="@string/register_security_section"
+                    android:textAppearance="@style/TextAppearance.Taktak.SectionTitle" />
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/passwordLayout"
+                    style="@style/Widget.Taktak.TextInputLayout"
+                    android:layout_marginTop="@dimen/taktak_space_sm"
+                    android:hint="@string/auth_password"
+                    app:endIconMode="password_toggle"
+                    app:helperText="@string/auth_password_help"
+                    app:helperTextTextColor="?attr/taktakColorTextMuted"
+                    app:startIconDrawable="@drawable/ic_m3_lock">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/passwordInput"
+                        style="@style/Widget.Taktak.TextInputEditText"
+                        android:autofillHints="newPassword"
+                        android:hint="@string/auth_password"
+                        android:imeOptions="actionNext|flagNoPersonalizedLearning"
+                        android:inputType="textPassword"
+                        android:saveEnabled="false"
+                        android:singleLine="true" />
                 </com.google.android.material.textfield.TextInputLayout>
-                <LinearLayout android:id="@+id/passwordStrengthContainer"
-                    android:layout_width="match_parent" android:layout_height="wrap_content"
-                    android:orientation="vertical" android:layout_marginTop="6dp"
+
+                <!-- Password Strength Container -->
+                <LinearLayout
+                    android:id="@+id/passwordStrengthContainer"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/taktak_space_xs"
+                    android:orientation="vertical"
                     android:visibility="gone">
+
                     <com.google.android.material.progressindicator.LinearProgressIndicator
                         android:id="@+id/passwordStrengthProgress"
-                        android:layout_width="match_parent" android:layout_height="wrap_content"
-                        android:max="100" app:trackCornerRadius="2dp" app:trackThickness="4dp" />
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:max="100"
+                        app:trackCornerRadius="2dp"
+                        app:trackThickness="4dp" />
+
                     <com.google.android.material.textview.MaterialTextView
                         android:id="@+id/passwordStrengthText"
-                        android:layout_width="match_parent" android:layout_height="wrap_content"
-                        android:layout_marginTop="4dp" android:textSize="12sp"
-                        android:textAppearance="@style/TextAppearance.TakTakM3.Body" />
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/taktak_space_xxs"
+                        android:textAppearance="@style/TextAppearance.Taktak.Caption" />
                 </LinearLayout>
-                <com.google.android.material.textfield.TextInputLayout android:id="@+id/confirmPasswordLayout"
-                    style="?attr/ttAuthFieldStyle" android:layout_marginTop="10dp"
-                    app:hintEnabled="false" app:startIconDrawable="@drawable/ic_m3_lock" app:endIconMode="password_toggle">
-                    <com.google.android.material.textfield.TextInputEditText style="?attr/ttAuthInputStyle" android:id="@+id/confirmPasswordInput"
-                        android:layout_width="match_parent" android:layout_height="wrap_content" android:minHeight="52dp"
-                        android:paddingVertical="14dp" android:textSize="16sp" android:hint="@string/auth_confirm_password"
-                        android:inputType="textPassword" android:autofillHints="newPassword" android:imeOptions="actionDone|flagNoPersonalizedLearning"
-                        android:singleLine="true" android:saveEnabled="false" />
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/confirmPasswordLayout"
+                    style="@style/Widget.Taktak.TextInputLayout"
+                    android:layout_marginTop="@dimen/taktak_space_sm"
+                    android:hint="@string/auth_confirm_password"
+                    app:endIconMode="password_toggle"
+                    app:startIconDrawable="@drawable/ic_m3_lock">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/confirmPasswordInput"
+                        style="@style/Widget.Taktak.TextInputEditText"
+                        android:autofillHints="newPassword"
+                        android:hint="@string/auth_confirm_password"
+                        android:imeOptions="actionDone|flagNoPersonalizedLearning"
+                        android:inputType="textPassword"
+                        android:saveEnabled="false"
+                        android:singleLine="true" />
                 </com.google.android.material.textfield.TextInputLayout>
-                <FrameLayout android:layout_width="match_parent" android:layout_height="16dp">
-                    <com.google.android.material.progressindicator.LinearProgressIndicator android:id="@+id/loadingIndicator"
-                        android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_gravity="center_vertical"
-                        android:indeterminate="true" android:visibility="gone" android:contentDescription="@string/auth_processing" />
+
+                <!-- Loading Indicator -->
+                <FrameLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="18dp"
+                    android:layout_marginTop="@dimen/taktak_space_xs">
+
+                    <com.google.android.material.progressindicator.LinearProgressIndicator
+                        android:id="@+id/loadingIndicator"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_vertical"
+                        android:contentDescription="@string/auth_processing"
+                        android:indeterminate="true"
+                        android:visibility="gone"
+                        app:indicatorColor="?attr/taktakColorBrandPrimary"
+                        app:trackColor="?attr/taktakColorBorder" />
                 </FrameLayout>
-                <com.google.android.material.textview.MaterialTextView android:id="@+id/formNotice"
-                    android:layout_width="match_parent" android:layout_height="wrap_content" android:padding="12dp"
-                    android:layout_marginBottom="12dp" android:background="?attr/ttAuthNotice"
-                    android:textColor="?attr/colorOnSurface" android:accessibilityLiveRegion="polite" android:visibility="gone" />
-                <androidx.appcompat.widget.AppCompatButton android:id="@+id/submitButton"
-                    style="?attr/ttAuthPrimaryStyle" android:text="@string/auth_register" />
-                <com.google.android.material.button.MaterialButton android:id="@+id/switchButton"
-                    style="@style/Widget.TakTakM3.TextButton" android:layout_marginTop="8dp" android:text="@string/auth_go_login" />
+
+                <!-- Form Notice -->
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/formNotice"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:accessibilityLiveRegion="polite"
+                    android:background="@drawable/login_notice"
+                    android:padding="@dimen/taktak_space_md"
+                    android:textAppearance="@style/TextAppearance.Taktak.Secondary"
+                    android:textColor="@color/taktak_status_error"
+                    android:visibility="gone" />
+
+                <!-- Submit Button -->
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/submitButton"
+                    style="@style/Widget.Taktak.Button.Primary"
+                    android:layout_marginTop="@dimen/taktak_space_md"
+                    android:text="@string/auth_register"     android:minHeight="@dimen/taktak_touch_target_min" />
+
+                <!-- Switch to Login -->
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/switchButton"
+                    style="@style/Widget.Taktak.Button.Secondary"
+                    android:layout_marginTop="@dimen/taktak_space_sm"
+                    android:text="@string/auth_go_login"     android:minHeight="@dimen/taktak_touch_target_min" />
             </LinearLayout>
         </androidx.core.widget.NestedScrollView>
     </androidx.constraintlayout.widget.ConstraintLayout>

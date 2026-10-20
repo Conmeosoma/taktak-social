@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="ui_streak_preview">🔥 3天</string>
+    <string name="ui_close_friends_badge">密友</string>
+    <string name="ui_expiry_preview">⏳ 24小时</string>
+    <string name="ui_reaction_heart">爱心回应</string>
+    <string name="ui_reaction_fire">火焰回应</string>
+    <string name="ui_reaction_laugh">大笑回应</string>
+    <string name="ui_reaction_wow">惊讶回应</string>
+</resources>

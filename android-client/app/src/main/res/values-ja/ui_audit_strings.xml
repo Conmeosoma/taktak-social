@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="ui_streak_preview">🔥 3日</string>
+    <string name="ui_close_friends_badge">親友</string>
+    <string name="ui_expiry_preview">⏳ 24時間</string>
+    <string name="ui_reaction_heart">ハートで反応</string>
+    <string name="ui_reaction_fire">炎で反応</string>
+    <string name="ui_reaction_laugh">笑顔で反応</string>
+    <string name="ui_reaction_wow">驚きで反応</string>
+</resources>

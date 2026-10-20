@@ -15,6 +15,16 @@ public final class ThemeManager {
 
     private ThemeManager() { }
 
+    /** Phân giải trực tiếp 8 theme của Figma Taktak v2 (4 phong cách x 2 chế độ Sáng/Tối). */
+    @StyleRes public static int taktakThemeResource(AppTheme style, boolean isDark) {
+        return switch (Objects.requireNonNull(style)) {
+            case ORIGINAL -> isDark ? R.style.Theme_Taktak_Original_Dark : R.style.Theme_Taktak_Original_Light;
+            case GRADIENT -> isDark ? R.style.Theme_Taktak_Gradient_Dark : R.style.Theme_Taktak_Gradient_Light;
+            case GLASS -> isDark ? R.style.Theme_Taktak_Glass_Dark : R.style.Theme_Taktak_Glass_Light;
+            case SOFT -> isDark ? R.style.Theme_Taktak_Soft_Dark : R.style.Theme_Taktak_Soft_Light;
+        };
+    }
+
     /** Các resource này chỉ dành cho chooser, không tuyên bố phủ các màn nghiệp vụ. */
     @StyleRes public static int chooserThemeResource(AppTheme style) {
         return switch (Objects.requireNonNull(style)) {

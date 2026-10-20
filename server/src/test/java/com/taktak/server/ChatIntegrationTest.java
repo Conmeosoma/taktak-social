@@ -153,6 +153,121 @@ class ChatIntegrationTest {
     private HttpResponse<String> momentSend(Account a,UUID conversation,UUID moment) throws Exception {
         return call("POST","/api/conversations/"+conversation+"/messages",a,json.writeValueAsString(Map.of("clientMessageId",UUID.randomUUID(),"messageType","MOMENT","momentId",moment)));
     }
+    private HttpResponse<String> reply(Account actor,UUID conversation,UUID key,UUID moment,String text) throws Exception {
+        Map<String,Object> payload=new HashMap<>();
+        payload.put("clientMessageId",key);payload.put("messageType","MOMENT_REPLY");
+        payload.put("momentId",moment);payload.put("content",text);
+        return call("POST","/api/conversations/"+conversation+"/messages",actor,json.writeValueAsString(payload));
+    }
+    @Test void momentReplyIsPrivateChatTextWithReferenceUnreadAndRead() throws Exception {
+        var owner=account();var viewer=account();var outsider=account();friends(owner,viewer);
+        UUID conversation=open(viewer,owner), photo=moment(owner,viewer);
+        var response=reply(viewer,conversation,UUID.randomUUID(),photo,"Đẹp quá 📷");
+        assertThat(response.statusCode()).as(response.body()).isEqualTo(200);
+        var message=json.readTree(response.body());
+        assertThat(message.get("messageType").asText()).isEqualTo("MOMENT_REPLY");
+        assertThat(message.get("content").asText()).isEqualTo("Đẹp quá 📷");
+        assertThat(message.get("momentId").asText()).isEqualTo(photo.toString());
+        assertThat(response.body()).doesNotContain("Private caption","filePath",".jpg");
+        String path="/api/conversations/"+conversation;
+        assertThat(json.readTree(call("GET",path+"/messages",owner,null).body()).get("items").get(0)).isEqualTo(message);
+        assertThat(json.readTree(call("GET",path,owner,null).body()).get("unreadCount").asInt()).isEqualTo(1);
+        var inbox=json.readTree(call("GET","/api/conversations",owner,null).body());
+        assertThat(inbox.get("items").get(0).get("lastMessage").get("content").asText()).isEqualTo("Đẹp quá 📷");
+        assertThat(call("PUT",path+"/read",owner,json.writeValueAsString(Map.of("messageId",message.get("id").asText()))).statusCode()).isEqualTo(204);
+        assertThat(json.readTree(call("GET",path,owner,null).body()).get("unreadCount").asInt()).isZero();
+        assertThat(call("GET",path+"/messages",outsider,null).statusCode()).isEqualTo(404);
+        assertThat(reply(outsider,conversation,UUID.randomUUID(),photo,"private").statusCode()).isEqualTo(404);
+    }
+    @Test void momentReplyRequiresOtherOwnerAndExistingGrantNeverSharesWithThirdParty() throws Exception {
+        var owner=account();var viewer=account();var other=account();friends(owner,viewer);friends(viewer,other);
+        UUID conversation=open(viewer,owner), otherConversation=open(viewer,other), photo=moment(owner,viewer);
+        assertThat(reply(viewer,otherConversation,UUID.randomUUID(),photo,"wrong owner").statusCode()).isEqualTo(404);
+        // Even if both chat participants can view a third person's image, reply only goes to its owner.
+        jdbc.update("insert into moment_recipients(moment_id,user_id,created_at) values(?,?,now())",photo,other.id);
+        assertThat(reply(viewer,otherConversation,UUID.randomUUID(),photo,"wrong owner").statusCode()).isEqualTo(404);
+        assertThat(reply(owner,conversation,UUID.randomUUID(),photo,"own photo").statusCode()).isEqualTo(404);
+        assertThat(reply(viewer,conversation,UUID.randomUUID(),moment(owner,null),"private photo").statusCode()).isEqualTo(404);
+        assertThat(reply(viewer,conversation,UUID.randomUUID(),UUID.randomUUID(),"missing").statusCode()).isEqualTo(404);
+        assertThat(jdbc.queryForObject("select count(*) from messages where conversation_id in (?,?)",Integer.class,conversation,otherConversation)).isZero();
+    }
+    @Test void momentReplyValidationUnicodeLimitsAndLegacyMomentRemainStrict() throws Exception {
+        var owner=account();var viewer=account();friends(owner,viewer);UUID conversation=open(viewer,owner), photo=moment(owner,viewer);
+        for(String text:Arrays.asList(null,""," \t\n","\0","x".repeat(2001),"😀".repeat(2001)))
+            assertThat(reply(viewer,conversation,UUID.randomUUID(),photo,text).statusCode()).as("invalid reply").isEqualTo(400);
+        assertThat(reply(viewer,conversation,UUID.randomUUID(),null,"missing reference").statusCode()).isEqualTo(400);
+        assertThat(reply(viewer,conversation,UUID.randomUUID(),photo,"😀".repeat(2000)).statusCode()).isEqualTo(200);
+        assertThat(call("POST","/api/conversations/"+conversation+"/messages",viewer,json.writeValueAsString(Map.of(
+                "clientMessageId",UUID.randomUUID(),"messageType","MOMENT_REPLY","momentId","invalid","content","hello"))).statusCode()).isEqualTo(400);
+        assertThat(call("POST","/api/conversations/"+conversation+"/messages",viewer,json.writeValueAsString(Map.of(
+                "clientMessageId",UUID.randomUUID(),"messageType","MOMENT","momentId",photo,"content","not allowed"))).statusCode()).isEqualTo(400);
+        assertThat(momentSend(viewer,conversation,photo).statusCode()).isEqualTo(200);
+    }
+    @Test void momentReplyRetryIsStrictAndConcurrentOnlyPublishesOneSafePush() throws Exception {
+        var owner=account();var viewer=account();var other=account();friends(owner,viewer);friends(viewer,other);
+        UUID conversation=open(viewer,owner), key=UUID.randomUUID(), photo=moment(owner,viewer);
+        jdbc.update("insert into device_tokens(id,user_id,fcm_token,device_id,updated_at) values(?,?,?,?,now())",UUID.randomUUID(),owner.id,"synthetic-reply-device-"+key,"qa");
+        var pool=Executors.newFixedThreadPool(2);
+        try {
+            var one=pool.submit(()->reply(viewer,conversation,key,photo,"secret reply"));
+            var two=pool.submit(()->reply(viewer,conversation,key,photo,"secret reply"));
+            var first=one.get(20,TimeUnit.SECONDS);var second=two.get(20,TimeUnit.SECONDS);
+            assertThat(first.statusCode()).isEqualTo(200);assertThat(second.statusCode()).isEqualTo(200);
+            assertThat(json.readTree(first.body()).get("id")).isEqualTo(json.readTree(second.body()).get("id"));
+        } finally {pool.shutdownNow();}
+        assertThat(reply(viewer,conversation,key,photo,"changed").statusCode()).isEqualTo(409);
+        assertThat(reply(viewer,conversation,key,moment(owner,viewer),"secret reply").statusCode()).isEqualTo(409);
+        assertThat(send(viewer,conversation,key,"secret reply").statusCode()).isEqualTo(409);
+        assertThat(reply(viewer,open(viewer,other),key,photo,"secret reply").statusCode()).isEqualTo(409);
+        assertThat(jdbc.queryForObject("select count(*) from messages where sender_id=? and client_message_id=?",Integer.class,viewer.id,key)).isEqualTo(1);
+        assertThat(push.getRecordedMessages()).hasSize(1);
+        assertThat(push.getRecordedMessages().get(0).data()).containsOnlyKeys("type","conversationId","messageId");
+    }
+    @Test void deletedOrRevokedReplyReferenceIsRedactedButPrivateTextRemains() throws Exception {
+        for(boolean deleted:List.of(false,true)) {
+            var owner=account();var viewer=account();friends(owner,viewer);
+            UUID conversation=open(viewer,owner),key=UUID.randomUUID(),photo=moment(owner,viewer);
+            assertThat(reply(viewer,conversation,key,photo,"keep this reply").statusCode()).isEqualTo(200);
+            if(deleted) jdbc.update("update moments set deleted_at=now() where id=?",photo);
+            else jdbc.update("delete from moment_recipients where moment_id=? and user_id=?",photo,viewer.id);
+            String path="/api/conversations/"+conversation;
+            var redacted=json.readTree(call("GET",path+"/messages",owner,null).body()).get("items").get(0);
+            assertThat(redacted.get("momentId").isNull()).isTrue();
+            assertThat(redacted.get("content").asText()).isEqualTo("keep this reply");
+            assertThat(json.readTree(call("GET",path,viewer,null).body()).get("lastMessage").get("momentId").isNull()).isTrue();
+            var retry=reply(viewer,conversation,key,photo,"keep this reply");
+            assertThat(retry.statusCode()).isEqualTo(200);
+            assertThat(json.readTree(retry.body()).get("momentId").isNull()).isTrue();
+            assertThat(reply(viewer,conversation,UUID.randomUUID(),photo,"new forbidden").statusCode()).isEqualTo(404);
+        }
+    }
+    @Test void momentReplyIsDeniedAfterBlockBothDirectionsOrUnfriend() throws Exception {
+        for(int action=0;action<3;action++) {
+            var owner=account();var viewer=account();friends(owner,viewer);UUID conversation=open(viewer,owner),photo=moment(owner,viewer);
+            if(action==0) context.getBean(FriendService.class).block(owner.id,viewer.id);
+            else if(action==1) context.getBean(FriendService.class).block(viewer.id,owner.id);
+            else context.getBean(FriendService.class).unfriend(owner.id,viewer.id);
+            assertThat(reply(viewer,conversation,UUID.randomUUID(),photo,"blocked").statusCode()).isEqualTo(404);
+        }
+    }
+    @Test void momentReplyRollbackAndPhysicalDeletionKeepPrivateTextWithoutGrant() throws Exception {
+        var owner=account();var viewer=account();friends(owner,viewer);
+        UUID conversation=open(viewer,owner),photo=moment(owner,viewer);
+        jdbc.update("insert into device_tokens(id,user_id,fcm_token,device_id,updated_at) values(?,?,?,?,now())",UUID.randomUUID(),owner.id,"synthetic-reply-rollback-"+photo,"qa");
+        transaction().executeWithoutResult(status->{
+            context.getBean(ChatService.class).send(viewer.id,conversation,new SendRequest(UUID.randomUUID(),"MOMENT_REPLY","rollback",photo));
+            status.setRollbackOnly();
+        });
+        assertThat(push.getRecordedMessages()).isEmpty();
+        assertThat(jdbc.queryForObject("select count(*) from messages where conversation_id=?",Integer.class,conversation)).isZero();
+        assertThat(reply(viewer,conversation,UUID.randomUUID(),photo,"private reply survives").statusCode()).isEqualTo(200);
+        jdbc.update("delete from moment_recipients where moment_id=?",photo);
+        jdbc.update("delete from moments where id=?",photo);
+        var message=json.readTree(call("GET","/api/conversations/"+conversation+"/messages",owner,null).body()).get("items").get(0);
+        assertThat(message.get("momentId").isNull()).isTrue();
+        assertThat(message.get("content").asText()).isEqualTo("private reply survives");
+        assertThat(reply(viewer,conversation,UUID.randomUUID(),photo,"new forbidden").statusCode()).isEqualTo(404);
+    }
     @Test void momentRequiresBothGrantsAndDeletedMomentIsRedacted() throws Exception {
         var a=account();var b=account();var c=account();friends(a,b);UUID conversation=open(a,b);
         assertThat(momentSend(a,conversation,moment(a,null)).statusCode()).isEqualTo(404);

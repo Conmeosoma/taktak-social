@@ -1,6 +1,77 @@
 # Taktak — Trạng thái dự án
 
-## Hiện hành — Triển khai CHAT-01–05, 20/10/2026
+## Bổ sung nghiệm thu USB — MOMENT-REPLY-01, 21/10/2026
+
+**PASS 7/7 ca UI fixture trên điện thoại thật**, 36,257s; Xiaomi 23129RAA4G,
+Android 15, 1080×2400. Build APK kiểm thử mới đạt 17s. Dùng skill
+android_ui_verification; sửa harness để mở host QA trước mỗi ActivityScenario
+trên MIUI, không sửa production trong lượt này. Ảnh/log đã lưu và review.
+Toàn bộ appearance được phục hồi; file phiên mã hóa không đổi (assert từng ca
+và fingerprint trước/sau độc lập). Không chụp camera, gửi tin thật, đăng xuất,
+deploy hoặc migrate. Chưa PASS end-to-end VPS/FCM. Ảnh QA còn cho thấy hạn chế
+hiển thị Chat ngoài composer: icon quay lại khó nhận biết và timestamp/input
+có tương phản thấp ở một số theme; không coi 7 ca chức năng là audit UI toàn app.
+Chi tiết: [QA_MOMENT_REPLY.md](QA_MOMENT_REPLY.md).
+
+## Hiện hành — MOMENT-REPLY-01, 20/10/2026
+
+**PASS triển khai/QA local và AVD; chưa deploy hoặc PASS production.** Người
+dùng duyệt trả lời ảnh riêng qua chat. Đã có MOMENT_REPLY/server V5, Viewer
+composer + MomentReplyViewModel/Repository, ảnh tham chiếu và nội dung trong Chat;
+giữ text khi ảnh bị xóa, quyền owner/grant/friend/block, retry và guard phiên.
+Backend170/170, JVM122/122, Android debug/test/release unsigned build52s đạt.
+AVD reply+Chat+Media18/18 (190,294s), reply bản cuối7/7 (28,388s), guard độc lập1/1.
+Lint vẫn179/90 debug,179/98 release do bản dịch cũ; không thêm lỗi mới/suppress.
+V5 chỉ chạy test, không chạm VPS/DB cá nhân; không commit/push/deploy.
+Chi tiết/file/log/giới hạn: [QA_MOMENT_REPLY.md](QA_MOMENT_REPLY.md).
+
+## Lịch sử — Rà soát UI/UX, 20/10/2026
+
+### Cập nhật sau khi người dùng cho phép chạy AVD
+
+**IN PROGRESS; chưa PASS toàn bộ.** Đã chạy AVD API 37 với userdata QA riêng,
+không cần USB. Sửa thêm sáu resource cho Login/Preview/input theme/badge History.
+Build cuối debug/test/release unsigned **BUILD SUCCESSFUL (34s)**; 118 JVM test
+thực sự chạy, 0 lỗi. UI tổng **31/34**; targeted **11/12**, quyền Camera riêng
+**1/1**. Ma trận Login/Media đạt sau sửa; ma trận List vẫn lỗi cắt chiều cao
+TextView không ID, Chat attachment timeout trong bộ tổng nhưng đạt khi chạy riêng
+(chưa ổn định, không coi đã sửa). Lint cuối debug **179/90**, release **179/98**.
+Đã lưu/review ảnh AVD; không nghiệm thu phần cứng điện thoại/TalkBack/widget.
+Chi tiết và log: [UI_UX_AUDIT.md](UI_UX_AUDIT.md). Không sửa Java/commit/push/deploy.
+Đề xuất mở phạm vi test Java diagnostic cho lỗi List/Chat; không tự triển khai.
+
+### Snapshot trước lượt AVD
+
+**IN PROGRESS — build đạt, chưa nghiệm thu UI toàn diện.** Đã sửa resource an toàn:
+28 layout, token/style/theme, tương phản, vùng chạm, dialog cuộn và chuỗi mới
+cho bảy locale. Toàn bộ ID của 29 layout và 109 file production Java giữ nguyên.
+Build debug/test/release unsigned **BUILD SUCCESSFUL (19s)**; báo cáo JVM có
+118 test, 0 lỗi (task lần cuối UP-TO-DATE, không phải chạy mới).
+Lint debug còn **179 errors / 90 warnings**, release **179 / 98**;
+đã bỏ 22 lỗi NewApi, không suppress 179 lỗi MissingTranslation có sẵn.
+ADB hiện không nhận thiết bị; chưa cài/chạy/chụp ảnh UI sau sửa, không dùng
+PASS QR lịch sử thay cho hồi quy mới. Chi tiết, file thay đổi và checklist:
+[UI_UX_AUDIT.md](UI_UX_AUDIT.md). Không commit/push/deploy.
+
+## Lịch sử — Sửa và kiểm thử QR, 20/10/2026
+
+**PASS nghiệm thu QR trong phạm vi QA USB + AVD, chưa PASS toàn dự án/production.**
+USB Xiaomi Android 15 đạt 7/7 regression/UI (20,863s), chọn ảnh thực qua picker
+1/1 (12,990s), quét QR quang học + flash 1/1 (6,881s). Dùng mã khác nhau cho
+camera/gallery để loại READY cũ; ảnh đã review, phiên cá nhân giữ nguyên,
+không gửi lời mời thật. Đã xóa đúng hai ảnh QA tạm khỏi Downloads, có bản sao
+local. Lint vẫn FAIL 201 lỗi ngoài QR. [QA_QR.md](QA_QR.md).
+
+Kết quả AVD trước đó:
+Người dùng đã cho phép tự chạy máy ảo sau khi USB mất kết nối. AVD QA riêng
+đạt 7/7 regression/UI (44,265s) + 1/1 từ chối/cấp Camera qua dialog Android
+(14,942s), 8 ảnh QA. Đã sửa thêm lỗi scanner không tiếp tục sau đóng My QR;
+sửa harness chờ picker thật trước Back. 118 JVM test, APK debug/test/release
+unsigned đạt. Lint debug/release vẫn FAIL 201 lỗi ngoài QR; không claim
+production PASS. Không commit/push/deploy/backend/database;
+không reset PIN hay wipe dữ liệu AVD gốc.
+
+## Lịch sử — Triển khai CHAT-01–05, 20/10/2026
 
 **PASS CHAT-01–05 trong phạm vi local/USB; chưa nghiệm thu production.** Người dùng đã duyệt cả năm tiểu bước; không mở emulator/commit/push/deploy. Đã triển khai V4/REST và Android 5 tab/Inbox/New Chat/Chat text–moment/FCM. Backend 163/163, Android 115 JVM + build/lint debug/release đạt. Chat USB 6/6 (36,605s), FCM cloud + notification nền chung 1/1 (3,354s), hồi quy Media/List/Profile 11/11 (167,056s) đạt; phiên cá nhân byte-for-byte không thay đổi. Đã sửa helper mở Activity/chờ lifecycle trên MIUI để chạy lại hồi quy, không bỏ assertion hoặc sửa production Viewer. Xem [QA_CHAT.md](QA_CHAT.md), [CHAT_API.md](CHAT_API.md).
 

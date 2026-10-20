@@ -8,6 +8,7 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.taktak.app.R;
 import com.taktak.app.databinding.FragmentProfileBinding;
 import com.taktak.app.viewmodel.*;
 
@@ -32,6 +33,21 @@ public final class ProfileFragment extends Fragment {
         binding.profileLogout.setOnClickListener(v -> session.logout());
         binding.profileThemeButton.setOnClickListener(v -> startActivity(new android.content.Intent(
                 requireContext(), com.taktak.app.ui.theme.ThemeSettingsActivity.class)));
+        binding.profileLanguageButton.setOnClickListener(v -> com.taktak.app.ui.language.LanguageManager.showLanguageDialog(requireContext(), null));
+        binding.profileMyQrButton.setOnClickListener(v -> {
+            var state = model.state().getValue();
+            if (state != null && state.profile != null) {
+                com.taktak.app.ui.qr.MyQrCodeBottomSheet.newInstance(
+                        state.profile.username,
+                        state.profile.displayName,
+                        state.profile.id
+                ).show(getChildFragmentManager(), "MyQrCode");
+            }
+        });
+
+        // Biometric App Lock
+        setupBiometricSettings();
+
         androidx.core.view.ViewCompat.setAccessibilityHeading(binding.profileTitle,true);
         model.state().observe(getViewLifecycleOwner(),state -> {
             if(state.expired) { session.check(true); return; }
@@ -46,6 +62,8 @@ public final class ProfileFragment extends Fragment {
             binding.profileRetry.setEnabled(!state.busy);
             binding.profileLogout.setEnabled(!state.busy);
             binding.profileThemeButton.setEnabled(!state.busy);
+            binding.profileLanguageButton.setEnabled(!state.busy);
+            binding.profileMyQrButton.setEnabled(ready && !state.busy);
             binding.profileIdentity.setVisibility(ready ? View.VISIBLE : View.GONE);
             binding.profileUsername.setVisibility(ready ? View.VISIBLE : View.GONE);
             if(ready) {
@@ -65,6 +83,63 @@ public final class ProfileFragment extends Fragment {
         });
         model.load();
     }
+
+    private void setupBiometricSettings() {
+        var bioPrefs = com.taktak.app.data.security.BiometricPreferences.get(requireContext());
+        binding.profileBiometricSwitch.setChecked(bioPrefs.isBiometricEnabled());
+
+        binding.profileBiometricCard.setOnClickListener(v -> binding.profileBiometricSwitch.performClick());
+
+        binding.profileBiometricSwitch.setOnClickListener(v -> {
+            boolean targetEnabled = binding.profileBiometricSwitch.isChecked();
+            if (targetEnabled) {
+                if (!com.taktak.app.data.security.BiometricHelper.canAuthenticate(requireContext())) {
+                    binding.profileBiometricSwitch.setChecked(false);
+                    android.widget.Toast.makeText(requireContext(),
+                            R.string.biometric_not_supported, android.widget.Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                com.taktak.app.data.security.BiometricHelper.authenticate(
+                        requireActivity(),
+                        getString(R.string.biometric_prompt_title),
+                        getString(R.string.biometric_prompt_subtitle),
+                        new com.taktak.app.data.security.BiometricHelper.AuthCallback() {
+                            @Override public void onSuccess() {
+                                bioPrefs.setBiometricEnabled(true);
+                                android.widget.Toast.makeText(requireContext(),
+                                        R.string.biometric_enable_success, android.widget.Toast.LENGTH_SHORT).show();
+                            }
+                            @Override public void onError(int errorCode, @androidx.annotation.NonNull CharSequence errString) {
+                                binding.profileBiometricSwitch.setChecked(false);
+                            }
+                            @Override public void onFailed() {
+                                binding.profileBiometricSwitch.setChecked(false);
+                            }
+                        }
+                );
+            } else {
+                com.taktak.app.data.security.BiometricHelper.authenticate(
+                        requireActivity(),
+                        getString(R.string.biometric_prompt_title),
+                        getString(R.string.biometric_prompt_subtitle),
+                        new com.taktak.app.data.security.BiometricHelper.AuthCallback() {
+                            @Override public void onSuccess() {
+                                bioPrefs.setBiometricEnabled(false);
+                                android.widget.Toast.makeText(requireContext(),
+                                        R.string.biometric_disable_success, android.widget.Toast.LENGTH_SHORT).show();
+                            }
+                            @Override public void onError(int errorCode, @androidx.annotation.NonNull CharSequence errString) {
+                                binding.profileBiometricSwitch.setChecked(true);
+                            }
+                            @Override public void onFailed() {
+                                binding.profileBiometricSwitch.setChecked(true);
+                            }
+                        }
+                );
+            }
+        });
+    }
+
     @Override public void onDestroyView() {
         if(binding!=null) Glide.with(this).clear(binding.profileAvatar);
         binding=null;super.onDestroyView();

@@ -1,88 +1,256 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_width="match_parent" android:layout_height="match_parent">
-    <com.taktak.app.ui.auth.LoginBackdropView android:layout_width="match_parent" android:layout_height="match_parent"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="?attr/taktakColorSurface">
+
+    <com.taktak.app.ui.auth.LoginBackdropView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
         android:importantForAccessibility="no" />
-    <androidx.constraintlayout.widget.ConstraintLayout android:id="@+id/loginSafeContent"
-        android:layout_width="match_parent" android:layout_height="match_parent">
-        <androidx.core.widget.NestedScrollView android:id="@+id/authScroll"
-            android:layout_width="0dp" android:layout_height="0dp" android:fillViewport="true" android:clipToPadding="false"
-            app:layout_constraintWidth_max="480dp"
-            app:layout_constraintStart_toStartOf="parent" app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent" app:layout_constraintBottom_toBottomOf="parent">
-            <LinearLayout android:id="@+id/loginContent" android:layout_width="match_parent" android:layout_height="wrap_content"
-                android:orientation="vertical" android:paddingHorizontal="20dp" android:paddingBottom="16dp">
-                <androidx.constraintlayout.widget.ConstraintLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:minHeight="104dp">
-                    <androidx.appcompat.widget.AppCompatImageButton android:id="@+id/backButton"
-                        android:layout_width="48dp" android:layout_height="48dp" android:padding="12dp"
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/loginSafeContent"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <androidx.core.widget.NestedScrollView
+            android:id="@+id/authScroll"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:clipToPadding="false"
+            android:fillViewport="true"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintWidth_max="480dp">
+
+            <LinearLayout
+                android:id="@+id/loginContent"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingHorizontal="@dimen/taktak_space_xl"
+                android:paddingTop="@dimen/taktak_space_md"
+                android:paddingBottom="@dimen/taktak_space_xl">
+
+                <!-- Top Bar: Back & Theme Switcher -->
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:minHeight="48dp">
+
+                    <androidx.appcompat.widget.AppCompatImageButton
+                        android:id="@+id/backButton"
+                        android:layout_width="@dimen/taktak_touch_target_min"
+                        android:layout_height="@dimen/taktak_touch_target_min"
                         android:background="?attr/selectableItemBackgroundBorderless"
-                        android:contentDescription="@string/login_back" app:srcCompat="@drawable/login_back" app:tint="?attr/colorOnSurface"
-                        app:layout_constraintStart_toStartOf="parent" app:layout_constraintTop_toTopOf="parent" />
-                    <com.google.android.material.textview.MaterialTextView android:id="@+id/languageLabel"
-                        android:layout_width="wrap_content" android:layout_height="wrap_content" android:minHeight="48dp" android:gravity="center"
-                        android:text="@string/login_language" android:textSize="14sp" android:textColor="?attr/colorOnSurfaceVariant"
-                        android:drawableEnd="@drawable/login_chevron" android:drawablePadding="8dp" app:drawableTint="?attr/colorOnSurfaceVariant"
-                        app:layout_constraintTop_toBottomOf="@id/backButton" android:layout_marginTop="8dp"
+                        android:contentDescription="@string/login_back"
+                        android:padding="@dimen/taktak_space_sm"
                         app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintStart_toStartOf="parent" app:layout_constraintEnd_toEndOf="parent" />
-                    <com.google.android.material.button.MaterialButton android:id="@+id/loginThemeButton"
-                        style="@style/Widget.Material3.Button.TextButton" android:layout_width="wrap_content" android:layout_height="wrap_content"
-                        android:minHeight="48dp" android:text="@string/theme_settings_title" android:textColor="?attr/colorPrimary"
-                        app:layout_constraintEnd_toEndOf="parent" app:layout_constraintTop_toTopOf="parent" />
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:srcCompat="@drawable/login_back"
+                        app:tint="?attr/taktakColorTextPrimary" />
+
+                    <com.google.android.material.textview.MaterialTextView
+                        android:id="@+id/languageLabel"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:minHeight="@dimen/taktak_touch_target_min"
+                        android:drawableEnd="@drawable/login_chevron"
+                        android:drawablePadding="@dimen/taktak_space_xs"
+                        android:gravity="center"
+                        android:text="@string/login_language"
+                        android:textAppearance="@style/TextAppearance.Taktak.Secondary"
+                        android:textColor="?attr/taktakColorTextSecondary"
+                        app:drawableTint="?attr/taktakColorTextSecondary"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/loginThemeButton"
+                        style="@style/Widget.Material3.Button.TextButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/theme_settings_title"
+                        android:textAppearance="@style/TextAppearance.Taktak.Secondary"
+                        android:textColor="?attr/taktakColorBrandPrimary"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintTop_toTopOf="parent"     android:minHeight="@dimen/taktak_touch_target_min" />
                 </androidx.constraintlayout.widget.ConstraintLayout>
-                <com.taktak.app.ui.auth.LoginLogoView android:id="@+id/authLogo"
-                    android:layout_width="116dp" android:layout_height="116dp" android:layout_gravity="center_horizontal"
-                    android:layout_marginTop="16dp" android:contentDescription="@string/app_name" />
-                <com.google.android.material.textview.MaterialTextView android:id="@+id/authTitle"
-                    android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/auth_login" android:visibility="gone" />
-                <com.google.android.material.textfield.TextInputLayout android:id="@+id/emailLayout"
-                    style="@style/Widget.TakTakLogin.Field" android:layout_marginTop="44dp"
-                    android:hint="@string/auth_email" app:startIconDrawable="@drawable/login_person">
-                    <com.google.android.material.textfield.TextInputEditText android:id="@+id/emailInput"
-                        style="@style/Widget.TakTakLogin.Input" android:hint="@string/auth_email"
-                        android:autofillHints="emailAddress" android:imeOptions="actionNext" android:inputType="textEmailAddress" />
+
+                <!-- Brand Logo & Header -->
+                <com.taktak.app.ui.auth.LoginLogoView
+                    android:id="@+id/authLogo"
+                    android:layout_width="96dp"
+                    android:layout_height="96dp"
+                    android:layout_gravity="center_horizontal"
+                    android:layout_marginTop="@dimen/taktak_space_lg"
+                    android:contentDescription="@string/app_name" />
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/authTitle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/taktak_space_lg"
+                    android:gravity="center"
+                    android:text="@string/auth_login"
+                    android:textAppearance="@style/TextAppearance.Taktak.LargeTitle" />
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/taktak_space_xs"
+                    android:gravity="center"
+                    android:text="@string/auth_login_subtitle"
+                    android:textAppearance="@style/TextAppearance.Taktak.Body"
+                    android:textColor="?attr/taktakColorTextSecondary" />
+
+                <!-- Form Notice / Error Banner -->
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/formNotice"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/taktak_space_lg"
+                    android:accessibilityLiveRegion="polite"
+                    android:background="@drawable/login_notice"
+                    android:padding="@dimen/taktak_space_md"
+                    android:textAppearance="@style/TextAppearance.Taktak.Secondary"
+                    android:textColor="@color/taktak_status_error"
+                    android:visibility="gone" />
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/themePendingNotice"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/taktak_space_md"
+                    android:accessibilityLiveRegion="polite"
+                    android:background="@drawable/login_notice"
+                    android:padding="@dimen/taktak_space_md"
+                    android:text="@string/theme_login_pending"
+                    android:textAppearance="@style/TextAppearance.Taktak.Secondary"
+                    android:textColor="?attr/taktakColorTextPrimary"
+                    android:visibility="gone" />
+
+                <!-- Input Fields -->
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/emailLayout"
+                    style="@style/Widget.Taktak.TextInputLayout"
+                    android:layout_marginTop="@dimen/taktak_space_xl"
+                    android:hint="@string/auth_email"
+                    app:startIconDrawable="@drawable/login_person">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/emailInput"
+                        style="@style/Widget.Taktak.TextInputEditText"
+                        android:autofillHints="emailAddress"
+                        android:hint="@string/auth_email"
+                        android:imeOptions="actionNext"
+                        android:inputType="textEmailAddress" />
                 </com.google.android.material.textfield.TextInputLayout>
-                <com.google.android.material.textfield.TextInputLayout android:id="@+id/passwordLayout"
-                    style="@style/Widget.TakTakLogin.Field" android:layout_marginTop="14dp" android:hint="@string/auth_password"
-                    app:startIconDrawable="@drawable/ic_m3_lock" app:endIconMode="password_toggle">
-                    <com.google.android.material.textfield.TextInputEditText android:id="@+id/passwordInput"
-                        style="@style/Widget.TakTakLogin.Input" android:hint="@string/auth_password" android:autofillHints="password"
-                        android:imeOptions="actionDone|flagNoPersonalizedLearning" android:inputType="textPassword" android:saveEnabled="false" />
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/passwordLayout"
+                    style="@style/Widget.Taktak.TextInputLayout"
+                    android:layout_marginTop="@dimen/taktak_space_md"
+                    android:hint="@string/auth_password"
+                    app:endIconMode="password_toggle"
+                    app:startIconDrawable="@drawable/ic_m3_lock">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/passwordInput"
+                        style="@style/Widget.Taktak.TextInputEditText"
+                        android:autofillHints="password"
+                        android:hint="@string/auth_password"
+                        android:imeOptions="actionDone|flagNoPersonalizedLearning"
+                        android:inputType="textPassword"
+                        android:saveEnabled="false" />
                 </com.google.android.material.textfield.TextInputLayout>
-                <FrameLayout android:layout_width="match_parent" android:layout_height="18dp">
-                    <com.google.android.material.progressindicator.LinearProgressIndicator android:id="@+id/loadingIndicator"
-                        android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_gravity="center_vertical"
-                        android:contentDescription="@string/auth_processing" android:indeterminate="true" android:visibility="gone"
-                        app:indicatorColor="?attr/colorPrimary" app:trackColor="?attr/ttLoginOutline" />
+
+                <!-- Forgot Password Link -->
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/forgotPasswordLabel"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:minHeight="@dimen/taktak_touch_target_min"
+                    android:layout_gravity="end"
+                    android:layout_marginTop="@dimen/taktak_space_xs"
+                    android:background="?attr/selectableItemBackground"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:gravity="center_vertical"
+                    android:text="@string/login_forgot"
+                    android:textAppearance="@style/TextAppearance.Taktak.Secondary"
+                    android:textColor="?attr/taktakColorBrandPrimary" />
+
+                <!-- Progress Indicator -->
+                <FrameLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="18dp"
+                    android:layout_marginTop="@dimen/taktak_space_xs">
+
+                    <com.google.android.material.progressindicator.LinearProgressIndicator
+                        android:id="@+id/loadingIndicator"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_vertical"
+                        android:contentDescription="@string/auth_processing"
+                        android:indeterminate="true"
+                        android:visibility="gone"
+                        app:indicatorColor="?attr/taktakColorBrandPrimary"
+                        app:trackColor="?attr/taktakColorBorder" />
                 </FrameLayout>
-                <com.google.android.material.textview.MaterialTextView android:id="@+id/formNotice"
-                    android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="12dp"
-                    android:padding="12dp" android:background="@drawable/login_notice" android:textColor="?attr/colorOnSurface"
-                    android:textSize="14sp" android:accessibilityLiveRegion="polite" android:visibility="gone" />
-                <com.google.android.material.textview.MaterialTextView android:id="@+id/themePendingNotice"
-                    android:layout_width="match_parent" android:layout_height="wrap_content" android:padding="12dp"
-                    android:text="@string/theme_login_pending" android:textColor="?attr/colorOnSurface"
-                    android:background="@drawable/login_notice" android:accessibilityLiveRegion="polite"
-                    android:layout_marginBottom="12dp" android:visibility="gone" />
-                <androidx.appcompat.widget.AppCompatButton android:id="@+id/submitButton"
-                    style="@style/Widget.TakTakLogin.ThemedButton" android:background="?attr/ttLoginPrimary" android:text="@string/auth_login" />
-                <com.google.android.material.textview.MaterialTextView android:id="@+id/forgotPasswordLabel"
-                    android:layout_width="match_parent" android:layout_height="wrap_content" android:minHeight="48dp"
-                    android:layout_marginTop="8dp" android:gravity="center" android:text="@string/login_forgot"
-                    android:textColor="?attr/colorOnSurface" android:textSize="16sp" android:clickable="true" android:focusable="true"
-                    android:background="?attr/selectableItemBackground" />
-                <com.google.android.material.button.MaterialButton android:id="@+id/verifyEmailButton"
-                    style="@style/Widget.Material3.Button.TextButton" android:layout_width="match_parent" android:layout_height="wrap_content"
-                    android:text="@string/recovery_verify_title" android:textColor="?attr/colorPrimary" />
-                <Space android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:minHeight="72dp" />
-                <androidx.appcompat.widget.AppCompatButton android:id="@+id/switchButton"
-                    style="@style/Widget.TakTakLogin.ThemedButton" android:background="?attr/ttLoginSecondary"
-                    android:textColor="?attr/colorPrimary" android:text="@string/login_create_account" />
-                <com.google.android.material.textview.MaterialTextView android:id="@+id/authBrand"
-                    android:layout_width="match_parent" android:layout_height="wrap_content" android:minHeight="56dp"
-                    android:layout_marginTop="8dp" android:gravity="center" android:text="@string/login_wordmark"
-                    android:fontFamily="sans-serif-rounded" android:textStyle="bold" android:textSize="22sp" android:textColor="?attr/colorOnSurface" />
+
+                <!-- Submit Button -->
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/submitButton"
+                    style="@style/Widget.Taktak.Button.Primary"
+                    android:layout_marginTop="@dimen/taktak_space_sm"
+                    android:text="@string/auth_login"
+                    android:minHeight="@dimen/taktak_login_action_min_height" />
+
+                <!-- Verify Email Link -->
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/verifyEmailButton"
+                    style="@style/Widget.Material3.Button.TextButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/taktak_space_xs"
+                    android:minHeight="@dimen/taktak_btn_height_medium"
+                    android:text="@string/recovery_verify_title"
+                    android:textAppearance="@style/TextAppearance.Taktak.Secondary"
+                    android:textColor="?attr/taktakColorBrandPrimary" />
+
+                <Space
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_weight="1"
+                    android:minHeight="@dimen/taktak_space_xl" />
+
+                <!-- Switch to Register -->
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/switchButton"
+                    style="@style/Widget.Taktak.Button.Secondary"
+                    android:layout_marginTop="@dimen/taktak_space_md"
+                    android:text="@string/login_create_account"     android:minHeight="@dimen/taktak_touch_target_min" />
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/authBrand"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/taktak_space_md"
+                    android:fontFamily="@font/inter"
+                    android:gravity="center"
+                    android:minHeight="44dp"
+                    android:text="@string/login_wordmark"
+                    android:textAppearance="@style/TextAppearance.Taktak.PageTitle"
+                    android:textColor="?attr/taktakColorTextPrimary" />
             </LinearLayout>
         </androidx.core.widget.NestedScrollView>
     </androidx.constraintlayout.widget.ConstraintLayout>

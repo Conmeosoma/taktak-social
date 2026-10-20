@@ -13,12 +13,19 @@
         <item name="android:windowBackground">@color/tc_gradient_bg</item>
         <item name="android:colorBackground">@color/tc_gradient_bg</item>
         <item name="colorSurface">@color/tc_gradient_bg</item>
+        <item name="colorSurfaceContainer">#1E1E24</item>
+        <item name="colorSurfaceContainerHigh">#25242C</item>
+        <item name="colorSurfaceContainerHighest">#2F2E36</item>
         <item name="colorOnSurface">@color/tc_ink</item>
         <item name="colorOnSurfaceVariant">@color/lt_muted</item>
         <item name="colorPrimary">@color/tc_gradient_primary</item>
         <item name="colorError">@color/lt_error</item>
         <item name="ttLoginKind">1</item>
         <item name="ttLoginField">@color/lt_field</item>
+        <!-- Đồng bộ trường semantic với nền/ink của theme đang được resolver sử dụng. -->
+        <item name="taktakColorInputBackground">?attr/ttLoginField</item>
+        <item name="taktakColorInputText">?attr/colorOnSurface</item>
+        <item name="taktakColorInputHint">?attr/colorOnSurfaceVariant</item>
         <item name="ttLoginOutline">@color/lt_outline</item>
         <item name="ttLoginNotice">@color/lt_notice</item>
         <item name="ttLoginStart">@color/tc_gradient_start</item>

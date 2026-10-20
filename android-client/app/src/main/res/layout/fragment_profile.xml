@@ -1,55 +1,275 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto" android:id="@id/profilePage"
-    android:layout_width="match_parent" android:layout_height="match_parent">
-    <androidx.core.widget.NestedScrollView android:layout_width="0dp" android:layout_height="0dp" android:fillViewport="true"
-        app:layout_constraintWidth_max="480dp" app:layout_constraintStart_toStartOf="parent" app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent" app:layout_constraintBottom_toBottomOf="parent">
-        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical"
-            android:padding="20dp" android:gravity="center_horizontal">
-            <TextView android:id="@+id/profileTitle" android:layout_width="match_parent" android:layout_height="wrap_content"
-                android:layout_marginTop="16dp" android:text="@string/nav_profile" android:textAppearance="?attr/ttMediaHeadlineStyle" android:textSize="40sp" />
-            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="8dp"
-                android:text="@string/premium_profile_detail" android:textSize="16sp" android:textColor="?attr/colorOnSurfaceVariant" />
-            <com.google.android.material.progressindicator.LinearProgressIndicator android:id="@+id/profileProgress"
-                android:layout_width="match_parent" android:layout_height="4dp" android:layout_marginTop="12dp" android:indeterminate="true" />
-            <FrameLayout android:layout_width="148dp" android:layout_height="148dp" android:layout_marginTop="16dp">
-                <com.google.android.material.imageview.ShapeableImageView android:id="@+id/profileAvatar"
-                    android:layout_width="match_parent" android:layout_height="match_parent" android:padding="3dp"
-                    android:src="@drawable/friend_avatar" android:contentDescription="@string/profile_avatar" android:scaleType="centerCrop"
-                    app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.TakTakPremium.Avatar"
-                    app:strokeWidth="3dp" app:strokeColor="?attr/colorPrimary" />
-                <com.google.android.material.button.MaterialButton android:id="@+id/profileAvatarEdit"
-                    style="@style/Widget.Material3Expressive.Button.IconButton.Filled" android:layout_width="48dp" android:layout_height="48dp"
-                    android:layout_gravity="bottom|end" android:contentDescription="@string/profile_change_avatar"
-                    app:icon="@drawable/ic_camera_shutter" app:iconTint="?attr/colorOnPrimary" app:backgroundTint="?attr/colorPrimary" app:iconSize="24dp" />
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@id/profilePage"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="?attr/taktakColorSurface">
+
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:clipToPadding="false"
+        android:fillViewport="true"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintWidth_max="480dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            android:orientation="vertical"
+            android:paddingHorizontal="@dimen/taktak_space_xl"
+            android:paddingTop="@dimen/taktak_space_lg"
+            android:paddingBottom="@dimen/taktak_space_xxl">
+
+            <!-- Title & Subtitle -->
+            <TextView
+                android:id="@+id/profileTitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/nav_profile"
+                android:textAppearance="@style/TextAppearance.Taktak.LargeTitle"
+                android:textColor="?attr/taktakColorTextPrimary" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/taktak_space_xxs"
+                android:text="@string/premium_profile_detail"
+                android:textAppearance="@style/TextAppearance.Taktak.Body"
+                android:textColor="?attr/taktakColorTextSecondary" />
+
+            <!-- Progress Indicator -->
+            <com.google.android.material.progressindicator.LinearProgressIndicator
+                android:id="@+id/profileProgress"
+                android:layout_width="match_parent"
+                android:layout_height="4dp"
+                android:layout_marginTop="@dimen/taktak_space_sm"
+                android:indeterminate="true"
+                android:visibility="invisible"
+                app:indicatorColor="?attr/taktakColorBrandPrimary"
+                app:trackColor="?attr/taktakColorBorder" />
+
+            <!-- Big Avatar with Camera Badge -->
+            <FrameLayout
+                android:layout_width="@dimen/taktak_avatar_profile"
+                android:layout_height="@dimen/taktak_avatar_profile"
+                android:layout_marginTop="@dimen/taktak_space_lg">
+
+                <com.google.android.material.imageview.ShapeableImageView
+                    android:id="@+id/profileAvatar"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:contentDescription="@string/profile_avatar"
+                    android:padding="2dp"
+                    android:scaleType="centerCrop"
+                    android:src="@drawable/friend_avatar"
+                    app:shapeAppearanceOverlay="@style/ShapeAppearance.Taktak.Pill"
+                    app:strokeColor="?attr/taktakColorBrandPrimary"
+                    app:strokeWidth="2dp" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/profileAvatarEdit"
+                    style="@style/Widget.Material3Expressive.Button.IconButton.Filled"
+                    android:layout_width="@dimen/taktak_touch_target_min"
+                    android:layout_height="@dimen/taktak_touch_target_min"
+                    android:layout_gravity="bottom|end"
+                    android:contentDescription="@string/profile_change_avatar"
+                    android:insetBottom="0dp"
+                    android:insetLeft="0dp"
+                    android:insetRight="0dp"
+                    android:insetTop="0dp"
+                    app:backgroundTint="?attr/taktakColorBrandPrimary"
+                    app:icon="@drawable/ic_camera_shutter"
+                    app:iconGravity="textStart"
+                    app:iconPadding="0dp"
+                    app:iconSize="18dp"
+                    app:iconTint="?attr/colorOnPrimary"     android:minHeight="@dimen/taktak_touch_target_min" />
             </FrameLayout>
-            <com.google.android.material.button.MaterialButton android:id="@+id/profileChangeAvatar"
-                style="?attr/ttMediaTonalStyle" android:layout_width="wrap_content" android:layout_height="wrap_content"
-                android:layout_marginTop="8dp" app:icon="@drawable/ic_camera_shutter" android:text="@string/profile_change_avatar" />
-            <TextView android:id="@+id/profileUsername" android:layout_width="match_parent" android:layout_height="wrap_content"
-                android:layout_marginTop="16dp" android:gravity="center" android:maxLines="1" android:ellipsize="end" android:textSize="16sp" android:textColor="?attr/colorOnSurface" />
-            <TextView android:id="@+id/profileIdentity" android:layout_width="match_parent" android:layout_height="wrap_content"
-                android:layout_marginTop="8dp" android:gravity="center" android:maxLines="1" android:ellipsize="end" android:textSize="15sp" android:textColor="?attr/colorOnSurfaceVariant" />
-            <com.google.android.material.textfield.TextInputLayout android:id="@+id/profileNameLayout"
-                style="?attr/ttMediaFieldStyle" android:layout_marginTop="24dp"
-                android:hint="@string/profile_display_name" app:startIconDrawable="@drawable/ic_m3_person">
-                <com.google.android.material.textfield.TextInputEditText android:id="@+id/profileNameInput"
-                    android:layout_width="match_parent" android:layout_height="wrap_content" android:minHeight="56dp"
-                    android:theme="?attr/ttMediaInputStyle"
-                    android:inputType="textPersonName|textCapWords" android:maxLength="255" android:maxLines="2" android:saveEnabled="false" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/profileChangeAvatar"
+                style="@style/Widget.Taktak.Button.Ghost"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/taktak_space_xs"
+                android:minHeight="@dimen/taktak_btn_height_small"
+                android:text="@string/profile_change_avatar"
+                app:icon="@drawable/ic_camera_shutter"
+                app:iconSize="16dp" />
+
+            <!-- User Info -->
+            <TextView
+                android:id="@+id/profileUsername"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/taktak_space_md"
+                android:ellipsize="end"
+                android:gravity="center"
+                android:maxLines="1"
+                android:textAppearance="@style/TextAppearance.Taktak.PageTitle"
+                android:textColor="?attr/taktakColorTextPrimary" />
+
+            <TextView
+                android:id="@+id/profileIdentity"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/taktak_space_xxs"
+                android:ellipsize="end"
+                android:gravity="center"
+                android:maxLines="1"
+                android:textAppearance="@style/TextAppearance.Taktak.Secondary"
+                android:textColor="?attr/taktakColorTextMuted" />
+
+            <!-- Display Name Input -->
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/profileNameLayout"
+                style="@style/Widget.Taktak.TextInputLayout"
+                android:layout_marginTop="@dimen/taktak_space_lg"
+                android:hint="@string/profile_display_name"
+                app:startIconDrawable="@drawable/ic_m3_person">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/profileNameInput"
+                    android:hint="@string/profile_display_name"
+                    style="@style/Widget.Taktak.TextInputEditText"
+                    android:inputType="textPersonName|textCapWords"
+                    android:maxLength="255"
+                    android:maxLines="2"
+                    android:saveEnabled="false" />
             </com.google.android.material.textfield.TextInputLayout>
-            <TextView android:id="@+id/profileMessage" android:layout_width="match_parent" android:layout_height="wrap_content"
-                android:layout_marginTop="12dp" android:accessibilityLiveRegion="polite" android:textAppearance="@style/TextAppearance.TakTakM3.Body" />
-            <androidx.appcompat.widget.AppCompatButton android:id="@+id/profileSave" style="?attr/ttMediaPrimaryStyle"
-                android:layout_marginTop="12dp" android:text="@string/profile_save" />
-            <com.google.android.material.button.MaterialButton android:id="@+id/profileRetry" style="@style/Widget.TakTakM3.TextButton"
-                android:layout_width="match_parent" android:layout_height="wrap_content" android:minHeight="48dp" android:textColor="?attr/colorPrimary" android:text="@string/profile_reload" />
-            <androidx.appcompat.widget.AppCompatButton android:id="@+id/profileLogout" style="?attr/ttMediaOutlineStyle"
-                android:layout_marginTop="20dp" android:text="@string/profile_logout" />
-            <com.google.android.material.button.MaterialButton android:id="@+id/profileThemeButton" style="@style/Widget.TakTakM3.TextButton"
-                android:layout_width="match_parent" android:layout_height="wrap_content" android:minHeight="48dp"
-                android:layout_marginTop="12dp" android:text="@string/theme_open" />
+
+            <!-- Message Notice -->
+            <TextView
+                android:id="@+id/profileMessage"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/taktak_space_sm"
+                android:accessibilityLiveRegion="polite"
+                android:textAppearance="@style/TextAppearance.Taktak.Secondary"
+                android:textColor="?attr/taktakColorBrandPrimary" />
+
+            <!-- Save Button -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/profileSave"
+                style="@style/Widget.Taktak.Button.Primary"
+                android:layout_marginTop="@dimen/taktak_space_md"
+                android:text="@string/profile_save"     android:minHeight="@dimen/taktak_touch_target_min" />
+
+            <!-- Retry Reload Button -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/profileRetry"
+                style="@style/Widget.Taktak.Button.Ghost"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:minHeight="@dimen/taktak_btn_height_medium"
+                android:text="@string/profile_reload" />
+
+            <!-- Theme Settings Button -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/profileThemeButton"
+                style="@style/Widget.Taktak.Button.Secondary"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/taktak_space_sm"
+                android:minHeight="@dimen/taktak_btn_height_large"
+                android:text="@string/theme_open" />
+
+            <!-- Language Settings Button -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/profileLanguageButton"
+                style="@style/Widget.Taktak.Button.Secondary"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/taktak_space_sm"
+                android:minHeight="@dimen/taktak_btn_height_large"
+                android:text="@string/language_settings_title" />
+
+            <!-- My QR Code Button -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/profileMyQrButton"
+                style="@style/Widget.Taktak.Button.Secondary"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/taktak_space_sm"
+                android:minHeight="@dimen/taktak_btn_height_large"
+                app:icon="@drawable/ic_qr_code"
+                app:iconGravity="textStart"
+                app:iconTint="?attr/taktakColorBrandPrimary"
+                android:text="@string/profile_my_qr" />
+
+            <!-- Biometric App Lock Card -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/profileBiometricCard"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/taktak_space_sm"
+                app:cardBackgroundColor="?attr/taktakColorCardBackground"
+                app:cardCornerRadius="@dimen/taktak_radius_card"
+                app:cardElevation="0dp"
+                app:strokeColor="?attr/taktakColorBorder"
+                app:strokeWidth="1dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:padding="@dimen/taktak_space_md">
+
+                    <ImageView
+                        android:layout_width="28dp"
+                        android:layout_height="28dp"
+                        android:layout_marginEnd="@dimen/taktak_space_sm"
+                        android:contentDescription="@string/biometric_lock_title"
+                        android:src="@drawable/ic_biometric_fingerprint"
+                        app:tint="?attr/taktakColorBrandPrimary" />
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/biometric_lock_title"
+                            android:textAppearance="@style/TextAppearance.Taktak.Body"
+                            android:textColor="?attr/taktakColorTextPrimary"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="2dp"
+                            android:text="@string/biometric_lock_desc"
+                            android:textAppearance="@style/TextAppearance.Taktak.Caption"
+                            android:textColor="?attr/taktakColorTextMuted" />
+                    </LinearLayout>
+
+                    <com.google.android.material.switchmaterial.SwitchMaterial
+                        android:id="@+id/profileBiometricSwitch"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="@dimen/taktak_space_xs" android:minWidth="@dimen/taktak_touch_target_min" android:minHeight="@dimen/taktak_touch_target_min" android:contentDescription="@string/biometric_lock_title" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Logout Button -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/profileLogout"
+                style="@style/Widget.Taktak.Button.Danger"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/taktak_space_md"
+                android:minHeight="@dimen/taktak_btn_height_medium"
+                android:text="@string/profile_logout"
+                android:textColor="@color/taktak_status_error" />
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
 </androidx.constraintlayout.widget.ConstraintLayout>

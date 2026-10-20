@@ -35,10 +35,35 @@
         <item name="colorPrimaryInverse">@color/m3_inverse_primary</item>
         <item name="android:colorBackground">@color/m3_surface</item>
         <item name="colorOnBackground">@color/m3_on_surface</item>
-        <item name="android:windowBackground">@color/m3_surface</item>
-        <item name="android:fontFamily">sans-serif</item>
+        <item name="android:fontFamily">@font/inter</item>
         <item name="textAppearanceBodyLarge">@style/TextAppearance.TakTakM3.Body</item>
         <item name="textAppearanceHeadlineLarge">@style/TextAppearance.TakTakM3.Headline</item>
+
+        <!-- Taktak Design System Semantic Tokens (Default Fallback aligned with Material 3 dynamic theme) -->
+        <item name="taktakColorBackground">?attr/colorSurface</item>
+        <item name="taktakColorSurface">?attr/colorSurface</item>
+        <item name="taktakColorSurfaceVariant">?attr/colorSurfaceContainer</item>
+        <item name="taktakColorBrandPrimary">?attr/colorPrimary</item>
+        <item name="taktakColorBrandSecondary">?attr/colorSecondary</item>
+        <item name="taktakColorBrandGradientStart">?attr/colorPrimary</item>
+        <item name="taktakColorBrandGradientEnd">?attr/colorSecondary</item>
+        <item name="taktakColorTextPrimary">?attr/colorOnSurface</item>
+        <item name="taktakColorTextSecondary">?attr/colorOnSurfaceVariant</item>
+        <item name="taktakColorTextMuted">?attr/colorOutline</item>
+        <item name="taktakColorBorder">?attr/colorOutlineVariant</item>
+        <item name="taktakColorBorderFocused">?attr/colorPrimary</item>
+        <item name="taktakColorBorderError">?attr/colorError</item>
+        <item name="taktakColorCardBackground">?attr/colorSurfaceContainerLow</item>
+        <item name="taktakColorCardBorder">?attr/colorOutlineVariant</item>
+        <item name="taktakColorInputBackground">?attr/colorSurfaceContainer</item>
+        <item name="taktakColorInputText">?attr/colorOnSurface</item>
+        <item name="taktakColorInputHint">?attr/colorOutline</item>
+        <item name="taktakColorNavBackground">?attr/colorSurface</item>
+        <item name="taktakColorNavIndicator">?attr/colorSurfaceContainerHigh</item>
+        <item name="taktakColorNavActive">?attr/colorPrimary</item>
+        <item name="taktakColorNavInactive">?attr/colorOnSurfaceVariant</item>
+        <item name="taktakColorShutterRing">?attr/colorOnSurface</item>
+        <item name="taktakColorShutterCenter">?attr/colorPrimary</item>
     </style>
     <style name="Theme.TakTak.M3.Login" parent="Theme.TakTak.M3" />
     <style name="Theme.TakTak.M3.Register" parent="Theme.TakTak.M3" />

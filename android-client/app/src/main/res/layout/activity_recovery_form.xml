@@ -1,32 +1,203 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto"
- android:layout_width="match_parent" android:layout_height="match_parent" android:background="?attr/colorSurface">
- <com.taktak.app.ui.auth.AuthBackdropView android:layout_width="match_parent" android:layout_height="match_parent" android:importantForAccessibility="no" />
- <androidx.core.widget.NestedScrollView android:id="@+id/safeContent" android:layout_width="match_parent" android:layout_height="match_parent" android:fillViewport="true" android:clipToPadding="false">
- <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="24dp">
- <com.google.android.material.textview.MaterialTextView android:id="@+id/authBrand" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/app_name" android:textColor="?attr/colorPrimary" android:textAppearance="@style/TextAppearance.Material3.TitleLarge" />
- <com.google.android.material.textview.MaterialTextView android:id="@+id/authTitle" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="24dp" style="?attr/ttAuthHeadlineStyle" />
- <com.google.android.material.textview.MaterialTextView android:id="@+id/detail" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:layout_marginBottom="24dp" android:textColor="?attr/colorOnSurfaceVariant" android:textAppearance="@style/TextAppearance.Material3.BodyLarge" />
-<com.google.android.material.textfield.TextInputLayout android:id="@+id/emailLayout" style="?attr/ttAuthFieldStyle" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="14dp" android:hint="@string/auth_email" >
-<com.google.android.material.textfield.TextInputEditText style="?attr/ttAuthInputStyle" android:id="@+id/emailInput" android:layout_width="match_parent" android:layout_height="wrap_content" android:minHeight="56dp" android:inputType="textEmailAddress" android:saveEnabled="false" android:importantForAutofill="no" android:singleLine="true" android:imeOptions="actionNext|flagNoPersonalizedLearning" />
-</com.google.android.material.textfield.TextInputLayout>
-<com.google.android.material.textfield.TextInputLayout android:id="@+id/currentLayout" style="?attr/ttAuthFieldStyle" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="14dp" android:hint="@string/recovery_current" app:endIconMode="password_toggle">
-<com.google.android.material.textfield.TextInputEditText style="?attr/ttAuthInputStyle" android:id="@+id/currentInput" android:layout_width="match_parent" android:layout_height="wrap_content" android:minHeight="56dp" android:inputType="textPassword" android:saveEnabled="false" android:importantForAutofill="no" android:singleLine="true" android:imeOptions="actionNext|flagNoPersonalizedLearning" />
-</com.google.android.material.textfield.TextInputLayout>
-<com.google.android.material.textfield.TextInputLayout android:id="@+id/codeLayout" style="?attr/ttAuthFieldStyle" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="14dp" android:hint="@string/recovery_code" >
-<com.google.android.material.textfield.TextInputEditText style="?attr/ttAuthInputStyle" android:id="@+id/codeInput" android:layout_width="match_parent" android:layout_height="wrap_content" android:minHeight="56dp" android:inputType="textVisiblePassword" android:saveEnabled="false" android:importantForAutofill="no" android:singleLine="true" android:imeOptions="actionNext|flagNoPersonalizedLearning" />
-</com.google.android.material.textfield.TextInputLayout>
-<com.google.android.material.textfield.TextInputLayout android:id="@+id/newLayout" style="?attr/ttAuthFieldStyle" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="14dp" android:hint="@string/recovery_new" app:endIconMode="password_toggle">
-<com.google.android.material.textfield.TextInputEditText style="?attr/ttAuthInputStyle" android:id="@+id/newInput" android:layout_width="match_parent" android:layout_height="wrap_content" android:minHeight="56dp" android:inputType="textPassword" android:saveEnabled="false" android:importantForAutofill="no" android:singleLine="true" android:imeOptions="actionNext|flagNoPersonalizedLearning" />
-</com.google.android.material.textfield.TextInputLayout>
-<com.google.android.material.textfield.TextInputLayout android:id="@+id/confirmLayout" style="?attr/ttAuthFieldStyle" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="14dp" android:hint="@string/recovery_confirm" app:endIconMode="password_toggle">
-<com.google.android.material.textfield.TextInputEditText style="?attr/ttAuthInputStyle" android:id="@+id/confirmInput" android:layout_width="match_parent" android:layout_height="wrap_content" android:minHeight="56dp" android:inputType="textPassword" android:saveEnabled="false" android:importantForAutofill="no" android:singleLine="true" android:imeOptions="actionNext|flagNoPersonalizedLearning" />
-</com.google.android.material.textfield.TextInputLayout>
-<com.google.android.material.textview.MaterialTextView android:id="@+id/notice" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="16dp" android:accessibilityLiveRegion="polite" android:textColor="?attr/colorOnSurface" android:visibility="gone" />
-<com.google.android.material.progressindicator.LinearProgressIndicator android:id="@+id/progress" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="16dp" android:contentDescription="@string/auth_processing" android:indeterminate="true" android:visibility="gone" />
-<androidx.appcompat.widget.AppCompatButton android:id="@+id/submit" style="?attr/ttAuthPrimaryStyle" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="24dp" />
-<com.google.android.material.button.MaterialButton android:id="@+id/confirmCode" style="?attr/ttAuthTonalStyle" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:text="@string/recovery_confirm_email" android:visibility="visible" />
-<com.google.android.material.button.MaterialButton android:id="@+id/retry" style="?attr/ttAuthTonalStyle" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:text="@string/recovery_retry" android:visibility="gone" />
-<com.google.android.material.button.MaterialButton android:id="@+id/back" style="@style/Widget.Material3.Button.TextButton" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:text="@string/recovery_back" android:visibility="visible" />
-</LinearLayout></androidx.core.widget.NestedScrollView></FrameLayout>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="?attr/taktakColorSurface">
 
+    <com.taktak.app.ui.auth.AuthBackdropView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:importantForAccessibility="no" />
+
+    <androidx.core.widget.NestedScrollView
+        android:id="@+id/safeContent"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:clipToPadding="false"
+        android:fillViewport="true">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingHorizontal="@dimen/taktak_space_xl"
+            android:paddingTop="@dimen/taktak_space_xl"
+            android:paddingBottom="@dimen/taktak_space_xl">
+
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/authBrand"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/inter"
+                android:text="@string/app_name"
+                android:textAppearance="@style/TextAppearance.Taktak.PageTitle"
+                android:textColor="?attr/taktakColorBrandPrimary" />
+
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/authTitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/taktak_space_lg"
+                android:textAppearance="@style/TextAppearance.Taktak.LargeTitle"
+                android:textColor="?attr/taktakColorTextPrimary" />
+
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/detail"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/taktak_space_xs"
+                android:layout_marginBottom="@dimen/taktak_space_lg"
+                android:textAppearance="@style/TextAppearance.Taktak.Body"
+                android:textColor="?attr/taktakColorTextSecondary" />
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/emailLayout"
+                style="@style/Widget.Taktak.TextInputLayout"
+                android:layout_marginTop="@dimen/taktak_space_sm"
+                android:hint="@string/auth_email"
+                app:startIconDrawable="@drawable/ic_m3_mail">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/emailInput"
+                    style="@style/Widget.Taktak.TextInputEditText"
+                    android:hint="@string/auth_email"
+                    android:imeOptions="actionNext|flagNoPersonalizedLearning"
+                    android:importantForAutofill="no"
+                    android:inputType="textEmailAddress"
+                    android:saveEnabled="false"
+                    android:singleLine="true" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/currentLayout"
+                style="@style/Widget.Taktak.TextInputLayout"
+                android:layout_marginTop="@dimen/taktak_space_sm"
+                android:hint="@string/recovery_current"
+                app:endIconMode="password_toggle"
+                app:startIconDrawable="@drawable/ic_m3_lock">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/currentInput"
+                    style="@style/Widget.Taktak.TextInputEditText"
+                    android:hint="@string/recovery_current"
+                    android:imeOptions="actionNext|flagNoPersonalizedLearning"
+                    android:importantForAutofill="no"
+                    android:inputType="textPassword"
+                    android:saveEnabled="false"
+                    android:singleLine="true" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/codeLayout"
+                style="@style/Widget.Taktak.TextInputLayout"
+                android:layout_marginTop="@dimen/taktak_space_sm"
+                android:hint="@string/recovery_code">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/codeInput"
+                    style="@style/Widget.Taktak.TextInputEditText"
+                    android:hint="@string/recovery_code"
+                    android:imeOptions="actionNext|flagNoPersonalizedLearning"
+                    android:importantForAutofill="no"
+                    android:inputType="textVisiblePassword"
+                    android:saveEnabled="false"
+                    android:singleLine="true" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/newLayout"
+                style="@style/Widget.Taktak.TextInputLayout"
+                android:layout_marginTop="@dimen/taktak_space_sm"
+                android:hint="@string/recovery_new"
+                app:endIconMode="password_toggle"
+                app:startIconDrawable="@drawable/ic_m3_lock">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/newInput"
+                    style="@style/Widget.Taktak.TextInputEditText"
+                    android:hint="@string/recovery_new"
+                    android:imeOptions="actionNext|flagNoPersonalizedLearning"
+                    android:importantForAutofill="no"
+                    android:inputType="textPassword"
+                    android:saveEnabled="false"
+                    android:singleLine="true" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/confirmLayout"
+                style="@style/Widget.Taktak.TextInputLayout"
+                android:layout_marginTop="@dimen/taktak_space_sm"
+                android:hint="@string/recovery_confirm"
+                app:endIconMode="password_toggle"
+                app:startIconDrawable="@drawable/ic_m3_lock">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/confirmInput"
+                    style="@style/Widget.Taktak.TextInputEditText"
+                    android:hint="@string/recovery_confirm"
+                    android:imeOptions="actionNext|flagNoPersonalizedLearning"
+                    android:importantForAutofill="no"
+                    android:inputType="textPassword"
+                    android:saveEnabled="false"
+                    android:singleLine="true" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/notice"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/taktak_space_md"
+                android:accessibilityLiveRegion="polite"
+                android:background="@drawable/login_notice"
+                android:padding="@dimen/taktak_space_md"
+                android:textAppearance="@style/TextAppearance.Taktak.Secondary"
+                android:textColor="@color/taktak_status_error"
+                android:visibility="gone" />
+
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="18dp"
+                android:layout_marginTop="@dimen/taktak_space_xs">
+
+                <com.google.android.material.progressindicator.LinearProgressIndicator
+                    android:id="@+id/progress"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:contentDescription="@string/auth_processing"
+                    android:indeterminate="true"
+                    android:visibility="gone"
+                    app:indicatorColor="?attr/taktakColorBrandPrimary"
+                    app:trackColor="?attr/taktakColorBorder" />
+            </FrameLayout>
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/submit"
+                style="@style/Widget.Taktak.Button.Primary"
+                android:layout_marginTop="@dimen/taktak_space_lg"     android:minHeight="@dimen/taktak_touch_target_min" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/confirmCode"
+                style="@style/Widget.Taktak.Button.Secondary"
+                android:layout_marginTop="@dimen/taktak_space_sm"
+                android:text="@string/recovery_confirm_email"
+                android:visibility="visible"     android:minHeight="@dimen/taktak_touch_target_min" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/retry"
+                style="@style/Widget.Taktak.Button.Secondary"
+                android:layout_marginTop="@dimen/taktak_space_sm"
+                android:text="@string/recovery_retry"
+                android:visibility="gone"     android:minHeight="@dimen/taktak_touch_target_min" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/back"
+                style="@style/Widget.Taktak.Button.Ghost"
+                android:layout_width="match_parent"
+                android:layout_marginTop="@dimen/taktak_space_sm"
+                android:text="@string/recovery_back"
+                android:visibility="visible"     android:minHeight="@dimen/taktak_touch_target_min" />
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+</FrameLayout>

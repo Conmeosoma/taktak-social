@@ -230,7 +230,10 @@ public final class ChatViewModel extends AndroidViewModel {
         @Override public void onMomentDeleted(String id) {
             main.post(() -> {
                 if (cleared) return;
-                for (Message item : messages) if (Objects.equals(item.momentId, id)) { item.momentId = null; item.content = null; }
+                for (Message item : messages) if (Objects.equals(item.momentId, id)) {
+                    item.momentId = null;
+                    if (!"MOMENT_REPLY".equals(item.messageType)) item.content = null;
+                }
                 publish();
             });
             changed();

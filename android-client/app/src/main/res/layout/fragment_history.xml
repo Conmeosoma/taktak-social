@@ -1,60 +1,248 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto" android:id="@id/historyPage"
-    android:layout_width="match_parent" android:layout_height="match_parent" android:saveEnabled="false">
-    <androidx.coordinatorlayout.widget.CoordinatorLayout android:layout_width="0dp" android:layout_height="0dp"
-        app:layout_constraintWidth_max="480dp" app:layout_constraintStart_toStartOf="parent" app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent" app:layout_constraintBottom_toBottomOf="parent">
-        <com.google.android.material.appbar.AppBarLayout android:id="@+id/historyAppBar"
-            android:layout_width="match_parent" android:layout_height="wrap_content" android:background="@android:color/transparent"
-            app:elevation="0dp" app:liftOnScroll="false">
-            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
-                android:orientation="vertical" android:paddingHorizontal="20dp" app:layout_scrollFlags="scroll|enterAlways">
-                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
-                    android:orientation="horizontal" android:gravity="center_vertical" android:layout_marginTop="8dp">
-                    <com.google.android.material.textview.MaterialTextView android:id="@+id/historyTitle"
-                        android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content"
-                        android:text="@string/history_title" android:textAppearance="?attr/ttMediaHeadlineStyle" android:textSize="32sp" />
-                    <com.google.android.material.button.MaterialButton android:id="@+id/historyRefresh"
-                        style="?attr/ttMediaTonalStyle" android:layout_width="wrap_content" android:layout_height="wrap_content"
-                        android:layout_marginStart="8dp" android:minWidth="0dp" android:textSize="14sp" android:text="@string/history_refresh"
-                        app:icon="@drawable/ic_premium_plus" app:iconSize="18dp" />
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@id/historyPage"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="?attr/taktakColorSurface"
+    android:saveEnabled="false">
+
+    <androidx.coordinatorlayout.widget.CoordinatorLayout
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintWidth_max="480dp">
+
+        <com.google.android.material.appbar.AppBarLayout
+            android:id="@+id/historyAppBar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@android:color/transparent"
+            app:elevation="0dp"
+            app:liftOnScroll="false">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingHorizontal="@dimen/taktak_space_md"
+                app:layout_scrollFlags="scroll|enterAlways">
+
+                <!-- Title & Refresh Action -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/taktak_space_sm"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <com.google.android.material.textview.MaterialTextView
+                        android:id="@+id/historyTitle"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="@string/history_title"
+                        android:textAppearance="@style/TextAppearance.Taktak.LargeTitle"
+                        android:textColor="?attr/taktakColorTextPrimary" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/historyRefresh"
+                        style="@style/Widget.Taktak.Button.Secondary"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="@dimen/taktak_space_xs"
+                        android:minHeight="@dimen/taktak_btn_height_small"
+                        android:minWidth="0dp"
+                        android:text="@string/history_refresh"
+                        android:textAppearance="@style/TextAppearance.Taktak.Caption"
+                        app:icon="@drawable/ic_premium_plus"
+                        app:iconGravity="textStart"
+                        app:iconSize="16dp"
+                        app:iconTint="?attr/taktakColorTextPrimary" />
                 </LinearLayout>
-                <com.google.android.material.tabs.TabLayout android:id="@+id/historyTabs"
-                    android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="16dp"
-                    android:background="@android:color/transparent" app:tabIndicator="?attr/ttMediaTabIndicator"
-                    app:tabIndicatorColor="@android:color/transparent" app:tabIndicatorHeight="4dp" app:tabIndicatorFullWidth="false"
-                    app:tabSelectedTextColor="?attr/ttMediaTabSelectedColor" app:tabTextColor="?attr/ttMediaTabUnselectedColor" app:tabMode="fixed" app:tabGravity="fill" />
-                <View android:layout_width="match_parent" android:layout_height="1dp" android:background="?attr/ttMediaDividerColor" android:alpha="0.4" />
-                <FrameLayout android:layout_width="match_parent" android:layout_height="12dp">
-                    <com.google.android.material.progressindicator.LinearProgressIndicator android:id="@+id/historyProgress"
-                        android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_gravity="center_vertical"
-                        android:indeterminate="true" android:contentDescription="@string/history_loading" android:visibility="invisible" />
+
+                <!-- Modern Tabs: Received & Sent -->
+                <com.google.android.material.tabs.TabLayout
+                    android:id="@+id/historyTabs"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:minHeight="@dimen/taktak_touch_target_min"
+                    android:layout_marginTop="@dimen/taktak_space_md"
+                    android:background="@android:color/transparent"
+                    app:tabGravity="fill"
+                    app:tabIndicatorColor="?attr/taktakColorBrandPrimary"
+                    app:tabIndicatorFullWidth="false"
+                    app:tabIndicatorHeight="3dp"
+                    app:tabMode="fixed"
+                    app:tabRippleColor="@color/taktak_fixed_20ffffff"
+                    app:tabSelectedTextColor="?attr/taktakColorBrandPrimary"
+                    app:tabTextAppearance="@style/TextAppearance.Taktak.Button"
+                    app:tabTextColor="?attr/taktakColorTextMuted" />
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:alpha="0.2"
+                    android:background="?attr/taktakColorBorder" />
+
+                <!-- Progress Indicator -->
+                <FrameLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/taktak_space_sm">
+
+                    <com.google.android.material.progressindicator.LinearProgressIndicator
+                        android:id="@+id/historyProgress"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_vertical"
+                        android:contentDescription="@string/history_loading"
+                        android:indeterminate="true"
+                        android:visibility="invisible"
+                        app:indicatorColor="?attr/taktakColorBrandPrimary"
+                        app:trackColor="?attr/taktakColorBorder" />
                 </FrameLayout>
-                <com.google.android.material.textview.MaterialTextView android:id="@+id/historyMessage"
-                    android:layout_width="match_parent" android:layout_height="wrap_content" android:padding="12dp"
-                    android:layout_marginBottom="12dp" android:background="?attr/ttMediaNoticeBackground"
-                    android:textColor="?attr/colorOnSurface" android:visibility="gone" android:accessibilityLiveRegion="polite" android:saveEnabled="false" />
+
+                <!-- Notice Banner -->
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/historyMessage"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="@dimen/taktak_space_xs"
+                    android:accessibilityLiveRegion="polite"
+                    android:background="@drawable/login_notice"
+                    android:padding="@dimen/taktak_space_md"
+                    android:saveEnabled="false"
+                    android:textAppearance="@style/TextAppearance.Taktak.Secondary"
+                    android:textColor="?attr/taktakColorTextPrimary"
+                    android:visibility="gone" />
+
+                <!-- Memories & Weekly Recap Card -->
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/historyMemoriesCard"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="@dimen/taktak_space_sm"
+                    app:cardBackgroundColor="?attr/taktakColorCardBackground"
+                    app:cardCornerRadius="@dimen/taktak_radius_card"
+                    app:cardElevation="0dp"
+                    app:strokeColor="?attr/taktakColorBorder"
+                    app:strokeWidth="1dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
+                        android:padding="@dimen/taktak_space_md">
+
+                        <ImageView
+                            android:layout_width="32dp"
+                            android:layout_height="32dp"
+                            android:layout_marginEnd="@dimen/taktak_space_sm"
+                            android:src="@drawable/ic_premium_plus"
+                            app:tint="?attr/taktakColorBrandPrimary"
+                            android:contentDescription="@null" android:importantForAccessibility="no" />
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/memories_title"
+                                android:textAppearance="@style/TextAppearance.Taktak.SectionTitle"
+                                android:textColor="?attr/taktakColorTextPrimary"
+                                android:textStyle="bold" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="2dp"
+                                android:text="@string/memories_subtitle"
+                                android:textAppearance="@style/TextAppearance.Taktak.Caption"
+                                android:textColor="?attr/taktakColorTextMuted" />
+                        </LinearLayout>
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btnViewRecap"
+                            style="@style/Widget.Taktak.Button.Secondary"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:insetTop="0dp"
+                            android:insetBottom="0dp"
+                            android:minHeight="@dimen/taktak_btn_height_small"
+                            android:minWidth="0dp"
+                            android:paddingHorizontal="10dp"
+                            android:text="@string/memories_view_btn"
+                            android:textSize="12sp" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
             </LinearLayout>
         </com.google.android.material.appbar.AppBarLayout>
-        <androidx.core.widget.NestedScrollView android:id="@+id/historyEmptyView"
-            android:layout_width="match_parent" android:layout_height="match_parent" android:fillViewport="true"
-            android:visibility="gone" app:layout_behavior="@string/appbar_scrolling_view_behavior">
-            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical"
-                android:gravity="center" android:paddingHorizontal="24dp" android:paddingTop="24dp" android:paddingBottom="64dp">
-                <ImageView android:layout_width="176dp" android:layout_height="176dp" android:src="@drawable/premium_inbox"
-                    android:importantForAccessibility="no" android:contentDescription="@null" />
-                <com.google.android.material.textview.MaterialTextView android:id="@+id/historyEmptyTitle"
-                    android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="20dp"
-                    android:gravity="center" android:text="@string/history_empty" android:textSize="22sp" android:textColor="?attr/colorOnSurface" />
-                <com.google.android.material.textview.MaterialTextView android:id="@+id/historyEmptyDetail"
-                    android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp"
-                    android:gravity="center" android:text="@string/history_empty_detail" android:textSize="16sp" android:textColor="?attr/colorOnSurfaceVariant" />
+
+        <!-- Empty State View -->
+        <androidx.core.widget.NestedScrollView
+            android:id="@+id/historyEmptyView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:fillViewport="true"
+            android:visibility="gone"
+            app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:orientation="vertical"
+                android:paddingHorizontal="@dimen/taktak_space_xl"
+                android:paddingTop="@dimen/taktak_space_xxl"
+                android:paddingBottom="64dp">
+
+                <ImageView
+                    android:layout_width="160dp"
+                    android:layout_height="160dp"
+                    android:contentDescription="@null"
+                    android:importantForAccessibility="no"
+                    android:src="@drawable/premium_inbox" />
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/historyEmptyTitle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/taktak_space_lg"
+                    android:gravity="center"
+                    android:text="@string/history_empty"
+                    android:textAppearance="@style/TextAppearance.Taktak.PageTitle"
+                    android:textColor="?attr/taktakColorTextPrimary" />
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/historyEmptyDetail"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/taktak_space_xs"
+                    android:gravity="center"
+                    android:text="@string/history_empty_detail"
+                    android:textAppearance="@style/TextAppearance.Taktak.Body"
+                    android:textColor="?attr/taktakColorTextSecondary" />
             </LinearLayout>
         </androidx.core.widget.NestedScrollView>
-        <androidx.recyclerview.widget.RecyclerView android:id="@+id/historyRecycler"
-            android:layout_width="match_parent" android:layout_height="match_parent"
-            app:layout_behavior="@string/appbar_scrolling_view_behavior" android:saveEnabled="false" android:clipToPadding="false"
-            android:paddingHorizontal="20dp" android:paddingBottom="24dp" />
+
+        <!-- Moment Cards Timeline Recycler -->
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/historyRecycler"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:clipToPadding="false"
+            android:paddingHorizontal="@dimen/taktak_space_md"
+            android:paddingTop="@dimen/taktak_space_xs"
+            android:paddingBottom="@dimen/taktak_space_xl"
+            android:saveEnabled="false"
+            app:layout_behavior="@string/appbar_scrolling_view_behavior" />
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

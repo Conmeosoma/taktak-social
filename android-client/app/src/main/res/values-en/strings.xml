@@ -1,0 +1,239 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- App Brand & Identity -->
+    <string name="app_name">Taktak</string>
+    <string name="bootstrap_message">Taktak</string>
+    <string name="auth_tagline">Small moments, closer connections.</string>
+    <string name="login_wordmark">Taktak:</string>
+    <string name="login_language">English</string>
+    <string name="login_back">Back</string>
+    <string name="login_forgot">Forgot password?</string>
+    <string name="login_forgot_unavailable">Forgot password? Account recovery is currently unavailable.</string>
+    <string name="login_create_account">Create new account</string>
+
+    <!-- Navigation -->
+    <string name="camera_title">Camera</string>
+    <string name="nav_history">History</string>
+    <string name="chat_title">Messages</string>
+    <string name="friends_title">Friends</string>
+    <string name="nav_profile">Profile</string>
+
+    <!-- Auth - Login -->
+    <string name="auth_login">Log In</string>
+    <string name="auth_login_title">Welcome back</string>
+    <string name="auth_login_subtitle">Log in to keep sharing with your friends.</string>
+    <string name="auth_email">Email</string>
+    <string name="auth_password">Password</string>
+    <string name="auth_go_register">Don\'t have an account? Sign up</string>
+    <string name="auth_processing">Processing…</string>
+    <string name="auth_login_success">Logged in successfully. Session securely saved.</string>
+    <string name="auth_invalid_credentials">Invalid credentials or session expired.</string>
+    <string name="auth_rate_limited">Too many login attempts. Please try again in %1$d seconds.</string>
+    <string name="auth_network_error">Cannot connect to server. Check your network and try again.</string>
+    <string name="auth_server_error">Server is currently unable to process the request. Please try again later.</string>
+
+    <!-- Auth - Register -->
+    <string name="auth_register">Create Account</string>
+    <string name="auth_register_title">Start with Taktak</string>
+    <string name="auth_register_subtitle">A private place for you and your closest friends.</string>
+    <string name="auth_username">Username</string>
+    <string name="auth_display_name">Display name</string>
+    <string name="auth_confirm_password">Confirm password</string>
+    <string name="auth_username_help">Use letters a–z, numbers and underscores.</string>
+    <string name="auth_password_help">At least 8 characters, up to 72 bytes UTF-8.</string>
+    <string name="auth_go_login">Already have an account? Log in</string>
+    <string name="auth_required">Please enter this field.</string>
+    <string name="auth_invalid_email">Enter a valid email address (up to 254 characters).</string>
+    <string name="auth_invalid_username">Up to 255 characters, letters a–z, numbers and underscores only.</string>
+    <string name="auth_username_too_short">Username must be at least 3 characters.</string>
+    <string name="auth_username_underscore_edge">Username cannot start or end with an underscore.</string>
+    <string name="auth_username_double_underscore">Username cannot contain consecutive underscores.</string>
+    <string name="auth_username_available">✓ Username is available</string>
+    <string name="auth_username_checking">Checking username availability…</string>
+    <string name="auth_invalid_display_name">Display name must not exceed 255 characters.</string>
+    <string name="auth_invalid_password">Password must be at least 8 Unicode characters, max 72 bytes UTF-8 without NUL.</string>
+    <string name="auth_password_mismatch">Passwords do not match.</string>
+    <string name="password_strength_label">Password strength: %1$s</string>
+    <string name="password_strength_weak">Weak</string>
+    <string name="password_strength_medium">Medium</string>
+    <string name="password_strength_strong">Strong</string>
+    <string name="auth_register_success">Account created successfully. You can now log in.</string>
+    <string name="auth_account_conflict">Email or username is already in use.</string>
+    <string name="auth_email_conflict">This email is already registered.</string>
+    <string name="auth_username_conflict">This username is already taken.</string>
+    <string name="auth_server_validation">Invalid information. Please review and try again.</string>
+
+    <!-- Session -->
+    <string name="session_checking">Checking login session…</string>
+    <string name="session_logging_out">Logging out…</string>
+    <string name="session_logout">Log Out</string>
+    <string name="session_retry">Retry</string>
+    <string name="session_logged_out">Logged out.</string>
+
+    <!-- Profile -->
+    <string name="profile_avatar">Profile avatar</string>
+    <string name="profile_change_avatar">Change avatar</string>
+    <string name="profile_display_name">Display name</string>
+    <string name="profile_save">Save Changes</string>
+    <string name="profile_reload">Reload profile</string>
+    <string name="profile_logout">Log Out</string>
+    <string name="profile_saved">Display name saved.</string>
+    <string name="profile_avatar_saved">Avatar updated successfully.</string>
+    <string name="premium_profile_detail">Manage your identity and app preferences.</string>
+    <string name="language_settings_title">Language</string>
+    <string name="language_dialog_title">Select Language</string>
+
+    <!-- Theme Settings -->
+    <string name="theme_settings_title">Theme</string>
+    <string name="theme_settings_detail">Choose a visual vibe that suits you.</string>
+    <string name="theme_preview_label">Color Preview</string>
+    <string name="theme_preview_detail">Visual styling preview, not actual app screenshot.</string>
+    <string name="theme_original">Taktak Default</string>
+    <string name="theme_gradient">Gradient Modern</string>
+    <string name="theme_glass">Glass</string>
+    <string name="theme_soft">Soft</string>
+    <string name="theme_original_detail">Warm and familiar.</string>
+    <string name="theme_gradient_detail">Vibrant coral, pink, and violet.</string>
+    <string name="theme_glass_detail">Cool blue with layered glossy highlights.</string>
+    <string name="theme_soft_detail">Gentle pastel with soft depth.</string>
+    <string name="theme_mode_label">Color Mode</string>
+    <string name="theme_system">System default</string>
+    <string name="theme_light">Light</string>
+    <string name="theme_dark">Dark</string>
+    <string name="theme_apply">Apply</string>
+    <string name="theme_cancel">Cancel</string>
+    <string name="theme_done">Close</string>
+    <string name="theme_saving">Saving theme…</string>
+    <string name="theme_saved">Theme saved successfully.</string>
+    <string name="theme_selected">Selected</string>
+    <string name="theme_open">Choose Theme</string>
+    <string name="theme_back">Back</string>
+
+    <!-- Messages / Chat -->
+    <string name="chat_notification">You have a new message on Taktak.</string>
+    <string name="chat_new">New message</string>
+    <string name="chat_search">Search conversations</string>
+    <string name="chat_search_friend">Find friends</string>
+    <string name="chat_empty_title">No messages yet</string>
+    <string name="chat_empty_detail">Start a conversation with your friends</string>
+    <string name="chat_find_friends">Find friends now</string>
+    <string name="chat_loading">Loading messages…</string>
+    <string name="chat_message_hint">Message…</string>
+    <string name="chat_send">Send</string>
+    <string name="chat_attach">Send moment</string>
+    <string name="chat_moment">Moment</string>
+    <string name="chat_choose_moment">Select a shared moment</string>
+    <string name="chat_seen">Seen</string>
+    <string name="chat_sent">Sent</string>
+    <string name="chat_start">Start conversation</string>
+    <string name="chat_back">Back</string>
+    <string name="chat_unread">%1$d unread messages</string>
+    <string name="chat_private">Only friends can chat with each other.</string>
+
+    <!-- Friends -->
+    <string name="friends_query">Search by username</string>
+    <string name="friends_search">Search</string>
+    <string name="friends_results">Search results</string>
+    <string name="friends_incoming">Friend requests</string>
+    <string name="friends_list">My Friends</string>
+    <string name="friends_empty_results">No users found.</string>
+    <string name="friends_empty_incoming">No pending friend requests.</string>
+    <string name="friends_empty_list">No friends yet. Search a username to send a request.</string>
+    <string name="friends_loading">Loading…</string>
+    <string name="friends_more">Load more</string>
+    <string name="friends_refresh">Reload</string>
+    <string name="friends_send">Add friend</string>
+    <string name="friends_sent">Request sent</string>
+    <string name="friends_accept">Accept</string>
+    <string name="friends_reject">Decline</string>
+    <string name="friends_unfriend">Unfriend</string>
+    <string name="friends_block">Block user</string>
+    <string name="friends_cancel">Cancel</string>
+
+    <!-- History -->
+    <string name="history_title">Received Moments</string>
+    <string name="history_empty">No moments yet</string>
+    <string name="history_empty_detail">When friends send you moments, they will appear here.</string>
+    <string name="history_tab_received">Received</string>
+    <string name="history_tab_sent">Sent</string>
+    <string name="history_sent_title">Sent Moments</string>
+    <string name="history_empty_sent">No sent moments yet</string>
+    <string name="history_empty_sent_detail">Moments you send to friends or keep private will appear here.</string>
+    <string name="history_viewer_close">Close</string>
+    <string name="history_viewer_delete">Delete moment</string>
+    <string name="history_viewer_save">Save photo to device</string>
+    <string name="history_time_just_now">Just now</string>
+    <string name="history_time_minutes_ago">%1$d minutes ago</string>
+    <string name="history_time_hours_ago">%1$d hours ago</string>
+    <string name="history_time_days_ago">%1$d days ago</string>
+
+    <!-- Camera -->
+    <string name="moment_capture">Capture and preview</string>
+    <string name="moment_camera_permission">Allow camera access</string>
+    <string name="camera_switch">Switch camera</string>
+    <string name="camera_flash_off">Flash: Off</string>
+    <string name="camera_flash_auto">Flash: Auto</string>
+    <string name="camera_flash_on">Flash: On</string>
+
+    <!-- Widget -->
+    <string name="widget_2x2_name">Taktak Moments</string>
+    <string name="widget_2x2_description">Displays the latest moments received from friends.</string>
+    <string name="widget_4x2_name">Taktak Wide Moments</string>
+    <string name="widget_4x2_description">Displays wide moments (4x2) with direct interactive reactions.</string>
+    <string name="widget_reacted">Reacted %s!</string>
+    <string name="widget_empty_title">No photo yet</string>
+    <string name="widget_empty_subtitle">Tap to open Taktak</string>
+    <string name="widget_logged_out_title">Not logged in</string>
+    <string name="widget_logged_out_subtitle">Log in to view moments</string>
+    <string name="recovery_verify_title">Verify Email</string>
+    <string name="register_identity_section">Your Information</string>
+    <string name="register_security_section">Account Security</string>
+    <string name="biometric_lock_title">Biometric App Lock</string>
+    <string name="biometric_lock_desc">Protect your moments and chats with fingerprint or screen lock</string>
+    <string name="biometric_prompt_title">Unlock Taktak</string>
+    <string name="biometric_prompt_subtitle">Verify your identity to access your private space</string>
+    <string name="biometric_not_supported">Device has no fingerprint or lock screen credentials set up</string>
+    <string name="biometric_locked_hint">Tap to unlock using fingerprint or PIN</string>
+    <string name="biometric_unlock_button">Unlock Now</string>
+    <string name="biometric_enable_success">Biometric app lock enabled</string>
+    <string name="biometric_disable_success">Biometric app lock disabled</string>
+    <string name="tool_doodle">Doodle</string>
+    <string name="tool_sticker">Stickers</string>
+    <string name="tool_tag">Context Tag</string>
+    <string name="tool_undo">Undo</string>
+    <string name="tool_clear">Clear</string>
+    <string name="tag_weather_default">✨ Moment</string>
+    <string name="memories_title">Memories &amp; Recap</string>
+    <string name="memories_subtitle">Relive your best captured moments</string>
+    <string name="memories_view_btn">View recap</string>
+    <string name="recap_dialog_title">Your Weekly Recap</string>
+    <string name="recap_stat_moments">📸 12 memorable moments</string>
+    <string name="recap_stat_friends">🫶 Top friend interaction: Alice</string>
+    <string name="recap_stat_streak">🔥 Best active streak: 7 days</string>
+    <string name="recap_close">Close</string>
+    <string name="qr_my_code_title">My QR Code</string>
+    <string name="qr_my_code_subtitle">Personal code to connect on Taktak</string>
+    <string name="qr_scan_title">Scan QR Code</string>
+    <string name="qr_scan_hint">Point camera at your friend\'s QR code to connect</string>
+    <string name="qr_btn_gallery">Gallery</string>
+    <string name="qr_btn_my_code">My Code</string>
+    <string name="qr_btn_share">Share QR Code</string>
+    <string name="qr_share_text">Connect with %1$s (@%2$s) on Taktak! %3$s</string>
+    <string name="qr_image_desc">Personal QR Code</string>
+    <string name="qr_scan_instruction">Show this code to friends for instant connection</string>
+    <string name="qr_found_title">Friend Found</string>
+    <string name="qr_found_ready">Tap below to send a friend request</string>
+    <string name="qr_btn_send_request">Add Friend</string>
+    <string name="qr_already_friends">You are already friends on Taktak</string>
+    <string name="qr_is_myself">This is your own QR code</string>
+    <string name="qr_request_sent_success">Friend request sent successfully! 🎉</string>
+    <string name="qr_invalid">Invalid or unsupported QR code</string>
+    <string name="qr_not_found_in_image">No QR code found in selected image</string>
+    <string name="friends_scan_qr_btn">Scan QR</string>
+    <string name="friends_my_qr_btn">My QR</string>
+    <string name="profile_my_qr">My QR Code</string>
+    <string name="btn_back">Back</string>
+    <string name="dialog_close">Close</string>
+    <string name="camera_flash">Flash</string>
+    <string name="profile_avatar_desc">Avatar</string>
+</resources>

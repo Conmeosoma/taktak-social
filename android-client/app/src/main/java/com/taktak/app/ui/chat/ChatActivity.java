@@ -146,9 +146,13 @@ public final class ChatActivity extends AppCompatActivity {
                     com.google.android.material.R.attr.colorPrimaryContainer:com.google.android.material.R.attr.colorSurfaceContainerHigh));
             b.messageText.setTextColor(MaterialColors.getColor(b.getRoot(),own?
                     com.google.android.material.R.attr.colorOnPrimaryContainer:com.google.android.material.R.attr.colorOnSurface));
-            boolean moment="MOMENT".equals(item.messageType);
-            b.messageImage.setImageDrawable(null);b.messageImage.setVisibility(moment?View.VISIBLE:View.GONE);
-            b.messageText.setText(moment?(item.momentId==null?getString(R.string.chat_moment_unavailable):
+            boolean reply="MOMENT_REPLY".equals(item.messageType);
+            boolean moment="MOMENT".equals(item.messageType) || reply;
+            b.messageReference.setVisibility(reply?View.VISIBLE:View.GONE);
+            b.messageReference.setText(item.momentId==null?R.string.chat_moment_unavailable:R.string.moment_reply_reference);
+            b.messageReference.setTextColor(b.messageText.getCurrentTextColor());
+            b.messageImage.setImageDrawable(null);b.messageImage.setVisibility(moment && item.momentId!=null?View.VISIBLE:View.GONE);
+            b.messageText.setText(moment && !reply?(item.momentId==null?getString(R.string.chat_moment_unavailable):
                     item.content==null||item.content.isBlank()?getString(R.string.chat_moment):item.content):item.content);
             String receipt=HistoryTimeFormatter.format(ChatActivity.this,item.createdAt);
             int lastRead=-1,lastOwn=-1;
@@ -161,19 +165,24 @@ public final class ChatActivity extends AppCompatActivity {
             Object ticket=new Object();holder.ticket=ticket;
             b.getRoot().setOnClickListener(null);
             if(moment && item.momentId!=null) {
-                b.getRoot().setOnClickListener(v->loadImage(holder,item.momentId,ticket));
-                loadImage(holder,item.momentId,ticket);
+                b.getRoot().setOnClickListener(v->loadImage(holder,item.momentId,ticket,reply));
+                loadImage(holder,item.momentId,ticket,reply);
             }
         }
-        private void loadImage(MessageHolder holder,String id,Object ticket) {
+        private void loadImage(MessageHolder holder,String id,Object ticket,boolean reply) {
             if(!foreground)return;
             model.loadImage(id,new HistoryViewModel.ImageCallback() {
                 public void onLoaded(android.graphics.Bitmap bitmap) {
-                    if(foreground && holder.ticket==ticket)holder.binding.messageImage.setImageBitmap(bitmap);
+                    if(foreground && holder.ticket==ticket){
+                        holder.binding.messageImage.setVisibility(View.VISIBLE);holder.binding.messageImage.setImageBitmap(bitmap);
+                        if(reply)holder.binding.messageReference.setText(R.string.moment_reply_reference);
+                    }
                 }
                 public void onError() {
                     if(foreground && holder.ticket==ticket){holder.binding.messageImage.setImageDrawable(null);
-                        holder.binding.messageText.setText(R.string.chat_moment_unavailable);}
+                        holder.binding.messageImage.setVisibility(View.GONE);
+                        if(reply)holder.binding.messageReference.setText(R.string.chat_moment_unavailable);
+                        else holder.binding.messageText.setText(R.string.chat_moment_unavailable);}
                 }
             });
         }

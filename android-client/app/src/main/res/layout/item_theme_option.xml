@@ -1,16 +1,16 @@
 <com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto" android:id="@+id/themeOptionCard"
-    android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="12dp"
+    android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="@dimen/taktak_space_sm"
     android:clickable="true" android:focusable="true" android:checkable="true" android:minHeight="96dp"
     app:cardCornerRadius="24dp" app:cardElevation="0dp" app:strokeWidth="1dp">
-    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical" android:padding="16dp"
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical" android:padding="@dimen/taktak_space_md"
         android:importantForAccessibility="noHideDescendants">
         <com.taktak.app.ui.theme.ThemePreviewView android:id="@+id/themeThumbnail" android:layout_width="72dp" android:layout_height="72dp" />
-        <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical" android:layout_marginStart="16dp">
+        <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical" android:layout_marginStart="@dimen/taktak_space_md">
             <TextView android:id="@+id/themeOptionTitle" android:layout_width="match_parent" android:layout_height="wrap_content"
-                android:textColor="?attr/colorOnSurface" android:textSize="18sp" android:textStyle="bold" />
+                android:textColor="?attr/taktakColorTextPrimary" android:textSize="18sp" android:textStyle="bold" />
             <TextView android:id="@+id/themeOptionDetail" android:layout_width="match_parent" android:layout_height="wrap_content"
-                android:textColor="?attr/colorOnSurfaceVariant" android:textSize="14sp" android:layout_marginTop="4dp" />
+                android:textColor="?attr/taktakColorTextSecondary" android:textSize="14sp" android:layout_marginTop="@dimen/taktak_space_xxs" />
         </LinearLayout>
     </LinearLayout>
 </com.google.android.material.card.MaterialCardView>

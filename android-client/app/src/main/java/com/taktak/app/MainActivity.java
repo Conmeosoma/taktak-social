@@ -105,6 +105,8 @@ public class MainActivity extends AppCompatActivity {
             else { viewModel.check(true); }
         });
         binding.logoutButton.setOnClickListener(view -> viewModel.logout());
+        binding.biometricUnlockButton.setOnClickListener(v -> showBiometricPrompt());
+        binding.biometricLockOverlay.setOnClickListener(v -> showBiometricPrompt());
         viewModel.state().observe(this, state -> {
             boolean checking = state.destination == SessionViewModel.Destination.CHECKING;
             boolean camera = state.destination == SessionViewModel.Destination.CAMERA;
@@ -205,6 +207,51 @@ public class MainActivity extends AppCompatActivity {
         super.onStart();
         // Kiểm tra lại khi quay từ nền, không tin trạng thái UI đã lưu.
         if (!navigating) { viewModel.check(networkAllowed()); }
+    }
+
+    @Override protected void onResume() {
+        super.onResume();
+        checkBiometricLock();
+    }
+
+    private boolean isPromptingBiometric = false;
+
+    private void checkBiometricLock() {
+        var bioPrefs = com.taktak.app.data.security.BiometricPreferences.get(this);
+        if (bioPrefs.isAppLocked()) {
+            binding.biometricLockOverlay.setVisibility(View.VISIBLE);
+            if (!isPromptingBiometric) {
+                showBiometricPrompt();
+            }
+        } else {
+            binding.biometricLockOverlay.setVisibility(View.GONE);
+        }
+    }
+
+    private void showBiometricPrompt() {
+        var bioPrefs = com.taktak.app.data.security.BiometricPreferences.get(this);
+        if (!bioPrefs.isBiometricEnabled()) {
+            binding.biometricLockOverlay.setVisibility(View.GONE);
+            return;
+        }
+        isPromptingBiometric = true;
+        com.taktak.app.data.security.BiometricHelper.authenticate(
+                this,
+                getString(R.string.biometric_prompt_title),
+                getString(R.string.biometric_prompt_subtitle),
+                new com.taktak.app.data.security.BiometricHelper.AuthCallback() {
+                    @Override public void onSuccess() {
+                        isPromptingBiometric = false;
+                        binding.biometricLockOverlay.setVisibility(View.GONE);
+                    }
+                    @Override public void onError(int errorCode, @androidx.annotation.NonNull CharSequence errString) {
+                        isPromptingBiometric = false;
+                    }
+                    @Override public void onFailed() {
+                        isPromptingBiometric = false;
+                    }
+                }
+        );
     }
 
     private boolean networkAllowed() {

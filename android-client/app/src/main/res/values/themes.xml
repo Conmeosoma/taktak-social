@@ -1,6 +1,35 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <!-- Base application theme. -->
     <style name="Base.Theme.TakTak" parent="Theme.Material3.DayNight.NoActionBar">
+        <item name="android:fontFamily">@font/inter</item>
+
+        <!-- Taktak Design System Semantic Tokens (Default Light) -->
+        <item name="taktakColorBackground">@color/taktak_orig_light_bg</item>
+        <item name="taktakColorSurface">@color/taktak_orig_light_surface</item>
+        <item name="taktakColorSurfaceVariant">@color/taktak_orig_light_surface_variant</item>
+        <item name="taktakColorBrandPrimary">@color/taktak_orig_light_primary</item>
+        <item name="taktakColorBrandSecondary">@color/taktak_orig_light_secondary</item>
+        <item name="taktakColorBrandGradientStart">@color/taktak_orig_light_primary</item>
+        <item name="taktakColorBrandGradientEnd">@color/taktak_orig_light_secondary</item>
+        <item name="taktakColorTextPrimary">@color/taktak_orig_light_text_primary</item>
+        <item name="taktakColorTextSecondary">@color/taktak_orig_light_text_secondary</item>
+        <item name="taktakColorTextMuted">@color/taktak_orig_light_text_muted</item>
+        <item name="taktakColorBorder">@color/taktak_orig_light_border</item>
+        <item name="taktakColorBorderFocused">@color/taktak_orig_light_primary</item>
+        <item name="taktakColorBorderError">@color/taktak_status_error</item>
+        <item name="taktakColorCardBackground">@color/taktak_orig_light_surface</item>
+        <item name="taktakColorCardBorder">@color/taktak_orig_light_border</item>
+        <item name="taktakColorInputBackground">@color/taktak_orig_light_surface_variant</item>
+        <item name="taktakColorInputText">@color/taktak_orig_light_text_primary</item>
+        <item name="taktakColorInputHint">@color/taktak_orig_light_text_muted</item>
+        <item name="taktakColorNavBackground">@color/taktak_orig_light_surface</item>
+        <item name="taktakColorNavIndicator">#F0E6EC</item>
+        <item name="taktakColorNavActive">@color/taktak_orig_light_primary</item>
+        <item name="taktakColorNavInactive">@color/taktak_orig_light_text_muted</item>
+        <item name="taktakColorShutterRing">@color/taktak_orig_light_text_primary</item>
+        <item name="taktakColorShutterCenter">@color/taktak_orig_light_primary</item>
+
+        <!-- Legacy Media Theme Compatibility Items -->
         <item name="ttMediaTonalStyle">@style/Widget.TakTakPremium.Tonal</item>
         <item name="ttMediaHeadlineStyle">@style/TextAppearance.TakTakPremium.Headline</item>
         <item name="ttMediaFieldStyle">@style/Widget.TakTakPremium.Field</item>

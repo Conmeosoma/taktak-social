@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="moment_reply_hint">回复照片…</string>
+    <string name="moment_reply_private">通过私聊回复，仅你和照片发布者可见。</string>
+    <string name="moment_reply_send">发送回复</string>
+    <string name="moment_reply_sending">正在发送回复…</string>
+    <string name="moment_reply_reference">回复瞬间</string>
+</resources>

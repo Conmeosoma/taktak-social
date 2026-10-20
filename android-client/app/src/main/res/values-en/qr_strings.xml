@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="qr_lookup_failed">Unable to verify this account. Check your connection and try again.</string>
+    <string name="qr_identity_not_found">No account matches this code.</string>
+    <string name="qr_session_changed">Your session changed. Open the QR screen again.</string>
+    <string name="qr_checking_identity">Verifying account…</string>
+    <string name="qr_sending_request">Sending friend request…</string>
+    <string name="qr_retry">Try again</string>
+    <string name="qr_camera_permission">Allow Camera to scan codes. You can still select an image or open your own code.</string>
+    <string name="qr_camera_settings">Camera permission settings</string>
+</resources>

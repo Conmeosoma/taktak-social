@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="qr_lookup_failed">アカウントを確認できません。接続を確認して再試行してください。</string>
+    <string name="qr_identity_not_found">このコードに一致するアカウントがありません。</string>
+    <string name="qr_session_changed">セッションが変更されました。QR画面を開き直してください。</string>
+    <string name="qr_checking_identity">アカウントを確認中…</string>
+    <string name="qr_sending_request">友達リクエストを送信中…</string>
+    <string name="qr_retry">再試行</string>
+    <string name="qr_camera_permission">スキャンするにはカメラを許可してください。画像の選択や自分のコードの表示もできます。</string>
+    <string name="qr_camera_settings">カメラ権限の設定</string>
+</resources>

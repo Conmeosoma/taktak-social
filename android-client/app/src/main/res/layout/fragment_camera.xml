@@ -1,72 +1,194 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical">
-    <com.google.android.material.card.MaterialCardView android:layout_width="match_parent"
-        android:layout_height="wrap_content" app:cardCornerRadius="28dp" app:cardElevation="0dp"
-        app:strokeWidth="1dp" app:strokeColor="?attr/colorOutline" app:cardBackgroundColor="?attr/colorSurfaceContainerHighest">
-        <androidx.constraintlayout.widget.ConstraintLayout android:layout_width="match_parent" android:layout_height="wrap_content">
-            <androidx.camera.view.PreviewView android:id="@+id/cameraPreview" android:layout_width="0dp" android:layout_height="0dp"
-                app:layout_constraintTop_toTopOf="parent" app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toEndOf="parent" app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintDimensionRatio="1:1" android:keepScreenOn="true" android:contentDescription="@string/moment_camera_preview" />
-            <com.google.android.material.textview.MaterialTextView android:id="@+id/cameraPlaceholder"
-                android:layout_width="0dp" android:layout_height="0dp"
-                app:layout_constraintTop_toTopOf="parent" app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintStart_toStartOf="parent" app:layout_constraintEnd_toEndOf="parent"
-                android:gravity="center" android:padding="@dimen/m3_space_24" android:background="?attr/colorSecondaryContainer"
-                android:text="@string/camera_permission_hint" android:textColor="?attr/colorOnSecondaryContainer"
-                android:textAppearance="@style/TextAppearance.Material3.BodyLarge" />
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:paddingHorizontal="@dimen/taktak_space_md"
+    android:paddingTop="@dimen/taktak_space_sm"
+    android:paddingBottom="@dimen/taktak_space_lg">
+
+    <!-- Square 1:1 Camera Viewport -->
+    <com.google.android.material.card.MaterialCardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:cardBackgroundColor="?attr/taktakColorSurface"
+        app:cardCornerRadius="@dimen/taktak_radius_card"
+        app:cardElevation="0dp"
+        app:strokeColor="?attr/taktakColorBorder"
+        app:strokeWidth="1dp">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <androidx.camera.view.PreviewView
+                android:id="@+id/cameraPreview"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:contentDescription="@string/moment_camera_preview"
+                android:keepScreenOn="true"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintDimensionRatio="1:1"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/cameraPlaceholder"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:background="?attr/taktakColorSurfaceVariant"
+                android:gravity="center"
+                android:padding="@dimen/taktak_space_xl"
+                android:text="@string/camera_permission_hint"
+                android:textAppearance="@style/TextAppearance.Taktak.Body"
+                android:textColor="?attr/taktakColorTextSecondary"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
         </androidx.constraintlayout.widget.ConstraintLayout>
     </com.google.android.material.card.MaterialCardView>
-    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
-        android:layout_marginTop="12dp" android:orientation="horizontal" android:baselineAligned="false">
-        <com.google.android.material.button.MaterialButton android:id="@+id/switchCameraButton"
-            style="?attr/ttMediaTonalStyle"
-            android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content"
-            android:minHeight="48dp" android:minWidth="0dp" android:enabled="false"
-            app:icon="@drawable/ic_premium_switch" app:iconSize="20dp" android:text="@string/camera_switch" />
-        <com.google.android.material.button.MaterialButton android:id="@+id/flashButton"
-            style="?attr/ttMediaTonalStyle"
-            android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content"
-            android:layout_marginStart="8dp" android:minHeight="48dp" android:minWidth="0dp"
-            android:enabled="false" app:icon="@drawable/ic_premium_flash" app:iconSize="20dp" android:text="@string/camera_flash_off" />
+
+    <!-- Camera Control Bar: Switch & Flash -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/taktak_space_md"
+        android:baselineAligned="false"
+        android:orientation="horizontal">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/switchCameraButton"
+            style="@style/Widget.Taktak.Button.Secondary"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:enabled="false"
+            android:minHeight="@dimen/taktak_btn_height_medium"
+            android:text="@string/camera_switch"
+            android:textAppearance="@style/TextAppearance.Taktak.Caption"
+            app:icon="@drawable/ic_premium_switch"
+            app:iconGravity="textStart"
+            app:iconSize="20dp"
+            app:iconTint="?attr/taktakColorTextPrimary" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/flashButton"
+            style="@style/Widget.Taktak.Button.Secondary"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/taktak_space_sm"
+            android:layout_weight="1"
+            android:enabled="false"
+            android:minHeight="@dimen/taktak_btn_height_medium"
+            android:text="@string/camera_flash_off"
+            android:textAppearance="@style/TextAppearance.Taktak.Caption"
+            app:icon="@drawable/ic_premium_flash"
+            app:iconGravity="textStart"
+            app:iconSize="20dp"
+            app:iconTint="?attr/taktakColorTextPrimary" />
     </LinearLayout>
-    <FrameLayout android:layout_width="match_parent" android:layout_height="@dimen/m3_space_12">
-        <com.google.android.material.progressindicator.LinearProgressIndicator android:id="@+id/momentProgress"
-            style="@style/Widget.Material3Expressive.LinearProgressIndicator"
-            android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_gravity="center_vertical"
-            android:indeterminate="true" android:visibility="invisible" />
+
+    <!-- Progress Indicator -->
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/taktak_space_sm"
+        android:layout_marginTop="@dimen/taktak_space_xs">
+
+        <com.google.android.material.progressindicator.LinearProgressIndicator
+            android:id="@+id/momentProgress"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:indeterminate="true"
+            android:visibility="invisible"
+            app:indicatorColor="?attr/taktakColorBrandPrimary"
+            app:trackColor="?attr/taktakColorBorder" />
     </FrameLayout>
-    <com.google.android.material.button.MaterialButton android:id="@+id/cameraPermissionButton"
-        style="@style/Widget.TakTakM3.Button" android:layout_marginBottom="@dimen/m3_space_12"
-        android:text="@string/moment_camera_permission" />
-    <com.google.android.material.button.MaterialButton android:id="@+id/captureButton"
-        style="@style/Widget.Material3Expressive.Button.IconButton.Filled"
-        android:layout_width="88dp" android:layout_height="88dp" android:layout_gravity="center_horizontal"
-        android:insetTop="0dp" android:insetBottom="0dp"
-        android:contentDescription="@string/moment_capture" android:enabled="false"
-        app:icon="@drawable/ic_camera_shutter" app:iconSize="32dp" app:iconPadding="0dp"
-        app:iconGravity="textStart" app:iconTint="?attr/ttMediaShutterIcon" app:backgroundTint="?attr/ttMediaShutterBackground" />
-    <com.google.android.material.textview.MaterialTextView android:layout_width="match_parent" android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/m3_space_8" android:gravity="center" android:text="@string/camera_shutter_label"
-        android:textAppearance="@style/TextAppearance.Material3.BodyMedium" android:textColor="?attr/colorOnSurfaceVariant" />
-    <com.google.android.material.card.MaterialCardView android:id="@+id/statusCard"
-        android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/m3_space_16"
-        app:cardCornerRadius="20dp" app:cardElevation="0dp" app:strokeWidth="0dp" app:cardBackgroundColor="?attr/colorSecondaryContainer">
-        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical"
-            android:orientation="horizontal" android:padding="16dp">
-            <ImageView android:layout_width="40dp" android:layout_height="40dp" android:layout_marginEnd="12dp"
-                android:padding="8dp" android:src="@drawable/ic_m3_lock" android:importantForAccessibility="no" android:contentDescription="@null" />
-            <LinearLayout android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:orientation="vertical">
-            <com.google.android.material.textview.MaterialTextView android:id="@+id/statusTitle"
-                android:layout_width="match_parent" android:layout_height="wrap_content"
-                android:textAppearance="@style/TextAppearance.Material3.TitleSmall"
-                android:textColor="?attr/colorOnSecondaryContainer" android:text="@string/camera_status_ready" />
-            <com.google.android.material.textview.MaterialTextView android:id="@+id/momentStatus"
-                android:layout_width="match_parent" android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/m3_space_8" android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
-                android:textColor="?attr/colorOnSecondaryContainer" android:accessibilityLiveRegion="polite" android:saveEnabled="false" />
+
+    <!-- Permission Button (nếu chưa cấp quyền) -->
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/cameraPermissionButton"
+        style="@style/Widget.Taktak.Button.Primary"
+        android:layout_marginBottom="@dimen/taktak_space_md"
+        android:text="@string/moment_camera_permission"     android:minHeight="@dimen/taktak_touch_target_min" />
+
+    <!-- Shutter Button 80dp viền kép tròn -->
+    <androidx.appcompat.widget.AppCompatImageButton
+        android:id="@+id/captureButton"
+        android:layout_width="@dimen/taktak_shutter_outer"
+        android:layout_height="@dimen/taktak_shutter_outer"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="@dimen/taktak_space_sm"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:contentDescription="@string/moment_capture"
+        android:enabled="false"
+        android:scaleType="fitCenter"
+        android:src="@drawable/taktak_shutter_ring" />
+
+    <com.google.android.material.textview.MaterialTextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/taktak_space_xs"
+        android:gravity="center"
+        android:text="@string/camera_shutter_label"
+        android:textAppearance="@style/TextAppearance.Taktak.Caption"
+        android:textColor="?attr/taktakColorTextMuted" />
+
+    <!-- Status Card -->
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/statusCard"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/taktak_space_md"
+        app:cardBackgroundColor="?attr/taktakColorSurface"
+        app:cardCornerRadius="@dimen/taktak_radius_card"
+        app:cardElevation="0dp"
+        app:strokeColor="?attr/taktakColorBorder"
+        app:strokeWidth="1dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:padding="@dimen/taktak_space_md">
+
+            <ImageView
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:layout_marginEnd="@dimen/taktak_space_sm"
+                android:contentDescription="@null"
+                android:importantForAccessibility="no"
+                android:padding="6dp"
+                android:src="@drawable/ic_m3_lock"
+                app:tint="?attr/taktakColorBrandPrimary" />
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/statusTitle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/camera_status_ready"
+                    android:textAppearance="@style/TextAppearance.Taktak.SectionTitle"
+                    android:textColor="?attr/taktakColorTextPrimary" />
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/momentStatus"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/taktak_space_xxs"
+                    android:accessibilityLiveRegion="polite"
+                    android:saveEnabled="false"
+                    android:textAppearance="@style/TextAppearance.Taktak.Secondary"
+                    android:textColor="?attr/taktakColorTextSecondary" />
             </LinearLayout>
         </LinearLayout>
     </com.google.android.material.card.MaterialCardView>

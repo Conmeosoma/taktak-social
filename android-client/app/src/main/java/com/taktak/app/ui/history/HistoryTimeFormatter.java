@@ -40,4 +40,19 @@ public final class HistoryTimeFormatter {
             return "";
         }
     }
+
+    public static String getExpiryRemaining(String isoString) {
+        if (isoString == null) { return null; }
+        try {
+            Instant instant = Instant.parse(isoString);
+            Duration duration = Duration.between(instant, Instant.now());
+            long hours = 24 - duration.toHours();
+            if (hours > 0) {
+                return "⏳ " + hours + "h";
+            } else if (duration.toHours() < 24) {
+                return "⏳ <1h";
+            }
+        } catch (Exception ignored) { }
+        return null;
+    }
 }

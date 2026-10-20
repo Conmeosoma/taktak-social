@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="ui_streak_preview">🔥 3일</string>
+    <string name="ui_close_friends_badge">절친</string>
+    <string name="ui_expiry_preview">⏳ 24시간</string>
+    <string name="ui_reaction_heart">하트 반응</string>
+    <string name="ui_reaction_fire">불꽃 반응</string>
+    <string name="ui_reaction_laugh">웃음 반응</string>
+    <string name="ui_reaction_wow">놀람 반응</string>
+</resources>

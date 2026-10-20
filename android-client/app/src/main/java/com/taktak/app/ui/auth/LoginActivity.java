@@ -46,6 +46,14 @@ public class LoginActivity extends AuthFormActivity {
         bars.setAppearanceLightStatusBars(light);
         bars.setAppearanceLightNavigationBars(light);
         binding.backButton.setOnClickListener(view -> getOnBackPressedDispatcher().onBackPressed());
+        binding.languageLabel.setText(com.taktak.app.ui.language.LanguageManager.getCurrentLanguageName());
+        binding.languageLabel.setOnClickListener(view -> {
+            if (!isLoading()) {
+                com.taktak.app.ui.language.LanguageManager.showLanguageDialog(this, () -> {
+                    binding.languageLabel.setText(com.taktak.app.ui.language.LanguageManager.getCurrentLanguageName());
+                });
+            }
+        });
         binding.loginThemeButton.setOnClickListener(view -> {
             if (!isLoading()) { startActivity(new Intent(this, com.taktak.app.ui.theme.ThemeSettingsActivity.class)); }
         });

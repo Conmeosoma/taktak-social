@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Shared Brand Constants -->
+    <color name="taktak_brand_gradient_start">#FF8A5C</color>
+    <color name="taktak_brand_gradient_end">#FF6584</color>
+    <color name="taktak_brand_purple">#7F56D9</color>
+    <color name="taktak_color_neutral_white">#FFFFFF</color>
+    <color name="taktak_color_neutral_black">#000000</color>
+
+    <!-- Semantic Status Colors -->
+    <color name="taktak_status_success">#22C55E</color>
+    <color name="taktak_status_warning">#F59E0B</color>
+    <color name="taktak_status_error">#B3261E</color>
+    <color name="taktak_status_info">#3B82F6</color>
+
+    <!-- Palette: Original Dark (Default) -->
+    <color name="taktak_orig_dark_bg">#120E1A</color>
+    <color name="taktak_orig_dark_surface">#1C1626</color>
+    <color name="taktak_orig_dark_surface_variant">#272033</color>
+    <color name="taktak_orig_dark_primary">#FF8A5C</color>
+    <color name="taktak_orig_dark_secondary">#FF6584</color>
+    <color name="taktak_orig_dark_text_primary">#FFFFFF</color>
+    <color name="taktak_orig_dark_text_secondary">#B8B1C2</color>
+    <color name="taktak_orig_dark_text_muted">#8F879B</color>
+    <color name="taktak_orig_dark_border">#2D263B</color>
+
+    <!-- Palette: Original Light -->
+    <color name="taktak_orig_light_bg">#FFFAFD</color>
+    <color name="taktak_orig_light_surface">#FFFFFF</color>
+    <color name="taktak_orig_light_surface_variant">#F5EEF5</color>
+    <color name="taktak_orig_light_primary">#A53E60</color>
+    <color name="taktak_orig_light_secondary">#C45A7E</color>
+    <color name="taktak_orig_light_text_primary">#1C1626</color>
+    <color name="taktak_orig_light_text_secondary">#625B6C</color>
+    <color name="taktak_orig_light_text_muted">#716A7B</color>
+    <color name="taktak_orig_light_border">#EDE6EF</color>
+
+    <!-- Palette: Gradient Dark -->
+    <color name="taktak_grad_dark_bg">#101126</color>
+    <color name="taktak_grad_dark_surface">#1B1E38</color>
+    <color name="taktak_grad_dark_surface_variant">#242848</color>
+    <color name="taktak_grad_dark_primary">#FF946A</color>
+    <color name="taktak_grad_dark_secondary">#7F56D9</color>
+    <color name="taktak_grad_dark_text_primary">#FFFFFF</color>
+    <color name="taktak_grad_dark_text_secondary">#B7BCD6</color>
+    <color name="taktak_grad_dark_text_muted">#8B91AE</color>
+    <color name="taktak_grad_dark_border">#2D3357</color>
+
+    <!-- Palette: Gradient Light -->
+    <color name="taktak_grad_light_bg">#FBFAFF</color>
+    <color name="taktak_grad_light_surface">#FFFFFF</color>
+    <color name="taktak_grad_light_surface_variant">#F1F0FA</color>
+    <color name="taktak_grad_light_primary">#A52D65</color>
+    <color name="taktak_grad_light_secondary">#6941C6</color>
+    <color name="taktak_grad_light_text_primary">#14172C</color>
+    <color name="taktak_grad_light_text_secondary">#5D627D</color>
+    <color name="taktak_grad_light_text_muted">#686C85</color>
+    <color name="taktak_grad_light_border">#E5E6F2</color>
+
+    <!-- Palette: Glass Dark -->
+    <color name="taktak_glass_dark_bg">#0C1826</color>
+    <color name="taktak_glass_dark_surface">#1B2B40</color>
+    <color name="taktak_glass_dark_surface_variant">#243750</color>
+    <color name="taktak_glass_dark_primary">#88D7EE</color>
+    <color name="taktak_glass_dark_secondary">#38B2AC</color>
+    <color name="taktak_glass_dark_text_primary">#FFFFFF</color>
+    <color name="taktak_glass_dark_text_secondary">#B0C5DA</color>
+    <color name="taktak_glass_dark_text_muted">#8CA0B9</color>
+    <color name="taktak_glass_dark_border">#2D415A</color>
+
+    <!-- Palette: Glass Light -->
+    <color name="taktak_glass_light_bg">#F4F8FD</color>
+    <color name="taktak_glass_light_surface">#FFFFFF</color>
+    <color name="taktak_glass_light_surface_variant">#E9F1FA</color>
+    <color name="taktak_glass_light_primary">#235F7A</color>
+    <color name="taktak_glass_light_secondary">#2C7A7B</color>
+    <color name="taktak_glass_light_text_primary">#0C1826</color>
+    <color name="taktak_glass_light_text_secondary">#4D647E</color>
+    <color name="taktak_glass_light_text_muted">#5B6E84</color>
+    <color name="taktak_glass_light_border">#D8E4F0</color>
+
+    <!-- Palette: Soft Dark -->
+    <color name="taktak_soft_dark_bg">#1B1921</color>
+    <color name="taktak_soft_dark_surface">#27242F</color>
+    <color name="taktak_soft_dark_surface_variant">#332F3D</color>
+    <color name="taktak_soft_dark_primary">#E8B6A0</color>
+    <color name="taktak_soft_dark_secondary">#D4A373</color>
+    <color name="taktak_soft_dark_text_primary">#F5F3F1</color>
+    <color name="taktak_soft_dark_text_secondary">#BBB5BD</color>
+    <color name="taktak_soft_dark_text_muted">#9C979D</color>
+    <color name="taktak_soft_dark_border">#3A3644</color>
+
+    <!-- Palette: Soft Light -->
+    <color name="taktak_soft_light_bg">#FCFAF8</color>
+    <color name="taktak_soft_light_surface">#FFFCFA</color>
+    <color name="taktak_soft_light_surface_variant">#F3EFEA</color>
+    <color name="taktak_soft_light_primary">#84516F</color>
+    <color name="taktak_soft_light_secondary">#9C6644</color>
+    <color name="taktak_soft_light_text_primary">#242129</color>
+    <color name="taktak_soft_light_text_secondary">#6B656F</color>
+    <color name="taktak_soft_light_text_muted">#716B75</color>
+    <color name="taktak_soft_light_border">#ECE7E3</color>
+    <color name="taktak_fixed_ccffffff">#CCFFFFFF</color>
+    <color name="taktak_fixed_55ffffff">#55FFFFFF</color>
+    <color name="taktak_fixed_40000000">#40000000</color>
+    <color name="taktak_fixed_ffd600">#FFD600</color>
+    <color name="taktak_fixed_ff3b5c">#FF3B5C</color>
+    <color name="taktak_fixed_00e676">#00E676</color>
+    <color name="taktak_fixed_7c4dff">#7C4DFF</color>
+    <color name="taktak_fixed_20ffffff">#20FFFFFF</color>
+    <color name="taktak_fixed_e0e0e0">#E0E0E0</color>
+    <color name="taktak_fixed_b0b0b0">#B0B0B0</color>
+    <color name="taktak_fixed_a0a0a0">#A0A0A0</color>
+</resources>

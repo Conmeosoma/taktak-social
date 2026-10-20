@@ -1,79 +1,378 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/previewRoot" android:layout_width="match_parent" android:layout_height="match_parent"
-    android:orientation="vertical" android:saveEnabled="false" android:background="?attr/ttMediaBackground">
-    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
-        android:paddingHorizontal="16dp" android:gravity="center_vertical" android:orientation="horizontal">
-        <com.google.android.material.button.MaterialButton android:id="@+id/retakeButton"
-            style="@style/Widget.TakTakM3.TextButton" android:layout_width="0dp" android:layout_weight="1"
-            android:text="@string/preview_retake" />
-        <com.google.android.material.button.MaterialButton android:id="@+id/previewLogoutButton"
-            style="@style/Widget.TakTakM3.TextButton" android:layout_width="wrap_content"
-            android:minWidth="0dp" android:text="@string/session_logout" />
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/previewRoot"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="?attr/taktakColorSurface"
+    android:orientation="vertical"
+    android:saveEnabled="false">
+
+    <!-- Top Action Bar -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:minHeight="@dimen/taktak_login_action_min_height"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingHorizontal="@dimen/taktak_space_md">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/retakeButton"
+            style="@style/Widget.Taktak.Button.Ghost"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:minHeight="@dimen/taktak_btn_height_medium"
+            android:text="@string/preview_retake"
+            app:icon="@drawable/login_back"
+            app:iconGravity="textStart"
+            app:iconSize="20dp"
+            app:iconTint="?attr/taktakColorBrandPrimary" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/previewLogoutButton"
+            style="@style/Widget.Taktak.Button.Ghost"
+            android:layout_width="wrap_content"
+            android:minHeight="@dimen/taktak_btn_height_medium"
+            android:minWidth="0dp"
+            android:text="@string/session_logout"
+            android:textColor="?attr/taktakColorTextMuted" />
     </LinearLayout>
-    <com.google.android.material.progressindicator.LinearProgressIndicator android:id="@+id/previewProgress"
-        android:layout_width="match_parent" android:layout_height="wrap_content" android:indeterminate="true"
-        android:visibility="invisible" />
-    <com.google.android.material.textview.MaterialTextView android:id="@+id/previewNotice"
-        android:layout_width="match_parent" android:layout_height="wrap_content" android:padding="16dp"
-        android:text="@string/session_checking" android:accessibilityLiveRegion="polite"
-        android:saveEnabled="false" android:textAppearance="@style/TextAppearance.TakTakM3.Body" />
-    <com.google.android.material.button.MaterialButton android:id="@+id/previewSessionRetry"
-        style="@style/Widget.TakTakM3.Button" android:text="@string/session_retry" android:visibility="gone" />
-    <ScrollView android:id="@+id/previewScroll" android:layout_width="match_parent" android:layout_height="0dp"
-        android:layout_weight="1" android:fillViewport="true" android:visibility="gone" android:saveEnabled="false">
-        <androidx.constraintlayout.widget.ConstraintLayout android:layout_width="match_parent"
-            android:layout_height="wrap_content" android:padding="16dp">
-            <LinearLayout android:id="@+id/previewContent" android:layout_width="0dp" android:layout_height="wrap_content"
-                android:orientation="vertical" app:layout_constraintWidth_max="@dimen/m3_form_max_width"
-                app:layout_constraintStart_toStartOf="parent" app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="parent">
-                <com.google.android.material.textview.MaterialTextView android:id="@+id/previewTitle"
-                    android:layout_width="match_parent" android:layout_height="wrap_content"
-                    android:text="@string/preview_title" android:textAppearance="@style/TextAppearance.TakTakM3.Headline" />
-                <com.google.android.material.card.MaterialCardView android:layout_width="match_parent"
-                    android:layout_height="wrap_content" android:layout_marginTop="16dp"
-                    app:cardCornerRadius="28dp" app:strokeWidth="0dp" app:cardElevation="0dp">
-                    <androidx.constraintlayout.widget.ConstraintLayout android:layout_width="match_parent" android:layout_height="wrap_content">
-                        <ImageView android:id="@+id/previewImage" android:layout_width="0dp" android:layout_height="0dp"
-                            android:contentDescription="@string/preview_image" android:scaleType="fitCenter" android:saveEnabled="false"
-                            app:layout_constraintStart_toStartOf="parent" app:layout_constraintEnd_toEndOf="parent"
-                            app:layout_constraintTop_toTopOf="parent" app:layout_constraintBottom_toBottomOf="parent"
-                            app:layout_constraintDimensionRatio="1:1" />
+
+    <com.google.android.material.progressindicator.LinearProgressIndicator
+        android:id="@+id/previewProgress"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:indeterminate="true"
+        android:visibility="invisible"
+        app:indicatorColor="?attr/taktakColorBrandPrimary"
+        app:trackColor="?attr/taktakColorBorder" />
+
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/previewNotice"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:accessibilityLiveRegion="polite"
+        android:padding="@dimen/taktak_space_md"
+        android:saveEnabled="false"
+        android:text="@string/session_checking"
+        android:textAppearance="@style/TextAppearance.Taktak.Body"
+        android:textColor="?attr/taktakColorTextSecondary" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/previewSessionRetry"
+        style="@style/Widget.Taktak.Button.Primary"
+        android:layout_marginHorizontal="@dimen/taktak_space_md"
+        android:text="@string/session_retry"
+        android:visibility="gone"     android:minHeight="@dimen/taktak_touch_target_min" />
+
+    <ScrollView
+        android:id="@+id/previewScroll"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:fillViewport="true"
+        android:saveEnabled="false"
+        android:visibility="gone">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingHorizontal="@dimen/taktak_space_xl"
+            android:paddingBottom="@dimen/taktak_space_xl">
+
+            <LinearLayout
+                android:id="@+id/previewContent"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintWidth_max="480dp">
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/previewTitle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/preview_title"
+                    android:textAppearance="@style/TextAppearance.Taktak.LargeTitle"
+                    android:textColor="?attr/taktakColorTextPrimary" />
+
+                <!-- Square 1:1 Captured Image Preview -->
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/taktak_space_md"
+                    app:cardBackgroundColor="?attr/taktakColorSurface"
+                    app:cardCornerRadius="@dimen/taktak_radius_card"
+                    app:cardElevation="0dp"
+                    app:strokeColor="?attr/taktakColorBorder"
+                    app:strokeWidth="1dp">
+
+                    <androidx.constraintlayout.widget.ConstraintLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content">
+
+                        <ImageView
+                            android:id="@+id/previewImage"
+                            android:layout_width="0dp"
+                            android:layout_height="0dp"
+                            android:contentDescription="@string/preview_image"
+                            android:saveEnabled="false"
+                            android:scaleType="fitCenter"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintDimensionRatio="1:1"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toTopOf="parent" />
+
+                        <com.taktak.app.ui.camera.DoodleOverlayView
+                            android:id="@+id/doodleOverlay"
+                            android:layout_width="0dp"
+                            android:layout_height="0dp"
+                            app:layout_constraintBottom_toBottomOf="@id/previewImage"
+                            app:layout_constraintEnd_toEndOf="@id/previewImage"
+                            app:layout_constraintStart_toStartOf="@id/previewImage"
+                            app:layout_constraintTop_toTopOf="@id/previewImage" />
                     </androidx.constraintlayout.widget.ConstraintLayout>
                 </com.google.android.material.card.MaterialCardView>
-                <com.google.android.material.textfield.TextInputLayout android:id="@+id/captionLayout"
-                    style="?attr/ttMediaFieldStyle" android:layout_marginTop="20dp" android:hint="@string/preview_caption">
-                    <com.google.android.material.textfield.TextInputEditText style="?attr/ttMediaInputStyle" android:id="@+id/captionInput"
-                        android:layout_width="match_parent" android:layout_height="wrap_content" android:minHeight="56dp"
-                        android:inputType="textCapSentences|textMultiLine|textNoSuggestions" android:maxLines="3"
-                        android:saveEnabled="false" android:imeOptions="flagNoExtractUi" />
+
+                <!-- Creative Tools Toolbar -->
+                <GridLayout
+                    android:id="@+id/creativeToolsBar"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/taktak_space_sm"
+                    android:gravity="center_vertical"
+                    android:columnCount="2">
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnToolDoodle"
+                        style="@style/Widget.Taktak.Button.Secondary"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_columnWeight="1"
+                        android:layout_marginEnd="@dimen/taktak_space_xxs"
+                        android:insetTop="0dp"
+                        android:insetBottom="0dp"
+                        android:paddingHorizontal="@dimen/taktak_space_xxs"
+                        android:text="@string/tool_doodle"
+                        android:textSize="12sp"     android:minHeight="@dimen/taktak_touch_target_min" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnToolSticker"
+                        style="@style/Widget.Taktak.Button.Secondary"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_columnWeight="1"
+                        android:layout_marginEnd="@dimen/taktak_space_xxs"
+                        android:insetTop="0dp"
+                        android:insetBottom="0dp"
+                        android:paddingHorizontal="@dimen/taktak_space_xxs"
+                        android:text="@string/tool_sticker"
+                        android:textSize="12sp"     android:minHeight="@dimen/taktak_touch_target_min" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnToolTag"
+                        style="@style/Widget.Taktak.Button.Secondary"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_columnWeight="1"
+                        android:layout_marginEnd="@dimen/taktak_space_xxs"
+                        android:insetTop="0dp"
+                        android:insetBottom="0dp"
+                        android:paddingHorizontal="@dimen/taktak_space_xxs"
+                        android:text="@string/tool_tag"
+                        android:textSize="12sp"     android:minHeight="@dimen/taktak_touch_target_min" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnToolUndo"
+                        style="@style/Widget.Taktak.Button.Ghost"
+                        android:layout_width="0dp"
+                        android:layout_columnWeight="1"
+                        android:layout_height="wrap_content"
+                        android:insetTop="0dp"
+                        android:insetBottom="0dp"
+                        android:minWidth="0dp"
+                        android:paddingHorizontal="@dimen/taktak_space_xs"
+                        android:text="@string/tool_undo"
+                        android:textSize="12sp"     android:minHeight="@dimen/taktak_touch_target_min" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnToolClear"
+                        style="@style/Widget.Taktak.Button.Ghost"
+                        android:layout_width="0dp"
+                        android:layout_columnWeight="1"
+                        android:layout_height="wrap_content"
+                        android:insetTop="0dp"
+                        android:insetBottom="0dp"
+                        android:minWidth="0dp"
+                        android:paddingHorizontal="@dimen/taktak_space_xs"
+                        android:text="@string/tool_clear"
+                        android:textColor="@color/taktak_status_error"
+                        android:textSize="12sp"     android:minHeight="@dimen/taktak_touch_target_min" />
+                </GridLayout>
+
+                <!-- Color Palette (Doodle Mode) -->
+                <LinearLayout
+                    android:id="@+id/colorPaletteBar"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp"
+                    android:gravity="center"
+                    android:orientation="horizontal"
+                    android:visibility="gone">
+
+                    <View
+                        android:id="@+id/colorWhite"
+                        android:layout_width="28dp"
+                        android:layout_height="28dp"
+                        android:layout_marginHorizontal="6dp"
+                        android:background="@drawable/taktak_shutter_ring"
+                        android:backgroundTint="@color/taktak_color_neutral_white" />
+
+                    <View
+                        android:id="@+id/colorYellow"
+                        android:layout_width="28dp"
+                        android:layout_height="28dp"
+                        android:layout_marginHorizontal="6dp"
+                        android:background="@drawable/taktak_shutter_ring"
+                        android:backgroundTint="@color/taktak_fixed_ffd600" />
+
+                    <View
+                        android:id="@+id/colorCoral"
+                        android:layout_width="28dp"
+                        android:layout_height="28dp"
+                        android:layout_marginHorizontal="6dp"
+                        android:background="@drawable/taktak_shutter_ring"
+                        android:backgroundTint="@color/taktak_fixed_ff3b5c" />
+
+                    <View
+                        android:id="@+id/colorMint"
+                        android:layout_width="28dp"
+                        android:layout_height="28dp"
+                        android:layout_marginHorizontal="6dp"
+                        android:background="@drawable/taktak_shutter_ring"
+                        android:backgroundTint="@color/taktak_fixed_00e676" />
+
+                    <View
+                        android:id="@+id/colorPurple"
+                        android:layout_width="28dp"
+                        android:layout_height="28dp"
+                        android:layout_marginHorizontal="6dp"
+                        android:background="@drawable/taktak_shutter_ring"
+                        android:backgroundTint="@color/taktak_fixed_7c4dff" />
+                </LinearLayout>
+
+                <!-- Emoji Stickers Quick Palette -->
+                <HorizontalScrollView
+                    android:id="@+id/stickerPaletteBar"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp"
+                    android:scrollbars="none"
+                    android:visibility="gone">
+
+                    <LinearLayout
+                        android:id="@+id/stickerEmojiContainer"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:paddingVertical="@dimen/taktak_space_xxs" />
+                </HorizontalScrollView>
+
+                <!-- Caption Input -->
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/captionLayout"
+                    style="@style/Widget.Taktak.TextInputLayout"
+                    android:layout_marginTop="@dimen/taktak_space_lg"
+                    android:hint="@string/preview_caption">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/captionInput"
+                        style="@style/Widget.Taktak.TextInputEditText"
+                        android:imeOptions="flagNoExtractUi"
+                        android:inputType="textCapSentences|textMultiLine|textNoSuggestions"
+                        android:maxLength="50"
+                        android:maxLines="3"
+                        android:saveEnabled="false" />
                 </com.google.android.material.textfield.TextInputLayout>
-                <com.google.android.material.textview.MaterialTextView android:id="@+id/captionCount"
-                    android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="end"
-                    android:layout_marginTop="4dp" android:textAppearance="@style/TextAppearance.Material3.BodySmall" />
-                <com.google.android.material.textview.MaterialTextView android:id="@+id/recipientHeading"
-                    android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="20dp"
-                    android:text="@string/preview_recipients" android:textAppearance="@style/TextAppearance.Material3.TitleLarge" />
-                <com.google.android.material.checkbox.MaterialCheckBox android:id="@+id/allFriendsCheck"
-                    android:layout_width="match_parent" android:layout_height="wrap_content" android:minHeight="48dp"
-                    android:text="@string/preview_all" android:saveEnabled="false" />
-                <com.google.android.material.textview.MaterialTextView android:id="@+id/friendsNotice"
-                    android:layout_width="match_parent" android:layout_height="wrap_content"
-                    android:textAppearance="@style/TextAppearance.TakTakM3.Body" android:accessibilityLiveRegion="polite" />
-                <androidx.recyclerview.widget.RecyclerView android:id="@+id/recipientsList"
-                    android:layout_width="match_parent" android:layout_height="240dp" android:visibility="gone"
-                    android:contentDescription="@string/preview_recipients" />
-                <com.google.android.material.button.MaterialButton android:id="@+id/friendsMoreButton"
-                    style="@style/Widget.TakTakM3.TextButton" android:text="@string/preview_more" android:visibility="gone" />
-                <com.google.android.material.textview.MaterialTextView android:layout_width="match_parent"
-                    android:layout_height="wrap_content" android:layout_marginTop="16dp"
-                    android:text="@string/preview_send_hint" android:textAppearance="@style/TextAppearance.TakTakM3.Body" />
-                <com.google.android.material.button.MaterialButton android:id="@+id/sendFriendsButton"
-                    style="@style/Widget.TakTakM3.Button" android:layout_marginTop="12dp"
-                    android:text="@string/preview_send" android:enabled="false" />
-                <com.google.android.material.button.MaterialButton android:id="@+id/savePrivateButton"
-                    style="@style/Widget.TakTakM3.TextButton" android:layout_marginTop="8dp" android:text="@string/preview_private" />
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/captionCount"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/taktak_space_xxs"
+                    android:gravity="end"
+                    android:textAppearance="@style/TextAppearance.Taktak.Caption"
+                    android:textColor="?attr/taktakColorTextMuted" />
+
+                <!-- Recipient Selection Heading -->
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/recipientHeading"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/taktak_space_lg"
+                    android:text="@string/preview_recipients"
+                    android:textAppearance="@style/TextAppearance.Taktak.SectionTitle"
+                    android:textColor="?attr/taktakColorTextPrimary" />
+
+                <com.google.android.material.checkbox.MaterialCheckBox
+                    android:id="@+id/allFriendsCheck"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:minHeight="@dimen/taktak_touch_target_min"
+                    android:saveEnabled="false"
+                    android:text="@string/preview_all"
+                    android:textAppearance="@style/TextAppearance.Taktak.Body"
+                    android:textColor="?attr/taktakColorTextPrimary"
+                    app:buttonTint="?attr/taktakColorBrandPrimary" />
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/friendsNotice"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:accessibilityLiveRegion="polite"
+                    android:textAppearance="@style/TextAppearance.Taktak.Secondary"
+                    android:textColor="?attr/taktakColorTextSecondary" />
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/recipientsList"
+                    android:layout_width="match_parent"
+                    android:layout_height="220dp"
+                    android:contentDescription="@string/preview_recipients"
+                    android:visibility="gone" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/friendsMoreButton"
+                    style="@style/Widget.Taktak.Button.Ghost"
+                    android:layout_width="match_parent"
+                    android:text="@string/preview_more"
+                    android:visibility="gone"     android:minHeight="@dimen/taktak_touch_target_min" />
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/taktak_space_md"
+                    android:text="@string/preview_send_hint"
+                    android:textAppearance="@style/TextAppearance.Taktak.Caption"
+                    android:textColor="?attr/taktakColorTextMuted" />
+
+                <!-- Send to Friends Button (Gradient Primary) -->
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/sendFriendsButton"
+                    style="@style/Widget.Taktak.Button.Primary"
+                    android:layout_marginTop="@dimen/taktak_space_md"
+                    android:enabled="false"
+                    android:text="@string/preview_send"     android:minHeight="@dimen/taktak_touch_target_min" />
+
+                <!-- Save Private Button (Secondary) -->
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/savePrivateButton"
+                    style="@style/Widget.Taktak.Button.Secondary"
+                    android:layout_marginTop="@dimen/taktak_space_sm"
+                    android:text="@string/preview_private"     android:minHeight="@dimen/taktak_touch_target_min" />
             </LinearLayout>
         </androidx.constraintlayout.widget.ConstraintLayout>
     </ScrollView>

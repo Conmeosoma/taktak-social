@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Theme.Taktak.Original.Dark" parent="Theme.Taktak.Original.Dark.Compat">
+        <item name="android:windowLightNavigationBar">false</item>
+    </style>
+    <style name="Theme.Taktak.Original.Light" parent="Theme.Taktak.Original.Light.Compat">
+        <item name="android:windowLightNavigationBar">true</item>
+    </style>
+    <style name="Theme.Taktak.Gradient.Dark" parent="Theme.Taktak.Gradient.Dark.Compat">
+        <item name="android:windowLightNavigationBar">false</item>
+    </style>
+    <style name="Theme.Taktak.Gradient.Light" parent="Theme.Taktak.Gradient.Light.Compat">
+        <item name="android:windowLightNavigationBar">true</item>
+    </style>
+    <style name="Theme.Taktak.Glass.Dark" parent="Theme.Taktak.Glass.Dark.Compat">
+        <item name="android:windowLightNavigationBar">false</item>
+    </style>
+    <style name="Theme.Taktak.Glass.Light" parent="Theme.Taktak.Glass.Light.Compat">
+        <item name="android:windowLightNavigationBar">true</item>
+    </style>
+    <style name="Theme.Taktak.Soft.Dark" parent="Theme.Taktak.Soft.Dark.Compat">
+        <item name="android:windowLightNavigationBar">false</item>
+    </style>
+    <style name="Theme.Taktak.Soft.Light" parent="Theme.Taktak.Soft.Light.Compat">
+        <item name="android:windowLightNavigationBar">true</item>
+    </style>
+</resources>
