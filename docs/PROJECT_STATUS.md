@@ -1,5 +1,61 @@
 # Taktak — Trạng thái dự án
 
+## Production restore-security rollout — 21/10/2026
+
+**PASS cài đặt được duyệt**: restore.sh750, reconciliation SQL640 root:root;
+thêm systemd drop-in guard644, daemon-reload đạt. Bốn health sampleUP/PID84167
+không đổi, NeedDaemonReload=no. Unit gốc/JAR/env giữ nguyên, SQL chưa thực thi,
+không restore DB/ảnh hay restart. Backup root-only và hash tại
+[QA_RESTORE_PRODUCTION_ROLLOUT.md](QA_RESTORE_PRODUCTION_ROLLOUT.md).
+Production restore thật và gate khác chưa được đánh dấu PASS. Các mục bên
+dưới giữ làm lịch sử trước rollout; không commit/push.
+
+## RESTORE-SECURITY-01 — cập nhật mới nhất 21/10/2026
+
+Đã sửa restore giữ cách ly systemd, reconciliation version/refresh/credential.
+Backend full verify mới **191/191 đạt**, BUILD SUCCESS2 phút28 giây.
+SQL+HTTP local4/4 và shell contract12/12 đạt; native QA DB/ảnh/systemd thật đạt,
+version9→10, manual start bị guard chặn. Service chính active/healthUP, không
+restore DB chính, không thay script/unit/JAR live. Chưa nghiệm thu production
+rollout; gate khác vẫn mở, không đánh dấu toàn dự án PASS.
+[Báo cáo](QA_RESTORE_SECURITY.md). Mục FAIL9→7 bên dưới là lịch sử trước bản sửa.
+
+## Nghiệm thu tổng hợp mới nhất — 21/10/2026
+
+**FAIL cổng tổng thể**. Backend187/JVM127, USB matrix2/2 và Chat fixture6/6 đạt;
+Gmail QA nhận đủ3 thư được người dùng xác nhận. Theo quyền mới, FCM đã bật trên
+VPS, healthUP; USB FCM/Worker/AppWidgetHost thật1/1 đạt70,674s. Chưa nghiệm thu
+widget ghim launcher, ảnh logout còn trắng. LintFAIL179 MissingTranslation mỗi
+variant. Restore DB/ảnh QA thành công nhưng **security_version9→7**, không đạt
+an toàn thu hồi phiên. Không restore DB chính/đổi JAR/schema/commit/push.
+Ưu tiên sửa restore fail-closed trước public traffic. Chi tiết và gate chưa
+chạy: [QA_ACCEPTANCE_ALL.md](QA_ACCEPTANCE_ALL.md). Mục cũ giữ làm lịch sử.
+
+## Bổ sung nghiệm thu USB vận hành — 21/10/2026
+
+**IN PROGRESS / BLOCKED**, chưa PASS vận hành đầy đủ. Xiaomi Android15:
+cache/reply9/9 (34,856s), GET HTTPS thật3/3 (3,522s) đạt. FCM thật1/1 thất bại
+sau upload, chờ90s không nhận created event; tổng100,628s. Đã sửa harness
+foreground MIUI, dùng đúng bind user0 và thu hồi grant cuối lượt. Chưa biết
+nguyên nhân server/cloud/device; SSH host key xác minh được nhưng đăng nhập
+key bị từ chối, chưa đọc được outbox/log. Người dùng đã cho phép logout và
+tạo QA accounts; không gửi dữ liệu tài khoản cá nhân, cần đăng nhập lại sau QA.
+Giữ nguyên các ghi nhận triển khai bên dưới, không coi là đã xác minh lại VPS.
+Chi tiết: [QA_OPERATIONAL_USB.md](QA_OPERATIONAL_USB.md).
+
+## Hiện hành — TRIỂN KHAI VPS THẬT & HARDENING-01, 21/10/2026
+
+- **Triển khai VPS Ubuntu thật (`remote.io.vn` / 14.250.250.68:11918)**:
+  - Backup toàn bộ database an toàn trước cập nhật: `/var/taktak/backups/taktak_pre_v6_*.dump`.
+  - Cập nhật file JAR mới 118MB (`server/target/taktak-server-0.0.1-SNAPSHOT.jar`) vào `/var/taktak/taktak-server.jar`, sao lưu bản cũ `taktak-server.jar.bak`.
+  - Dịch vụ `taktak.service` khởi động lại thành công, Flyway tự động migrate schema lên `version 6 - durable push outbox` thành công (0.138s).
+  - Healthcheck nội bộ và qua Nginx: `{"status":"UP"}` 200 OK.
+  - Telemetry `RequestTelemetryFilter` phản hồi header Correlation ID (`X-Request-ID: ...`) chuẩn xác.
+- **Mã nguồn & Kiểm thử local/AVD**:
+  - Đã triển khai outbox FCM bền vững/V6, telemetry riêng tư, cache ảnh ràng buộc phiên và xác thực lại quyền, tối ưu N+1 inbox.
+  - Backend `verify` cuối 187/187; migration V5→V6 và load/query-budget targeted 2/2; Android JVM 127/127; AVD 17/17 (145.302s).
+  - Chi tiết kết quả, file, giới hạn và gate tiếp theo: [QA_SYSTEM_HARDENING.md](QA_SYSTEM_HARDENING.md).
+
 ## Bổ sung nghiệm thu USB — MOMENT-REPLY-01, 21/10/2026
 
 **PASS 7/7 ca UI fixture trên điện thoại thật**, 36,257s; Xiaomi 23129RAA4G,

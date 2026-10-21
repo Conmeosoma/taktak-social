@@ -321,10 +321,10 @@ public class DeviceAcceptanceTest {
         String testMomentId = UUID.randomUUID().toString();
         android.graphics.Bitmap testBitmap = android.graphics.Bitmap.createBitmap(100, 100, android.graphics.Bitmap.Config.ARGB_8888);
         testBitmap.eraseColor(android.graphics.Color.MAGENTA);
-        com.taktak.app.ui.history.HistoryImageCache.put(testMomentId, testBitmap);
+        com.taktak.app.ui.history.HistoryImageCache.rememberAuthorized(testMomentId, primary.sessionGeneration(), testBitmap);
 
         // Verify cache retrieval
-        android.graphics.Bitmap cached = com.taktak.app.ui.history.HistoryImageCache.get(testMomentId);
+        android.graphics.Bitmap cached = com.taktak.app.ui.history.HistoryImageCache.getAuthorized(testMomentId, primary.sessionGeneration());
         assertNotNull(cached);
         assertEquals(100, cached.getWidth());
         assertEquals(100, cached.getHeight());
@@ -336,7 +336,7 @@ public class DeviceAcceptanceTest {
 
         // Clean cache
         com.taktak.app.ui.history.HistoryImageCache.remove(testMomentId);
-        assertNull(com.taktak.app.ui.history.HistoryImageCache.get(testMomentId));
+        assertNull(com.taktak.app.ui.history.HistoryImageCache.getAuthorized(testMomentId, primary.sessionGeneration()));
     }
 
     @Test
@@ -419,7 +419,7 @@ public class DeviceAcceptanceTest {
         String testMomentId = UUID.randomUUID().toString();
         android.graphics.Bitmap testBitmap = android.graphics.Bitmap.createBitmap(50, 50, android.graphics.Bitmap.Config.ARGB_8888);
         testBitmap.eraseColor(android.graphics.Color.BLUE);
-        com.taktak.app.ui.history.HistoryImageCache.put(testMomentId, testBitmap);
+        com.taktak.app.ui.history.HistoryImageCache.rememberAuthorized(testMomentId, primary.sessionGeneration(), testBitmap);
 
         // Simulate unreachable client (offline / down)
         var offlineStore = new Memory();
@@ -436,7 +436,7 @@ public class DeviceAcceptanceTest {
         }
 
         // Cache must still be intact because deletion did not succeed
-        android.graphics.Bitmap stillCached = com.taktak.app.ui.history.HistoryImageCache.get(testMomentId);
+        android.graphics.Bitmap stillCached = com.taktak.app.ui.history.HistoryImageCache.getAuthorized(testMomentId, primary.sessionGeneration());
         assertNotNull("Cache must not be deleted on network failure", stillCached);
 
         // Clean up

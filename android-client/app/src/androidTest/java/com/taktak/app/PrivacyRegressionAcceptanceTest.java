@@ -22,6 +22,7 @@ public class PrivacyRegressionAcceptanceTest {
     private final Context context=InstrumentationRegistry.getInstrumentation().getTargetContext();
     private AuthRepository auth;
     private boolean owned;
+    private long generation;
     @Before public void fixture() throws Exception {
         if(android.os.Build.VERSION.SDK_INT>=37) {
             InstrumentationRegistry.getInstrumentation().getUiAutomation().grantRuntimePermission(context.getPackageName(),"android.permission.ACCESS_LOCAL_NETWORK");
@@ -30,6 +31,7 @@ public class PrivacyRegressionAcceptanceTest {
         assertFalse("Không thay phiên cá nhân khi QA",auth.hasSession());
         String name="privacy_"+UUID.randomUUID().toString().replace("-", ""),password=UUID.randomUUID().toString();
         auth.register(name+"@example.test",name,"Privacy QA",password); auth.login(name+"@example.test",password); owned=true;
+        generation = auth.sessionGeneration();
     }
     @After public void cleanup() throws Exception { if(owned) auth.logout(context); HistoryImageCache.clear(); }
     private String upload() throws Exception {
@@ -61,7 +63,7 @@ public class PrivacyRegressionAcceptanceTest {
     }
     @Test public void revokedServerImageIsNotRestoredFromCacheOrSaved() throws Exception {
         String id=upload(); byte[] bytes=auth.moments().download(id);
-        HistoryImageCache.put(id,BitmapFactory.decodeByteArray(bytes,0,bytes.length)); auth.moments().delete(id);
+        HistoryImageCache.rememberAuthorized(id,generation,BitmapFactory.decodeByteArray(bytes,0,bytes.length)); auth.moments().delete(id);
         try(var scenario=ActivityScenario.<MomentViewerActivity>launch(viewer(id))) {
             await(scenario,R.id.viewerErrorView);
             capture("revoked-viewer");
@@ -70,7 +72,7 @@ public class PrivacyRegressionAcceptanceTest {
                 assertFalse(activity.findViewById(R.id.viewerSaveButton).isEnabled());
                 assertFalse(activity.findViewById(R.id.viewerSenderName).isShown());
             });
-            assertNull(HistoryImageCache.get(id));
+            assertNull(HistoryImageCache.getAuthorized(id,generation));
         }
     }
     @Test public void forbiddenImageDoesNotUseAnotherAccountsCachedBitmap() throws Exception {
@@ -87,11 +89,11 @@ public class PrivacyRegressionAcceptanceTest {
             Bitmap bitmap=Bitmap.createBitmap(80,80,Bitmap.Config.ARGB_8888); bitmap.eraseColor(Color.CYAN);
             var bytes=new ByteArrayOutputStream(); bitmap.compress(Bitmap.CompressFormat.JPEG,90,bytes); bitmap.recycle();
             String id=other.moments().upload(bytes.toByteArray());
-            HistoryImageCache.put(id,BitmapFactory.decodeByteArray(bytes.toByteArray(),0,bytes.size()));
+            HistoryImageCache.rememberAuthorized(id,generation,BitmapFactory.decodeByteArray(bytes.toByteArray(),0,bytes.size()));
             try(var scenario=ActivityScenario.<MomentViewerActivity>launch(viewer(id))) {
                 await(scenario,R.id.viewerErrorView);
                 scenario.onActivity(activity -> assertFalse(activity.findViewById(R.id.viewerSaveButton).isEnabled()));
-                assertNull(HistoryImageCache.get(id));
+                assertNull(HistoryImageCache.getAuthorized(id,generation));
             }
         } finally { other.logout(); }
     }
@@ -103,12 +105,12 @@ public class PrivacyRegressionAcceptanceTest {
                 scenario.onActivity(activity -> loaded.set(activity.findViewById(R.id.viewerSaveButton).isEnabled()));
                 android.os.SystemClock.sleep(100);
             }
-            assertTrue(loaded.get()); assertNotNull(HistoryImageCache.get(id));
+            assertTrue(loaded.get()); assertNotNull(HistoryImageCache.getAuthorized(id,generation));
             int before=galleryCount(); auth.moments().delete(id);
             // Không gửi push local: thao tác Save phải tự kiểm tra server lần nữa.
             scenario.onActivity(activity -> activity.findViewById(R.id.viewerSaveButton).performClick());
             await(scenario,R.id.viewerErrorView);
-            assertEquals(before,galleryCount()); assertNull(HistoryImageCache.get(id));
+            assertEquals(before,galleryCount()); assertNull(HistoryImageCache.getAuthorized(id,generation));
             capture("save-denied-no-cache-fallback");
         }
     }
@@ -130,14 +132,14 @@ public class PrivacyRegressionAcceptanceTest {
             assertTrue(loaded.get()); auth.moments().delete(id); PushEventBus.emitMomentDeleted(id);
             await(scenario,R.id.viewerErrorView);
             scenario.onActivity(activity -> assertFalse(activity.findViewById(R.id.viewerSaveButton).isEnabled()));
-            assertNull(HistoryImageCache.get(id));
+            assertNull(HistoryImageCache.getAuthorized(id,generation));
         }
     }
     @Test public void logoutClearsCacheAndRejectsOldWidgetPublication() throws Exception {
         var old=auth.moments(); String id=upload();
-        HistoryImageCache.put(id,Bitmap.createBitmap(80,80,Bitmap.Config.ARGB_8888));
+        HistoryImageCache.rememberAuthorized(id,generation,Bitmap.createBitmap(80,80,Bitmap.Config.ARGB_8888));
         auth.logout(context); owned=false;
-        assertNull(HistoryImageCache.get(id));
+        assertNull(HistoryImageCache.getAuthorized(id,generation));
         AtomicBoolean rendered=new AtomicBoolean(); assertFalse(old.publishIfCurrent(() -> rendered.set(true)));
         assertFalse(rendered.get());
     }

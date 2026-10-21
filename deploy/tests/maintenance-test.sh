@@ -26,12 +26,13 @@ new_case() {
 backup() { bash "$ROOT/deploy/scripts/backup.sh" > "$CASE_ROOT/backup.log" 2>&1; }
 archive() { find "$TAKTAK_ROOT/backups" -maxdepth 1 -name 'backup-*.tar.enc' | sort | head -n 1; }
 fail_command() { if "$@" > "$CASE_ROOT/expected-failure.log" 2>&1; then echo 'Expected failure did not happen' >&2; exit 1; fi; }
-check_unchanged() {
+check_data() {
     [[ "$(< "$CASE_ROOT/db")" = before-db ]]
     [[ "$(< "$TAKTAK_ROOT/private-images/11111111-1111-1111-1111-111111111111.jpg")" = before-image ]]
-    [[ -f "$CASE_ROOT/active" ]]
     [[ "$(< "$TAKTAK_ROOT/private-images/avatars/22222222-2222-2222-2222-222222222222.jpg")" = before-avatar ]]
 }
+check_unchanged() { check_data; [[ -f "$CASE_ROOT/active" ]]; }
+check_quarantined() { check_data; [[ ! -f "$CASE_ROOT/active" && -f "$TAKTAK_ROOT/.restore-quarantine" ]]; }
 new_case; backup; ARCHIVE="$(archive)"; [[ -s "$ARCHIVE" && -f "$CASE_ROOT/active" ]]
 ! grep -a -q 'before-image' "$ARCHIVE"
 echo 'PASS encrypted consistent backup and env password parsing'
@@ -39,16 +40,20 @@ printf 'changed-db' > "$CASE_ROOT/db"
 printf 'changed-image' > "$TAKTAK_ROOT/private-images/11111111-1111-1111-1111-111111111111.jpg"
 printf 'changed-avatar' > "$TAKTAK_ROOT/private-images/avatars/22222222-2222-2222-2222-222222222222.jpg"
 bash "$ROOT/deploy/scripts/restore.sh" "$ARCHIVE" --yes > "$CASE_ROOT/restore.log" 2>&1
-check_unchanged; echo 'PASS restore replaces existing DB/images after validation'
+check_quarantined; echo 'PASS restore replaces DB/images but remains quarantined'
 new_case; backup; ARCHIVE="$(archive)"; printf 'tamper' >> "$ARCHIVE"
 fail_command bash "$ROOT/deploy/scripts/restore.sh" "$ARCHIVE" --yes
 check_unchanged; echo 'PASS corrupt backup rejected without data changes'
 new_case; backup; ARCHIVE="$(archive)"; touch "$CASE_ROOT/fail_restore"
 fail_command bash "$ROOT/deploy/scripts/restore.sh" "$ARCHIVE" --yes
-check_unchanged; echo 'PASS SQL restore failure preserves live DB/images'
-new_case; backup; ARCHIVE="$(archive)"; touch "$CASE_ROOT/fail_health"
+check_quarantined; echo 'PASS SQL restore failure preserves DB/images without reopening traffic'
+new_case; backup; ARCHIVE="$(archive)"; touch "$CASE_ROOT/fail_reconcile"
 fail_command bash "$ROOT/deploy/scripts/restore.sh" "$ARCHIVE" --yes
-check_unchanged; echo 'PASS health failure restores pre-restore DB/images'
+check_quarantined; echo 'PASS reconciliation failure rolls back DB/images while quarantined'
+new_case; backup; ARCHIVE="$(archive)"; touch "$CASE_ROOT/missing_guard"
+fail_command bash "$ROOT/deploy/scripts/restore.sh" "$ARCHIVE" --yes
+check_unchanged; [[ ! -e "$TAKTAK_ROOT/.restore-quarantine" ]]
+echo 'PASS missing loaded guard refuses restore before data/service changes'
 new_case; touch "$CASE_ROOT/fail_dump"; printf 'new-good-jar' > "$CASE_ROOT/new.jar"
 fail_command bash "$ROOT/deploy/scripts/update.sh" "$CASE_ROOT/new.jar"
 [[ "$(< "$TAKTAK_ROOT/taktak-server.jar")" = old-good-jar && -f "$CASE_ROOT/active" ]]
@@ -76,4 +81,4 @@ new_case; printf 'fixture-pending' > "$TAKTAK_ROOT/private-images/pending-fixtur
 fail_command bash "$ROOT/deploy/scripts/backup.sh"
 check_unchanged; [[ -z "$(archive)" ]]
 echo 'PASS unexpected storage entry blocks backup without deleting files'
-echo 'MAINTENANCE_CONTRACT_TESTS=11 PASS (privileged/database/locking commands mocked; crypto/archive real)'
+echo 'MAINTENANCE_CONTRACT_TESTS=12 PASS (privileged/database/locking commands mocked; crypto/archive real)'

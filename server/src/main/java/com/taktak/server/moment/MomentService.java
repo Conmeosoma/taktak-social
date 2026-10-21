@@ -16,9 +16,7 @@ import org.springframework.transaction.support.TransactionSynchronization;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.taktak.server.device.DeviceToken;
-import com.taktak.server.device.DeviceTokenRepository;
-import com.taktak.server.device.PushNotificationSender;
+import com.taktak.server.outbox.PushOutbox;
 
 @Service
 public class MomentService {
@@ -28,15 +26,12 @@ public class MomentService {
     private final Clock clock;
     private final UserRepository accounts;
     private final FriendRequestRepository relations;
-    private final PushNotificationSender pushSender;
-    private final DeviceTokenRepository deviceTokens;
+    private final PushOutbox outbox;
 
     public MomentService(MomentRepository moments, PrivateImageStorage storage, UserService users, Clock clock,
-            UserRepository accounts, FriendRequestRepository relations, PushNotificationSender pushSender,
-            DeviceTokenRepository deviceTokens) {
+            UserRepository accounts, FriendRequestRepository relations, PushOutbox outbox) {
         this.moments = moments; this.storage = storage; this.users = users; this.clock = clock;
-        this.accounts = accounts; this.relations = relations; this.pushSender = pushSender;
-        this.deviceTokens = deviceTokens;
+        this.accounts = accounts; this.relations = relations; this.outbox = outbox;
     }
 
     @Transactional(rollbackFor = IOException.class)
@@ -87,23 +82,7 @@ public class MomentService {
         moments.saveAndFlush(new Moment(id, sender, caption, key, bytes.length, created, idempotencyKey, payloadHash));
         for (UUID target : targets) { moments.addRecipient(id, target, created); }
 
-        if (!targets.isEmpty()) {
-            var fcmTokens = deviceTokens.findAllByUserIdIn(targets).stream()
-                    .map(DeviceToken::getFcmToken)
-                    .filter(t -> t != null && !t.isBlank())
-                    .distinct()
-                    .toList();
-            if (!fcmTokens.isEmpty()) {
-                TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
-                    @Override public void afterCommit() {
-                        pushSender.sendDataMessageToDevices(fcmTokens, java.util.Map.of(
-                                "type", "moment_created",
-                                "momentId", id.toString()
-                        ));
-                    }
-                });
-            }
-        }
+        for (UUID target : targets) { outbox.enqueue("moment_created",id,null,sender,target); }
         return id;
     }
 
@@ -123,23 +102,7 @@ public class MomentService {
         });
 
         var recipients = moments.findRecipientIds(momentId);
-        if (!recipients.isEmpty()) {
-            var fcmTokens = deviceTokens.findAllByUserIdIn(recipients).stream()
-                    .map(DeviceToken::getFcmToken)
-                    .filter(t -> t != null && !t.isBlank())
-                    .distinct()
-                    .toList();
-            if (!fcmTokens.isEmpty()) {
-                TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
-                    @Override public void afterCommit() {
-                        pushSender.sendDataMessageToDevices(fcmTokens, java.util.Map.of(
-                                "type", "moment_deleted",
-                                "momentId", momentId.toString()
-                        ));
-                    }
-                });
-            }
-        }
+        for (UUID recipient : recipients) { outbox.enqueue("moment_deleted",momentId,null,senderId,recipient); }
     }
 
     @Transactional(readOnly = true)

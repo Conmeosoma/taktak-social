@@ -280,6 +280,7 @@ public final class MomentViewerActivity extends AppCompatActivity {
         worker.execute(() -> {
             try {
                 byte[] bytes = repository.download(momentId);
+                long generation = repository.sessionGeneration();
                 Bitmap bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
                 if (bitmap == null) {
                     throw new IOException("Failed to decode downloaded JPEG");
@@ -287,7 +288,7 @@ public final class MomentViewerActivity extends AppCompatActivity {
                 main.post(() -> {
                     if (foreground && !revoked && ticket == imageRequest && !isFinishing() && !isDestroyed()) {
                         if (!repository.publishIfCurrent(() -> {
-                            HistoryImageCache.put(momentId, bitmap); showBitmap(bitmap);
+                            HistoryImageCache.rememberAuthorized(momentId, generation, bitmap); showBitmap(bitmap);
                         })) { revoke(); }
                     }
                 });

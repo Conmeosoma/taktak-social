@@ -17,23 +17,25 @@ import java.util.Map;
 public class FirebasePushNotificationSender implements PushNotificationSender {
     private static final Logger log = LoggerFactory.getLogger(FirebasePushNotificationSender.class);
     private final FirebaseApp firebaseApp;
-    private final DeviceTokenRepository deviceTokenRepository;
 
     public FirebasePushNotificationSender(
-            @Autowired(required = false) FirebaseApp firebaseApp,
-            DeviceTokenRepository deviceTokenRepository
+            @Autowired(required = false) FirebaseApp firebaseApp
     ) {
         this.firebaseApp = firebaseApp;
-        this.deviceTokenRepository = deviceTokenRepository;
     }
 
     @Override
     public void sendDataMessage(String fcmToken, Map<String, String> data) {
+        deliver(fcmToken, data);
+    }
+
+    @Override
+    public Delivery deliver(String fcmToken, Map<String, String> data) {
         if (fcmToken == null || fcmToken.isBlank() || data == null || data.isEmpty()) {
-            return;
+            return Delivery.REJECTED;
         }
         if (firebaseApp == null) {
-            return;
+            return Delivery.DISABLED;
         }
 
         try {
@@ -42,18 +44,19 @@ public class FirebasePushNotificationSender implements PushNotificationSender {
                     .putAllData(data)
                     .build();
             FirebaseMessaging.getInstance(firebaseApp).send(message);
+            return Delivery.ACCEPTED;
         } catch (FirebaseMessagingException e) {
             log.warn("FCM push failed. ErrorCode: {}", e.getMessagingErrorCode());
             if (e.getMessagingErrorCode() == MessagingErrorCode.UNREGISTERED) {
-                // Token has expired or app was uninstalled: clean up stale token
-                try {
-                    deviceTokenRepository.deleteByFcmToken(fcmToken);
-                } catch (Exception ex) {
-                    log.warn("Failed to remove expired device registration.");
-                }
+                // Dispatcher xóa có ràng buộc recipient; sender không xóa token toàn cục.
+                return Delivery.UNREGISTERED;
             }
+            return e.getMessagingErrorCode() == MessagingErrorCode.INVALID_ARGUMENT
+                    || e.getMessagingErrorCode() == MessagingErrorCode.SENDER_ID_MISMATCH
+                    ? Delivery.REJECTED : Delivery.RETRY;
         } catch (Exception e) {
             log.warn("Unexpected error sending FCM message.");
+            return Delivery.RETRY;
         }
     }
 

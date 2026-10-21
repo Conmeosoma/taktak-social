@@ -2,6 +2,7 @@
 Description=Taktak Social Backend Service
 After=syslog.target network.target postgresql.service
 Requires=postgresql.service
+ConditionPathExists=!/var/taktak/.restore-quarantine
 
 [Service]
 Type=simple
@@ -11,6 +12,7 @@ WorkingDirectory=/var/taktak
 
 # Đọc cấu hình bí mật từ file môi trường local
 EnvironmentFile=/var/taktak/.env
+ExecStartPre=/usr/bin/test ! -e /var/taktak/.restore-quarantine
 ExecStart=/usr/bin/java -XX:+UseSerialGC -Xms128m -Xmx256m -XX:MaxMetaspaceSize=128m -XX:ReservedCodeCacheSize=48m -Xss512k -Dspring.profiles.active=prod -jar /var/taktak/taktak-server.jar
 
 # Giới hạn tài nguyên tránh tràn RAM và nghẽn CPU (1 vCPU, 1 GB RAM)

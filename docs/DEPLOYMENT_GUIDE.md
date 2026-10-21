@@ -161,6 +161,11 @@ Archive mã hóa chứa custom PostgreSQL dump, private images, bản sao env v�
 Key `/etc/taktak/backup.key` (root:root, 600) được setup sinh một lần; phải sao lưu key an toàn tách khỏi VPS/archive. Mất key không giải mã được. Service được tạm dừng trong lúc chụp snapshot nhất quán, nên có downtime. Các script này dành cho systemd + PostgreSQL native, không quản lý Docker volumes.
 
 ### 5.3. Quy trình Khôi phục Dữ liệu (Disaster Recovery)
+
+> Cập nhật an toàn: restore mới cần SQL reconciliation + systemd guard, tăng
+> version phiên và revoke refresh, giữ credential hiện tại, **không tự start**.
+> RESTORE_QUARANTINED cần operator review riêng trước mở traffic; DB rỗng/mất
+> security state không được force restore. Xem [MAINTENANCE](../deploy/MAINTENANCE.md#restore-có-xác-nhận).
 Khi cần khôi phục lại hệ thống từ một bản sao lưu cụ thể:
 
 1. **Liệt kê danh sách bản sao lưu có sẵn**:

@@ -35,6 +35,10 @@ server:
     include-stacktrace: never
 
 management:
+  metrics:
+    enable:
+      # Custom request telemetry uses only finite, server-controlled tags.
+      http.server.requests: false
   endpoints:
     web:
       exposure:
@@ -43,6 +47,16 @@ management:
     health:
       show-details: never
       show-components: never
+
+logging:
+  level:
+    org.springframework.web: WARN
+    org.springframework.security: INFO
+    org.hibernate: WARN
+    # Database exception details can contain rejected private values.
+    org.hibernate.engine.jdbc.spi.SqlExceptionHelper: "OFF"
+  pattern:
+    level: "%5p [requestId=%X{requestId:-none}]"
 
 # Secret JWT bắt buộc hợp lệ khi khởi động; không có khóa dev mặc định.
 taktak:

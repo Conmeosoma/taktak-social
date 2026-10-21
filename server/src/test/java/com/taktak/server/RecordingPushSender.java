@@ -8,6 +8,11 @@ import java.util.concurrent.CopyOnWriteArrayList;
 final class RecordingPushSender implements PushNotificationSender {
     record SentMessage(String fcmToken, Map<String, String> data) { }
     private final List<SentMessage> messages = new CopyOnWriteArrayList<>();
+    volatile Delivery result = Delivery.ACCEPTED;
+    @Override public Delivery deliver(String token,Map<String,String> data) {
+        if(result==Delivery.ACCEPTED) sendDataMessage(token,data);
+        return result;
+    }
     List<SentMessage> getRecordedMessages() { return List.copyOf(messages); }
     void clearRecordedMessages() { messages.clear(); }
     @Override public void sendDataMessage(String token, Map<String,String> data) {

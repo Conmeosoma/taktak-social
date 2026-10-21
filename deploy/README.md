@@ -132,6 +132,11 @@ sudo bash /var/taktak/scripts/rollback.sh
 sudo bash /var/taktak/scripts/restore.sh /var/taktak/backups/backup-<UTC>-<PID>.tar.enc
 ```
 
+Restore mới yêu cầu SQL reconciliation và systemd guard đã load, thu hồi mọi
+phiên rồi **giữ service cách ly**, không tự restart. Exit0/RESTORE_QUARANTINED
+không phải public-ready. Xem [quy trình bảo trì](MAINTENANCE.md#restore-có-xác-nhận)
+trước khi thực hiện; chưa triển khai bản sửa này lên service production.
+
 ---
 
 ## 6. Sổ Tay Xử Lý Sự Cố (Troubleshooting Runbook)

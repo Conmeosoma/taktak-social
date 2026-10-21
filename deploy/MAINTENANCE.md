@@ -25,6 +25,40 @@ Checksum ngoài và manifest trong giúp phát hiện hỏng dữ liệu; **khô
 
 ## Restore có xác nhận
 
+Ghi nhận rollout được duyệt21/10/2026: production đã cài restore.sh/SQL và guard
+bằng drop-in `taktak.service.d/30-restore-quarantine.conf`, giữ unit gốc và không
+restart. [Hash/backup/bằng chứng](../docs/QA_RESTORE_PRODUCTION_ROLLOUT.md).
+Ghi nhận này không cho phép tự restore dữ liệu hoặc xóa marker cách ly.
+
+**Cập nhật 21/10/2026:** cài cùng bộ `restore.sh`, `reconcile-restore.sql`
+(root:root640) và unit systemd mới. Operator phải duyệt cập nhật unit và
+daemon-reload; restore kiểm tra ExecStartPre đã load trước khi đổi dữ liệu.
+Unit có `ConditionPathExists=!/var/taktak/.restore-quarantine` và
+`ExecStartPre=/usr/bin/test ! -e /var/taktak/.restore-quarantine`.
+Không áp dụng tự động lên production.
+
+Trước restore phải cách ly ingress, dừng **mọi writer/instance** dùng chung
+DB/storage. Script native chỉ quản lý một service local, không điều phối cluster.
+Security state hiện tại được chụp vào scratch root-only; sau restore, transaction:
+
+- Version mỗi user = `max(snapshot,current)+1`.
+- Giữ password hash, email, username, email_verified_at mới nhất; không khôi
+  phục mật khẩu trước reset hoặc hoàn nguyên xác minh/identity.
+- Revoke mọi refresh trong snapshot, xóa mọi challenge verification/temp/reset.
+- Refuse nếu user trong snapshot không có current security state, thiếu schema
+  V3, version hết miền BIGINT hoặc identity conflict; rollback và giữ cách ly.
+
+Thành công in **RESTORE_QUARANTINED**: exit0 chỉ xác nhận data/reconciliation,
+không chứng nhận mở traffic. Marker `.restore-quarantine` chặn systemd start/
+restart/reboot; script không xóa marker hay tự start, kể cả khi rollback do lỗi.
+Mất toàn bộ current security state (máy mới/DB rỗng) cần kế hoạch DR riêng về
+key rotation, refresh và credential/recovery; không có cờ force bỏ kiểm tra.
+
+Trước mở lại, operator kiểm tra snapshot/RPO, quyền ảnh/block, dữ liệu đã xóa
+sau backup bị hoàn nguyên, outbox/pending, schema/JAR vẫn enforce `sv`, và test
+auth trên kênh cách ly. Chỉ sau phê duyệt riêng mới xóa **đúng marker**, start,
+xác minh health/auth rồi mở ingress. Không dùng binary cũ/update để né cách ly.
+
 ```bash
 # Thay placeholder bằng đường dẫn archive thực tế; thao tác này thay dữ liệu hiện tại.
 sudo bash /var/taktak/scripts/restore.sh /var/taktak/backups/backup-<UTC>-<PID>.tar.enc
@@ -67,4 +101,7 @@ docker compose --env-file ../.env -f docker-compose.yml up -d --build
 
 ## Bằng chứng hiện có
 
-`bash deploy/tests/maintenance-test.sh`: 11 ca hợp đồng trên fixture riêng. OpenSSL/tar/checksum thực, nhưng systemctl, PostgreSQL, nginx, certbot, chown và flock được mock. Nó **không** xác minh SQL restore thực, Linux permissions/locking, ACME, Docker hay rollback trên VPS. Xem [báo cáo sửa lỗi](../docs/QA_REVIEW_FIXES.md) và thực hiện staging drill trước production.
+`bash deploy/tests/maintenance-test.sh`: 12 ca hợp đồng fixture (crypto/archive
+thật; systemctl/DB/nginx/certbot/chown/flock mock). SQL/HTTP và native QA có bằng
+chứng riêng tại [QA_RESTORE_SECURITY.md](../docs/QA_RESTORE_SECURITY.md). Không
+suy ra ACME/Docker/binary rollback hay production restore đã được nghiệm thu.

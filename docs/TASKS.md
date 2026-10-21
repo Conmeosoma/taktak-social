@@ -1,5 +1,68 @@
 # Taktak — Công việc và cổng xác nhận
 
+## Production rollout restore-security — 21/10/2026
+
+- [x] Người dùng duyệt, kiểm tra state/hash/permissions, backup script và unit.
+- [x] Cài restore.sh + SQL + systemd drop-in, verify + daemon-reload.
+- [x] Guard loaded, healthUP4 mẫu/PID giữ nguyên; JAR/env/base unit không đổi.
+- [x] Shell contract chạy lại12/12; không thực thi SQL hoặc restore production.
+- [ ] Production restore thật/mở lại sau restore: ngoài phạm vi, cần duyệt riêng.
+
+[Bằng chứng](QA_RESTORE_PRODUCTION_ROLLOUT.md). Không đánh dấu gate khác đã đạt.
+
+## RESTORE-SECURITY-01 — 21/10/2026
+
+- [x] Full backend verify191/191, BUILD SUCCESS2 phút28 giây.
+
+- [x] Restore fail-closed và SQL reconciliation, không tự mở lại traffic.
+- [x] SQL/HTTP local4/4: baseline JWT hồi sinh, fix JWT/refresh401, credential mới giữ.
+- [x] Shell contract12/12, gồm rollback và thiếu guard.
+- [x] Native QA DB/ảnh/systemd: version9→10, refresh revoked, manual start bị chặn.
+- [x] Production rollout script/SQL/unit theo duyệt mới; không restart/restore DB.
+- [ ] Mở lại traffic sau một restore thật: cần phê duyệt riêng, chưa thực hiện.
+
+[Báo cáo](QA_RESTORE_SECURITY.md). Không coi là đã khép các gate còn lại.
+
+## Gate tổng hợp cập nhật — 21/10/2026
+
+- [x] Backend187/JVM127; USB matrix2/2 và Chat fixture6/6 chạy lại đạt.
+- [x] Gmail thật: reset/revocation test đạt, người dùng nhận đủ3 thư QA.
+- [x] SSH điều tra; bật FCM theo duyệt, servicehealthUP.
+- [x] FCM→Worker→AppWidgetHost thật1/1; foreground/background/delete/logout assertion.
+- [x] Native encrypted DB/image backup/restore QA; backup hỏng bị từ chối.
+- [ ] **FAIL** restore giữ revocation: security_version9→7; sửa trước public traffic.
+- [ ] **FAIL** lint179 MissingTranslation mỗi variant; chưa suppress/bỏ gate.
+- [ ] Widget launcher/logout visual, mixedAPK/crash/binary rollback, Chat VPS UI,
+  load dài hạn/alert routing/accessibility.
+
+[Bằng chứng](QA_ACCEPTANCE_ALL.md). Không coi checkbox lịch sử dưới đây là
+nghiệm thu lại. Không đổi JAR, restore DB chính, commit/push trong lượt này.
+
+## USB vận hành HARDENING-01 — 21/10/2026
+
+- [x] USB cache/reply9/9; phiên cá nhân không đổi trước khi được duyệt logout.
+- [x] GET HTTPS từ điện thoại3/3: health, ID server, chặn API private/management.
+- [x] Chuyển QA theo quyền người dùng; sửa foreground MIUI và thu hồi bind user0.
+- [ ] FCM thật: FAIL tại created-event sau upload (90s); chưa PASS widget/background.
+- [ ] Đăng nhập SSH có quyền đọc outbox/FCM log để tìm nguyên nhân và chạy lại.
+
+Không bỏ assertion hoặc giả event; không deploy/reset DB. [Chi tiết](QA_OPERATIONAL_USB.md).
+
+## HARDENING-01 — được duyệt 21/10/2026
+
+- [x] Outbox cùng transaction ảnh/chat, retry backoff, lease/reclaim và quyền hiện tại.
+- [x] Phân biệt FCM ACCEPTED/RETRY/DISABLED/UNREGISTERED/REJECTED; không mất ảnh vì push lỗi.
+- [x] Correlation ID do server sinh, metric bounded, cảnh báo backlog/5xx/pool và runbook không PII.
+- [x] Load harness local riêng, baseline/after; giảm N+1 inbox, thêm query-budget regression.
+- [x] Cache ảnh TTL/LRU theo phiên; không dùng cache thay kiểm tra quyền server.
+- [x] Kế hoạch compatibility/rollback không hồi sinh JWT; migration V5→V6 giữ revocation được test.
+- [x] Backend cuối187/187 + migration/load targeted2/2, JVM127/127, AVD17/17; hồ sơ review/handoff.
+- [x] Triển khai VPS thật (`remote.io.vn` / 14.250.250.68:11918): Backup DB `taktak_pre_v6_*.dump`, cập nhật JAR mới 118MB, migrate thành công Flyway V6 (`durable push outbox`), dịch vụ `taktak.service` active, `X-Request-ID` telemetry xác nhận hoạt động 200 OK.
+- [ ] Gate staging: backup/restore thực, mixed APK, restart/process crash, FCM thật và alert routing.
+- [ ] Phê duyệt riêng retention tự động/replay DEAD và cấu hình ngưỡng theo SLO thực tế.
+
+Không tự triển khai các checkbox còn mở. [Bằng chứng](QA_SYSTEM_HARDENING.md).
+
 ## Nghiệm thu USB — MOMENT-REPLY-01, 21/10/2026
 
 - [x] Opt-in USB rõ ràng, fixture RAM, không sửa phiên hoặc gửi tin cá nhân.

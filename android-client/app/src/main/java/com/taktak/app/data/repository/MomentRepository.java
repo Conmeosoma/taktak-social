@@ -8,6 +8,7 @@ import okhttp3.*;
 
 public final class MomentRepository {
     public static final int MAX_BYTES = 5 * 1024 * 1024;
+    public long sessionGeneration() throws IOException { return requireSession().generation; }
     public boolean publishIfCurrent(Runnable action) {
         return owner != null && client.sessions.runIfCurrent(owner.generation, action);
     }

@@ -29,7 +29,12 @@ import static org.junit.Assert.*;
 /** Integration opt-in: Firebase thật + backend smoke bật FCM, không giả event/Worker. */
 @RunWith(AndroidJUnit4.class)
 public class RealFcmWidgetAcceptanceTest {
+    @org.junit.Rule public final org.junit.rules.Timeout timeout = org.junit.rules.Timeout.seconds(300);
     private final Context context=InstrumentationRegistry.getInstrumentation().getTargetContext();
+    private void phase(String value) {
+        // Chỉ tên bước hữu hạn, không log token, ID, tài khoản hoặc payload.
+        android.util.Log.i("TaktakOpsQA", "phase=" + value);
+    }
     private static class Memory implements SessionStore {
         private Session value;
         public Session load(){return value;}public void save(Session next){value=next;}public void clear(){value=null;}
@@ -71,14 +76,17 @@ public class RealFcmWidgetAcceptanceTest {
         InstrumentationRegistry.getInstrumentation().getUiAutomation().grantRuntimePermission(context.getPackageName(),"android.permission.CAMERA");
         var sender=new AuthRepository(new ApiClient(BuildConfig.BASE_URL,new Memory()));
         AppWidgetHost host=new AppWidgetHost(context,65018);int widgetId=0;boolean receiverOwned=false,senderOwned=false;
+        var ownedMoments=new ArrayList<String>();
         var created=new CopyOnWriteArrayList<String>();var deleted=new CopyOnWriteArrayList<String>();
         PushEventBus.Listener listener=new PushEventBus.Listener() {
             public void onMomentCreated(String id){created.add(id);}public void onMomentDeleted(String id){deleted.add(id);}
         };
         try {
+            phase("create_accounts");
             UserProfile recipient=account(receiver,"Widget Receiver QA");receiverOwned=true;
             UserProfile author=account(sender,"Widget Sender QA");senderOwned=true;
             sender.friends().send(recipient.id);receiver.friends().respond(receiver.friends().incoming(0).items.get(0).id,true);
+            phase("register_device");
             String token=Tasks.await(FirebaseMessaging.getInstance().getToken(),60,TimeUnit.SECONDS);
             assertNotNull(token);assertFalse(token.isBlank());receiver.devices(context).register(token);
             widgetId=host.allocateAppWidgetId();
@@ -86,21 +94,37 @@ public class RealFcmWidgetAcceptanceTest {
             assertTrue("ADB appwidget grantbind required for QA host",manager.bindAppWidgetIdIfAllowed(widgetId,component));
             final int boundId=widgetId;
             PushEventBus.register(listener);
+            phase("launch_host");
+            if ("true".equals(InstrumentationRegistry.getArguments().getString("taktakRealFcmUsb"))) {
+                // Đưa host QA lên foreground như harness USB hiện có, không đổi chính sách MIUI.
+                try (var descriptor=InstrumentationRegistry.getInstrumentation().getUiAutomation()
+                        .executeShellCommand("am start -W -f 0x14000000 -n com.taktak.app/.MainActivity");
+                     var input=new android.os.ParcelFileDescriptor.AutoCloseInputStream(descriptor)) {
+                    String result=new String(input.readAllBytes(),java.nio.charset.StandardCharsets.UTF_8);
+                    assertTrue("USB foreground host started",result.contains("Status: ok") || result.contains("brought to the front"));
+                }
+                SessionRoutingTest.awaitView(R.id.bottomNavigation);
+            }
             try(var scenario=ActivityScenario.launch(MainActivity.class)) {
                 SessionRoutingTest.awaitView(R.id.bottomNavigation);
                 var reference=new AtomicReference<AppWidgetHostView>();
                 scenario.onActivity(activity -> {
-                    host.startListening();var widget=host.createView(activity,boundId,manager.getAppWidgetInfo(boundId));
+                    // Context app dùng inflater framework như launcher, không Factory2 AppCompat của Activity.
+                    host.startListening();var widget=host.createView(context,boundId,manager.getAppWidgetInfo(boundId));
                     activity.addContentView(widget,new ViewGroup.LayoutParams(600,600));reference.set(widget);
                 });
                 var widget=reference.get();
+                phase("foreground_upload");
                 String first=sender.moments().upload(image(),"Foreground QA",List.of(recipient.id));
+                ownedMoments.add(first);
                 await(() -> created.contains(first),"Real FCM created event delivered");
                 await(() -> visible(widget,R.id.widget_moment_container),"Worker renders real RemoteViews");
                 scenario.onActivity(activity -> assertNotNull(((android.widget.ImageView)widget.findViewById(R.id.widget_image)).getDrawable()));
                 captureWidget(widget,"foreground");
+                phase("background_upload");
                 try(var shell=InstrumentationRegistry.getInstrumentation().getUiAutomation().executeShellCommand("input keyevent 3")) { }
                 String second=sender.moments().upload(image(),"Background QA",List.of(recipient.id));
+                ownedMoments.add(second);
                 await(() -> created.contains(second),"Real FCM delivered while launcher is foreground");
                 await(() -> {
                     var matches=new AtomicBoolean();InstrumentationRegistry.getInstrumentation().runOnMainSync(() -> {
@@ -109,7 +133,9 @@ public class RealFcmWidgetAcceptanceTest {
                     });return matches.get();
                 },"Background Worker updates caption");
                 captureWidget(widget,"background");
-                sender.moments().delete(second);sender.moments().delete(first);
+                phase("delete_qa_images");
+                sender.moments().delete(second);ownedMoments.remove(second);
+                sender.moments().delete(first);ownedMoments.remove(first);
                 await(() -> deleted.contains(second) && deleted.contains(first),"Real FCM deletion delivered");
                 await(() -> {
                     var empty=new AtomicBoolean();InstrumentationRegistry.getInstrumentation().runOnMainSync(() -> {
@@ -117,6 +143,7 @@ public class RealFcmWidgetAcceptanceTest {
                     });return empty.get();
                 },"Widget removes deleted images");
                 captureWidget(widget,"deleted-empty");
+                phase("logout_receiver");
                 receiver.logout(context);receiverOwned=false;
                 await(() -> {
                     var loggedOut=new AtomicBoolean();InstrumentationRegistry.getInstrumentation().runOnMainSync(() -> {
@@ -126,6 +153,12 @@ public class RealFcmWidgetAcceptanceTest {
                 captureWidget(widget,"logged-out");
             }
         } finally {
+            phase("cleanup");
+            // Chỉ xóa đúng ảnh được chính lượt test này tạo, kể cả delivery thất bại.
+            for(String id:ownedMoments) {
+                try { sender.moments().delete(id); }
+                catch(Exception failure) { android.util.Log.w("TaktakOpsQA","QA image cleanup incomplete"); }
+            }
             PushEventBus.unregister(listener);host.stopListening();if(widgetId!=0)host.deleteAppWidgetId(widgetId);
             if(receiverOwned)receiver.logout(context);if(senderOwned)sender.logout();
         }

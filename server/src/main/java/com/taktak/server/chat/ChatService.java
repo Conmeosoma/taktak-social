@@ -2,9 +2,7 @@ package com.taktak.server.chat;
 
 import com.taktak.server.auth.AuthFailure;
 import com.taktak.server.chat.ChatDtos.*;
-import com.taktak.server.device.DeviceToken;
-import com.taktak.server.device.DeviceTokenRepository;
-import com.taktak.server.device.PushNotificationSender;
+import com.taktak.server.outbox.PushOutbox;
 import com.taktak.server.friend.FriendRequestRepository;
 import com.taktak.server.moment.Moment;
 import com.taktak.server.moment.MomentRepository;
@@ -18,8 +16,6 @@ import java.util.UUID;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.transaction.support.TransactionSynchronization;
-import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 @Service
 public class ChatService {
@@ -27,12 +23,11 @@ public class ChatService {
     private final UserRepository users;
     private final FriendRequestRepository friends;
     private final MomentRepository moments;
-    private final DeviceTokenRepository devices;
-    private final PushNotificationSender push;
+    private final PushOutbox outbox;
     private final Clock clock;
     public ChatService(ChatRepository chats,UserRepository users,FriendRequestRepository friends,MomentRepository moments,
-            DeviceTokenRepository devices,PushNotificationSender push,Clock clock) {
-        this.chats=chats;this.users=users;this.friends=friends;this.moments=moments;this.devices=devices;this.push=push;this.clock=clock;
+            PushOutbox outbox,Clock clock) {
+        this.chats=chats;this.users=users;this.friends=friends;this.moments=moments;this.outbox=outbox;this.clock=clock;
     }
     private ChatFailure missing() { return new ChatFailure(HttpStatus.NOT_FOUND,"CHAT_UNAVAILABLE"); }
     private ChatFailure invalid() { return new ChatFailure(HttpStatus.BAD_REQUEST,"VALIDATION_ERROR"); }
@@ -67,7 +62,9 @@ public class ChatService {
     @Transactional(readOnly=true)
     public ConversationsPage list(UUID actor,int page) {
         actor(actor);page(page);var rows=chats.list(actor,page*20);
-        return new ConversationsPage(rows.stream().limit(20).map(c->dto(actor,c)).toList(),page,rows.size()>20,chats.totalUnread(actor));
+        // Peer/last-message/unread được lấy cùng trang; safe vẫn xác minh quyền ảnh hiện tại.
+        return new ConversationsPage(rows.stream().limit(20).map(row -> new Conversation(row.conversation().id(),row.peer(),
+                row.lastMessage()==null?null:safe(row.lastMessage()),row.unreadCount(),row.conversation().updatedAt())).toList(),page,rows.size()>20,chats.totalUnread(actor));
     }
     @Transactional
     public Conversation open(UUID actor,UUID peer) { actor(actor);pair(actor,peer,true);return dto(actor,chats.open(actor,peer,clock.instant())); }
@@ -108,17 +105,7 @@ public class ChatService {
         if(!now.isAfter(c.updatedAt())) now=c.updatedAt().plus(1,ChronoUnit.MICROS);
         var message=new Message(UUID.randomUUID(),id,actor,c.peer(actor),request.clientMessageId(),request.messageType(),content,request.momentId(),now,null);
         chats.insert(message);
-        var tokens=devices.findAllByUserId(c.peer(actor)).stream().map(DeviceToken::getFcmToken).distinct().toList();
-        TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
-            @Override public void afterCommit() {
-                if(tokens.isEmpty()) return;
-                try {
-                    if(friends.blocked(actor,c.peer(actor)) || !friends.alreadyFriends(actor,c.peer(actor))) return;
-                    push.sendDataMessageToDevices(tokens,Map.of("type","chat_message","conversationId",id.toString(),"messageId",message.id().toString()));
-                }
-                catch(RuntimeException ignored) { org.slf4j.LoggerFactory.getLogger(ChatService.class).warn("Chat push delivery failed; authenticated sync remains available."); }
-            }
-        });
+        outbox.enqueue("chat_message",message.id(),id,actor,c.peer(actor));
         return message;
     }
     @Transactional

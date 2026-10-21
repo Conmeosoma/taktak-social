@@ -1,6 +1,7 @@
 package com.taktak.server.chat;
 
 import com.taktak.server.chat.ChatDtos.Message;
+import com.taktak.server.chat.ChatDtos.Peer;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
@@ -35,14 +36,31 @@ public class ChatRepository {
                 UUID.randomUUID(),first,second,first,second,Timestamp.from(now),Timestamp.from(now));
         return jdbc.query("select * from conversations where user1_id=least(?::uuid,?::uuid) and user2_id=greatest(?::uuid,?::uuid)",this::conversation,first,second,first,second).get(0);
     }
-    List<ConversationRow> list(UUID actor,int offset) {
+    record InboxRow(ConversationRow conversation, Peer peer, Message lastMessage, long unreadCount) { }
+    List<InboxRow> list(UUID actor,int offset) {
         return jdbc.query("""
-                select c.* from conversations c where (user1_id=? or user2_id=?)
+                select c.*, p.id as peer_id,p.username as peer_username,p.display_name as peer_name,
+                    m.id as last_id,m.sender_id as last_sender,m.recipient_id as last_recipient,
+                    m.client_message_id as last_client,m.message_type as last_type,m.content as last_content,
+                    m.moment_id as last_moment,m.created_at as last_created,m.read_at as last_read,
+                    (select count(*) from messages um where um.conversation_id=c.id and um.recipient_id=? and um.read_at is null) as unread_count
+                from conversations c
+                join users p on p.id=case when c.user1_id=? then c.user2_id else c.user1_id end
+                left join messages m on m.id=c.last_message_id
+                where (c.user1_id=? or c.user2_id=?)
                 and exists(select 1 from friendships f where f.user_low_id=c.user1_id and f.user_high_id=c.user2_id)
                 and not exists(select 1 from blocks b where (b.blocker_id=c.user1_id and b.blocked_id=c.user2_id)
                     or (b.blocker_id=c.user2_id and b.blocked_id=c.user1_id))
-                order by updated_at desc,id desc limit 21 offset ?
-                """,this::conversation,actor,actor,offset);
+                order by c.updated_at desc,c.id desc limit 21 offset ?
+                """,(r,i)-> {
+                    var row=conversation(r,i);
+                    Timestamp read=r.getTimestamp("last_read");
+                    Message last=r.getObject("last_id")==null?null:new Message(r.getObject("last_id",UUID.class),row.id(),
+                            r.getObject("last_sender",UUID.class),r.getObject("last_recipient",UUID.class),r.getObject("last_client",UUID.class),
+                            r.getString("last_type"),r.getString("last_content"),r.getObject("last_moment",UUID.class),
+                            r.getTimestamp("last_created").toInstant(),read==null?null:read.toInstant());
+                    return new InboxRow(row,new Peer(r.getObject("peer_id",UUID.class),r.getString("peer_username"),r.getString("peer_name"),null),last,r.getLong("unread_count"));
+                },actor,actor,actor,actor,offset);
     }
     Optional<Message> findMessage(UUID id) { return jdbc.query("select * from messages where id=?",this::message,id).stream().findFirst(); }
     Optional<Message> retry(UUID sender,UUID key) {

@@ -18,12 +18,22 @@ case "$tool" in
     if [[ -f "$CASE_ROOT/fail_restore" && "$source_file" = */db.dump ]]; then exit 95; fi
     cp "$source_file" "$CASE_ROOT/db";;
   psql) [[ "${PGPASSWORD:-}" = "$TEST_PASSWORD" && "$*" = *ON_ERROR_STOP=1* ]] || exit 96
+    if [[ "$*" = *'COPY (SELECT'* ]]; then exit 0; fi
+    if [[ "$*" = *--single-transaction* ]]; then
+        cat >/dev/null
+        [[ ! -f "$CASE_ROOT/fail_reconcile" ]] || exit 102
+        exit 0
+    fi
     printf '%s\n' 11111111-1111-1111-1111-111111111111.jpg avatars/22222222-2222-2222-2222-222222222222.jpg;;
   systemctl)
     case "$1" in
+      show)
+        [[ ! -f "$CASE_ROOT/missing_guard" ]] || exit 0
+        printf '{ path=/usr/bin/test ; argv[]=/usr/bin/test ! -e %s/.restore-quarantine ; ignore_errors=no ; }\n' "$TAKTAK_ROOT";;
       is-active) test -f "$CASE_ROOT/active";;
       stop) rm -f -- "$CASE_ROOT/active";;
       start|restart)
+        [[ ! -e "$TAKTAK_ROOT/.restore-quarantine" ]] || exit 103
         if [[ -f "$CASE_ROOT/fail_start_once" ]]; then rm -f -- "$CASE_ROOT/fail_start_once"; exit 97; fi
         touch "$CASE_ROOT/active";;
       reload) :;;

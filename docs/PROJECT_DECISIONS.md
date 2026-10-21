@@ -1,5 +1,24 @@
 # Taktak — Quyết định kỹ thuật đã khóa
 
+## HARDENING-01 — Reliability và vận hành, duyệt 21/10/2026
+
+- Bổ sung V6, không sửa migration cũ: enqueue push trong transaction nghiệp vụ;
+  dispatcher lease/retry riêng, at-least-once, không hứa exactly-once hoặc delivery.
+- Không lưu token/nội dung ảnh/chat trong outbox; recheck registration và quyền
+  hiện tại trước gửi. DEAD cần can thiệp, chưa tự replay/xóa terminal events.
+- Metric chỉ tag hữu hạn; request ID do server sinh. Không mở public Actuator
+  metrics/env, không log URI/query/body/PII để điều tra sự cố.
+- Cache ảnh RAM có TTL/LRU và generation phiên; luôn xác thực quyền trước đọc
+  cache, không coi cache/offline là grant. Không cam kết xóa từ xa gallery/backup.
+- Rollback không được về binary bỏ security_version hoặc restore DB cũ rồi mở
+  traffic chưa hòa giải revocation; ưu tiên forward fix/migration additive.
+- Tối ưu dựa đo local: batch inbox peer/lastMessage/unread, giữ kiểm tra grant;
+  chưa tăng pool/thêm hạ tầng khi chưa có số liệu bottleneck.
+- Cấu hình Nginx mẫu dùng access log whitelist và tắt error log có raw URI:
+  đánh đổi mất chẩn đoán TLS/proxy, cần review staging, không tự áp dụng VPS.
+
+Chi tiết: [QA_SYSTEM_HARDENING.md](QA_SYSTEM_HARDENING.md). Stack/định danh không đổi.
+
 ## MOMENT-REPLY-01 — Trả lời ảnh vào chat riêng, duyệt 20/10/2026
 
 Người dùng xác nhận triển khai tính năng bình luận ảnh dưới dạng trả lời riêng

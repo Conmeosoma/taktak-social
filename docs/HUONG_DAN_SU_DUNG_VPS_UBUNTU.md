@@ -243,6 +243,11 @@ sudo bash /var/taktak/scripts/backup.sh
 ```
 
 ### 3. Khôi phục lại dữ liệu khi máy chủ gặp sự cố
+
+> Bản sửa restore 21/10 yêu cầu systemd guard + SQL reconciliation, thu hồi
+> phiên và giữ service cách ly. Không xóa marker/restart theo thói quen khi
+> thấy RESTORE_QUARANTINED. Đọc [quy trình mới](../deploy/MAINTENANCE.md#restore-có-xác-nhận)
+> và cần phê duyệt riêng trước cập nhật production hoặc mở lại traffic.
 1. Xem danh sách các bản backup đang có:
    ```bash
    ls -la /var/taktak/backups/

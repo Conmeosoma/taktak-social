@@ -358,6 +358,20 @@ Runbook native/Docker có giới hạn nghiệm thu riêng. Reply cần backend 
 
 Roadmap chi tiết: [đặc tả](docs/TAKTAK_PROJECT.md), [PROJECT_STATUS](docs/PROJECT_STATUS.md), [TASKS](docs/TASKS.md), [SESSION_HANDOFF](docs/SESSION_HANDOFF.md). Không suy ra phần trăm hoàn thành từ số module.
 
+## Độ tin cậy và vận hành
+
+Push ảnh/tin nhắn được đưa vào transactional outbox để retry khi Firebase lỗi;
+ảnh đã lưu vẫn truy cập qua API có xác thực. Cache ảnh RAM gắn với phiên và
+không thay thế kiểm tra quyền server. Có request ID, metric và runbook điều tra
+không ghi nội dung riêng tư.
+
+Xem [kết quả hardening local](docs/QA_SYSTEM_HARDENING.md),
+[outbox](docs/RELIABILITY_OUTBOX.md), [cập nhật/rollback](docs/CLIENT_SERVER_COMPATIBILITY.md),
+[quan sát hệ thống](docs/OBSERVABILITY.md), [đo tải](docs/PERFORMANCE.md),
+[lưu/xóa dữ liệu](docs/PRIVACY_AND_RETENTION.md) và
+[review/onboarding](docs/ENGINEERING_PLAYBOOK.md).
+Chưa coi những cơ chế này là nghiệm thu FCM/VPS production.
+
 ## Nhóm phát triển
 
 **Nhóm 3**

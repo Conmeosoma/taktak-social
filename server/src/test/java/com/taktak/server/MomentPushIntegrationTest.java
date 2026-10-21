@@ -63,7 +63,7 @@ class MomentPushIntegrationTest {
                 "--spring.datasource.username=postgres", "--spring.datasource.password=",
                 "--taktak.jwt.access-secret=" + Base64.getEncoder().encodeToString(key),
                 "--taktak.storage.root=" + storage, "--server.port=0", "--server.address=127.0.0.1",
-                "--debug=false", "--logging.level.root=WARN");
+                "--debug=false", "--logging.level.root=WARN", "--taktak.outbox.enabled=false");
         jdbc = context.getBean(JdbcTemplate.class);
         pushSender = context.getBean(RecordingPushSender.class);
         deviceService = context.getBean(DeviceService.class);
@@ -82,12 +82,19 @@ class MomentPushIntegrationTest {
 
     @BeforeEach
     void resetPushSender() {
+        pushSender.result=com.taktak.server.device.PushNotificationSender.Delivery.ACCEPTED;
+        context.getBean(com.taktak.server.outbox.PushOutboxDispatcher.class).dispatchBatch();
         if (pushSender != null) {
-            pushSender.clearRecordedMessages();
+            recorded(); pushSender.clearRecordedMessages();
         }
     }
 
     private record Account(UUID id, String username, String token) {}
+
+    private java.util.List<RecordingPushSender.SentMessage> recorded() {
+        context.getBean(com.taktak.server.outbox.PushOutboxDispatcher.class).dispatchBatch();
+        return pushSender.getRecordedMessages();
+    }
 
     private Account account() {
         UUID id = UUID.randomUUID();
@@ -163,13 +170,13 @@ class MomentPushIntegrationTest {
         String tokenTablet = "token_tablet_" + UUID.randomUUID();
         deviceService.registerDevice(recipient.id, "phone_device", tokenPhone);
         deviceService.registerDevice(recipient.id, "tablet_device", tokenTablet);
-        pushSender.clearRecordedMessages();
+        recorded(); pushSender.clearRecordedMessages();
 
         var res = uploadWithKey(sender.token, null, jpeg(), "Hey friend", recipient.id.toString());
         assertThat(res.statusCode()).isEqualTo(201);
         UUID momentId = UUID.fromString(json.readTree(res.body()).get("id").asText());
 
-        var recorded = pushSender.getRecordedMessages();
+        var recorded = recorded();
         assertThat(recorded).hasSize(2);
 
         var tokens = recorded.stream().map(RecordingPushSender.SentMessage::fcmToken).toList();
@@ -190,12 +197,12 @@ class MomentPushIntegrationTest {
         var sender = account();
         String token = "sender_token_" + UUID.randomUUID();
         deviceService.registerDevice(sender.id, "my_device", token);
-        pushSender.clearRecordedMessages();
+        recorded(); pushSender.clearRecordedMessages();
 
         var res = uploadWithKey(sender.token, null, jpeg(), "Private only me", "[]");
         assertThat(res.statusCode()).isEqualTo(201);
 
-        assertThat(pushSender.getRecordedMessages()).isEmpty();
+        assertThat(recorded()).isEmpty();
     }
 
     @Test
@@ -211,21 +218,21 @@ class MomentPushIntegrationTest {
         byte[] image = jpeg();
 
         // 1st upload
-        pushSender.clearRecordedMessages();
+        recorded(); pushSender.clearRecordedMessages();
         var first = uploadWithKey(sender.token, idempotencyKey, image, "Identical", recipient.id.toString());
         assertThat(first.statusCode()).isEqualTo(201);
         UUID momentId = UUID.fromString(json.readTree(first.body()).get("id").asText());
-        assertThat(pushSender.getRecordedMessages()).hasSize(1);
+        assertThat(recorded()).hasSize(1);
 
         // 2nd upload (replay)
-        pushSender.clearRecordedMessages();
+        recorded(); pushSender.clearRecordedMessages();
         var replay = uploadWithKey(sender.token, idempotencyKey, image, "Identical", recipient.id.toString());
         assertThat(replay.statusCode()).isEqualTo(201);
         UUID replayId = UUID.fromString(json.readTree(replay.body()).get("id").asText());
         assertThat(replayId).isEqualTo(momentId);
 
         // Replay must NOT dispatch push again
-        assertThat(pushSender.getRecordedMessages()).isEmpty();
+        assertThat(recorded()).isEmpty();
     }
 
     @Test
@@ -249,12 +256,12 @@ class MomentPushIntegrationTest {
         assertThat(listReceived(recipient.token).body()).contains(momentId.toString());
 
         // Sender deletes moment
-        pushSender.clearRecordedMessages();
+        recorded(); pushSender.clearRecordedMessages();
         var deleteRes = deleteMoment(sender.token, momentId);
         assertThat(deleteRes.statusCode()).isEqualTo(204);
 
         // Push notification moment_deleted sent to recipient
-        var recorded = pushSender.getRecordedMessages();
+        var recorded = recorded();
         assertThat(recorded).hasSize(1);
         assertThat(recorded.get(0).fcmToken()).isEqualTo(token);
         assertThat(recorded.get(0).data()).containsEntry("type", "moment_deleted");
@@ -287,14 +294,14 @@ class MomentPushIntegrationTest {
         Path filePath = storage.resolve(momentId + ".jpg");
         assertThat(Files.exists(filePath)).isTrue();
 
-        pushSender.clearRecordedMessages();
+        recorded(); pushSender.clearRecordedMessages();
         // Recipient attempts to delete sender's moment
         var deleteRes = deleteMoment(recipient.token, momentId);
         assertThat(deleteRes.statusCode()).isEqualTo(403);
 
         // File still exists, no push dispatched
         assertThat(Files.exists(filePath)).isTrue();
-        assertThat(pushSender.getRecordedMessages()).isEmpty();
+        assertThat(recorded()).isEmpty();
     }
 
     @Test
@@ -327,6 +334,98 @@ class MomentPushIntegrationTest {
                 .timeout(java.time.Duration.ofSeconds(20));
         if (token != null) { request.header("Authorization", "Bearer " + token); }
         return client.send(request.GET().build(), HttpResponse.BodyHandlers.ofString());
+    }
+
+    @Test
+    void failedPushKeepsCommittedMomentAndRetriesAfterRestartWithCurrentToken() throws Exception {
+        var sender=account();var recipient=account();befriend(sender,recipient);
+        deviceService.registerDevice(recipient.id,"retry-phone","old-"+UUID.randomUUID());
+        var response=uploadWithKey(sender.token,null,jpeg(),"Private QA",recipient.id.toString());
+        UUID id=UUID.fromString(json.readTree(response.body()).get("id").asText());
+        assertThat(jdbc.queryForObject("select status from push_outbox where resource_id=?",String.class,id)).isEqualTo("PENDING");
+        assertThat(pushSender.getRecordedMessages()).isEmpty();
+        pushSender.result=com.taktak.server.device.PushNotificationSender.Delivery.RETRY;
+        recorded();
+        assertThat(getImage(recipient.token,id).statusCode()).isEqualTo(200);
+        assertThat(jdbc.queryForObject("select attempts from push_outbox where resource_id=?",Integer.class,id)).isEqualTo(1);
+        assertThat(jdbc.queryForObject("select available_at>created_at from push_outbox where resource_id=?",Boolean.class,id)).isTrue();
+        String current="new-"+UUID.randomUUID();deviceService.registerDevice(recipient.id,"retry-phone",current);
+        jdbc.update("update push_outbox set available_at=now()-interval '1 second' where resource_id=?",id);
+        pushSender.result=com.taktak.server.device.PushNotificationSender.Delivery.ACCEPTED;
+        var restarted=new com.taktak.server.outbox.PushOutboxDispatcher(jdbc,pushSender,
+                context.getBean(com.taktak.server.friend.FriendRequestRepository.class),
+                context.getBean(PlatformTransactionManager.class),java.time.Clock.systemUTC(),8);
+        restarted.dispatchBatch();
+        assertThat(pushSender.getRecordedMessages()).hasSize(1);
+        assertThat(pushSender.getRecordedMessages().get(0).fcmToken()).isEqualTo(current);
+        assertThat(jdbc.queryForObject("select status from push_outbox where resource_id=?",String.class,id)).isEqualTo("ACCEPTED");
+    }
+
+    @Test
+    void outboxRollbackDoesNotLeaveAnEvent() {
+        var actor=account();var recipient=account();UUID id=UUID.randomUUID();
+        new TransactionTemplate(context.getBean(PlatformTransactionManager.class)).executeWithoutResult(tx->{
+            context.getBean(com.taktak.server.outbox.PushOutbox.class).enqueue("moment_created",id,null,actor.id,recipient.id);
+            tx.setRollbackOnly();
+        });
+        assertThat(jdbc.queryForObject("select count(*) from push_outbox where resource_id=?",Integer.class,id)).isZero();
+    }
+
+    @Test
+    void disabledFcmIsNeverMarkedAcceptedAndRetryBudgetIsBounded() throws Exception {
+        var actor=account();var recipient=account();befriend(actor,recipient);
+        deviceService.registerDevice(recipient.id,"disabled","disabled-"+UUID.randomUUID());
+        UUID id=UUID.fromString(json.readTree(uploadWithKey(actor.token,null,jpeg(),"",recipient.id.toString()).body()).get("id").asText());
+        pushSender.result=com.taktak.server.device.PushNotificationSender.Delivery.DISABLED;
+        for(int i=0;i<8;i++) { jdbc.update("update push_outbox set available_at=now()-interval '1 second' where resource_id=?",id);recorded(); }
+        assertThat(jdbc.queryForObject("select status from push_outbox where resource_id=?",String.class,id)).isEqualTo("DEAD");
+        assertThat(jdbc.queryForObject("select last_error from push_outbox where resource_id=?",String.class,id)).isEqualTo("FCM_DISABLED");
+        assertThat(pushSender.getRecordedMessages()).isEmpty();
+    }
+
+    @Test
+    void unregisteredTokenIsRemovedWithoutRetryingForever() throws Exception {
+        var actor=account();var recipient=account();befriend(actor,recipient);
+        String token="unregistered-"+UUID.randomUUID();deviceService.registerDevice(recipient.id,"unregistered",token);
+        UUID id=UUID.fromString(json.readTree(uploadWithKey(actor.token,null,jpeg(),"",recipient.id.toString()).body()).get("id").asText());
+        pushSender.result=com.taktak.server.device.PushNotificationSender.Delivery.UNREGISTERED;recorded();
+        assertThat(deviceTokenRepository.findByFcmToken(token)).isEmpty();
+        assertThat(jdbc.queryForObject("select status from push_outbox where resource_id=?",String.class,id)).isEqualTo("CANCELLED");
+    }
+
+    @Test
+    void activeLeaseIsNotStolenAndExpiredLeaseRecovers() throws Exception {
+        var actor=account();var recipient=account();befriend(actor,recipient);
+        deviceService.registerDevice(recipient.id,"leased","lease-"+UUID.randomUUID());
+        UUID id=UUID.fromString(json.readTree(uploadWithKey(actor.token,null,jpeg(),"",recipient.id.toString()).body()).get("id").asText());
+        jdbc.update("update push_outbox set status='PROCESSING',lease_id=?,lease_until=now()+interval '1 hour' where resource_id=?",UUID.randomUUID(),id);
+        assertThat(recorded()).isEmpty();
+        jdbc.update("update push_outbox set lease_until=now()-interval '1 second' where resource_id=?",id);
+        assertThat(recorded()).hasSize(1);
+    }
+
+    @Test
+    void concurrentDispatchersDoNotSendTheSameClaimedEvent() throws Exception {
+        var actor=account();var recipient=account();befriend(actor,recipient);
+        deviceService.registerDevice(recipient.id,"concurrent","concurrent-"+UUID.randomUUID());
+        uploadWithKey(actor.token,null,jpeg(),"",recipient.id.toString());
+        var dispatcher=context.getBean(com.taktak.server.outbox.PushOutboxDispatcher.class);
+        var pool=java.util.concurrent.Executors.newFixedThreadPool(2);
+        try {
+            var a=pool.submit(dispatcher::dispatchBatch);var b=pool.submit(dispatcher::dispatchBatch);
+            a.get(15,java.util.concurrent.TimeUnit.SECONDS);b.get(15,java.util.concurrent.TimeUnit.SECONDS);
+        } finally {pool.shutdownNow();}
+        assertThat(recorded()).hasSize(1);
+    }
+
+    @Test
+    void pendingCreationIsCancelledAfterBlockBeforeDispatch() throws Exception {
+        var actor=account();var recipient=account();befriend(actor,recipient);
+        deviceService.registerDevice(recipient.id,"blocked","blocked-"+UUID.randomUUID());
+        UUID id=UUID.fromString(json.readTree(uploadWithKey(actor.token,null,jpeg(),"",recipient.id.toString()).body()).get("id").asText());
+        jdbc.update("insert into blocks(blocker_id,blocked_id) values(?,?)",recipient.id,actor.id);
+        assertThat(recorded()).isEmpty();
+        assertThat(jdbc.queryForObject("select status from push_outbox where resource_id=?",String.class,id)).isEqualTo("CANCELLED");
     }
 
     @Test

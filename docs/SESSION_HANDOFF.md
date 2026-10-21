@@ -1,5 +1,68 @@
 # Taktak — Bàn giao phiên khôi phục
 
+## Production rollout mới nhất — 21/10/2026
+
+Người dùng duyệt cài script/SQL/unit. Đã cài restore.sh, reconcile-restore.sql,
+drop-in30-restore-quarantine.conf và daemon-reload, không restart/restore/SQL.
+HealthUP4 mẫu/PID84167 giữ nguyên; base unit/JAR/env không đổi, guard đã load.
+Backup `/var/taktak/maintenance-backups/restore-security-20261021-aJiHvBQh`.
+Chi tiết/hash/giới hạn tại [QA_RESTORE_PRODUCTION_ROLLOUT.md](QA_RESTORE_PRODUCTION_ROLLOUT.md).
+Không cần thao tác thủ công ngay; restore/mở traffic sau restore cần duyệt
+riêng, không tự chuyển gate hoặc commit/push. Mục trước rollout bên dưới là lịch sử.
+
+## RESTORE-SECURITY-01 — bàn giao mới nhất 21/10/2026
+
+Restore mới không autostart; yêu cầu loaded ExecStartPre, marker quarantine,
+SQL max(snapshot,current)+1, giữ current credential/identity, revoke refresh
+và bỏ recovery. Unknown account/overflow fail, rollback vẫn giữ cách ly.
+SQL+HTTP local4/4, shell12/12, native QA9→10/ảnh/checksum/systemd guard đạt.
+Backend full verify mới191/191, không failure/error/skipped, BUILD SUCCESS2:28.
+Không sửa live script/unit/JAR hoặc restore DB chính. QA resources còn giữ,
+chi tiết [QA_RESTORE_SECURITY.md](QA_RESTORE_SECURITY.md). Mọi production
+rollout/mở lại traffic cần duyệt riêng; không commit/push hoặc tự chuyển gate.
+
+## Bàn giao mới nhất — nghiệm thu tổng hợp 21/10/2026
+
+**FAIL tổng thể**, xem [QA_ACCEPTANCE_ALL.md](QA_ACCEPTANCE_ALL.md).
+Gmail đủ3 thư đã được người dùng xác nhận. SSH đã vào được, phát hiện FCMfalse/
+thiếu credential; theo duyệt đã cài credential600/service user, bật FCM,
+service cuối lượtactive/healthUP. Lượt timeout30s tự rollback rồi tăng wait120s
+theo startup56–58s và chạy lại đạt; không đổi JAR/schema. USB thật1/1 đạt70,674s
+sau sửa harness application Context. Bind grant thu hồi/QA logout. Ảnh logout
+trống: visual chưa đầy đủ. Backend187/JVM127/USB matrix2+Chat fixture6 đạt.
+Lint179 lỗi chưa sửa. Native backup/restore DB+ảnh QA đạt nhưng version9→7:
+**không dùng restore hiện tại để mở snapshot ra public**. DB chính không restore.
+Chưa crash outbox/mixedAPK/binary rollback/long-load/alert routing. Cần duyệt
+sửa restore an toàn và regression token runtime; không suy ra mọi gate DONE.
+Không tự commit/push/rotate secret hoặc purge tài nguyên QA còn giữ.
+
+## Bàn giao USB vận hành — 21/10/2026
+
+Người dùng đã duyệt chuyển tài khoản/tạo QA. USB Xiaomi Android15:9/9 cache/reply,
+3/3 HTTPS read-only đạt; FCM thật thất bại sau foreground_upload (90s không
+created event,100,628s tổng). Chưa có bằng chứng widget/background/delete qua
+gate delivery. Đã thu hồi bind grant user0 và logout QA; không restore phiên
+cá nhân tự động, người dùng đăng nhập lại. Không deploy/sửa VPS/commit/push.
+Mới thêm OperationalConnectivityTest; sửa RealFcmWidgetAcceptanceTest để
+foreground MIUI, timeout300s, marker không PII và cleanup ảnh thuộc test.
+Cleanup ảnh bổ sung chỉ build, chưa chạy runtime; ảnh synthetic/tài khoản QA
+cũ có thể còn backend, không purge theo prefix. SSH IP có host key đúng nhưng
+key đăng nhập bị từ chối. Cần SSH key local hợp lệ để đọc outbox/FCM log trước
+khi kết luận nguyên nhân hoặc sửa server. [Báo cáo](QA_OPERATIONAL_USB.md).
+
+## Hiện hành — TRIỂN KHAI VPS THẬT & HARDENING-01, 21/10/2026
+
+- **Triển khai máy chủ VPS thật (`remote.io.vn` / 14.250.250.68:11918)**:
+  - Tự động sao lưu database PostgreSQL an toàn: `/var/taktak/backups/taktak_pre_v6_*.dump`.
+  - Tải lên và thay thế file JAR mới 118MB (`taktak-server-0.0.1-SNAPSHOT.jar`), sao lưu bản cũ `taktak-server.jar.bak`.
+  - Khởi động lại dịch vụ `taktak.service`, Flyway tự động migrate schema thành công lên `version 6 - durable push outbox` (0.138s).
+  - Xác nhận HTTP healthcheck `{"status":"UP"}` 200 OK.
+  - Xác nhận header Telemetry Correlation ID (`X-Request-ID`) phản hồi chuẩn xác.
+- **Mã nguồn & Kiểm thử local/AVD**:
+  - Đã có V6/outbox, retry lease+backoff, telemetry không nội dung riêng tư, cache không vượt quyền/phiên và tối ưu inbox 64→4 statement/request.
+  - Backend verify cuối 187/187; targeted migration+budget 2/2; JVM 127/127; AVD 17/17 (145.302s).
+  - Chi tiết hồ sơ và hướng dẫn bảo trì: [QA_SYSTEM_HARDENING.md](QA_SYSTEM_HARDENING.md), [HUONG_DAN_SU_DUNG_VPS_UBUNTU.md](HUONG_DAN_SU_DUNG_VPS_UBUNTU.md).
+
 ## Bổ sung USB thật — MOMENT-REPLY-01, 21/10/2026
 
 Người dùng chuẩn bị điện thoại và cho phép QA ảnh/bình luận trong RAM, không

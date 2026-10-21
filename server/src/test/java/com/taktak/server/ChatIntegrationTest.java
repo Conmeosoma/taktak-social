@@ -43,12 +43,16 @@ class ChatIntegrationTest {
         context=(ServletWebServerApplicationContext)new SpringApplication(TaktakApplication.class,PushFixture.class).run(
                 "--spring.datasource.url="+postgres.getJdbcUrl("postgres","postgres"),"--spring.datasource.username=postgres","--spring.datasource.password=",
                 "--taktak.jwt.access-secret="+Base64.getEncoder().encodeToString(key),"--taktak.storage.root="+Files.createTempDirectory(root,"images-"),
-                "--server.port=0","--server.address=127.0.0.1","--debug=false","--logging.level.root=WARN");
+                "--server.port=0","--server.address=127.0.0.1","--debug=false","--logging.level.root=WARN","--taktak.outbox.enabled=false");
         jdbc=context.getBean(JdbcTemplate.class);push=context.getBean(RecordingPushSender.class);
         base="http://127.0.0.1:"+context.getWebServer().getPort();
     }
     @AfterAll void stop() throws Exception { try { if(context!=null)context.close(); } finally {if(postgres!=null)postgres.close();} }
-    @BeforeEach void resetPush() { push.clearRecordedMessages(); }
+    @BeforeEach void resetPush() { recorded();push.clearRecordedMessages(); }
+    private java.util.List<RecordingPushSender.SentMessage> recorded() {
+        while(context.getBean(com.taktak.server.outbox.PushOutboxDispatcher.class).dispatchBatch()==25) { }
+        return push.getRecordedMessages();
+    }
     record Account(UUID id,String token) { }
     private Account account() {
         UUID id=UUID.randomUUID();String suffix=id.toString().replace("-","");
@@ -82,6 +86,34 @@ class ChatIntegrationTest {
             assertThat(first.get(20,TimeUnit.SECONDS)).isEqualTo(second.get(20,TimeUnit.SECONDS));
         } finally {pool.shutdownNow();}
         assertThat(jdbc.queryForObject("select count(*) from conversations where user1_id=least(?::uuid,?::uuid) and user2_id=greatest(?::uuid,?::uuid)",Integer.class,a.id,b.id,a.id,b.id)).isEqualTo(1);
+    }
+    @Test void batchedInboxPreservesPeersLastMessagesUnreadPaginationAndBlock() throws Exception {
+        var actor=account();
+        Account newest=null;
+        for(int n=0;n<21;n++) {
+            var peer=account();friends(actor,peer);UUID room=open(actor,peer);
+            assertThat(send(peer,room,UUID.randomUUID(),"QA inbox "+n).statusCode()).isEqualTo(200);
+            newest=peer;
+        }
+        var first=json.readTree(call("GET","/api/conversations",actor,null).body());
+        assertThat(first.path("items").size()).isEqualTo(20);
+        assertThat(first.path("hasNext").asBoolean()).isTrue();
+        assertThat(first.path("totalUnreadCount").asInt()).isEqualTo(21);
+        for(var item:first.path("items")) {
+            assertThat(item.path("peer").path("id").asText()).isEqualTo(item.path("lastMessage").path("senderId").asText());
+            assertThat(item.path("peer").path("username").asText()).startsWith("chat_");
+            assertThat(item.path("lastMessage").path("content").asText()).startsWith("QA inbox ");
+            assertThat(item.path("unreadCount").asInt()).isEqualTo(1);
+        }
+        var second=json.readTree(call("GET","/api/conversations?page=1",actor,null).body());
+        assertThat(second.path("items").size()).isEqualTo(1);
+        assertThat(second.path("hasNext").asBoolean()).isFalse();
+        context.getBean(FriendService.class).block(actor.id,newest.id);
+        var filtered=json.readTree(call("GET","/api/conversations",actor,null).body());
+        assertThat(filtered.path("items").size()).isEqualTo(20);
+        assertThat(filtered.path("hasNext").asBoolean()).isFalse();
+        assertThat(filtered.path("totalUnreadCount").asInt()).isEqualTo(20);
+        for(var item:filtered.path("items")) assertThat(item.path("peer").path("id").asText()).isNotEqualTo(newest.id.toString());
     }
     @Test void strangersSelfAnonymousAndForeignConversationAreDenied() throws Exception {
         var a=account();var b=account();var c=account();friends(a,b);UUID conversation=open(a,b);
@@ -118,8 +150,8 @@ class ChatIntegrationTest {
         } finally {pool.shutdownNow();}
         assertThat(jdbc.queryForObject("select count(*) from messages where sender_id=? and client_message_id=?",Integer.class,a.id,key)).isEqualTo(1);
         assertThat(send(a,conversation,key,"changed").statusCode()).isEqualTo(409);
-        assertThat(push.getRecordedMessages()).hasSize(1);
-        assertThat(push.getRecordedMessages().get(0).data()).containsOnlyKeys("type","conversationId","messageId").containsEntry("type","chat_message");
+        assertThat(recorded()).hasSize(1);
+        assertThat(recorded().get(0).data()).containsOnlyKeys("type","conversationId","messageId").containsEntry("type","chat_message");
     }
     @Test void invalidBodiesUnicodeLimitNulAndPaginationAreRejected() throws Exception {
         var a=account();var b=account();friends(a,b);UUID conversation=open(a,b);
@@ -220,8 +252,8 @@ class ChatIntegrationTest {
         assertThat(send(viewer,conversation,key,"secret reply").statusCode()).isEqualTo(409);
         assertThat(reply(viewer,open(viewer,other),key,photo,"secret reply").statusCode()).isEqualTo(409);
         assertThat(jdbc.queryForObject("select count(*) from messages where sender_id=? and client_message_id=?",Integer.class,viewer.id,key)).isEqualTo(1);
-        assertThat(push.getRecordedMessages()).hasSize(1);
-        assertThat(push.getRecordedMessages().get(0).data()).containsOnlyKeys("type","conversationId","messageId");
+        assertThat(recorded()).hasSize(1);
+        assertThat(recorded().get(0).data()).containsOnlyKeys("type","conversationId","messageId");
     }
     @Test void deletedOrRevokedReplyReferenceIsRedactedButPrivateTextRemains() throws Exception {
         for(boolean deleted:List.of(false,true)) {
@@ -258,7 +290,7 @@ class ChatIntegrationTest {
             context.getBean(ChatService.class).send(viewer.id,conversation,new SendRequest(UUID.randomUUID(),"MOMENT_REPLY","rollback",photo));
             status.setRollbackOnly();
         });
-        assertThat(push.getRecordedMessages()).isEmpty();
+        assertThat(recorded()).isEmpty();
         assertThat(jdbc.queryForObject("select count(*) from messages where conversation_id=?",Integer.class,conversation)).isZero();
         assertThat(reply(viewer,conversation,UUID.randomUUID(),photo,"private reply survives").statusCode()).isEqualTo(200);
         jdbc.update("delete from moment_recipients where moment_id=?",photo);
@@ -283,7 +315,7 @@ class ChatIntegrationTest {
         var a=account();var b=account();friends(a,b);UUID conversation=open(a,b);
         jdbc.update("insert into device_tokens(id,user_id,fcm_token,device_id,updated_at) values(?,?,?,?,now())",UUID.randomUUID(),b.id,"synthetic-rollback-device","qa");
         transaction().executeWithoutResult(status->{context.getBean(ChatService.class).send(a.id,conversation,new SendRequest(UUID.randomUUID(),"TEXT","rollback",null));status.setRollbackOnly();});
-        assertThat(push.getRecordedMessages()).isEmpty();assertThat(jdbc.queryForObject("select count(*) from messages where conversation_id=?",Integer.class,conversation)).isZero();
+        assertThat(recorded()).isEmpty();assertThat(jdbc.queryForObject("select count(*) from messages where conversation_id=?",Integer.class,conversation)).isZero();
         assertThat(call("PUT","/api/conversations/"+conversation+"/read",b,json.writeValueAsString(Map.of("messageId",UUID.randomUUID()))).statusCode()).isEqualTo(404);
     }
     @Test void messagePagesAreBoundedAndNewestFirst() throws Exception {

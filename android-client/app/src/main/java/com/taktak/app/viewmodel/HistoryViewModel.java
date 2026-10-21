@@ -2,7 +2,6 @@ package com.taktak.app.viewmodel;
 
 import android.app.Application;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.os.Handler;
 import android.os.Looper;
 import androidx.lifecycle.AndroidViewModel;
@@ -209,10 +208,6 @@ public final class HistoryViewModel extends AndroidViewModel {
             callback.onError();
             return;
         }
-        Bitmap cached = HistoryImageCache.get(momentId);
-        if (cached != null && repository != null && repository.publishIfCurrent(() -> callback.onLoaded(cached))) {
-            return;
-        }
         worker.execute(() -> {
             try {
                 MomentRepository owner = repository;
@@ -221,7 +216,12 @@ public final class HistoryViewModel extends AndroidViewModel {
                     repository = owner;
                 }
                 byte[] bytes = owner.download(momentId);
-                Bitmap bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
+                long generation = owner.sessionGeneration();
+                Bitmap[] decoded = new Bitmap[1];
+                if (!owner.publishIfCurrent(() -> decoded[0] = HistoryImageCache.decodeAuthorized(momentId, generation, bytes))) {
+                    throw new ApiFailure(ApiFailure.Kind.CANCELLED);
+                }
+                Bitmap bitmap = decoded[0];
                 if (bitmap == null) {
                     throw new IOException("Failed to decode JPEG bytes");
                 }
@@ -229,14 +229,13 @@ public final class HistoryViewModel extends AndroidViewModel {
                 main.post(() -> {
                     if (!cleared) {
                         if (!producer.publishIfCurrent(() -> {
-                            HistoryImageCache.put(momentId, bitmap); callback.onLoaded(bitmap);
+                            callback.onLoaded(bitmap);
                         })) {
                             failed(new ApiFailure(ApiFailure.Kind.CANCELLED)); publish(); callback.onError();
                         }
                     }
                 });
             } catch (Exception failure) {
-                android.util.Log.e("TaktakQa", "Failed to download/decode image: " + momentId, failure);
                 main.post(() -> {
                     if (!cleared) {
                         if (failure instanceof ApiFailure api && (api.status == 404 || api.status == 403

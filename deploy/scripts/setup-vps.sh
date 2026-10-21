@@ -110,6 +110,7 @@ if [ -f "$SCRIPT_DIR/rollback.sh" ]; then
     chown root:root /var/taktak/scripts/rollback.sh
 fi
 install -m 750 -o root -g root "$SCRIPT_DIR/common.sh" /var/taktak/scripts/common.sh
+install -m 640 -o root -g root "$SCRIPT_DIR/reconcile-restore.sql" /var/taktak/scripts/reconcile-restore.sql
 
 if [ -f "$SCRIPT_DIR/../systemd/taktak-backup.service" ]; then
     cp "$SCRIPT_DIR/../systemd/taktak-backup.service" /etc/systemd/system/
