@@ -90,20 +90,23 @@ Không có bảng tin công khai. Ảnh được lưu trên máy chủ riêng v�
 
 ### Trạng thái xác minh
 
-Nội dung được đối chiếu với workspace ngày 21/10/2026. Source, README và ảnh QA
-được người dùng duyệt đưa lên `main`; việc xuất bản mã nguồn không đồng nghĩa
-bản đang chạy trên VPS đã được cập nhật hoặc nghiệm thu production.
+Nội dung được đối chiếu với mã nguồn và hồ sơ QA ngày 21/10/2026. Các kết quả
+dưới đây có phạm vi riêng; không có tuyên bố toàn bộ ứng dụng đã qua nghiệm thu production.
 
 | Phần | Trạng thái của workspace |
 |---|---|
 | Auth, bạn bè, chia sẻ ảnh, lịch sử, hồ sơ | Có triển khai và bằng chứng kiểm thử local/UI trong [hồ sơ QA](docs/PROJECT_STATUS.md) |
 | Chat và trả lời ảnh riêng | Đã kiểm thử backend/local, AVD và USB; chưa nghiệm thu toàn luồng reply qua VPS/FCM thật |
-| Recovery qua email | Code và test fixture có sẵn; Gmail thật còn bị chặn ở xác thực SMTP trong lần nghiệm thu được ghi nhận |
-| FCM/widget | Có SDK, server sender và worker; không suy ra delivery thực tế từ ảnh giao diện |
+| Recovery qua email | Kiểm thử Gmail thật đã gửi và xác nhận nhận đủ 3 thư QA; chưa nghiệm thu SMTP của service VPS |
+| FCM/widget | FCM thật → Worker → AppWidgetHost trên điện thoại đã đạt; còn nghiệm thu widget ghim launcher/OEM và hình ảnh logout |
 | UI toàn ứng dụng | Còn lỗi bản dịch/lint và một số ca layout/hồi quy chưa ổn định; không coi toàn app đã PASS |
-| Production | README không xác nhận bản đang chạy trên VPS trùng với workspace này |
+| Backup/restore | Native QA khôi phục DB/ảnh và bảo toàn thu hồi phiên đạt; script/SQL/systemd guard đã cài production, chưa restore dữ liệu production |
+| Production | Đã có ghi nhận VPS/V6 và bật FCM; rollout restore-security đã kiểm tra health/PID, không phải nghiệm thu mọi chức năng trên VPS |
 
-Giới hạn chi tiết: [trả lời ảnh](docs/QA_MOMENT_REPLY.md), [khôi phục tài khoản](docs/ACCOUNT_RECOVERY.md), [audit UI/UX](docs/UI_UX_AUDIT.md), [QA widget](docs/QA_WIDGET_SYNC.md).
+Kết quả và giới hạn: [nghiệm thu tổng hợp](docs/QA_ACCEPTANCE_ALL.md),
+[bản sửa restore](docs/QA_RESTORE_SECURITY.md),
+[rollout production](docs/QA_RESTORE_PRODUCTION_ROLLOUT.md) và
+[audit UI/UX](docs/UI_UX_AUDIT.md). Các báo cáo cũ giữ lại lịch sử từng lượt thử.
 
 ## Công nghệ
 
@@ -119,7 +122,7 @@ Phiên bản lấy từ cấu hình trong repository, không phải tuyên bố 
 | Nền/widget | WorkManager 2.12.0, AppWidgetProvider/RemoteViews | Đồng bộ và widget |
 | Phiên/QR | EncryptedSharedPreferences 1.1.0, ZXing 3.5.3 | Phiên mã hóa, mã QR |
 | Backend | Java 17, Spring Boot 3.5.16, Spring Security/JPA/Validation | API, nghiệp vụ và phân quyền |
-| Database | PostgreSQL, Flyway | Dữ liệu quan hệ, migration V1–V5 |
+| Database | PostgreSQL, Flyway | Dữ liệu quan hệ, migration V1–V6; transactional outbox |
 | Push | Firebase Messaging BoM 35.0.1; Admin SDK 9.4.3 | Tín hiệu ảnh và chat |
 | Build | Gradle Groovy 9.6.0 / AGP 9.4.1; Maven Wrapper 3.9.16 | Hai project build độc lập |
 | Triển khai | Nginx/TLS, systemd; phương án Docker Compose | Cấu hình và script trong deploy/ |
@@ -136,14 +139,15 @@ flowchart LR
     HTTP --> API[Spring Boot REST API]
     API --> DB[(PostgreSQL / Flyway)]
     API --> FILES[Private image storage]
-    API --> FCM[Firebase Cloud Messaging]
+    DB -->|Outbox| DISPATCH[Retry dispatcher]
+    DISPATCH --> FCM[Firebase Cloud Messaging]
     FCM --> SERVICE[Android MessagingService]
     SERVICE --> WORK[WorkManager]
     WORK --> HTTP
     WORK --> WIDGET[RemoteViews Widget]
 ```
 
-Client đăng nhập, gửi ảnh và danh sách người nhận qua API. Server kiểm tra quyền, quan hệ bạn bè/block, xử lý ảnh và ghi metadata vào PostgreSQL; file ảnh nằm ngoài web root. Sau commit, FCM báo thay đổi. Máy nhận tải lại dữ liệu bằng phiên hợp lệ; push không chứa ảnh, caption, nội dung chat hay credential và không tự cấp quyền truy cập.
+Client đăng nhập, gửi ảnh và danh sách người nhận qua API. Server kiểm tra quyền, quan hệ bạn bè/block, xử lý ảnh và ghi metadata vào PostgreSQL; file ảnh nằm ngoài web root. Event push được ghi vào outbox cùng transaction nghiệp vụ. Dispatcher gửi FCM và retry khi lỗi, không rollback ảnh đã lưu chỉ vì gửi thông báo thất bại. Máy nhận tải lại dữ liệu bằng phiên hợp lệ; push không chứa ảnh, caption, nội dung chat hay credential và không tự cấp quyền truy cập.
 
 Package Android/applicationId: `com.taktak.app`. Package backend: `com.taktak.server`.
 
@@ -215,8 +219,8 @@ Kỳ vọng `status=UP`. Local mặc định bind `127.0.0.1:8080` và tắt FCM
 . .\scripts\Use-TaktakJava.ps1 -Target Android
 Set-Location android-client
 .\gradlew.bat "-Dorg.gradle.java.home=$env:JAVA_HOME" `
-  "-Dorg.gradle.java.installations.paths=$env:JAVA_HOME" `
-  -Dorg.gradle.java.installations.auto-detect=false `
+  "-Porg.gradle.java.installations.paths=$env:JAVA_HOME" `
+  -Porg.gradle.java.installations.auto-detect=false `
   -PTAKTAK_DEBUG_BASE_URL=http://10.0.2.2:8080/ assembleDebug
 ```
 
@@ -298,8 +302,8 @@ Pop-Location
 . .\scripts\Use-TaktakJava.ps1 -Target Android
 Push-Location android-client
 .\gradlew.bat "-Dorg.gradle.java.home=$env:JAVA_HOME" `
-  "-Dorg.gradle.java.installations.paths=$env:JAVA_HOME" `
-  -Dorg.gradle.java.installations.auto-detect=false `
+  "-Porg.gradle.java.installations.paths=$env:JAVA_HOME" `
+  -Porg.gradle.java.installations.auto-detect=false `
   -PTAKTAK_DEBUG_BASE_URL=http://10.0.2.2:8080/ `
   testDebugUnitTest assembleDebug assembleDebugAndroidTest
 Pop-Location
@@ -316,7 +320,13 @@ adb -s '<avd-serial>' shell am instrument -w -r `
 
 Không chạy toàn bộ instrumentation tùy tiện trên điện thoại có tài khoản cá nhân: từng suite có fixture/opt-in riêng. Xem [QA bootstrap](docs/QA_BOOTSTRAP.md). Lần đầu cần mạng tải dependency; chỉ dùng `--offline` khi cache đầy đủ.
 
-Bằng chứng trước lượt viết tài liệu: server **170/170**, JVM **122/122**, build debug/test/release unsigned đạt; UI reply USB **7/7**. Đây là kết quả lưu trong [QA_MOMENT_REPLY.md](docs/QA_MOMENT_REPLY.md), **không phải toàn bộ suite vừa chạy lại để viết README**. Lint được ghi nhận còn **179 lỗi** bản dịch; không có tuyên bố coverage hoặc badge CI xanh.
+Kết quả gần nhất trong hồ sơ QA: backend **191/191** (`mvn verify`), Android JVM
+**127/127**, build debug/test/release unsigned đã đạt. Bộ shell bảo trì **12/12**,
+kiểm thử restore SQL/HTTP **4/4** và diễn tập native QA đạt. Xem
+[QA tổng hợp](docs/QA_ACCEPTANCE_ALL.md) và [QA restore](docs/QA_RESTORE_SECURITY.md).
+Đây là kết quả đã ghi nhận, **không phải các suite vừa chạy lại để sửa README**.
+Lint vẫn còn **179 lỗi MissingTranslation** mỗi variant; build APK thành công
+không đồng nghĩa toàn bộ lệnh build + lint đạt. Không có tuyên bố coverage hoặc badge CI xanh.
 
 Lượt chụp README ngày **21/10/2026**: AVD Medium_Phone API 37, 1080×2400;
 **9/9 ca UI chính đạt (213,849s)** và **3/3 ca bổ sung đạt (72,178s)**.
@@ -328,8 +338,9 @@ Log local ignored: `.local/artifacts/readme-screenshots-avd-final.log` và
 `readme-screenshots-extra.log`. Lượt đầu dùng sai cấu hình userdata làm user
 RUNNING_LOCKED, 8 ca không đạt; đã giữ log `readme-screenshots-avd.log`, sửa
 đường dẫn file userdata QA rồi chạy lại. Không coi lỗi môi trường đó là PASS.
-Các lệnh khởi động backend mới/SMTP/VPS ở hướng dẫn trên chỉ được đối chiếu
-tĩnh trong lượt README, chưa chạy lại; Mermaid chưa được render trực tiếp trên GitHub.
+Lượt cập nhật README chỉ kiểm tra tài liệu/liên kết; không chạy lại ứng dụng,
+gửi email, FCM hoặc deploy. Các lần nghiệm thu vận hành sau lượt chụp ảnh được
+ghi riêng trong hồ sơ QA; ảnh minh họa ở trên không thay thế những bằng chứng đó.
 
 ## Bảo mật và quyền riêng tư
 
@@ -348,15 +359,24 @@ Bắt đầu với [runbook bảo trì hiện hành](deploy/MAINTENANCE.md), sau
 
 Chuẩn bị domain/TLS, database private, user non-root, secret ngoài Git, quyền thư mục ảnh và backup đã thử phục hồi. Không chạy setup/update/restore chỉ để xem demo. Update có thể áp Flyway; rollback JAR không tự đảo schema.
 
-Runbook native/Docker có giới hạn nghiệm thu riêng. Reply cần backend V5 và client tương thích; không tự áp migration production hoặc khẳng định VPS đã cập nhật.
+Runbook native/Docker có giới hạn nghiệm thu riêng. Reply cần backend từ V5 và
+client tương thích; kiểm tra schema/binary thực tế trước khi cài APK mới.
+Push mã nguồn không tự cập nhật JAR hoặc chạy migration production.
 
-## Hướng phát triển
+Outbox cần schema V6. Bản restore mới hòa giải version phiên, giữ credential
+hiện tại, thu hồi refresh và để service cách ly cho đến khi operator review.
+`RESTORE_QUARANTINED` không phải tín hiệu được phép mở traffic. Script/SQL và
+guard production đã được [cài, xác minh](docs/QA_RESTORE_PRODUCTION_ROLLOUT.md),
+không restart ứng dụng hoặc restore database production trong lượt rollout đó.
 
-- **Đã triển khai:** tài khoản, ảnh, bạn bè, hồ sơ, theme, chat, trả lời ảnh và nền tảng FCM/widget.
-- **Đang hoàn thiện:** lint/bản dịch, layout/hồi quy đã ghi nhận và nghiệm thu môi trường triển khai.
-- **Cổng còn thiếu:** Gmail inbox thật, reply hai tài khoản qua backend mới, FCM delivery tương ứng và diễn tập vận hành/khôi phục.
+## Giới hạn hiện tại
 
-Roadmap chi tiết: [đặc tả](docs/TAKTAK_PROJECT.md), [PROJECT_STATUS](docs/PROJECT_STATUS.md), [TASKS](docs/TASKS.md), [SESSION_HANDOFF](docs/SESSION_HANDOFF.md). Không suy ra phần trăm hoàn thành từ số module.
+- Còn lỗi bản dịch/lint, audit accessibility và một số kiểm tra UI trên thiết bị thật.
+- Chưa khép nghiệm thu chat/reply hai tài khoản qua VPS, widget launcher/OEM và SMTP từ service VPS.
+- Chưa đủ bằng chứng cho process-crash outbox, mixed-version/rollback, tải dài hạn hoặc cảnh báo vận hành thực.
+
+Chi tiết: [PROJECT_STATUS](docs/PROJECT_STATUS.md), [TASKS](docs/TASKS.md) và
+[SESSION_HANDOFF](docs/SESSION_HANDOFF.md). Không suy ra phần trăm hoàn thành từ số module.
 
 ## Độ tin cậy và vận hành
 
@@ -370,7 +390,8 @@ Xem [kết quả hardening local](docs/QA_SYSTEM_HARDENING.md),
 [quan sát hệ thống](docs/OBSERVABILITY.md), [đo tải](docs/PERFORMANCE.md),
 [lưu/xóa dữ liệu](docs/PRIVACY_AND_RETENTION.md) và
 [review/onboarding](docs/ENGINEERING_PLAYBOOK.md).
-Chưa coi những cơ chế này là nghiệm thu FCM/VPS production.
+FCM thật và rollout guard đã có bằng chứng riêng; các cơ chế này chưa thay thế
+nghiệm thu crash/restart, cảnh báo, capacity và khả năng khôi phục toàn hệ thống.
 
 ## Nhóm phát triển
 
