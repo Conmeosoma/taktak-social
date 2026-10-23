@@ -1,5 +1,85 @@
 # Taktak — Bàn giao phiên khôi phục
 
+## Chốt APK/source theo yêu cầu — 23/10/2026
+
+User cho phép build APK và commit trực tiếp main, không push. Đóng gói debug
+ký bằng debug certificate, không tự tạo release keystore hoặc đổi BASE_URL.
+Build/unit/lint check20s đạt; unit up-to-date với135 kết quả trước đó, lint0/85.
+Giữ QA22+1 USB đã ghi nhận; không chạy lại trên điện thoại ở lượt đóng gói.
+Không stage Word/BTL/diagrams/scripts báo cáo, cache Python hoặc secrets.
+Giữ các hạn chế PARTIAL, không tuyên bố toàn dự án hoàn tất production.
+[Thông tin APK/phạm vi commit](QA_FINAL_APK_20261023.md); đối chiếu Git log sau chốt.
+
+## Video intro có tiếng — mới nhất23/10/2026
+
+Người dùng cấp MP4/M4A và cho phép branded intro video. Đã bundle MP4 nguyên
+253.483byte (AAC khớp M4A), dùng một MediaPlayer/TextureView; bỏ renderer520ms
+và icon hệ thống để tránh hai logo. Settings Profile lưuFull/Quick+sound, preview/
+skip; lifecycle release và session gate giữ nguyên. Build/JVM135/lint0error85warning.
+USB22/22 PASS125,346s, cold riêng1/1 PASS7,192s; âm thanh được người dùng xác
+nhận nghe/không lệch rõ. Session guard không đổi, prefs fixture khôi phục.
+CODE COMPLETE/Android15 verified, matrix PARTIAL; xem
+[QA_BRANDED_INTRO_20261023.md](QA_BRANDED_INTRO_20261023.md). Không commit/push.
+Các đoạn bên dưới là lịch sử renderer cũ, không phải runtime hiện tại.
+
+## Splash native — mới nhất23/10/2026
+
+User đổi yêu cầu sang prompt splash; contrast Friends/History chưa sửa. Đã tích
+hợp Starting theme/core-splashscreen1.2.0 vào MainActivity và exit520ms với logo
+PNG sẵn có, không SplashActivity/đợi auth. Sáu test cuối6/6 AVD PASS15,483s,
+hồi quy List/Chat10/10 PASS47,131s; JVM127/lint0error83warning, build cuối71s.
+USB tiếp theo6/6 PASS8,281s, đã thấy đủ accents. Lượt đầu3/6 lỗi vì MIUI chặn
+background start. Hồi quy List/Chat10/10 USB PASS76,832s; phiên giữ nguyên.
+Chỉ đổi SplashRoutingUiTest sang shell launcher, build29s.
+**PARTIAL** vì PNG có góc trắng và accents/brand sát logo; chưa sửa production.
+Đừng đánh dấu DONE. Phiên cá nhân giữ nguyên. Xem
+[QA_SPLASH_20261023.md](QA_SPLASH_20261023.md), ưu tiên điều tra/verify exit thực,
+logo bounds/spacing, API26–30 và routing expired/logout trước nghiệm thu toàn phần.
+Không commit/push.
+
+## QA máy thật — mới nhất 23/10/2026
+
+USB Xiaomi Android15: build check11s/72 up-to-date, install-r app/test Success,
+28/28 PASS118,724s, không skipped. APK hash BF7C032D…62AA8E87 khớp local;
+phiên mã hóa byte-for-byte không đổi, appearance được suite khôi phục.
+Đã lưu36 ảnh fixture local và review các mẫu cần thiết, không đưa ảnh cá nhân vào Git.
+Friends/History light còn muted text/icon nhạt, Recap mẫu chưa đổi. Chỉ QA và
+docs, không sửa source/backend/commit/push/deploy. Lượt này không rerun JVM/lint.
+[Chi tiết và giới hạn](QA_USB_UI_20261023.md). Ưu tiên tiếp theo: contrast hai màn này.
+
+## Lint/UI — mới nhất 22/10/2026
+
+Build35s/JVM127/lint0 error hai biến thể đạt; còn83/90 warning. Bổ sung1.038
+bản dịch, guard2.256 chuỗi; sửa icon/contrast Chat, History tab font2, badge giả
+và mô tả privacy. Giữ sửa atomic Attach trước đó; thêm diagnostic List và test
+performClick. Người dùng đổi sang AVD khi USB mất; Medium_Phone bị khóa nên
+tạo Taktak_Ui_QA riêng, không wipe/mở khóa AVD cũ. Runtime cuối **28/28 PASS,
+105,929s**, đã review Chat/Inbox/New Chat và ảnh Friends; còn icon/hint Friends
+light nhạt. Chi tiết ở
+[hồ sơ QA](QA_UI_LINT_20261022.md); không claim USB hoặc toàn UI PASS.
+Giữ file báo cáo Word/diagrams/scripts untracked; không commit/push/deploy.
+
+## Sửa đồng bộ test — mới nhất22/10/2026
+
+ChatThemeUiTest đợi canSend và dispatch Attach cùng main-loop, không retry
+request/nới assertion; production giữ nguyên. Build23s/cài-r test APK đạt,
+USB18/18 PASS90,45s, phiên không đổi. 127 JVM result0 failure/error, không claim
+rerun nếu task up-to-date. Hồ sơ QA giữ FAIL trước sửa để đối chiếu. Không
+commit/push; các hạn chế lint/visual/E2E thật vẫn còn.
+
+## APK/USB — 22/10/2026, mới nhất
+
+Diagnostic bổ sung: busyAtAction=true, cuối busy=false/expired=false/error0/
+choices0. Test dispatch sau kiểm tra idle, bị ChatViewModel.run bỏ action vì
+busy; UI thật có guard disable Attach. Đã xác định race harness của ca lỗi,
+chưa sửa đồng bộ/test hoặc production. Diagnostic1/1FAIL22,805s. Xem hồ sơ QA.
+
+App debug build20:49:19 đã cài-r USB, SHA khớp; JVM127/127, build48s/76 task.
+USB17/18; attachment Chat dedup timeout, riêng1/1 cũngFAIL. Chưa xác định chắc
+root cause; nghi race busy/action, cần diagnostic trước sửa. Phiên giữ nguyên
+trong QA, không gửi dữ liệu cá nhân. Không sửa Java/XML, commit/push/deploy.
+[Hồ sơ](QA_LATEST_APK_USB_20261022.md). Không coi build thành công là toàn QA đạt.
+
 ## Production rollout mới nhất — 21/10/2026
 
 Người dùng duyệt cài script/SQL/unit. Đã cài restore.sh, reconcile-restore.sql,

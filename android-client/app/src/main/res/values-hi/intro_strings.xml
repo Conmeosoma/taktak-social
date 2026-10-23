@@ -1,0 +1,10 @@
+<resources>
+    <string name="intro_settings">शुरुआती प्रभाव</string>
+    <string name="intro_settings_description">लॉन्चर से पहली बार खोलने पर Full Intro ब्रांड वीडियो चलाता है। Quick Start के लिए इसे बंद करें। ध्वनि साइलेंट और परेशान न करें मोड का पालन करती है।</string>
+    <string name="intro_full">इंट्रो चलाएँ (Full Intro)</string>
+    <string name="intro_sound_setting">शुरुआती ध्वनि</string>
+    <string name="intro_preview">ऐनिमेशन देखें</string>
+    <string name="intro_skip">छोड़ें</string>
+    <string name="intro_sound_on">म्यूट करें</string>
+    <string name="intro_sound_off">ध्वनि चालू करें</string>
+</resources>

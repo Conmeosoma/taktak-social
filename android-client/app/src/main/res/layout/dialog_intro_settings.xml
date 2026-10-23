@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="wrap_content"
+    android:orientation="vertical" android:padding="24dp">
+    <com.google.android.material.textview.MaterialTextView android:layout_width="match_parent"
+        android:layout_height="wrap_content" android:text="@string/intro_settings_description" />
+    <com.google.android.material.materialswitch.MaterialSwitch android:id="@+id/introEnabled"
+        android:layout_width="match_parent" android:layout_height="wrap_content" android:minHeight="56dp"
+        android:text="@string/intro_full" />
+    <com.google.android.material.materialswitch.MaterialSwitch android:id="@+id/introSoundEnabled"
+        android:layout_width="match_parent" android:layout_height="wrap_content" android:minHeight="56dp"
+        android:text="@string/intro_sound_setting" />
+    <com.google.android.material.button.MaterialButton android:id="@+id/introPreview"
+        android:layout_width="match_parent" android:layout_height="wrap_content" android:minHeight="48dp"
+        android:text="@string/intro_preview" />
+</LinearLayout>

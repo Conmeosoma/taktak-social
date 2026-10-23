@@ -19,6 +19,7 @@ biometric = "1.2.0-alpha05"
 viewpager2 = "1.1.0"
 recyclerview = "1.4.0"
 zxing = "3.5.3"
+splashscreen = "1.2.0"
 
 [libraries]
 junit = { group = "junit", name = "junit", version.ref = "junit" }
@@ -45,6 +46,7 @@ biometric = { group = "androidx.biometric", name = "biometric", version.ref = "b
 viewpager2 = { group = "androidx.viewpager2", name = "viewpager2", version.ref = "viewpager2" }
 recyclerview = { group = "androidx.recyclerview", name = "recyclerview", version.ref = "recyclerview" }
 zxing = { group = "com.google.zxing", name = "core", version.ref = "zxing" }
+splashscreen = { group = "androidx.core", name = "core-splashscreen", version.ref = "splashscreen" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

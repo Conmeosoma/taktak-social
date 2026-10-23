@@ -70,6 +70,8 @@ public class DoodleOverlayView extends View {
     private final Paint textPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
     private final Paint tagBgPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
     private final Paint tagTextPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+    private final RectF tagBounds = new RectF();
+    private final Paint.FontMetrics tagMetrics = new Paint.FontMetrics();
 
     public DoodleOverlayView(Context context) {
         super(context);
@@ -196,20 +198,20 @@ public class DoodleOverlayView extends View {
         float paddingH = spToPx(10);
         float paddingV = spToPx(6);
         float textWidth = tagTextPaint.measureText(text);
-        Paint.FontMetrics fm = tagTextPaint.getFontMetrics();
-        float textHeight = fm.descent - fm.ascent;
+        tagTextPaint.getFontMetrics(tagMetrics);
+        float textHeight = tagMetrics.descent - tagMetrics.ascent;
 
-        RectF pillRect = new RectF(
+        tagBounds.set(
                 x,
                 y,
                 x + textWidth + (paddingH * 2),
                 y + textHeight + (paddingV * 2)
         );
-        float radius = pillRect.height() / 2f;
-        canvas.drawRoundRect(pillRect, radius, radius, tagBgPaint);
+        float radius = tagBounds.height() / 2f;
+        canvas.drawRoundRect(tagBounds, radius, radius, tagBgPaint);
 
-        float textX = pillRect.left + paddingH;
-        float textY = pillRect.top + paddingV - fm.ascent;
+        float textX = tagBounds.left + paddingH;
+        float textY = tagBounds.top + paddingV - tagMetrics.ascent;
         canvas.drawText(text, textX, textY, tagTextPaint);
     }
 
@@ -247,6 +249,7 @@ public class DoodleOverlayView extends View {
                         currentPath = null;
                         invalidate();
                     }
+                    if (event.getAction() == MotionEvent.ACTION_UP) performClick();
                     return true;
             }
         } else if (currentMode == Mode.STICKER_DRAG) {
@@ -265,11 +268,18 @@ public class DoodleOverlayView extends View {
                 case MotionEvent.ACTION_UP:
                 case MotionEvent.ACTION_CANCEL:
                     activeSticker = null;
+                    if (event.getAction() == MotionEvent.ACTION_UP) performClick();
                     return true;
             }
         }
 
         return super.onTouchEvent(event);
+    }
+
+    @Override
+    public boolean performClick() {
+        super.performClick();
+        return true;
     }
 
     private Sticker findStickerAt(float x, float y) {

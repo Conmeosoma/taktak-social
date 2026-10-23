@@ -48,7 +48,7 @@ public class MyQrCodeBottomSheet extends BottomSheetDialogFragment {
         String userId = args != null ? args.getString(ARG_USER_ID, null) : null;
 
         binding.qrUserDisplayName.setText(displayName.isEmpty() ? username : displayName);
-        binding.qrUserUsername.setText("@" + username);
+        binding.qrUserUsername.setText(getString(com.taktak.app.R.string.friends_username, username));
 
         String payload;
         try { payload = QrCodeUtils.buildFriendPayload(username, userId); }

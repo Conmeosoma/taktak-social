@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="?attr/taktakColorSurface"
+    android:background="?attr/colorSurface"
     android:orientation="vertical"
     android:paddingHorizontal="@dimen/taktak_space_md"
     android:paddingTop="@dimen/taktak_space_sm"
@@ -23,11 +23,11 @@
             android:layout_weight="1"
             android:text="@string/chat_title"
             android:textAppearance="@style/TextAppearance.Taktak.LargeTitle"
-            android:textColor="?attr/taktakColorTextPrimary" />
+            android:textColor="?attr/colorOnSurface" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/messagesNew"
-            style="@style/Widget.Taktak.Button.Primary"
+            style="@style/Widget.Material3.Button.IconButton"
             android:layout_width="@dimen/taktak_btn_height_medium"
             android:layout_height="wrap_content"
             android:contentDescription="@string/chat_new"
@@ -36,9 +36,14 @@
             android:insetRight="0dp"
             android:insetTop="0dp"
             android:minWidth="0dp"
-            android:padding="0dp"
-            android:text="@string/ui_glyph_add"
-            android:textSize="20sp"     android:minHeight="@dimen/taktak_touch_target_min" />
+            android:padding="12dp"
+            app:icon="@drawable/ic_chat_add"
+            app:iconSize="24dp"
+            app:iconPadding="0dp"
+            app:iconGravity="textStart"
+            app:iconTint="?attr/colorOnPrimary"
+            app:backgroundTint="?attr/colorPrimary"
+            android:minHeight="@dimen/taktak_touch_target_min" />
     </LinearLayout>
 
     <!-- Search Conversations -->
@@ -47,6 +52,9 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/taktak_space_md"
         android:hint="@string/chat_search"
+        app:boxBackgroundColor="?attr/colorSurfaceContainerLow"
+        app:boxStrokeColor="?attr/colorOutline"
+        app:startIconTint="?attr/colorOnSurfaceVariant"
         app:startIconDrawable="@drawable/ic_m3_search"
         style="@style/Widget.Taktak.TextInputLayout">
 
@@ -54,6 +62,8 @@
             android:id="@+id/messagesSearch"
             style="@style/Widget.Taktak.TextInputEditText"
             android:hint="@string/chat_search"
+            android:textColor="?attr/colorOnSurface"
+            android:textColorHint="?attr/colorOnSurfaceVariant"
             android:inputType="text"
             android:maxLines="1"
             android:saveEnabled="false" />
@@ -73,8 +83,8 @@
             android:contentDescription="@string/chat_loading"
             android:indeterminate="true"
             android:visibility="invisible"
-            app:indicatorColor="?attr/taktakColorBrandPrimary"
-            app:trackColor="?attr/taktakColorBorder" />
+            app:indicatorColor="?attr/colorPrimary"
+            app:trackColor="?attr/colorOutlineVariant" />
     </FrameLayout>
 
     <TextView
@@ -84,7 +94,7 @@
         android:accessibilityLiveRegion="polite"
         android:padding="@dimen/taktak_space_sm"
         android:textAppearance="@style/TextAppearance.Taktak.Secondary"
-        android:textColor="?attr/taktakColorTextPrimary"
+        android:textColor="?attr/colorOnSurface"
         android:visibility="gone" />
 
     <LinearLayout
@@ -95,7 +105,7 @@
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/messagesRefresh"
-            style="@style/Widget.Taktak.Button.Secondary"
+            style="@style/Widget.Material3.Button.TonalButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:minHeight="@dimen/taktak_btn_height_small"
@@ -103,7 +113,7 @@
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/messagesNotifications"
-            style="@style/Widget.Taktak.Button.Ghost"
+            style="@style/Widget.Material3.Button.TextButton"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/taktak_space_sm"
@@ -135,7 +145,7 @@
                 android:contentDescription="@null"
                 android:importantForAccessibility="no"
                 android:src="@drawable/ic_chat"
-                app:tint="?attr/taktakColorBrandPrimary" />
+                app:tint="?attr/colorPrimary" />
 
             <TextView
                 android:layout_width="match_parent"
@@ -144,7 +154,7 @@
                 android:gravity="center"
                 android:text="@string/chat_empty_title"
                 android:textAppearance="@style/TextAppearance.Taktak.PageTitle"
-                android:textColor="?attr/taktakColorTextPrimary" />
+                android:textColor="?attr/colorOnSurface" />
 
             <TextView
                 android:layout_width="match_parent"
@@ -153,11 +163,11 @@
                 android:gravity="center"
                 android:text="@string/chat_empty_detail"
                 android:textAppearance="@style/TextAppearance.Taktak.Body"
-                android:textColor="?attr/taktakColorTextSecondary" />
+                android:textColor="?attr/colorOnSurfaceVariant" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/messagesFindFriends"
-                style="@style/Widget.Taktak.Button.Primary"
+                style="@style/Widget.Material3.Button"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/taktak_space_lg"
@@ -178,7 +188,7 @@
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/messagesMore"
-        style="@style/Widget.Taktak.Button.Secondary"
+        style="@style/Widget.Material3.Button.TonalButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="@string/chat_more"

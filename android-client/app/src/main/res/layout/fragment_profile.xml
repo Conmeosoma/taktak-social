@@ -181,6 +181,13 @@
 
             <!-- Language Settings Button -->
             <com.google.android.material.button.MaterialButton
+                android:id="@+id/profileIntroButton"
+                style="@style/Widget.Taktak.Button.Secondary"
+                android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/taktak_space_sm" android:minHeight="@dimen/taktak_btn_height_large"
+                android:text="@string/intro_settings" />
+
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/profileLanguageButton"
                 style="@style/Widget.Taktak.Button.Secondary"
                 android:layout_width="match_parent"

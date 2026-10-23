@@ -1,0 +1,10 @@
+<resources>
+    <string name="intro_settings">시작 효과</string>
+    <string name="intro_settings_description">런처에서 새로 열면 Full Intro 브랜드 동영상을 재생합니다. Quick Start를 사용하려면 끄세요. 소리는 무음 및 방해 금지 설정을 따릅니다.</string>
+    <string name="intro_full">인트로 재생 (Full Intro)</string>
+    <string name="intro_sound_setting">시작 소리</string>
+    <string name="intro_preview">애니메이션 미리 보기</string>
+    <string name="intro_skip">건너뛰기</string>
+    <string name="intro_sound_on">음소거</string>
+    <string name="intro_sound_off">음소거 해제</string>
+</resources>

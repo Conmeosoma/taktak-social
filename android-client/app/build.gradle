@@ -83,6 +83,7 @@ android {
 
 dependencies {
     implementation libs.activity
+    implementation libs.splashscreen
     implementation libs.appcompat
     implementation libs.constraintlayout
     implementation libs.material

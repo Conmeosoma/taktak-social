@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="splash_background">#19162C</color>
+    <style name="Theme.TakTak.Starting" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenBackground">@color/splash_background</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/splash_empty</item>
+        <!-- PNG tĩnh: không khai báo thời lượng AVD giả. -->
+        <item name="windowSplashScreenAnimationDuration">0</item>
+        <item name="postSplashScreenTheme">@style/Theme.TakTak</item>
+        <item name="android:windowLightStatusBar">false</item>
+    </style>
+</resources>

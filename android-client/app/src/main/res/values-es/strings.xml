@@ -46,7 +46,7 @@
     <string name="auth_invalid_email">Ingresa un correo electrónico válido (máx. 254 caracteres).</string>
     <string name="auth_invalid_username">Hasta 255 caracteres, solo letras a–z, números y guiones bajos.</string>
     <string name="auth_username_too_short">El nombre de usuario debe tener al menos 3 caracteres.</string>
-    <string name="auth_username_underscore_edge">No puede comenzar ni terminar con un guión bajo.</string>
+    <string name="auth_username_underscore_edge">No puede comenzar ni terminar con un guion bajo.</string>
     <string name="auth_username_double_underscore">No puede contener guiones bajos consecutivos.</string>
     <string name="auth_username_available">✓ Nombre de usuario disponible</string>
     <string name="auth_username_checking">Comprobando nombre de usuario…</string>

@@ -1,19 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/newChatContent"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="?attr/taktakColorSurface">
-
-    <com.taktak.app.ui.theme.MediaBackdropView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent" />
-
-    <LinearLayout
-        android:id="@+id/newChatContent"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical">
+    android:orientation="vertical"
+    android:background="?attr/colorSurface">
 
         <!-- Top Header Bar -->
         <LinearLayout
@@ -30,9 +22,12 @@
                 android:layout_width="@dimen/taktak_touch_target_min"
                 android:layout_height="@dimen/taktak_touch_target_min"
                 android:minWidth="@dimen/taktak_touch_target_min"
-                android:text="@string/ui_glyph_back"
-                android:textSize="24sp"
-                android:textColor="?attr/taktakColorTextPrimary"
+                android:padding="12dp"
+                app:icon="@drawable/login_back"
+                app:iconSize="24dp"
+                app:iconPadding="0dp"
+                app:iconGravity="textStart"
+                app:iconTint="?attr/colorOnSurface"
                 android:contentDescription="@string/chat_back"     android:minHeight="@dimen/taktak_touch_target_min" />
 
             <TextView
@@ -43,7 +38,7 @@
                 android:fontFamily="@font/inter"
                 android:textStyle="bold"
                 android:textSize="20sp"
-                android:textColor="?attr/taktakColorTextPrimary"
+                android:textColor="?attr/colorOnSurface"
                 android:layout_marginStart="@dimen/taktak_space_xs" />
 
             <com.google.android.material.button.MaterialButton
@@ -67,11 +62,13 @@
             android:layout_marginTop="@dimen/taktak_space_xs"
             android:layout_marginBottom="@dimen/taktak_space_sm"
             android:hint="@string/chat_search_friend"
+            android:textColorHint="?attr/colorOnSurfaceVariant"
+            app:hintTextColor="?attr/colorOnSurfaceVariant"
             app:boxCornerRadiusTopStart="20dp"
             app:boxCornerRadiusTopEnd="20dp"
             app:boxCornerRadiusBottomStart="20dp"
             app:boxCornerRadiusBottomEnd="20dp"
-            app:boxStrokeColor="?attr/taktakColorBorder"
+            app:boxStrokeColor="?attr/colorOutlineVariant"
             app:boxStrokeWidthFocused="1.5dp"
             app:expandedHintEnabled="false">
 
@@ -81,7 +78,7 @@
                 android:layout_height="wrap_content"
                 android:fontFamily="@font/inter"
                 android:textSize="15sp"
-                android:textColor="?attr/taktakColorTextPrimary"
+                android:textColor="?attr/colorOnSurface"
                 android:inputType="text"
                 android:maxLines="1"
                 android:paddingHorizontal="@dimen/taktak_space_md"
@@ -102,7 +99,7 @@
             android:id="@+id/newChatStatus"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textColor="?attr/taktakColorTextSecondary"
+            android:textColor="?attr/colorOnSurfaceVariant"
             android:fontFamily="@font/inter"
             android:textSize="13sp"
             android:paddingHorizontal="@dimen/taktak_space_md"
@@ -130,5 +127,4 @@
             android:fontFamily="@font/inter"
             android:text="@string/chat_more"
             android:visibility="gone"     android:minHeight="@dimen/taktak_touch_target_min" />
-    </LinearLayout>
-</FrameLayout>
+</LinearLayout>

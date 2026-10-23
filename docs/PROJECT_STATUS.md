@@ -1,5 +1,69 @@
 # Taktak — Trạng thái dự án
 
+## Đóng gói APK và chốt source main — 23/10/2026
+
+Người dùng yêu cầu build APK và commit main; không yêu cầu push/deploy.
+Build debug/unit/lint chạy lại20s,53 task (3 executed/50 up-to-date),
+JVM135 đã có kết quả đạt; task unit lần này up-to-date, không coi là chạy mới.
+API debug cấu hình hiện tại healthHTTP200 lúc kiểm tra; URL tunnel không cố định.
+APK debug đã ký để cài thử, không phải bản production/release đã ký riêng.
+Các gate UI/QA còn mở giữ nguyên, không đánh dấu toàn dự án DONE.
+Chi tiết đóng gói: [QA_FINAL_APK_20261023.md](QA_FINAL_APK_20261023.md).
+
+## Branded intro MP4 + âm thanh gốc — 23/10/2026
+
+Đã thay renderer520ms bằng video gốc local3,34s+AAC; Full/Quick Start, mute,
+preview/skip tại Profile. Build/JVM135/lint0error85warning/resources2304 đạt.
+USB22/22 PASS125,346s; cold riêng1/1 PASS7,192s, không replay khi quay lại.
+Người dùng nghe được/không thấy lệch rõ; session bytes giữ nguyên. Core đã
+xác minh Android15, ma trận mở rộng PARTIAL (API26–30/DND-vibrate/focus thực).
+[Hồ sơ](QA_BRANDED_INTRO_20261023.md). Không backend/commit/push/deploy.
+
+## Splash native — 23/10/2026
+
+**PARTIAL**: tích hợp core-splashscreen1.2.0 vào launcher, Java/ViewBinding exit
+520ms, giữ PNG/logo/session gate. Build/JVM127/lint0error83warning và6/6 test
+splash cuối15,483s và10/10 hồi quy List/Chat47,131s trên AVD đạt;
+USB mới nhất6/6 PASS8,281s sau sửa riêng harness mở launcher tương thích MIUI;
+List/Chat10/10 USB PASS76,832s, không skipped.
+đã thấy tim/sparkle/brand, phiên cá nhân giữ nguyên. Visual vẫn PARTIAL: góc
+trắng của PNG và spacing accents/chữ sát logo, chưa sửa production.
+API26–30/refresh hết hạn thực chưa chạy. Không backend/commit/push/deploy.
+[Bằng chứng và hạn chế](QA_SPLASH_20261023.md). Contrast Friends/History tạm dừng.
+
+## QA USB gói sửa UI — 23/10/2026
+
+**28/28 PASS118,724s** trên Xiaomi Android15; APK đã cài-r, hash base.apk khớp
+artifact. Phiên mã hóa trước/sau không đổi; quyền Camera/Thông báo giữ nguyên.
+Đã xem ảnh fixture bằng skill android_ui_verification. Friends/History sáng
+còn contrast chữ phụ/icon QR; Recap mẫu và các gate khác vẫn mở. Không sửa
+source/commit/push/deploy. [Bằng chứng](QA_USB_UI_20261023.md).
+
+## Lint/UI tồn đọng — 22/10/2026
+
+Đã sửa 179 lỗi thiếu bản dịch; lint debug0/83 và release0/90 (error/warning),
+build35s/JVM127 đạt. Sửa icon/contrast Room–Inbox–New Chat, tab History cắt chữ
+ở280dp/font2; bỏ streak/BFF sinh giả từ username, sửa nội dung xóa ảnh/theme.
+Runtime APK cuối **28/28 PASS,105,929s** trên AVD QA riêng theo
+[QA_UI_LINT_20261022.md](QA_UI_LINT_20261022.md), đã xem ảnh cuối Chat/New Chat/Inbox.
+Không backend/commit/push/deploy. Recap mẫu, warning và nghiệm thu accessibility/
+đa ngôn ngữ/launcher thật còn mở; không coi toàn UI đã hoàn tất.
+Friends light còn icon QR/hint nhạt theo review ảnh; chưa claim contrast toàn màn đạt.
+
+## Sửa đồng bộ Chat test — 22/10/2026
+
+**PASS18/18 USB,90,45s** sau sửa check/dispatch Attach atomic trên main thread.
+Chỉ đổi ChatThemeUiTest, không production. Build23s, test APK cài-r đạt,
+phiên QA giữ nguyên. Lỗi17/18 bên dưới là baseline trước sửa. Không đồng nghĩa
+toàn UI/VPS/lint PASS. [Bằng chứng](QA_LATEST_APK_USB_20261022.md).
+
+## APK mới + QA USB — 22/10/2026
+
+Build debug/test và JVM127 đạt,76 task rerun/48s; đã cài-r điện thoại Xiaomi,
+SHA APK cài khớp artifact mới. USB17/18 đạt102,449s; ca attachment Chat FAIL,
+diagnostic riêng cũngFAIL1/1. Phiên trước/sau QA không đổi. Không sửa source,
+không đánh dấu QA toàn app PASS. [Bằng chứng](QA_LATEST_APK_USB_20261022.md).
+
 ## Production restore-security rollout — 21/10/2026
 
 **PASS cài đặt được duyệt**: restore.sh750, reconciliation SQL640 root:root;

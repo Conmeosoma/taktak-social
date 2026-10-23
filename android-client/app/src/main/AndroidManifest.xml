@@ -88,6 +88,7 @@
             android:theme="@style/Theme.TakTak.M3.Camera" />
         <activity
             android:name=".MainActivity"
+            android:theme="@style/Theme.TakTak.Starting"
             android:exported="true"
             android:windowSoftInputMode="adjustResize">
             <intent-filter>

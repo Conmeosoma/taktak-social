@@ -1,5 +1,64 @@
 # Taktak — Công việc và cổng xác nhận
 
+## Branded intro video có tiếng — 23/10/2026
+
+- [x] Phân tích MP4/AAC, bitstream M4A khớp; bundle nguồn nguyên byte.
+- [x] Native Java/XML/ViewBinding/MediaPlayer, fit-center, lifecycle, skip/error.
+- [x] Full Intro/Quick Start, sound/preview ở Profile, preferences riêng.
+- [x] JVM135, build, lint0error85warning, resources2304.
+- [x] USB22/22; cold riêng1/1, Home return không replay; session bytes giữ nguyên.
+- [x] Người dùng xác nhận tiếng gốc, không lệch rõ; ảnh sạch đã review.
+- [ ] Ma trận API26–30, DND/vibrate/focus thực, codec lỗi, stress RAM/jank.
+
+Core Android15 đã xác minh, matrix PARTIAL; [hồ sơ](QA_BRANDED_INTRO_20261023.md).
+Renderer520ms bên dưới đã được thay theo yêu cầu video mới, không tiếp tục sửa
+spacing/assets của renderer cũ. Không tự chuyển bước hoặc commit/push/deploy.
+
+## Splash native — 23/10/2026
+
+- [x] Audit launcher/theme/session/logo; tích hợp Java/XML, không SplashActivity.
+- [x] Build/debug test APK, JVM127, lint debug0error83warning, resources2256.
+- [x] Sáu test animation lifecycle/reduced motion/RAM routing trên AVD đạt.
+- [x] USB6/6 PASS8,281s; sửa harness launcher MIUI, giữ phiên cá nhân.
+- [x] Quan sát đủ logo/tim/sparkle/brand trên USB với fixture Main.
+- [ ] Sửa/duyệt góc trắng PNG và spacing accents/brand, chưa visual DONE.
+- [ ] API26–30, cold Main/session thật, expired-refresh/logout và warm-start có kiểm soát.
+
+Trạng thái **PARTIAL**, [chi tiết](QA_SPLASH_20261023.md). Không tự mở rộng animation
+màn khác; contrast Friends/History vẫn là việc riêng chưa hoàn thành.
+
+## QA USB — 23/10/2026
+
+- [x] Nhận Xiaomi Android15, build check và install-r giữ dữ liệu; hash APK khớp.
+- [x] Bộ hồi quy28/28 PASS118,724s trên điện thoại thật; phiên/appearance bảo toàn.
+- [x] Review ảnh fixture và ghi rõ contrast Friends/History sáng còn tồn tại.
+- [ ] Sửa palette contrast Friends/History sáng, thêm regression và chạy lại USB.
+
+[Hồ sơ QA](QA_USB_UI_20261023.md). Không coi fixture PASS là toàn app/production PASS.
+
+## Sửa lint/UI tồn đọng — 22/10/2026
+
+- [x] 179 MissingTranslation: bản dịch sáu locale + guard XML/format đạt.
+- [x] Icon quay lại/tạo chat, tương phản Room/Inbox/New Chat và receipt plate.
+- [x] Root cause TabView/Received bị cắt ở280dp/font2; tab scrollable, không giảm font.
+- [x] Bỏ streak/BFF giả, hook performClick, QR username/namespace, wording privacy/theme.
+- [x] Build debug/test/JVM127; lint debug0/83, release0/90.
+- [x] Runtime cuối28/28 PASS105,929s; review ảnh APK bàn giao (xem hồ sơ QA).
+- [ ] Sửa palette icon QR/hint/username Friends light, QA contrast đầy đủ màn này.
+- [ ] Xử lý nhóm warning còn lại với regression riêng; không suppress/xóa tùy tiện.
+- [ ] Chốt cách bỏ/ghi rõ demo hoặc thay số liệu Recap mẫu bằng dữ liệu thật.
+- [ ] TalkBack/RTL, review đa ngôn ngữ và launcher widget thật.
+
+[Bằng chứng và giới hạn](QA_UI_LINT_20261022.md). Không mở rộng backend/commit/push/deploy.
+
+## Build/QA USB — 22/10/2026
+
+- [x] Rerun build debug/androidTest/JVM127; cài-r điện thoại, SHA APK khớp.
+- [x] Chạy18 ca USB (17 đạt), diagnostic attachment riêng (FAIL); giữ phiên QA.
+- [x] Chẩn đoán/sửa race harness attachment, bộ18/18 USB đạt90,45s; không sửa production.
+
+[Bằng chứng](QA_LATEST_APK_USB_20261022.md). Không tự chuyển gate/commit/push.
+
 ## Production rollout restore-security — 21/10/2026
 
 - [x] Người dùng duyệt, kiểm tra state/hash/permissions, backup script và unit.

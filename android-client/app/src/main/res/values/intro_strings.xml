@@ -1,0 +1,10 @@
+<resources>
+    <string name="intro_settings">Hiệu ứng khởi động</string>
+    <string name="intro_settings_description">Full Intro phát video thương hiệu khi mở mới từ launcher. Tắt để dùng Quick Start. Âm thanh luôn tôn trọng chế độ im lặng và Không làm phiền.</string>
+    <string name="intro_full">Phát intro (Full Intro)</string>
+    <string name="intro_sound_setting">Âm thanh khởi động</string>
+    <string name="intro_preview">Xem thử animation</string>
+    <string name="intro_skip">Bỏ qua</string>
+    <string name="intro_sound_on">Tắt tiếng</string>
+    <string name="intro_sound_off">Bật tiếng</string>
+</resources>

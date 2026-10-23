@@ -3,7 +3,7 @@
     <attr name="ttPreviewEnd" format="color" />
     <string name="theme_settings_title">Giao diện</string>
     <string name="theme_settings_detail">Chọn một sắc thái dành cho bạn.</string>
-    <string name="theme_scope_notice">Bốn kiểu giao diện hỗ trợ các màn tài khoản, Camera, Xem trước/chọn người nhận, Xem ảnh và điều hướng. Nội dung Lịch sử, Bạn bè, Hồ sơ giữ giao diện hiện tại. Màn đang mở không bị buộc tải lại khi đổi kiểu.</string>
+    <string name="theme_scope_notice">Bốn kiểu giao diện hỗ trợ các màn tài khoản, Camera, Xem trước, Xem ảnh, Lịch sử, Bạn bè, Tin nhắn và Hồ sơ. Màn đang mở giữ thao tác hiện tại; giao diện mới áp dụng khi mở lại.</string>
     <string name="theme_preview_label">Xem trước màu sắc</string>
     <string name="theme_preview_detail">Minh họa phong cách, không phải ảnh chụp màn hình ứng dụng.</string>
     <string name="theme_original">Taktak mặc định</string>

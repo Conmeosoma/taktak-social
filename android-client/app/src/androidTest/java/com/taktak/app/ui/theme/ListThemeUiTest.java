@@ -150,7 +150,11 @@ public class ListThemeUiTest {
                                 root.measure(View.MeasureSpec.makeMeasureSpec(w, View.MeasureSpec.EXACTLY),
                                         View.MeasureSpec.makeMeasureSpec(h, isScreen ? View.MeasureSpec.EXACTLY : View.MeasureSpec.UNSPECIFIED));
                                 root.layout(0, 0, w, root.getMeasuredHeight());
-                                bounds(root, w);
+                                try { bounds(root, w); }
+                                catch (AssertionError failure) {
+                                    throw new AssertionError("layout="+themed.getResources().getResourceEntryName(layout)
+                                            +" style="+style+" night="+night+" font="+font+" viewport="+size[0]+"x"+size[1], failure);
+                                }
 
                                 assertEquals("Layout primary matches themed context",
                                         color(themed, androidx.appcompat.R.attr.colorPrimary),
@@ -355,7 +359,10 @@ public class ListThemeUiTest {
         assertTrue("Horizontal bounds: " + view.getClass().getSimpleName() + " [" + idName + "] left=" + view.getLeft() + " right=" + view.getRight() + " max=" + width,
                 view.getLeft() >= 0 && view.getRight() <= width);
         if (view instanceof TextView text && !(text instanceof EditText) && text.getText() != null && text.getText().length() > 0 && text.getLayout() != null)
-            assertTrue("Text fits height: " + view.getClass().getSimpleName() + " [" + idName + "]",
+            assertTrue("Text fits height: " + view.getClass().getSimpleName() + " [" + idName + "] text="+text.getText()
+                            +" layoutHeight="+text.getLayout().getHeight()+" viewHeight="+text.getHeight()
+                            +" padding="+text.getCompoundPaddingTop()+","+text.getCompoundPaddingBottom()
+                            +" parent="+text.getParent().getClass().getSimpleName(),
                     text.getLayout().getHeight() <= text.getHeight() - text.getCompoundPaddingTop() - text.getCompoundPaddingBottom());
         if (view instanceof ViewGroup group) {
             for (int i = 0; i < group.getChildCount(); i++) bounds(group.getChildAt(i), group.getWidth());

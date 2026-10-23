@@ -34,6 +34,8 @@ public final class ProfileFragment extends Fragment {
         binding.profileThemeButton.setOnClickListener(v -> startActivity(new android.content.Intent(
                 requireContext(), com.taktak.app.ui.theme.ThemeSettingsActivity.class)));
         binding.profileLanguageButton.setOnClickListener(v -> com.taktak.app.ui.language.LanguageManager.showLanguageDialog(requireContext(), null));
+        binding.profileIntroButton.setOnClickListener(v -> com.taktak.app.ui.splash.IntroSettings.show(
+                (com.taktak.app.MainActivity) requireActivity()));
         binding.profileMyQrButton.setOnClickListener(v -> {
             var state = model.state().getValue();
             if (state != null && state.profile != null) {

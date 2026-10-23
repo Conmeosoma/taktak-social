@@ -1,0 +1,10 @@
+<resources>
+    <string name="intro_settings">启动效果</string>
+    <string name="intro_settings_description">从启动器首次打开时，Full Intro 会播放品牌视频。关闭后使用 Quick Start。声音遵循静音和勿扰设置。</string>
+    <string name="intro_full">播放片头（Full Intro）</string>
+    <string name="intro_sound_setting">启动声音</string>
+    <string name="intro_preview">预览动画</string>
+    <string name="intro_skip">跳过</string>
+    <string name="intro_sound_on">静音</string>
+    <string name="intro_sound_off">取消静音</string>
+</resources>

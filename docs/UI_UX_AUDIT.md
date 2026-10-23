@@ -1,5 +1,22 @@
 # Taktak — Rà soát UI/UX và sửa tài nguyên an toàn (20/10/2026)
 
+## Cập nhật 23/10/2026 — QA máy thật
+
+USB Xiaomi Android15 đã chạy28/28 PASS118,724s, APK cài khớp artifact và phiên
+giữ nguyên. Review ảnh xác nhận Chat đã cải thiện, Friends/History sáng vẫn có
+chữ phụ/icon QR nhạt; chưa nghiệm thu toàn visual/accessibility.
+[Log, ảnh, giới hạn và bàn giao](QA_USB_UI_20261023.md).
+
+## Cập nhật 22/10/2026 — lint và gói sửa UI đã xác minh
+
+Các số179 lỗi lint và lỗi TabView font2 ở snapshot20/10 bên dưới đã được sửa.
+Kết quả mới: build/JVM127 đạt, lint debug0/83 và release0/90, runtime28/28 AVD
+PASS105,929s. Bổ sung bản dịch thật, sửa icon/contrast Chat–Inbox–New Chat,
+History tab scrollable và badge Friends giả. Không bỏ/suppress assertion.
+Chưa sạch warning/chưa nghiệm thu toàn UI: Friends light vẫn có icon QR/hint
+nhạt; Recap mẫu, TalkBack/RTL, linguistic review và launcher thật còn mở.
+[File thay đổi, log/ảnh và giới hạn mới nhất](QA_UI_LINT_20261022.md).
+
 ## Cập nhật nghiệm thu AVD theo yêu cầu người dùng
 
 Người dùng đã chọn **tự chạy máy ảo** thay USB. Skill android_ui_verification

@@ -1,0 +1,10 @@
+<resources>
+    <string name="intro_settings">Efectos de inicio</string>
+    <string name="intro_settings_description">Full Intro reproduce el vídeo de marca al abrir desde el lanzador. Desactívalo para Quick Start. El sonido respeta el modo silencio y No molestar.</string>
+    <string name="intro_full">Reproducir intro (Full Intro)</string>
+    <string name="intro_sound_setting">Sonido de inicio</string>
+    <string name="intro_preview">Ver animación</string>
+    <string name="intro_skip">Omitir</string>
+    <string name="intro_sound_on">Silenciar</string>
+    <string name="intro_sound_off">Activar sonido</string>
+</resources>

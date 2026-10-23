@@ -25,7 +25,7 @@
     <string name="history_viewer_no_caption">Không có chú thích</string>
     <string name="history_viewer_delete">Xóa khoảnh khắc</string>
     <string name="moment_delete_confirm_title">Xóa khoảnh khắc?</string>
-    <string name="moment_delete_confirm_message">Khoảnh khắc này sẽ bị xóa khỏi máy chủ và thiết bị của người nhận.</string>
+    <string name="moment_delete_confirm_message">Khoảnh khắc sẽ bị xóa khỏi máy chủ. Người nhận mất quyền xem sau khi đồng bộ; ảnh đã xuất ra thư viện không thể bị xóa từ xa.</string>
     <string name="moment_delete_action">Xóa</string>
     <string name="moment_delete_cancel">Hủy</string>
     <string name="moment_delete_network_error">Không thể xóa khoảnh khắc do mất kết nối mạng. Vui lòng thử lại.</string>

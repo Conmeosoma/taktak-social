@@ -207,7 +207,7 @@ public class QrScanActivity extends AppCompatActivity {
             foundDialog.setOnDismissListener(dialog -> { foundDialog = null; foundBinding = null; if (alive()) { model.reset(); refreshPaused(); } });
             foundDialog.show();
         }
-        foundBinding.foundUsername.setText("@" + state.payload().username);
+        foundBinding.foundUsername.setText(getString(R.string.friends_username, state.payload().username));
         foundBinding.foundDisplayName.setText(state.target() == null ? state.payload().username : state.target().displayName);
         int message = switch (state.status()) {
             case CHECKING -> R.string.qr_checking_identity;

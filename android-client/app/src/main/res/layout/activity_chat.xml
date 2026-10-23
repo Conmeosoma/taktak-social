@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="?attr/taktakColorSurface">
+    android:background="?attr/colorSurface">
 
     <com.taktak.app.ui.theme.MediaBackdropView
         android:layout_width="match_parent"
@@ -22,7 +22,7 @@
             android:gravity="center_vertical"
             android:paddingHorizontal="@dimen/taktak_space_sm"
             android:paddingVertical="10dp"
-            android:background="?attr/taktakColorSurface">
+            android:background="?attr/colorSurface">
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/chatBack"
@@ -30,9 +30,12 @@
                 android:layout_width="@dimen/taktak_touch_target_min"
                 android:layout_height="@dimen/taktak_touch_target_min"
                 android:minWidth="@dimen/taktak_touch_target_min"
-                android:text="@string/ui_glyph_back"
-                android:textSize="24sp"
-                android:textColor="?attr/taktakColorTextPrimary"
+                android:padding="12dp"
+                app:icon="@drawable/login_back"
+                app:iconSize="24dp"
+                app:iconPadding="0dp"
+                app:iconGravity="textStart"
+                app:iconTint="?attr/colorOnSurface"
                 android:contentDescription="@string/chat_back"     android:minHeight="@dimen/taktak_touch_target_min" />
 
             <TextView
@@ -44,7 +47,7 @@
                 android:fontFamily="@font/inter"
                 android:textStyle="bold"
                 android:textSize="18sp"
-                android:textColor="?attr/taktakColorTextPrimary"
+                android:textColor="?attr/colorOnSurface"
                 android:maxLines="1"
                 android:ellipsize="end"
                 android:layout_marginStart="@dimen/taktak_space_xs" />
@@ -64,7 +67,7 @@
         <View
             android:layout_width="match_parent"
             android:layout_height="1dp"
-            android:background="?attr/taktakColorBorder" />
+            android:background="?attr/colorOutlineVariant" />
 
         <com.google.android.material.progressindicator.LinearProgressIndicator
             android:id="@+id/chatProgress"
@@ -142,7 +145,7 @@
         <View
             android:layout_width="match_parent"
             android:layout_height="1dp"
-            android:background="?attr/taktakColorBorder" />
+            android:background="?attr/colorOutlineVariant" />
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -150,7 +153,7 @@
             android:gravity="center_vertical"
             android:paddingHorizontal="@dimen/taktak_space_sm"
             android:paddingVertical="10dp"
-            android:background="?attr/taktakColorSurface">
+            android:background="?attr/colorSurface">
 
             <!-- Attach button -->
             <com.google.android.material.button.MaterialButton
@@ -176,11 +179,13 @@
                 android:layout_height="wrap_content"
                 android:layout_marginHorizontal="@dimen/taktak_space_xs"
                 android:hint="@string/chat_message_hint"
+                android:textColorHint="?attr/colorOnSurfaceVariant"
+                app:hintTextColor="?attr/colorOnSurfaceVariant"
                 app:boxCornerRadiusTopStart="22dp"
                 app:boxCornerRadiusTopEnd="22dp"
                 app:boxCornerRadiusBottomStart="22dp"
                 app:boxCornerRadiusBottomEnd="22dp"
-                app:boxStrokeColor="?attr/taktakColorBorder"
+                app:boxStrokeColor="?attr/colorOutline"
                 app:boxStrokeWidthFocused="1.5dp"
                 app:expandedHintEnabled="false">
 
@@ -190,7 +195,7 @@
                     android:layout_height="wrap_content"
                     android:fontFamily="@font/inter"
                     android:textSize="15sp"
-                    android:textColor="?attr/taktakColorTextPrimary"
+                    android:textColor="?attr/colorOnSurface"
                     android:inputType="textCapSentences|textMultiLine"
                     android:maxLines="4"
                     android:paddingHorizontal="14dp"

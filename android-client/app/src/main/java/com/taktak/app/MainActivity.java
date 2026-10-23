@@ -19,6 +19,10 @@ import com.taktak.app.viewmodel.SessionViewModel;
 
 public class MainActivity extends AppCompatActivity {
     private ActivityMainBinding binding;
+    private static final com.taktak.app.ui.splash.IntroPolicy INTRO_POLICY = new com.taktak.app.ui.splash.IntroPolicy();
+    private com.taktak.app.ui.splash.BrandedIntro intro;
+    private boolean introActive, foreground;
+    private androidx.activity.OnBackPressedCallback introBack;
     private SessionViewModel viewModel;
     private boolean navigating;
     private boolean authenticated;
@@ -46,15 +50,23 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override protected void onCreate(Bundle savedInstanceState) {
+        var splash = androidx.core.splashscreen.SplashScreen.installSplashScreen(this);
         createdTheme = new com.taktak.app.ui.theme.ThemePreferences(this).load();
         com.taktak.app.ui.theme.ThemeManager.applyBeforeCreate(this,createdTheme,
                 com.taktak.app.ui.theme.ThemeManager.ScreenRole.MAIN);
         super.onCreate(savedInstanceState);
+        splash.setOnExitAnimationListener(androidx.core.splashscreen.SplashScreenViewProvider::remove);
         com.taktak.app.data.push.ChatNotifications.initialize(getApplication());
         notificationConversation = getIntent().getStringExtra("chat.conversation");
         EdgeToEdge.enable(this);
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+        boolean launcher = Intent.ACTION_MAIN.equals(getIntent().getAction())
+                && getIntent().hasCategory(Intent.CATEGORY_LAUNCHER);
+        boolean special = getIntent().getExtras() != null && !getIntent().getExtras().isEmpty();
+        if (INTRO_POLICY.consume(savedInstanceState != null, launcher, special,
+                new com.taktak.app.ui.splash.IntroPreferences(this).enabled(),
+                android.animation.ValueAnimator.areAnimatorsEnabled())) showIntroPreview();
         com.taktak.app.ui.theme.ThemeManager.configureBars(this,binding.getRoot(),
                 com.google.android.material.color.MaterialColors.getColor(binding.getRoot(),
                         com.google.android.material.R.attr.colorSurface));
@@ -107,7 +119,11 @@ public class MainActivity extends AppCompatActivity {
         binding.logoutButton.setOnClickListener(view -> viewModel.logout());
         binding.biometricUnlockButton.setOnClickListener(v -> showBiometricPrompt());
         binding.biometricLockOverlay.setOnClickListener(v -> showBiometricPrompt());
-        viewModel.state().observe(this, state -> {
+        viewModel.state().observe(this, this::renderSession);
+    }
+
+    private void renderSession(SessionViewModel.State state) {
+            if (state == null || introActive || navigating || !foreground) return;
             boolean checking = state.destination == SessionViewModel.Destination.CHECKING;
             boolean camera = state.destination == SessionViewModel.Destination.CAMERA;
             binding.sessionProgress.setVisibility(checking ? View.VISIBLE : View.GONE);
@@ -137,7 +153,29 @@ public class MainActivity extends AppCompatActivity {
                         .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK));
                 finish();
             }
+    }
+
+    public void showIntroPreview() {
+        if (introActive || isFinishing() || isDestroyed()) return;
+        introActive = true;
+        binding.mainSafeContent.setVisibility(View.INVISIBLE);
+        binding.premiumBackdrop.setVisibility(View.GONE);
+        introBack = new androidx.activity.OnBackPressedCallback(true) {
+            @Override public void handleOnBackPressed() { if (intro != null) intro.finish(); }
+        };
+        getOnBackPressedDispatcher().addCallback(this, introBack);
+        intro = new com.taktak.app.ui.splash.BrandedIntro(this, binding.getRoot(), () -> {
+            introActive = false; intro = null;
+            if (introBack != null) { introBack.remove(); introBack = null; }
+            binding.mainSafeContent.setVisibility(View.VISIBLE);
+            binding.premiumBackdrop.setVisibility(View.VISIBLE);
+            com.taktak.app.ui.theme.ThemeManager.configureBars(this, binding.getRoot(),
+                    com.google.android.material.color.MaterialColors.getColor(binding.getRoot(),
+                            com.google.android.material.R.attr.colorSurface));
+            if (foreground && viewModel != null) renderSession(viewModel.state().getValue());
         });
+        var bars = androidx.core.view.WindowCompat.getInsetsController(getWindow(), binding.getRoot());
+        bars.setAppearanceLightStatusBars(false); bars.setAppearanceLightNavigationBars(false);
     }
 
     private void renderContent() {
@@ -179,6 +217,8 @@ public class MainActivity extends AppCompatActivity {
 
     @Override protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent); setIntent(intent);
+        if (intro != null && (!Intent.ACTION_MAIN.equals(intent.getAction())
+                || (intent.getExtras() != null && !intent.getExtras().isEmpty()))) intro.finish();
         notificationConversation = intent.getStringExtra("chat.conversation");
         if (authenticated && com.taktak.app.data.model.FriendModels.uuid(notificationConversation)) {
             String id = notificationConversation; notificationConversation = null; intent.removeExtra("chat.conversation");
@@ -186,7 +226,25 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    @Override protected void onPause() {
+        foreground = false;
+        if (intro != null) intro.finish();
+        super.onPause();
+    }
+
     @Override protected void onStop() { chatModel.stopSync(); super.onStop(); }
+
+    @Override protected void onDestroy() { if (intro != null) intro.finish(); super.onDestroy(); }
+
+    @Override public void onTrimMemory(int level) {
+        super.onTrimMemory(level);
+        if (level >= android.content.ComponentCallbacks2.TRIM_MEMORY_RUNNING_LOW && intro != null) intro.finish();
+    }
+
+    @Override public void onWindowFocusChanged(boolean focused) {
+        super.onWindowFocusChanged(focused);
+        if (intro != null) intro.windowFocusChanged(focused);
+    }
 
     @Override protected void onResumeFragments() {
         super.onResumeFragments();
@@ -211,6 +269,12 @@ public class MainActivity extends AppCompatActivity {
 
     @Override protected void onResume() {
         super.onResume();
+        foreground = true;
+        if (!introActive && viewModel != null) renderSession(viewModel.state().getValue());
+        if (introActive) {
+            var bars = androidx.core.view.WindowCompat.getInsetsController(getWindow(), binding.getRoot());
+            bars.setAppearanceLightStatusBars(false); bars.setAppearanceLightNavigationBars(false);
+        }
         checkBiometricLock();
     }
 

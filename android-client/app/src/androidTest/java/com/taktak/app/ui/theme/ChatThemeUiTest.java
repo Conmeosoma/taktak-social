@@ -73,6 +73,23 @@ public class ChatThemeUiTest {
                         View root=LayoutInflater.from(themed).inflate(layout,null,false);
                         root.measure(View.MeasureSpec.makeMeasureSpec(width,View.MeasureSpec.EXACTLY),View.MeasureSpec.makeMeasureSpec(height,layout==R.layout.item_conversation?View.MeasureSpec.UNSPECIFIED:View.MeasureSpec.EXACTLY));
                         root.layout(0,0,width,root.getMeasuredHeight());bounds(root,width);
+                        if(layout==R.layout.activity_chat){
+                            var back=(com.google.android.material.button.MaterialButton)root.findViewById(R.id.chatBack);
+                            assertNotNull("Back uses a vector icon",back.getIcon());
+                            assertEquals("Back must not render a clipped glyph","",back.getText().toString());
+                            int surface=com.google.android.material.color.MaterialColors.getColor(root,
+                                    com.google.android.material.R.attr.colorSurface);
+                            var field=(com.google.android.material.textfield.TextInputLayout)root.findViewById(R.id.chatInputLayout);
+                            assertTrue("Composer hint contrast >= 4.5:1",
+                                    androidx.core.graphics.ColorUtils.calculateContrast(field.getDefaultHintTextColor().getDefaultColor(),surface)>=4.5);
+                            View row=LayoutInflater.from(themed).inflate(R.layout.item_chat_message,null,false);
+                            var receipt=(TextView)row.findViewById(R.id.messageReceipt);
+                            var plate=(android.graphics.drawable.GradientDrawable)receipt.getBackground();
+                            assertNotNull("Receipt has an opaque reading surface",plate.getColor());
+                            assertEquals(255,android.graphics.Color.alpha(plate.getColor().getDefaultColor()));
+                            assertTrue("Receipt contrast >= 4.5:1",androidx.core.graphics.ColorUtils.calculateContrast(
+                                    receipt.getCurrentTextColor(),plate.getColor().getDefaultColor())>=4.5);
+                        }
                     }
                 }
         });
@@ -150,7 +167,19 @@ public class ChatThemeUiTest {
         incoming.messageType="TEXT";incoming.content="QA incoming";incoming.createdAt="2026-10-20T00:00:00Z";fixture.messages.add(incoming);
         MainActivity activity=launchMain();ChatActivity room=launchChat(activity);var model=model(room);
         await(()->state(model).loaded&&!state(model).busy&&fixture.reads.get()>0,"Incoming message marked read");
-        main(model::loadAttachableMoments);await(()->!state(model).busy&&state(model).attachments.size()==1,"Private attachment choices deduplicated");
+        var attachmentRequested=new AtomicBoolean();
+        // Kiem tra va dispatch cung main-loop, nhu nut Attach chi enabled khi canSend.
+        // Khong retry request da gui; chi doi action co the duoc chap nhan.
+        await(()->{
+            main(()->{
+                if(model.canSend()) {
+                    model.loadAttachableMoments();
+                    attachmentRequested.set(true);
+                }
+            });
+            return attachmentRequested.get();
+        },"Attachment action accepted while idle");
+        await(()->!state(model).busy&&state(model).attachments.size()==1,"Private attachment choices deduplicated");
         main(()->model.sendMoment(ChatThemeFixture.MOMENT));
         await(()->!state(model).busy&&state(model).sentRevision==1,"Moment sent only to RAM fixture");
         assertEquals("MOMENT",fixture.payloads.get(0).messageType);assertEquals(ChatThemeFixture.MOMENT,fixture.payloads.get(0).momentId);

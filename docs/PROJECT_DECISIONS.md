@@ -1,5 +1,23 @@
 # Taktak — Quyết định kỹ thuật đã khóa
 
+## Branded Intro có tiếng — người dùng duyệt23/10/2026
+
+Yêu cầu MP4 gốc có soundtrack mới thay giới hạn không video/âm thanh của splash
+trước. System SplashScreen chỉ nền, không chờ clip; MainActivity phát raw MP4
+local bằng một MediaPlayer/TextureView, giữ cùng clock AAC/H.264, không file
+âm thanh thứ hai. Full Intro/Quick Start và sound lưu preferences riêng, settings
+tối thiểu từ Profile. Giữ auth/FCM/backend và theme customization. Không dependency
+multimedia mới, không quyền mới. [Nghiệm thu/phạm vi](QA_BRANDED_INTRO_20261023.md).
+
+## Splash native — phạm vi người dùng duyệt23/10/2026
+
+Thêm AndroidX core-splashscreen1.2.0 stable cho launcher hiện có, không nâng
+dependency khác. Logo PNG hiện có được giữ nguyên; Java View animation trên
+provider exit thay cho vector hóa logo. Không SplashActivity/giữ splash vì trang
+trí/đổi session gate; cancel khi stop/destroy và remove khi end/cancel. Đây là
+chi tiết triển khai yêu cầu splash mới, không thay kiến trúc auth/backend.
+Nghiệm thu còn PARTIAL: [hồ sơ](QA_SPLASH_20261023.md).
+
 ## HARDENING-01 — Reliability và vận hành, duyệt 21/10/2026
 
 - Bổ sung V6, không sửa migration cũ: enqueue push trong transaction nghiệp vụ;

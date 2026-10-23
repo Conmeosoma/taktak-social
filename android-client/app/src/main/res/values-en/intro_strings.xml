@@ -1,0 +1,10 @@
+<resources>
+    <string name="intro_settings">Startup effects</string>
+    <string name="intro_settings_description">Full Intro plays the brand video on a fresh launcher entry. Turn it off for Quick Start. Sound respects silent mode and Do Not Disturb.</string>
+    <string name="intro_full">Play intro (Full Intro)</string>
+    <string name="intro_sound_setting">Startup sound</string>
+    <string name="intro_preview">Preview animation</string>
+    <string name="intro_skip">Skip</string>
+    <string name="intro_sound_on">Mute</string>
+    <string name="intro_sound_off">Unmute</string>
+</resources>

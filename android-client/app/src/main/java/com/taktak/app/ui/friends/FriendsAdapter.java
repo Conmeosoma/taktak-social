@@ -110,12 +110,9 @@ final class FriendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         avatars.load(row.user.id,b.friendAvatar);
 
         if (row.role == FRIEND) {
-            b.friendStreakBadge.setVisibility(View.VISIBLE);
-            int streakDays = Math.abs(row.user.username.hashCode() % 14) + 1;
-            b.friendStreakBadge.setText("🔥 " + streakDays + "d");
-
-            boolean isBff = (row.user.username.hashCode() % 3) == 0;
-            b.friendGroupBadge.setVisibility(isBff ? View.VISIBLE : View.GONE);
+            // Chưa có dữ liệu streak/BFF từ API; không trình bày số sinh từ username như dữ liệu thật.
+            b.friendStreakBadge.setVisibility(View.GONE);
+            b.friendGroupBadge.setVisibility(View.GONE);
         } else {
             b.friendStreakBadge.setVisibility(View.GONE);
             b.friendGroupBadge.setVisibility(View.GONE);

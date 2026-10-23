@@ -1,0 +1,10 @@
+<resources>
+    <string name="intro_settings">起動時の演出</string>
+    <string name="intro_settings_description">ランチャーから新しく開くと Full Intro のブランド動画を再生します。Quick Start を使うにはオフにしてください。サウンドはマナーモードとサイレントモードの設定に従います。</string>
+    <string name="intro_full">イントロを再生（Full Intro）</string>
+    <string name="intro_sound_setting">起動音</string>
+    <string name="intro_preview">アニメーションを試す</string>
+    <string name="intro_skip">スキップ</string>
+    <string name="intro_sound_on">消音</string>
+    <string name="intro_sound_off">消音を解除</string>
+</resources>

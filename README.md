@@ -80,6 +80,7 @@ Không có bảng tin công khai. Ảnh được lưu trên máy chủ riêng v�
 - Hồ sơ cá nhân, chỉnh tên hiển thị, tải avatar và đăng xuất.
 - Năm tab: Camera / Lịch sử / Tin nhắn / Bạn bè / Hồ sơ.
 - Bốn phong cách Original, Gradient, Glass và Soft; sáng/tối/theo hệ thống, chọn và xem trước theme.
+- Intro thương hiệu có tiếng từ video local; có Bỏ qua, Quick Start và bật/tắt âm thanh trong Hồ sơ → Hiệu ứng khởi động. Âm thanh tôn trọng chế độ im lặng và Không làm phiền.
 
 ### Widget và thông báo
 
@@ -90,7 +91,7 @@ Không có bảng tin công khai. Ảnh được lưu trên máy chủ riêng v�
 
 ### Trạng thái xác minh
 
-Nội dung được đối chiếu với mã nguồn và hồ sơ QA ngày 21/10/2026. Các kết quả
+Nội dung được đối chiếu với mã nguồn và hồ sơ QA đến ngày 23/10/2026. Các kết quả
 dưới đây có phạm vi riêng; không có tuyên bố toàn bộ ứng dụng đã qua nghiệm thu production.
 
 | Phần | Trạng thái của workspace |
@@ -99,7 +100,8 @@ dưới đây có phạm vi riêng; không có tuyên bố toàn bộ ứng dụ
 | Chat và trả lời ảnh riêng | Đã kiểm thử backend/local, AVD và USB; chưa nghiệm thu toàn luồng reply qua VPS/FCM thật |
 | Recovery qua email | Kiểm thử Gmail thật đã gửi và xác nhận nhận đủ 3 thư QA; chưa nghiệm thu SMTP của service VPS |
 | FCM/widget | FCM thật → Worker → AppWidgetHost trên điện thoại đã đạt; còn nghiệm thu widget ghim launcher/OEM và hình ảnh logout |
-| UI toàn ứng dụng | Còn lỗi bản dịch/lint và một số ca layout/hồi quy chưa ổn định; không coi toàn app đã PASS |
+| UI toàn ứng dụng | Đã sửa lỗi thiếu bản dịch; lint debug 0 error/85 warning. Còn tương phản Friends/History sáng, Recap mẫu và nghiệm thu accessibility/đa thiết bị |
+| Intro thương hiệu | Video local có tiếng, Full Intro/Quick Start và preview; đã xác minh trên Android 15, còn ma trận API/chế độ âm thanh mở rộng |
 | Backup/restore | Native QA khôi phục DB/ảnh và bảo toàn thu hồi phiên đạt; script/SQL/systemd guard đã cài production, chưa restore dữ liệu production |
 | Production | Đã có ghi nhận VPS/V6 và bật FCM; rollout restore-security đã kiểm tra health/PID, không phải nghiệm thu mọi chức năng trên VPS |
 
@@ -320,13 +322,17 @@ adb -s '<avd-serial>' shell am instrument -w -r `
 
 Không chạy toàn bộ instrumentation tùy tiện trên điện thoại có tài khoản cá nhân: từng suite có fixture/opt-in riêng. Xem [QA bootstrap](docs/QA_BOOTSTRAP.md). Lần đầu cần mạng tải dependency; chỉ dùng `--offline` khi cache đầy đủ.
 
-Kết quả gần nhất trong hồ sơ QA: backend **191/191** (`mvn verify`), Android JVM
+Kết quả đã ghi nhận trước đó: backend **191/191** (`mvn verify`), Android JVM
 **127/127**, build debug/test/release unsigned đã đạt. Bộ shell bảo trì **12/12**,
 kiểm thử restore SQL/HTTP **4/4** và diễn tập native QA đạt. Xem
 [QA tổng hợp](docs/QA_ACCEPTANCE_ALL.md) và [QA restore](docs/QA_RESTORE_SECURITY.md).
 Đây là kết quả đã ghi nhận, **không phải các suite vừa chạy lại để sửa README**.
-Lint vẫn còn **179 lỗi MissingTranslation** mỗi variant; build APK thành công
-không đồng nghĩa toàn bộ lệnh build + lint đạt. Không có tuyên bố coverage hoặc badge CI xanh.
+Lượt Android ngày **23/10/2026**: JVM **135/135**, lint debug **0 error/85 warning**,
+USB **22/22** ca hồi quy và lượt launcher riêng **1/1** đạt. Có xác nhận nghe
+soundtrack intro gốc; xem [hồ sơ intro](docs/QA_BRANDED_INTRO_20261023.md).
+179 lỗi MissingTranslation cũ đã sửa, không còn là trạng thái hiện tại.
+Không coi kết quả Android này là chạy lại backend, release signing hay QA toàn
+ứng dụng. Không có tuyên bố coverage hoặc badge CI xanh.
 
 Lượt chụp README ngày **21/10/2026**: AVD Medium_Phone API 37, 1080×2400;
 **9/9 ca UI chính đạt (213,849s)** và **3/3 ca bổ sung đạt (72,178s)**.
