@@ -1,5 +1,49 @@
 # Taktak — Bàn giao phiên khôi phục
 
+## Sửa email/recovery — 08/11/2026
+
+User yêu cầu sửa luồng Gmail, duyệt recovery unverified và3thưQA tới email chỉ
+định. Đã bỏ gate verified trước cấp/nhận credential tạm; chỉ reset hợp lệ mới
+verify và revoke mọi phiên trong cùng transaction. Giữ API/schema/TTL/locks/
+quota, sửa SMTP whitespace/Gmail App Password/port/log không PII, copy7locale.
+Targeted20/20, full verify196/196 + JAR PASS, GmailIT1/1 +3SMTP accept, user đã
+xác nhận đủ3thư. Android assemble/lint PASS0/84; unit task UP-TO-DATE135PASS.
+APK `.local/artifacts/apk/Taktak-mail-fixed-20261108.apk`. **Đã deploy binary
+sau phê duyệt rõ ràng của user**: checksum local/VPS673fd99c…89fbb0 khớp,
+backup `/var/taktak/taktak-server.before-mail-fix-1794154802.jar`, thay atomic,
+restart một lần, NRestarts0. Health200UP từ loopback/public, API protected401,
+JSON rỗng auth/recovery400, SMTP env đầy đủ. Không cần rollback; policy mới đã
+có hiệu lực VPS. Chưa gửi recovery production thay user hoặc sửa tài khoản,
+không migration/reset DB/commit/push. Bảo toàn Camera XML và file báo cáo có
+sẵn. [Chi tiết và giới hạn](QA_MAIL_RECOVERY_20261108.md).
+
+## QA backend/VPS — 08/11/2026
+
+**Tiếp nối sau panel:** user cung cấp panel đúng endpoint/hostname/cảnh báo
+Internet và yêu cầu tự sửa. Pin fingerprint mới, đăng nhập và đối chiếu hostname.
+Đã khôi phục mạng bằng changeip, sửa route boot từ lease DHCP có backup và
+DNS resolved; backend thiếu MAIL_* được bổ sung từ file local đã cung cấp sau
+SMTP auth PASS. Restart backend một lần, không thay JAR/schema/DB/JWT.
+Health public mới200, auth401, validation400; runtime SMTP TLS/auth PASS,
+EMAILS_SENT=0. Gradle debug origin đổi sang tunnel mới đã xác minh; APK +135
+JVM PASS bằng full JDK project override. ADB rỗng nên chưa cài APK mới. Tài
+khoản báo lỗi tồn tại nhưng unverified; không reset hay bypass verification.
+Cần user cài APK mới và bấm Xác minh email bằng password hiện tại để nghiệm
+thu Inbox. Reboot gate chưa chạy, Quick Tunnel chưa có hostname cố định.
+Chi tiết/backup/APK tại [hồ sơ](QA_BACKEND_VPS_20261108.md). Các đoạn dưới là
+trạng thái trước khi có panel, không còn là blocker SSH hiện hành.
+
+Yêu cầu kiểm tra backend/VPS và tự sửa lỗi; phản ánh OTP không tới inbox.
+Đã dùng debugging-strategies, đọc đặc tả/quyết định/source recovery và Git;
+bảo toàn Camera XML cùng file báo cáo chưa commit. Maven verify local mới:
+191/191 PASS, build JAR exit 0; log ignored `backend-qa-20261108-verify.log`.
+Tunnel đang cấu hình không còn DNS. Public SSH key tại cả tám IP remote.io.vn
+khác fingerprint lịch sử; không dùng credential khi chưa xác minh máy chủ.
+Chưa gửi email, sửa account, restart/deploy hoặc sửa source. Cần fingerprint
+qua console nhà cung cấp hoặc bản ghi trusted độc lập để tiếp tục đọc journal,
+kiểm tra runtime MAIL_* và tìm HTTPS origin hiện hành. Không bỏ kiểm tra host
+key, không đổi URL bằng suy đoán. [Hồ sơ chi tiết](QA_BACKEND_VPS_20261108.md).
+
 ## Chốt APK/source theo yêu cầu — 23/10/2026
 
 User cho phép build APK và commit trực tiếp main, không push. Đóng gói debug

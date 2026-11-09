@@ -1,12 +1,12 @@
 # Xác minh email và khôi phục tài khoản Taktak
 
-Phạm vi A được duyệt ngày 19/10/2026. Không triển khai phần B — validation đăng ký. Chỉ Java/XML/ViewBinding; Spring Boot 3.5.16 và Java 17. Dùng Spring Boot Mail theo BOM hiện có, không Firebase Auth.
+Phạm vi A được duyệt ngày 19/10/2026, chính sách khôi phục được người dùng sửa đổi ngày 08/11/2026. Chỉ Java/XML/ViewBinding; Spring Boot 3.5.16 và Java 17. Dùng Spring Boot Mail theo BOM hiện có, không Firebase Auth. Chi tiết kiểm thử mới tại [QA_MAIL_RECOVERY_20261108.md](QA_MAIL_RECOVERY_20261108.md).
 
 ## Chính sách đã được duyệt
 
-- Tài khoản mới/cũ mặc định **chưa xác minh**; không backfill tự động. Người còn biết mật khẩu vào Đăng nhập → Xác minh email, nhập email và mật khẩu hiện tại, yêu cầu mã rồi nhập mã trong thư. Chỉ có cả mật khẩu hiện tại và quyền truy cập hộp thư mới xác minh được.
-- Tài khoản chưa xác minh không nhận recovery. Nếu đã quên mật khẩu trước khi xác minh, luồng tự phục vụ này không thể chứng minh chủ tài khoản; cần hỗ trợ xác minh độc lập, không tự mở ngoại lệ hoặc sửa DB.
-- Forgot luôn trả cùng thông báo với email tồn tại/không tồn tại/chưa xác minh. Rate limit vẫn có thể trả429; validation trả400. HTTP200 chỉ xác nhận yêu cầu, **không xác nhận thư đã được giao**.
+- Tài khoản mới/cũ mặc định **chưa xác minh**; không backfill tự động. Người còn biết mật khẩu vào Đăng nhập → Xác minh email, nhập email và mật khẩu hiện tại, yêu cầu mã rồi nhập mã trong thư. Đăng ký không tự gửi email; chỉ gửi khi người dùng yêu cầu. Email đã xác minh không nhận mã xác minh mới.
+- **Chính sách mới được duyệt 08/11/2026:** tài khoản đã đăng ký được nhận mật khẩu tạm dù chưa xác minh. Nhận thư/chứng minh quyền hộp thư bằng credential một lần là điều kiện để reset. Chỉ reset thành công mới đánh dấu email đã xác minh trong cùng giao dịch đổi mật khẩu/thu hồi phiên. Không cần mật khẩu cũ cho forgot. Không tự sửa verified trong DB hoặc cấp JWT chỉ nhờ yêu cầu email.
+- Forgot luôn trả cùng thông báo với email tồn tại/không tồn tại, không tiết lộ trạng thái verified. Rate limit vẫn có thể trả429; validation trả400. HTTP200 chỉ xác nhận yêu cầu, **không xác nhận thư đã được giao**. Kiểm tra Inbox/Spam; dùng mật khẩu tạm ở màn Đăng nhập để mở form đặt mật khẩu mới. Mã hiện hành có 43 ký tự Base64URL, không phải OTP 6 số.
 - Mật khẩu tạm: SecureRandom32byte/Base64URL43ký tự, BCrypt hash,15phút. Mật khẩu thật và phiên cũ vẫn dùng được đến lúc reset hoàn tất. Yêu cầu mới thay thế credential recovery trước đó.
 - Đăng nhập bằng mật khẩu tạm chỉ cấp opaque reset token một lần, không JWT/refresh. Server không chấp nhận token này ở các API nghiệp vụ. Reset session hết hạn cùng mật khẩu tạm; nếu app mất process sau khi tiêu thụ mật khẩu tạm, yêu cầu mật khẩu tạm mới.
 - Reset giữ khóa user, xác minh token + mật khẩu tạm, đổi BCrypt, tăng `security_version`, vô hiệu toàn bộ credential recovery và revoke mọi refresh trong **một giao dịch**. Login/refresh cùng khóa user trước khi cấp token, tránh race với reset.
@@ -27,7 +27,7 @@ Tất cả POST JSON, response no-store, cùng error envelope hiện có. Không
 
 Recovery endpoint dùng limiter riêng:5request/email/60giây,20request/IP/60giây, tối đa10.000key/JVM; verify request/confirm/forgot dùng chung quota account. Reset giới hạn IP và hash reset token. Login tiếp tục limiter hiện có. Không tin XFF tùy ý; cấu hình trusted proxy hiện hành vẫn áp dụng. Multi-instance cần quota chia sẻ hoặc giới hạn ở proxy; chưa thêm Redis.
 
-Hàng đợi recovery trong bộ nhớ tối đa100,1–2worker. Restart có thể mất yêu cầu chưa xử lý; yêu cầu lại sau cooldown. Hàng đợi không lưu plaintext password; SMTP lỗi rollback hash mới. Không có outbox retry lưu plaintext secret. Thông báo đổi mật khẩu chưa có durable retry nếu SMTP lỗi.
+Hàng đợi recovery trong bộ nhớ tối đa100,1–2worker. Restart có thể mất yêu cầu chưa xử lý; yêu cầu lại sau cooldown. Hàng đợi không lưu plaintext password; SMTP lỗi rollback hash mới. Gửi lại thành công thay thế credential cũ, gửi lại verification vô hiệu mã cũ. Không có outbox retry lưu plaintext secret. Thông báo đổi mật khẩu chưa có durable retry nếu SMTP lỗi. Log chỉ dùng nhóm lỗi hữu hạn authentication/smtp/processing, không exception message/recipient/body/credential. Thiếu cấu hình SMTP được cảnh báo an toàn lúc tạo adapter; backend health không phải bằng chứng gửi thư.
 
 ## Migration và tương thích
 

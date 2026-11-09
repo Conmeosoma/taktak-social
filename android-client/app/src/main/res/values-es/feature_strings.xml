@@ -104,13 +104,13 @@
     <string name="profile_error">No se pudo actualizar el perfil. Reintenta.</string>
     <string name="profile_network_error">No se pudo completar. Comprueba la conexión o elige otra foto y reintenta.</string>
     <string name="recovery_forgot_title">Olvidé mi contraseña</string>
-    <string name="recovery_forgot_detail">Solo se pueden recuperar cuentas con correo verificado. La contraseña temporal dura 15 minutos y solo permite cambiar la contraseña.</string>
+    <string name="recovery_forgot_detail">Introduce tu correo registrado, aunque no esté verificado. Usa la contraseña temporal de un solo uso al iniciar sesión en un plazo de 15 minutos para crear una nueva.</string>
     <string name="recovery_send">Enviar contraseña temporal</string>
-    <string name="recovery_generic">Si este correo está registrado, enviaremos una contraseña temporal a tu buzón.</string>
-    <string name="recovery_verify_detail">Confirma tu contraseña actual e introduce el código enviado a tu correo. Verifícalo antes de necesitar recuperar la cuenta.</string>
+    <string name="recovery_generic">Solicitud recibida. Si el correo está registrado, revisa Entrada y Spam. Usa la contraseña temporal para iniciar sesión. Espera un minuto antes de solicitar otro envío.</string>
+    <string name="recovery_verify_detail">Introduce tu contraseña actual para solicitar un código. Si la has olvidado, vuelve al inicio de sesión y elige Olvidé mi contraseña.</string>
     <string name="recovery_request_code">Enviar código de verificación</string>
     <string name="recovery_code">Código recibido por correo</string>
-    <string name="recovery_code_sent">Si hace falta verificar, se ha enviado un código a tu correo. Caduca en 15 minutos.</string>
+    <string name="recovery_code_sent">Si el correo no está verificado, se ha enviado un código válido durante 15 minutos. Revisa Spam y usa el correo más reciente. Los correos verificados no reciben otro código.</string>
     <string name="recovery_confirm_email">Verificar correo</string>
     <string name="recovery_verified">Correo verificado. Ya puedes usar la recuperación de contraseña.</string>
     <string name="recovery_change_title">Establecer nueva contraseña</string>

@@ -62,7 +62,9 @@ class GmailRecoveryAcceptanceIT {
                 var old=body(post("/login",Map.of("email",email,"password",original)),200);
                 status(post("/verification/request",Map.of("email",email,"password",original)),200);
                 String code=mail.code(0);
-                status(post("/verification/confirm",Map.of("email",email,"password",original,"code",code)),200);
+                assertThat(context.getBean(JdbcTemplate.class).queryForObject(
+                        "select count(*) from users where email_verified_at is not null",Integer.class)).isZero();
+                // Cố ý chưa confirm: kiểm chứng recovery Gmail cho tài khoản chưa xác minh.
                 status(post("/forgot-password",Map.of("email",email)),200);
                 String temporary=mail.code(1);
                 // API/job giữ user-lock đến commit; login đợi commit thay vì đọc hash chưa lưu.
@@ -74,6 +76,7 @@ class GmailRecoveryAcceptanceIT {
                 status(post("/reset-password",Map.of("resetToken",token,"temporaryPassword",temporary,
                         "newPassword",replacement,"confirmation",replacement)),200);
                 mail.await(2);
+                status(post("/verification/confirm",Map.of("email",email,"password",replacement,"code",code)),401);
                 status(get("/api/users/me",old.path("accessToken").asText()),401);
                 status(post("/refresh",Map.of("refreshToken",old.path("refreshToken").asText())),401);
                 status(post("/login",Map.of("email",email,"password",original)),401);

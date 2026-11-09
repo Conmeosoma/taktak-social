@@ -17,13 +17,19 @@ public class RecoveryDispatcher {
         try {
             executor.execute(() -> {
                 try { recovery.issueTemporary(email); }
-                catch (RuntimeException ignored) {
-                    org.slf4j.LoggerFactory.getLogger(RecoveryDispatcher.class).error("Recovery mail processing failed; no delivery confirmed.");
+                catch (RuntimeException failure) {
+                    org.slf4j.LoggerFactory.getLogger(RecoveryDispatcher.class).error(
+                            "Recovery mail processing failed; no delivery confirmed. reason={}", failureCategory(failure));
                 }
             });
         } catch (RejectedExecutionException ignored) {
             org.slf4j.LoggerFactory.getLogger(RecoveryDispatcher.class).warn("Recovery mail queue full; request not processed.");
         }
+    }
+    static String failureCategory(RuntimeException failure) {
+        if (failure instanceof org.springframework.mail.MailAuthenticationException) { return "authentication"; }
+        if (failure instanceof org.springframework.mail.MailException) { return "smtp"; }
+        return "processing";
     }
     @PreDestroy void close() { executor.shutdownNow(); }
 }

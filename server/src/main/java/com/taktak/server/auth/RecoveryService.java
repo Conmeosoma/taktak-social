@@ -14,7 +14,7 @@ import org.springframework.transaction.support.TransactionSynchronizationManager
 
 @Service
 public class RecoveryService {
-    public static final String GENERIC = "Nếu email này đã được đăng ký, chúng tôi sẽ gửi mật khẩu tạm thời đến hộp thư của bạn.";
+    public static final String GENERIC = "Yêu cầu đã được tiếp nhận. Nếu email đã đăng ký, hãy kiểm tra Hộp thư đến và Spam để nhận mật khẩu tạm thời.";
     private final UserRepository users;
     private final RecoveryCredentialsRepository credentials;
     private final RefreshTokenRepository refreshTokens;
@@ -68,7 +68,8 @@ public class RecoveryService {
     @Transactional
     public void issueTemporary(String email) {
         User user = locked(email);
-        if (user == null || !user.isEmailVerified()) { return; }
+        // Quyền sở hữu hộp thư được chứng minh bằng credential một lần khi reset.
+        if (user == null) { return; }
         var stored = record(user); String temporary = secret();
         stored.clearRecovery(); stored.temporaryHash = passwords.encode(temporary);
         stored.temporaryExpiresAt = clock.instant().plusSeconds(900); credentials.saveAndFlush(stored);
@@ -79,7 +80,7 @@ public class RecoveryService {
     @Transactional
     public RecoveryRequests.ResetSession loginTemporary(User user, String temporary) {
         var stored = record(user);
-        if (!user.isEmailVerified() || stored.temporaryHash == null || stored.resetHash != null
+        if (stored.temporaryHash == null || stored.resetHash != null
                 || !stored.temporaryExpiresAt.isAfter(clock.instant())
                 || !passwords.matches(temporary, stored.temporaryHash)) { throw new AuthFailure(); }
         String token = secret(); stored.resetHash = TokenService.hash(token);
@@ -98,15 +99,18 @@ public class RecoveryService {
                 || !passwords.matches(request.temporaryPassword(), stored.temporaryHash)) { throw new AuthFailure(); }
         if (!request.isPasswordSupported() || passwords.matches(request.newPassword(), user.getPasswordHash())
                 || passwords.matches(request.newPassword(), stored.temporaryHash)) { throw new RecoveryValidation(); }
-        user.resetPassword(passwords.encode(request.newPassword())); stored.clearRecovery();
+        user.resetPassword(passwords.encode(request.newPassword()));
+        if (!user.isEmailVerified()) { user.verifyEmail(clock.instant()); }
+        stored.clearRecovery();
         stored.verificationHash = null; stored.verificationExpiresAt = null;
         refreshTokens.revokeAll(user.getId(), clock.instant());
         TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
             @Override public void afterCommit() {
                 try { mail.send(user.getEmail(), "Taktak — Mật khẩu đã thay đổi",
                         "Mật khẩu của bạn đã được thay đổi. Mọi phiên cũ đã bị thu hồi. Nếu không phải bạn, hãy liên hệ hỗ trợ."); }
-                catch (RuntimeException ignored) {
-                    org.slf4j.LoggerFactory.getLogger(RecoveryService.class).error("Password-change notification failed; reset committed.");
+                catch (RuntimeException failure) {
+                    org.slf4j.LoggerFactory.getLogger(RecoveryService.class).error(
+                            "Password-change notification failed; reset committed. reason={}", RecoveryDispatcher.failureCategory(failure));
                 }
             }
         });

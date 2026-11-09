@@ -104,13 +104,13 @@
     <string name="profile_error">Unable to update profile. Please retry.</string>
     <string name="profile_network_error">Cannot finish. Check your connection or choose another photo, then retry.</string>
     <string name="recovery_forgot_title">Forgot password</string>
-    <string name="recovery_forgot_detail">Only verified emails can be used for recovery. The temporary password lasts 15 minutes and can only be used to change your password.</string>
+    <string name="recovery_forgot_detail">Enter your registered email, even if unverified. Use the single-use temporary password at Sign in within 15 minutes to set a new password.</string>
     <string name="recovery_send">Send temporary password</string>
-    <string name="recovery_generic">If this email is registered, we will send a temporary password to your inbox.</string>
-    <string name="recovery_verify_detail">Confirm your current password, then enter the code sent to your registered email. Verify before you need account recovery.</string>
+    <string name="recovery_generic">Request received. If the email is registered, check Inbox and Spam. Use the temporary password at Sign in. If no email arrives, wait one minute before requesting again.</string>
+    <string name="recovery_verify_detail">Enter your current password to request a code. If you forgot it, return to Sign in and choose Forgot password.</string>
     <string name="recovery_request_code">Send verification code</string>
     <string name="recovery_code">Email verification code</string>
-    <string name="recovery_code_sent">If verification is needed, a code has been sent to your registered email. It expires in 15 minutes.</string>
+    <string name="recovery_code_sent">If unverified, a code valid for 15 minutes has been sent. Check Spam and use the newest email. Verified emails will not receive another code.</string>
     <string name="recovery_confirm_email">Verify email</string>
     <string name="recovery_verified">Email verified. You can now use password recovery.</string>
     <string name="recovery_change_title">Set new password</string>

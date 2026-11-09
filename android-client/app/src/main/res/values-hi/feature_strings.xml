@@ -104,13 +104,13 @@
     <string name="profile_error">प्रोफ़ाइल अपडेट नहीं हुई। फिर कोशिश करें।</string>
     <string name="profile_network_error">पूरा नहीं हो सका। कनेक्शन जाँचें या दूसरी फ़ोटो चुनकर फिर कोशिश करें।</string>
     <string name="recovery_forgot_title">पासवर्ड भूल गए</string>
-    <string name="recovery_forgot_detail">केवल सत्यापित ईमेल से खाता पुनर्प्राप्त हो सकता है। अस्थायी पासवर्ड 15 मिनट तक मान्य है और केवल पासवर्ड बदलने के काम आता है।</string>
+    <string name="recovery_forgot_detail">पंजीकृत ईमेल दर्ज करें, भले ही वह सत्यापित न हो। नया पासवर्ड बनाने के लिए 15 मिनट के भीतर एक बार उपयोग होने वाले अस्थायी पासवर्ड से लॉग इन करें।</string>
     <string name="recovery_send">अस्थायी पासवर्ड भेजें</string>
-    <string name="recovery_generic">यदि यह ईमेल पंजीकृत है, तो हम अस्थायी पासवर्ड भेजेंगे।</string>
-    <string name="recovery_verify_detail">वर्तमान पासवर्ड की पुष्टि करें, फिर पंजीकृत ईमेल पर भेजा कोड दर्ज करें। खाता पुनर्प्राप्ति की ज़रूरत पड़ने से पहले सत्यापन करें।</string>
+    <string name="recovery_generic">अनुरोध प्राप्त हुआ। ईमेल पंजीकृत होने पर इनबॉक्स और स्पैम देखें और अस्थायी पासवर्ड से लॉग इन करें। दोबारा अनुरोध करने से पहले एक मिनट प्रतीक्षा करें।</string>
+    <string name="recovery_verify_detail">कोड मँगाने के लिए वर्तमान पासवर्ड दर्ज करें। पासवर्ड भूल गए हों तो लॉग इन पर वापस जाकर पासवर्ड भूल गए चुनें।</string>
     <string name="recovery_request_code">सत्यापन कोड भेजें</string>
     <string name="recovery_code">ईमेल सत्यापन कोड</string>
-    <string name="recovery_code_sent">सत्यापन आवश्यक होने पर कोड पंजीकृत ईमेल पर भेज दिया गया है। यह 15 मिनट तक मान्य है।</string>
+    <string name="recovery_code_sent">असत्यापित ईमेल पर 15 मिनट के लिए मान्य कोड भेजा गया है। स्पैम भी देखें और सबसे नया कोड उपयोग करें। सत्यापित ईमेल पर नया कोड नहीं भेजा जाता।</string>
     <string name="recovery_confirm_email">ईमेल सत्यापित करें</string>
     <string name="recovery_verified">ईमेल सत्यापित हो गया। अब पासवर्ड पुनर्प्राप्ति का उपयोग कर सकते हैं।</string>
     <string name="recovery_change_title">नया पासवर्ड सेट करें</string>

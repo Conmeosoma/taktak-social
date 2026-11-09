@@ -104,13 +104,13 @@
     <string name="profile_error">プロフィールを更新できません。再試行してください。</string>
     <string name="profile_network_error">完了できません。接続を確認するか別の写真を選んで再試行してください。</string>
     <string name="recovery_forgot_title">パスワードを忘れた場合</string>
-    <string name="recovery_forgot_detail">確認済みメールのみ復元に使えます。一時パスワードは15分間有効で、パスワード変更にのみ使えます。</string>
+    <string name="recovery_forgot_detail">未確認でも登録済みメールを入力できます。15分以内に一度だけ使える一時パスワードでログインし、新しいパスワードを設定してください。</string>
     <string name="recovery_send">一時パスワードを送信</string>
-    <string name="recovery_generic">登録済みのメールであれば、一時パスワードを送信します。</string>
-    <string name="recovery_verify_detail">現在のパスワードを確認し、登録メールに届くコードを入力してください。復元が必要になる前に確認を済ませてください。</string>
+    <string name="recovery_generic">リクエストを受け付けました。登録済みの場合は受信箱と迷惑メールを確認し、一時パスワードでログインしてください。再送は1分待ってからお試しください。</string>
+    <string name="recovery_verify_detail">現在のパスワードを入力してコードを送信してください。忘れた場合はログイン画面に戻り、パスワードを忘れた場合を選んでください。</string>
     <string name="recovery_request_code">確認コードを送信</string>
     <string name="recovery_code">メールの確認コード</string>
-    <string name="recovery_code_sent">確認が必要な場合は登録メールにコードを送信しました。有効期限は15分です。</string>
+    <string name="recovery_code_sent">未確認のメールには15分間有効なコードを送信しました。迷惑メールも確認し、最新のコードを使用してください。確認済みの場合は再送されません。</string>
     <string name="recovery_confirm_email">メールを確認</string>
     <string name="recovery_verified">メールを確認しました。パスワードの復元を利用できます。</string>
     <string name="recovery_change_title">新しいパスワードを設定</string>

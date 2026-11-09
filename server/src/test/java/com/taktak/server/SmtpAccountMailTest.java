@@ -9,6 +9,25 @@ import org.junit.jupiter.api.Test;
 import static org.assertj.core.api.Assertions.*;
 
 class SmtpAccountMailTest {
+    @Test void gmailConfigurationNormalizesPastedFieldsAndGroupedAppPassword() throws Exception {
+        String compact = UUID.randomUUID().toString().replace("-", "").replaceAll("[0-9]", "a").substring(0,16);
+        String grouped = String.join(" ", compact.substring(0,4), compact.substring(4,8), compact.substring(8,12), compact.substring(12));
+        var sender = new SmtpAccountMail(" smtp.gmail.com ",587," qa@example.test ",grouped," qa@example.test ");
+        var field = SmtpAccountMail.class.getDeclaredField("sender"); field.setAccessible(true);
+        var transport = (org.springframework.mail.javamail.JavaMailSenderImpl) field.get(sender);
+        assertThat(transport.getHost()).isEqualTo("smtp.gmail.com");
+        assertThat(transport.getUsername()).isEqualTo("qa@example.test");
+        assertThat(transport.getPassword()).isEqualTo(compact);
+        var other = new SmtpAccountMail("smtp.example.test",587,"qa@example.test",grouped,"qa@example.test");
+        assertThat(((org.springframework.mail.javamail.JavaMailSenderImpl) field.get(other)).getPassword()).isEqualTo(grouped);
+    }
+    @Test void invalidPortFailsBeforeConnecting() {
+        for (int port : new int[]{0, -1, 65536}) {
+            var sender = new SmtpAccountMail("smtp.example.test",port,"qa@example.test",UUID.randomUUID().toString(),"qa@example.test");
+            assertThatThrownBy(() -> sender.send("qa@example.test","Test","Test"))
+                    .isInstanceOf(org.springframework.mail.MailSendException.class);
+        }
+    }
     @Test void missingConfigurationFailsInsteadOfPretendingToSend() {
         var sender=new SmtpAccountMail("",587,"","","");
         assertThatThrownBy(() -> sender.send("qa@example.test","Test","Test"))

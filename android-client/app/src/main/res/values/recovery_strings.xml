@@ -1,13 +1,13 @@
 <resources>
 <string name="recovery_forgot_title">Quên mật khẩu</string>
-<string name="recovery_forgot_detail">Chỉ email đã xác minh mới được khôi phục. Mật khẩu tạm có hiệu lực 15 phút, chỉ dùng để đổi mật khẩu.</string>
+<string name="recovery_forgot_detail">Nhập email đã đăng ký, kể cả khi chưa xác minh. Bạn sẽ nhận mật khẩu tạm dùng một lần trong 15 phút; dùng mật khẩu đó ở màn Đăng nhập để đặt mật khẩu mới.</string>
 <string name="recovery_send">Gửi mật khẩu tạm thời</string>
-<string name="recovery_generic">Nếu email này đã được đăng ký, chúng tôi sẽ gửi mật khẩu tạm thời đến hộp thư của bạn.</string>
+<string name="recovery_generic">Yêu cầu đã được tiếp nhận. Nếu email đã đăng ký, hãy kiểm tra Hộp thư đến và Spam. Dùng mật khẩu tạm trong thư ở màn Đăng nhập. Nếu chưa nhận được, đợi một phút rồi thử gửi lại.</string>
 <string name="recovery_verify_title">Xác minh email</string>
-<string name="recovery_verify_detail">Xác nhận mật khẩu hiện tại rồi nhập mã gửi tới email đăng ký. Hãy xác minh trước khi cần khôi phục tài khoản.</string>
+<string name="recovery_verify_detail">Nhập mật khẩu hiện tại để gửi mã đến email đăng ký. Nếu đã quên mật khẩu, quay về Đăng nhập và chọn Quên mật khẩu.</string>
 <string name="recovery_request_code">Gửi mã xác minh</string>
 <string name="recovery_code">Mã xác minh trong email</string>
-<string name="recovery_code_sent">Nếu cần xác minh, mã đã được gửi tới email đăng ký. Mã có hiệu lực 15 phút.</string>
+<string name="recovery_code_sent">Nếu email chưa xác minh, mã có hiệu lực 15 phút đã được gửi. Kiểm tra cả Spam và dùng mã trong thư mới nhất. Email đã xác minh sẽ không nhận mã mới.</string>
 <string name="recovery_confirm_email">Xác nhận email</string>
 <string name="recovery_verified">Email đã được xác minh. Bạn có thể dùng tính năng khôi phục mật khẩu.</string>
 <string name="recovery_change_title">Đặt mật khẩu mới</string>

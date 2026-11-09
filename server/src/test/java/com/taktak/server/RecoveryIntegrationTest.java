@@ -62,8 +62,9 @@ class RecoveryIntegrationTest {
         var b = register(); post("/verification/request", loginBody(b)); String expired = mail.code(b.email); clock.advance(900);
         assertThat(post("/verification/confirm", Map.of("email", b.email, "password", b.password, "code", expired)).statusCode()).isEqualTo(401);
     }
-    @Test void forgotResponseIsGenericAndUnverifiedAccountsCannotRecover() throws Exception {
+    @Test void forgotResponseIsGenericAndUnverifiedAccountCanProveMailboxAtReset() throws Exception {
         var a = register(); String before = hash(a);
+        var old = tree(post("/login", loginBody(a)));
         var known = post("/forgot-password", Map.of("email", a.email));
         var unknown = post("/forgot-password", Map.of("email", secret() + "@example.test"));
         assertThat(known.statusCode()).isEqualTo(200); assertThat(unknown.body()).isEqualTo(known.body());
@@ -71,7 +72,57 @@ class RecoveryIntegrationTest {
         assertThat(post("/forgot-password", Map.of("email", "bad")).statusCode()).isEqualTo(400);
         assertThat(hash(a)).isEqualTo(before);
         assertThat(post("/login", loginBody(a)).statusCode()).isEqualTo(200);
-        assertThat(mail.messages.containsKey(a.email)).isFalse();
+        String temporary = awaitCode(a.email);
+        assertThat(jdbc.queryForObject("select email_verified_at is not null from users where id=?", Boolean.class, a.id)).isFalse();
+        var restricted = tree(post("/login", Map.of("email", a.email, "password", temporary)));
+        assertThat(restricted.path("resetRequired").asBoolean()).isTrue();
+        assertThat(restricted.has("accessToken") || restricted.has("refreshToken")).isFalse();
+        String token = restricted.get("resetToken").asText();
+        assertThat(get("/api/users/me", token).statusCode()).isEqualTo(401);
+        assertThat(jdbc.queryForObject("select email_verified_at is not null from users where id=?", Boolean.class, a.id)).isFalse();
+        assertThat(post("/reset-password", resetBody(token, secret(), secret())).statusCode()).isEqualTo(401);
+        assertThat(hash(a)).isEqualTo(before);
+        clock.advance(61);
+        String replacement = secret();
+        assertThat(post("/reset-password", resetBody(token, temporary, replacement)).statusCode()).isEqualTo(200);
+        assertThat(jdbc.queryForObject("select email_verified_at is not null from users where id=?", Boolean.class, a.id)).isTrue();
+        assertThat(jdbc.queryForObject("select security_version from users where id=?", Long.class, a.id)).isEqualTo(1);
+        assertThat(get("/api/users/me", old.get("accessToken").asText()).statusCode()).isEqualTo(401);
+        assertThat(post("/refresh", Map.of("refreshToken", old.get("refreshToken").asText())).statusCode()).isEqualTo(401);
+        assertThat(post("/login", Map.of("email", a.email, "password", replacement)).statusCode()).isEqualTo(200);
+        assertThat(post("/reset-password", resetBody(token, temporary, replacement)).statusCode()).isEqualTo(401);
+    }
+    @Test void resendVerificationInvalidatesOldCodeAndKeepsLatestCodeUsable() throws Exception {
+        var a = register();
+        assertThat(post("/verification/request", loginBody(a)).statusCode()).isEqualTo(200);
+        String oldCode = mail.code(a.email);
+        clock.advance(61);
+        assertThat(post("/verification/request", loginBody(a)).statusCode()).isEqualTo(200);
+        String latest = mail.code(a.email);
+        assertThat(latest).isNotEqualTo(oldCode);
+        assertThat(post("/verification/confirm", Map.of("email", a.email, "password", a.password, "code", oldCode)).statusCode()).isEqualTo(401);
+        assertThat(post("/verification/confirm", Map.of("email", a.email, "password", a.password, "code", latest)).statusCode()).isEqualTo(200);
+    }
+    @Test void resendRecoveryInvalidatesOldResetSessionWithoutVerifyingAccountEarly() throws Exception {
+        var a = register();
+        String first = temporary(a);
+        String token = tree(post("/login", Map.of("email", a.email, "password", first))).get("resetToken").asText();
+        clock.advance(61);
+        String latest = temporary(a);
+        assertThat(latest).isNotEqualTo(first);
+        assertThat(post("/reset-password", resetBody(token, first, secret())).statusCode()).isEqualTo(401);
+        assertThat(post("/login", Map.of("email", a.email, "password", first)).statusCode()).isEqualTo(401);
+        assertThat(post("/login", Map.of("email", a.email, "password", latest)).statusCode()).isEqualTo(200);
+        assertThat(jdbc.queryForObject("select email_verified_at is not null from users where id=?", Boolean.class, a.id)).isFalse();
+        assertThat(post("/login", loginBody(a)).statusCode()).isEqualTo(200);
+    }
+    @Test void smtpFailureForUnverifiedAccountDoesNotVerifyOrChangePassword() throws Exception {
+        var a = register(); String before = hash(a); mail.fail = true;
+        org.assertj.core.api.Assertions.assertThatThrownBy(() -> context.getBean(RecoveryService.class).issueTemporary(a.email))
+                .isInstanceOf(org.springframework.mail.MailSendException.class);
+        assertThat(hash(a)).isEqualTo(before);
+        assertThat(jdbc.queryForObject("select email_verified_at is not null from users where id=?", Boolean.class, a.id)).isFalse();
+        assertThat(jdbc.queryForObject("select count(*) from account_recovery where user_id=?", Integer.class, a.id)).isZero();
     }
     @Test void resetRevokesEveryOldJwtAndRefreshAndRequiresFreshLogin() throws Exception {
         var a = register(); verify(a); clock.advance(61);
@@ -225,9 +276,12 @@ class RecoveryIntegrationTest {
     private String temporary(Account a) throws Exception {
         mail.messages.remove(a.email);
         assertThat(post("/forgot-password", Map.of("email", a.email)).statusCode()).isEqualTo(200);
+        return awaitCode(a.email);
+    }
+    private String awaitCode(String email) throws Exception {
         long deadline = System.nanoTime()+TimeUnit.SECONDS.toNanos(10);
-        while (!mail.messages.containsKey(a.email) && System.nanoTime()<deadline) Thread.sleep(25);
-        return mail.code(a.email);
+        while (!mail.messages.containsKey(email) && System.nanoTime()<deadline) Thread.sleep(25);
+        return mail.code(email);
     }
     private String hash(Account a) { return jdbc.queryForObject("select password_hash from users where id=?", String.class, a.id); }
     private Map<String,String> resetBody(String token, String temporary, String replacement) {

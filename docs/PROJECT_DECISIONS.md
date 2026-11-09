@@ -1,5 +1,16 @@
 # Taktak — Quyết định kỹ thuật đã khóa
 
+## Khôi phục email chưa xác minh — người dùng duyệt 08/11/2026
+
+Thay chính sách cũ buộc verified trước forgot: email đã đăng ký được nhận
+credential khôi phục một lần qua hộp thư kể cả chưa verified. Giữ TTL15phút,
+hash-only, reset token giới hạn không có quyền API, response chống dò tài khoản
+và quota hiện hành. Chỉ sau reset hợp lệ mới verify email trong cùng transaction
+đổi BCrypt/tăng security_version/revoke mọi refresh. Không backfill DB, không
+đánh dấu verified khi request mail/login tạm. API/schema không đổi, tương thích
+client hiện có; APK mới chỉ sửa hướng dẫn các locale. Không tự deploy binary.
+Chi tiết và hạn chế: [ACCOUNT_RECOVERY.md](ACCOUNT_RECOVERY.md).
+
 ## Branded Intro có tiếng — người dùng duyệt23/10/2026
 
 Yêu cầu MP4 gốc có soundtrack mới thay giới hạn không video/âm thanh của splash

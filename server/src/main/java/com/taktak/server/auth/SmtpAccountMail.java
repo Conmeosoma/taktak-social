@@ -15,6 +15,11 @@ public class SmtpAccountMail implements AccountMail {
     public SmtpAccountMail(@Value("${MAIL_HOST:}") String host, @Value("${MAIL_PORT:587}") int port,
             @Value("${MAIL_USERNAME:}") String username, @Value("${MAIL_PASSWORD:}") String password,
             @Value("${MAIL_FROM:}") String from) {
+        host = host.strip(); username = username.strip(); from = from.strip();
+        // App Password Gmail thường được hiển thị thành các nhóm cách nhau bằng dấu cách.
+        if ("smtp.gmail.com".equalsIgnoreCase(host) && password.matches("[a-z ]{16,24}")) {
+            password = password.replace(" ", "");
+        }
         sender = new JavaMailSenderImpl(); sender.setHost(host); sender.setPort(port);
         sender.setUsername(username); sender.setPassword(password); sender.setDefaultEncoding("UTF-8");
         Properties properties = sender.getJavaMailProperties();
@@ -27,7 +32,12 @@ public class SmtpAccountMail implements AccountMail {
         properties.setProperty("mail.smtp.writetimeout", "5000");
         properties.setProperty("mail.debug", "false");
         this.from = from;
-        configured = !host.isBlank() && !username.isBlank() && !password.isBlank() && !from.isBlank();
+        configured = !host.isBlank() && !username.isBlank() && !password.isBlank() && !from.isBlank()
+                && port > 0 && port <= 65535;
+        if (!configured) {
+            org.slf4j.LoggerFactory.getLogger(SmtpAccountMail.class).warn(
+                    "Account mail configuration is incomplete; verification/recovery delivery unavailable.");
+        }
     }
 
     @Override public void send(String recipient, String subject, String text) {

@@ -1,5 +1,37 @@
 # Taktak — Trạng thái dự án
 
+## Sửa toàn bộ luồng email/recovery — 08/11/2026
+
+Người dùng duyệt policy mới: email chưa xác minh được nhận credential recovery,
+chỉ verify khi reset hợp lệ, giữ TTL/hash-only/restricted reset token và thu hồi
+mọi phiên. Targeted20/20, full backend196/196 + JAR PASS. Gmail acceptance1/1
+gửi3thưQA, người dùng xác nhận nhận đủ; không sửa tài khoản production. Android
+build/lint PASS0errors/84warnings, unit UP-TO-DATE135PASS từ lượt trước. Đã sửa
+copy7locale và SMTP config/log an toàn. **Đã deploy sau khi người dùng duyệt**:
+JAR checksum khớp, có backup, restart một lần; health loopback/public200,
+auth401/validation400, NRestarts0, SMTP env đầy đủ. Không tự gửi recovery hoặc
+sửa tài khoản production; không migration/reset DB. Chưa QA UI mới trên điện
+thoại. [Hồ sơ và backup](QA_MAIL_RECOVERY_20261108.md).
+
+## QA backend/VPS — 08/11/2026
+
+**Cập nhật sau xác nhận panel:** đã đăng nhập endpoint được người dùng xác nhận,
+hostname khớp; chạy changeip phục hồi default route Internet, sửa script boot
+đặt gateway DHCP và DNS resolved. Backend trước đó thiếu MAIL_*; đã kiểm tra
+SMTP, thêm env root/600 có backup, restart service một lần. Runtime SMTP TLS/auth
+PASS, không gửi thư. Health HTTPS mới 200; API thiếu JWT401, recovery thiếu input400.
+Debug origin mới được cập nhật, APK build + 135 JVM PASS. Chưa thư thật/reboot
+test/cài điện thoại vì ADB rỗng. **PARTIAL tổng thể**, các kết quả đợt đầu bên
+dưới là lịch sử. [Bàn giao/APK/bằng chứng](QA_BACKEND_VPS_20261108.md).
+
+Backend local `mvn verify`: **191/191 PASS**, 0 failures/errors/skipped,
+JAR BUILD SUCCESS, exit 0. Debug origin trong Gradle **FAIL DNS**:
+tunnel cũ không tồn tại trên hai resolver độc lập. SSH endpoint trả host key
+khác fingerprint lịch sử trên cả 8 IP; chưa xác minh danh tính qua kênh tin cậy,
+chưa đăng nhập/sửa VPS. **BLOCKED phần vận hành/OTP thật**; không suy ra lỗi
+SMTP hay trạng thái tài khoản từ notice chung. Source/database/config VPS giữ
+nguyên. [Bằng chứng và điều kiện tiếp tục](QA_BACKEND_VPS_20261108.md).
+
 ## Đóng gói APK và chốt source main — 23/10/2026
 
 Người dùng yêu cầu build APK và commit main; không yêu cầu push/deploy.
