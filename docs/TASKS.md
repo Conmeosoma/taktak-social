@@ -1,5 +1,35 @@
 # Taktak — Công việc và cổng xác nhận
 
+## Rollout AI VPS được duyệt —13/11/2026
+
+- [x] Full217backend tests trướcdeploy,backupJAR/env/DB và kiểmtra dumpcatalog.
+- [x] DeployGemini keys server-side,applyV7,startservice,healthUP/HTTPS200/AI401.
+- [x] Smoke thật generate/replay/history/deleteQA/logoutQA đạt.
+- [ ] BuildAPK: hoãn theo chỉ đạo cuối,không thực hiện trong lượt này.
+
+## Android AI theo Figma — 13/11/2026
+
+- [x] DTO/API/Repository dùng JWT hiện tại, validation/consent/idempotency và8 unit tests mới.
+- [x] ViewModel/LiveData và XML chatbot, entry Tin nhắn, retry/delete/lịch sử.
+- [x] Build debug/test APK,143 unit tests và lint0errors.
+- [x] Cài trên USB Xiaomi Android15, chụp màn trống dark.
+- [x] USB runtime consent/retry503/cùng key/delete/session: PASS1/1,5,296s với fixture RAM.
+- [ ] Nghiệm thu dark/light/IME/rotation/pagination/disabled/quota và đối chiếu Figma.
+- [x] Live backend AI/V7 trên VPS được duyệt ở lượtdeploy13/11/2026; xemDEPLOY_AI_20261113.
+
+## AI-01–08 — người dùng duyệt13/11/2026
+
+- [x] AI-01 audit/phạm vi/ngoại lệ, API/schema và privacy consent.
+- [x] AI-02 REST Gemini Java17, model cấu hình, timeout/body/token limits.
+- [x] AI-03 key pool/quota group, invalid-key failover và cooldown, không lách quota.
+- [x] AI-04 V7 additive và PostgreSQL history/request ledger.
+- [x] AI-05 controller/service/JWT ownership, pagination/delete/idempotency.
+- [x] AI-06 per-user/app/day budgets, concurrency, bounded context, sanitized errors/metrics.
+- [x] AI-07 full217/217 PASS, review21caAI PASS+JAR, smokeGemini thật1/1 PASS.
+- [x] AI-08 tài liệu API/config/frontend contract tại AI_CHATBOT.md.
+- [ ] Android AI Chat UI — CHƯA TRIỂN KHAI, ngoài phạm vi.
+- [ ] VPS rollout/V7production — chưa được yêu cầu, không tự triển khai.
+
 ## Branded intro video có tiếng — 23/10/2026
 
 - [x] Phân tích MP4/AAC, bitstream M4A khớp; bundle nguồn nguyên byte.

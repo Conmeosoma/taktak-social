@@ -1,0 +1,37 @@
+<resources>
+    <!-- English fallback for AI until localized copy is available. -->
+    <string name="ai_title">Taktak AI</string>
+    <string name="ai_entry">✦  Chat with Taktak AI</string>
+    <string name="ai_privacy">ⓘ  Chat content is sent to Google Gemini for processing.</string>
+    <string name="ai_consent">Your messages and recent AI history will be sent to Google Gemini. This is not end-to-end encrypted. Do not share sensitive information. Taktak photos and private chats are not included.</string>
+    <string name="ai_agree">Agree and send</string>
+    <string name="ai_new">＋  New conversation</string>
+    <string name="ai_welcome">Hi, I am Taktak AI</string>
+    <string name="ai_empty_detail">A little companion for ideas, captions and everyday stories.</string>
+    <string name="ai_new_welcome">What would you like\nto share today?</string>
+    <string name="ai_new_detail">I am here to help you explore ideas.</string>
+    <string name="ai_greeting">A little idea,\na brighter day.</string>
+    <string name="ai_suggestion_caption">Suggest a caption for a coffee photo</string>
+    <string name="ai_suggestion_weekend">Plan some weekend ideas</string>
+    <string name="ai_suggestion_birthday">Write a birthday wish</string>
+    <string name="ai_input">Message Taktak AI…</string>
+    <string name="ai_send">Send message</string>
+    <string name="ai_back">Back</string>
+    <string name="ai_theme">Choose appearance</string>
+    <string name="ai_busy">AI is busy. Please try again later.</string>
+    <string name="ai_thinking">Taktak AI is replying…</string>
+    <string name="ai_rate">Limit reached or AI is busy. Wait a moment before trying again.</string>
+    <string name="ai_unavailable">AI is disabled or temporarily unavailable. You can still read your history.</string>
+    <string name="ai_offline">Cannot connect to the server. Check your connection and try again.</string>
+    <string name="ai_error">The request could not be completed. Please try again.</string>
+    <string name="ai_missing">This conversation is unavailable or you do not have access.</string>
+    <string name="ai_invalid">Enter 1 to 4,000 text units, with more than whitespace.</string>
+    <string name="ai_retry">Try again</string>
+    <string name="ai_edit">Edit message</string>
+    <string name="ai_discard_warning">The previous request may already be saved. Editing creates a new request and may add another chat turn.</string>
+    <string name="ai_delete">Delete conversation</string>
+    <string name="ai_delete_warning">Permanently delete all messages in this conversation on Taktak? This does not delete data already processed by Google or backups.</string>
+    <string name="ai_more">Load more</string>
+    <string name="ai_first">Start your first conversation.</string>
+    <string name="ai_list_hint">Swipe left or hold a conversation to delete it.</string>
+</resources>

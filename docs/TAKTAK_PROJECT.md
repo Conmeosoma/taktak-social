@@ -10,6 +10,12 @@ lang: vi
 
 ## 1. Mục tiêu và phạm vi
 
+> Mở rộng 13/11/2026: người dùng duyệt frontend AI theo Figma (file eBQu52njDbzAhVHISWtYlD, các frame AI trên trang Taktak v2). Ngoại lệ thay giới hạn backend-only trước đó; giữ stack, năm tab, bảo vệ phiên và key chỉ ở server. Không bao gồm deploy/migrate production.
+
+> Ngoại lệ người dùng duyệt13/11/2026: AI-01–08 backend Gemini, không Android AI
+> UI, không tự deploy hoặc migrate production. Thay giới hạn không chatbot cũ;
+> giữ các chức năng/stack khác. [Hợp đồng và giới hạn](AI_CHATBOT.md).
+
 > Mở rộng được người dùng duyệt ngày 20/10/2026: MOMENT-REPLY-01 cho phép người
 > nhận trả lời ảnh vào chat riêng 1–1 với chủ ảnh, không có bình luận công khai.
 > Hợp đồng/quyền xem ảnh được ghi tại [CHAT_API.md](CHAT_API.md). Không đổi stack,

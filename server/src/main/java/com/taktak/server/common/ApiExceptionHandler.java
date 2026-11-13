@@ -23,6 +23,12 @@ import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 @RestControllerAdvice
 public class ApiExceptionHandler {
+    @ExceptionHandler(com.taktak.server.ai.AiFailure.class)
+    ResponseEntity<ApiError> aiFailure(com.taktak.server.ai.AiFailure failure,HttpServletRequest request) {
+        var builder=ResponseEntity.status(failure.status).contentType(MediaType.APPLICATION_JSON).cacheControl(org.springframework.http.CacheControl.noStore());
+        if(failure.retryAfter>0)builder.header("Retry-After",Long.toString(failure.retryAfter));
+        return builder.body(new ApiError(clock.instant(),failure.status.value(),failure.code,"Không thể xử lý chat AI. Vui lòng kiểm tra trạng thái hoặc thử lại sau.",request.getRequestURI()));
+    }
     @ExceptionHandler(com.taktak.server.chat.ChatFailure.class)
     ResponseEntity<ApiError> chatFailure(com.taktak.server.chat.ChatFailure failure, HttpServletRequest request) {
         return error(failure.status, failure.code, "Không thể xử lý hội thoại hoặc bạn không có quyền truy cập.", request);

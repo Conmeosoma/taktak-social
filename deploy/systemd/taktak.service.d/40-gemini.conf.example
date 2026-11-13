@@ -1,0 +1,4 @@
+# Chỉ cài sau khi cấu hình credentials server-side và duyệt bật AI.
+# Sao chép thành 40-gemini.conf trên VPS; không commit file chứa giá trị secret.
+[Service]
+EnvironmentFile=/var/taktak/secrets/gemini.env

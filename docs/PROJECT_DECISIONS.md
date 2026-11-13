@@ -1,5 +1,27 @@
 # Taktak — Quyết định kỹ thuật đã khóa
 
+## Mở rộng Android AI và rollout —13/11/2026
+
+Người dùng duyệt frontend Java/XML/ViewBinding theo Figma rồi duyệt deploy backend
+VPS và push main. Ngoại lệ này mở rộng giới hạn backend-only bên dưới. Giữ JWT,
+FCM, năm tab; API key chỉ server. V7 additive, không sửa migration đã áp dụng;
+rollback ứng dụng giữ bảng V7 và dữ liệu, không restore DB tự động. Production
+keys qua file0640 root:taktak dưới thư mục0750; EnvironmentFile root-only.
+Không xoay project/key để vượt quota. Không build APK trong lượt deploy/push.
+
+## AI-01–08 — backend Gemini, người dùng duyệt 13/11/2026
+
+Ngoại lệ mới thay giới hạn không chatbot, chỉ backend, không Android UI hoặc
+production rollout. Giữ Java17/Boot3/Maven; dùng REST generateContent chính thức
+với java.net.http, không thêm SDK/dependency để kiểm soát deadline, quota và
+kích thước response. Repository JDBC/TransactionTemplate theo module chat hiện
+có, không tạo lớp JPA trùng model; stack JPA hiện hành không thay đổi. V7 additive,
+JWT/ownership mọi endpoint, consent per request, lịch sử AI riêng. Key file local
+ignored; chưa xác minh project thì gom chung unclassified. Không failover project
+trên429/permission; invalid credential được loại,503 retry bounded, timeout
+không replay vì kết quả có thể đã được tính phí. Mặc định feature disabled.
+Chi tiết API/giới hạn: [AI_CHATBOT.md](AI_CHATBOT.md).
+
 ## Khôi phục email chưa xác minh — người dùng duyệt 08/11/2026
 
 Thay chính sách cũ buộc verified trước forgot: email đã đăng ký được nhận

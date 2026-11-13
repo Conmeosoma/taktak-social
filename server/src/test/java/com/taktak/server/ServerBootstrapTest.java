@@ -102,10 +102,10 @@ class ServerBootstrapTest {
                 SELECT table_name FROM information_schema.tables
                 WHERE table_schema = 'public' AND table_name <> 'flyway_schema_history'
                 ORDER BY table_name
-                """, String.class)).containsExactly("account_recovery", "blocks", "conversations", "device_tokens", "friend_requests", "friendships",
+                """, String.class)).containsExactly("account_recovery", "ai_conversations", "ai_messages", "ai_requests", "blocks", "conversations", "device_tokens", "friend_requests", "friendships",
                 "messages", "moment_recipients", "moments", "push_outbox", "refresh_tokens", "users");
         assertThat(jdbc.queryForObject("SELECT count(*) FROM flyway_schema_history WHERE success", Integer.class))
-                .isEqualTo(6);
+                .isEqualTo(7);
         assertThat(jdbc.queryForObject("SELECT indexdef FROM pg_indexes WHERE indexname = ?", String.class,
                 "uq_moments_sender_idempotency")).contains("sender_id, idempotency_key");
         assertThat(jdbc.queryForObject("SELECT indexdef FROM pg_indexes WHERE indexname = ?", String.class,

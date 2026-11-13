@@ -1,5 +1,54 @@
 # Taktak — Trạng thái dự án
 
+## Deploy AI —13/11/2026, cập nhật mới nhất
+
+**PASS backend VPS:**217test local đạt,JAR mới đã triển khai,V7 thành công,
+healthUP; HTTPS200 và AI khôngJWT401. Smoke Gemini thật/configured/gửi/replay/
+lịch sử/xóa204/logoutQA đềuPASS. Chi tiết [DEPLOY_AI_20261113.md](DEPLOY_AI_20261113.md).
+Nội dung "AI chưa deploy" trong các mốc cũ bên dưới được thay bằng kết quả này.
+Frontend vẫn còn checklistvisual/edgecases đã nêu; không buildAPK trong lượt này.
+
+## Android AI chat — cập nhật 13/11/2026
+
+Kết quả cuối USB: **PASS1/1,5,296s** cho consent/retry503/idempotency/UI/delete/
+session wipe bằng fixture RAM (`ai-usb-dialog-test.log`), đã sửa launch và dialog
+matcher. Kết quả này thay trạng thái đang chạy bên dưới; toàn module vẫn IN PROGRESS
+vì chưa nghiệm thu đầy đủ visual/edgecases/live backend. Không còn blocker USB.
+
+IN PROGRESS: đã thêm UI Java/XML theo các frame AI Figma, nối Repository/ViewModel
+với JWT hiện tại. Build/debug-test APK và143 unit tests PASS; lint0errors/94warnings.
+Đã cài trên Xiaomi Android15 USB. QA runtime đang xử lý focus dialog sau các lượt
+launch bị MIUI chặn; chưa nghiệm thu toàn bộ. Chi tiết [QA_AI_ANDROID.md](QA_AI_ANDROID.md).
+Backend AI chưa deploy/migrate VPS, không tuyên bố app gọi Gemini production được.
+
+## AI-01–08 — backend Gemini, 13/11/2026
+
+User duyệt ngoại lệ chatbot backend, không UI/deploy. Đã thêm package ai,
+V7ai_conversations/messages/requests, JWT ownership, request ledger, context/
+body/output limits, quota-group key manager và retry/cooldown. Default disabled;
+không ảnh/chat riêng gửi Google. Dùng REST chính thức/Java17 HttpClient, không
+dependency mới, không thay auth/FCM. Smoke thật model3.5FlashLite PASS1/1, key
+local7credential gom chung unclassified;2.5FlashLite list có nhưng generate404.
+Regression216rồi217/217 PASS,0fail/error/skipped. Sau review cuối,21ca AI chạy
+lại PASS + JAR BUILD SUCCESS37,866s. Quét source/docs/log AI:0keyexposure.
+JAR SHA256 `021AECCD73737A4D9D4A4DF4B40BF51BE1C698918569412700DD3656D2F4EF45`.
+Android AI Chat UI — CHƯA TRIỂN KHAI. Không commit/push/deploy/production DB.
+Chi tiết API/cấu hình/tradeoff tại [AI_CHATBOT.md](AI_CHATBOT.md).
+
+## Kết nối APK/backend — 11/11/2026
+
+Kiểm tra chỉ đọc VPS: backend/PostgreSQL/Nginx/tunnel active, health loopback200,
+Internet HTTPS200, NRestarts0; log backend24giờ không ghi nhận ERROR. Checksum
+JAR vẫn khớp bản sửa mail673fd99c…89fbb0; SMTP env đủ5biến, không gửi email thử.
+URL debug trước đó mất DNS; tìm origin mới từ log tunnel và xác minh từ ngoài:
+health200UP, me401 khi không JWT, forgot JSON rỗng400. Đã cập nhật riêng URL
+debug sang `https://reconstruction-work-neon-industrial.trycloudflare.com/`.
+Build19s và **135/135 JVM tests chạy lại PASS**, đã kiểm tra BuildConfig.
+APK `Downloads/Taktak-connected-20261111.apk`, SHA-256
+`C6509E3358591DAE45AB887BACF3D2752F88B94AE767C2693A398E0E0B36E9C2`.
+Chưa cài/QA UI trên điện thoại; chưa có hostname cố định. Không sửa backend,
+restart, DB, Camera XML hoặc commit/push trong lượt này.
+
 ## Sửa toàn bộ luồng email/recovery — 08/11/2026
 
 Người dùng duyệt policy mới: email chưa xác minh được nhận credential recovery,

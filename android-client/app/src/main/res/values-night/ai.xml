@@ -1,0 +1,8 @@
+<resources>
+    <color name="ai_bg">#16131B</color>
+    <color name="ai_surface">#24202B</color>
+    <color name="ai_raised">#38232E</color>
+    <color name="ai_text">#FFF7F8</color>
+    <color name="ai_secondary">#C5B8C8</color>
+    <color name="ai_accent">#FF91B0</color>
+</resources>

@@ -24,6 +24,8 @@ class SchemaUpgradeCompatibilityTest {
             jdbc.update("insert into moment_recipients(moment_id,user_id,created_at) values(?,?,now())",photo,actor);
             jdbc.update("insert into conversations(id,user1_id,user2_id,created_at,updated_at) values(?,least(?::uuid,?::uuid),greatest(?::uuid,?::uuid),now(),now())",room,actor,peer,actor,peer);
             jdbc.update("insert into messages(id,conversation_id,sender_id,recipient_id,client_message_id,message_type,content,moment_id,created_at) values(?,?,?,?,?,'MOMENT_REPLY','QA retained reply',?,now())",message,room,actor,peer,UUID.randomUUID(),photo);
+            var v6=Flyway.configure().dataSource(source).target("6").cleanDisabled(true).load();
+            assertThat(v6.migrate().migrationsExecuted).isEqualTo(1);
             var latest=Flyway.configure().dataSource(source).cleanDisabled(true).load();
             assertThat(latest.migrate().migrationsExecuted).isEqualTo(1);
             latest.validate();

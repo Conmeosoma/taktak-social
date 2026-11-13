@@ -1,5 +1,76 @@
 # Taktak — Bàn giao phiên khôi phục
 
+## Deploy/push AI —13/11/2026, kết quả mới nhất
+
+Người dùng duyệt backendVPS+pushmain,hoãn buildAPK. Full Maven217/217PASS,
+đã backup rồi deploy JAR SHA021aeccd…f4ef45,V7 success,healthUP. Smoke thật
+Gemini/status/replay/history/delete204/logoutQA PASS; HTTPShealth200,AI401 thiếu
+JWT. Không còn blocker "AI chưa deploy" của mốc trước. Chi tiết rollout/rollback
+và giới hạnQuickTunnel tại [DEPLOY_AI_20261113.md](DEPLOY_AI_20261113.md).
+Source AI Android đưa cùng backend lênGit; các checklistUI còn lại không được
+đánh dấuDONE. Không đưa reportdocx/scriptsreport/CameraXML/URLdebug local vào
+commit. Credentials luôn local/VPS,khôngGit. Không tạo APK mới theo chỉ đạo cuối.
+
+## Android AI chat + USB — 13/11/2026
+
+Kết quả cuối: **USB PASS1/1 (5,296s)** sau shell launch và isDialog matcher.
+Log `ai-usb-dialog-test.log`,3ảnh AI trong `.local/artifacts`. Không dùng tài khoản
+thật hoặc Gemini thật. Cập nhật này thay ghi chú runtime đang xác minh bên dưới.
+Frontend chưa đánh dấu toàn bộ DONE: còn visual parity,light/IME/rotation/pages/
+disabled/quota và live end-to-end; xem QA_AI_ANDROID. Không tự deploy backend.
+
+Người dùng yêu cầu frontend theo Figma và QA trên điện thoại USB. Mở rộng rõ
+ngoại lệ backend-only trước đó, không cấp quyền deploy/migrate/commit/push.
+Đã đọc Figma bằng MCP chính thức; node gửi là glyph, ancestors dẫn đến167:3843.
+Đọc các frame list/new/chat sáng/tối để chuyển Java/XML; thêm AI từ Tin nhắn,
+không thêm tab thứ sáu. Giữ nguyên Camera XML đang có thay đổi người dùng.
+
+Đã triển khai AiModels/AiApi/AiRepository/AiViewModel/AiFragment, resources AI,
+nút mở trong MessagesFragment. Dùng JWT/refresh/generation guard hiện tại;
+consent Google, retry cùng payload/key, không key client. Các file/test/backend
+AI chưa commit của phiên trước được giữ. Chi tiết [QA_AI_ANDROID.md](QA_AI_ANDROID.md).
+
+Build APK debug/test,143 unit tests PASS, lint0errors/94warnings; USB cài thành công.
+Ảnh UI thật `.local/artifacts/ai-usb-empty.png`. Hai lượt launch timeout và một lượt
+RootViewWithoutFocusException là FAIL thực tế; test đã sửa shell launch và isDialog,
+đang xác minh. Không coi screenshot trống là toàn bộ luồng PASS.
+Backend V7/AI chưa lên VPS, chưa live end-to-end từ Android đến Gemini.
+
+## AI backend Gemini — 13/11/2026
+
+User cung cấp prompt AI-01–08 và filekeylocal, thay giới hạn không chatbot cũ;
+đã cập nhật AGENTS/decisions/spec ngoại lệ. Chỉ server: package ai và V7 additive,
+HTTP Java17 generateContent bounded/no redirects, quota-group credentials,
+JWT/ownership, idempotency và PostgreSQL history. Fixtureunit+integration không
+cần key. Lỗi đã sửa: DI constructor, fixture stubbing, JDBC Instant binding,
+PGtimestamp precision của replay và lock55P03 mapping. Full regression216rồi
+217/217 PASS,0skip. Review cuối chạy lại21caAI PASS + JAR BUILD SUCCESS37,866s.
+Log `ai-final-verify.log` và `ai-reviewed-package.log`; không Gemini thật trong
+regression. Storage precheck trước upstream; disabled không tạoHTTPclient.
+Smoke1generation model3.5FlashLitePASS sau2attempt2.5model404 (không đổikey).
+Key local ignored,7credential chungunclassified; không công bố hoặc copyVPS.
+No Android UI, no production migration/deploy/commit/push. Không chạy lại các
+script purgeaccount/moment vì V7 bổ sung quan hệ; cần review riêng nếu dùng lại.
+[API/config/test/tradeoffs](AI_CHATBOT.md).
+
+JAR cuối SHA256 `021AECCD73737A4D9D4A4DF4B40BF51BE1C698918569412700DD3656D2F4EF45`.
+PASS backendlocal + LIVEprovider; chưa VPS/UI. Không dùng deploy script cũ
+cho JAR này vì V7 cần duyệt rollout riêng. Source/docs/log AI không chứa key.
+
+## URL debug/APK — 11/11/2026
+
+User yêu cầu kiểm tra backend rồi hỏi cách APK kết nối. VPS health200 và log
+24giờ0ERROR, JAR hash đúng bản mailfix, không có lỗi mail marker được kiểm tra;
+chưa chạy gửi thư thật. Tunnel đổi URL khiến origin đang cấu hình mất DNS.
+Đã lấy hostname hiện tại từ log cloudflared, kiểm tra HTTPS200/auth401/validation400,
+đổi duy nhất TAKTAK_DEBUG_BASE_URL và build lại. **135JVM tests thực sự chạy
+lại PASS**, assembleDebug SUCCESS19s; BuildConfig đúng origin mới. Bản giao
+`.local/artifacts/apk/Taktak-connected-20261111.apk` và bản Downloads khớp SHA
+`C6509E3358591DAE45AB887BACF3D2752F88B94AE767C2693A398E0E0B36E9C2`.
+Chưa cài lên điện thoại. Quick Tunnel vẫn tạm thời, cần hostname HTTPS cố định
+để tránh build lại khi tunnel đổi. Giữ nguyên Camera XML/báo cáo local; không
+restart/deploy/commit/push. Bản trước trong các đoạn dưới là lịch sử.
+
 ## Sửa email/recovery — 08/11/2026
 
 User yêu cầu sửa luồng Gmail, duyệt recovery unverified và3thưQA tới email chỉ

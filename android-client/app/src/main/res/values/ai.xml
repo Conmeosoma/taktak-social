@@ -1,0 +1,44 @@
+<resources>
+    <item name="messages_ai_container" type="id" />
+    <color name="ai_bg">#FFF7F8</color>
+    <color name="ai_surface">#FFFFFF</color>
+    <color name="ai_raised">#FFE8ED</color>
+    <color name="ai_text">#2B2B33</color>
+    <color name="ai_secondary">#6F6670</color>
+    <color name="ai_accent">#B32550</color>
+    <color name="ai_onbrand">#2B1720</color>
+    <string name="ai_title">Taktak AI</string>
+    <string name="ai_entry">✦  Trò chuyện với Taktak AI</string>
+    <string name="ai_privacy">ⓘ  Nội dung chat được gửi tới Google Gemini để xử lý.</string>
+    <string name="ai_consent">Nội dung bạn nhập và lịch sử AI gần đây sẽ được gửi tới Google Gemini. Không mã hóa đầu cuối. Không gửi thông tin nhạy cảm. Ảnh và chat bạn bè của Taktak không được gửi kèm.</string>
+    <string name="ai_agree">Đồng ý và gửi</string>
+    <string name="ai_new">＋  Cuộc trò chuyện mới</string>
+    <string name="ai_welcome">Chào bạn, mình là Taktak AI</string>
+    <string name="ai_empty_detail">Một người bạn nhỏ cho những ý tưởng, caption và câu chuyện mỗi ngày.</string>
+    <string name="ai_new_welcome">Hôm nay bạn muốn\nkể điều gì?</string>
+    <string name="ai_new_detail">Mình ở đây để cùng bạn tìm ý tưởng.</string>
+    <string name="ai_greeting">Một ý tưởng nhỏ,\nmột ngày thật vui.</string>
+    <string name="ai_suggestion_caption">Gợi ý caption cho ảnh cà phê</string>
+    <string name="ai_suggestion_weekend">Lên ý tưởng cuối tuần</string>
+    <string name="ai_suggestion_birthday">Viết lời chúc sinh nhật</string>
+    <string name="ai_input">Nhắn gì đó với Taktak AI…</string>
+    <string name="ai_send">Gửi tin nhắn</string>
+    <string name="ai_back">Quay lại</string>
+    <string name="ai_theme">Chọn giao diện</string>
+    <string name="ai_busy">AI đang tạm bận. Vui lòng thử lại sau.</string>
+    <string name="ai_thinking">Taktak AI đang trả lời…</string>
+    <string name="ai_rate">Đã chạm hạn mức hoặc AI đang bận. Chờ một lúc rồi bấm Thử lại.</string>
+    <string name="ai_unavailable">AI chưa được bật hoặc tạm không khả dụng. Bạn vẫn có thể đọc lịch sử.</string>
+    <string name="ai_offline">Không kết nối được máy chủ. Kiểm tra mạng rồi thử lại.</string>
+    <string name="ai_error">Không thực hiện được yêu cầu. Vui lòng thử lại.</string>
+    <string name="ai_missing">Hội thoại không còn tồn tại hoặc bạn không có quyền xem.</string>
+    <string name="ai_invalid">Nhập từ 1 đến 4.000 đơn vị ký tự, không chỉ khoảng trắng.</string>
+    <string name="ai_retry">Thử lại</string>
+    <string name="ai_edit">Sửa nội dung</string>
+    <string name="ai_discard_warning">Kết quả gửi trước có thể đã được lưu. Sửa nội dung sẽ tạo yêu cầu mới và có thể tạo thêm một lượt chat.</string>
+    <string name="ai_delete">Xóa hội thoại</string>
+    <string name="ai_delete_warning">Xóa toàn bộ tin nhắn của hội thoại này trên Taktak? Không thể hoàn tác. Việc này không xóa dữ liệu Google đã xử lý hoặc bản sao lưu.</string>
+    <string name="ai_more">Tải thêm</string>
+    <string name="ai_first">Bắt đầu câu chuyện đầu tiên của bạn.</string>
+    <string name="ai_list_hint">Vuốt trái hoặc nhấn giữ hội thoại để xóa.</string>
+</resources>

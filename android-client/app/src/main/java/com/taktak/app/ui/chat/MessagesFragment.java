@@ -23,8 +23,14 @@ public final class MessagesFragment extends Fragment {
     private ChatViewModel model;
     private AvatarLoader avatars;
     private ConversationAdapter adapter;
+    private android.widget.FrameLayout aiContainer;
     public View onCreateView(@NonNull LayoutInflater inflater,ViewGroup parent,Bundle saved) {
-        binding=FragmentMessagesBinding.inflate(inflater,parent,false);return binding.getRoot();
+        binding=FragmentMessagesBinding.inflate(inflater,parent,false);
+        var host = new android.widget.FrameLayout(requireContext());
+        host.addView(binding.getRoot(), new android.widget.FrameLayout.LayoutParams(-1, -1));
+        aiContainer = new androidx.fragment.app.FragmentContainerView(requireContext());
+        aiContainer.setId(R.id.messages_ai_container); aiContainer.setVisibility(View.GONE);
+        host.addView(aiContainer, new android.widget.FrameLayout.LayoutParams(-1, -1)); return host;
     }
     public void onViewCreated(@NonNull View view,Bundle saved) {
         model=new ViewModelProvider(requireActivity()).get(ChatViewModel.class);
@@ -35,6 +41,10 @@ public final class MessagesFragment extends Fragment {
         binding.messagesList.setItemAnimator(null);
         ViewCompat.setAccessibilityHeading(binding.messagesTitle,true);
         binding.messagesNew.setOnClickListener(v->startActivity(new Intent(requireContext(),NewChatActivity.class)));
+        binding.messagesAi.setOnClickListener(v -> openAi());
+        if (getChildFragmentManager().findFragmentById(R.id.messages_ai_container) != null) {
+            binding.getRoot().setVisibility(View.GONE); aiContainer.setVisibility(View.VISIBLE);
+        }
         binding.messagesFindFriends.setOnClickListener(v->((MainActivity)requireActivity()).openFriendsTab());
         binding.messagesRefresh.setOnClickListener(v->model.refreshInbox());
         binding.messagesNotifications.setOnClickListener(v->((MainActivity)requireActivity()).requestChatNotifications());
@@ -64,8 +74,18 @@ public final class MessagesFragment extends Fragment {
         binding.messagesMore.setVisibility(state.hasNext?View.VISIBLE:View.GONE);
         binding.messagesMore.setEnabled(!state.busy);
     }
+    private void openAi() {
+        binding.getRoot().setVisibility(View.GONE); aiContainer.setVisibility(View.VISIBLE);
+        getChildFragmentManager().beginTransaction().replace(R.id.messages_ai_container,
+                new com.taktak.app.ui.ai.AiFragment()).commit();
+    }
+    public void closeAi() {
+        var fragment = getChildFragmentManager().findFragmentById(R.id.messages_ai_container);
+        if (fragment != null) getChildFragmentManager().beginTransaction().remove(fragment).commitAllowingStateLoss();
+        if (binding != null) { binding.getRoot().setVisibility(View.VISIBLE); aiContainer.setVisibility(View.GONE); }
+    }
     public void onDestroyView() {
         if(binding!=null) binding.messagesList.setAdapter(null);
-        if(avatars!=null) avatars.close();binding=null;adapter=null;super.onDestroyView();
+        if(avatars!=null) avatars.close();binding=null;adapter=null;aiContainer=null;super.onDestroyView();
     }
 }

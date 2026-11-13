@@ -43,6 +43,7 @@ public final class AuthRepository {
 
     public boolean hasSession() { return client.sessions.snapshot() != null; }
     public ChatRepository chat() { return new ChatRepository(client); }
+    public AiRepository ai() { return new AiRepository(client); }
     public boolean publishIfCurrent(long generation, Runnable action) { return client.sessions.runIfCurrent(generation, action); }
     public boolean publishIfLoggedOut(Runnable action) { return client.sessions.runIfLoggedOut(action); }
     public long sessionGeneration() throws ApiFailure {

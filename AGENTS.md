@@ -20,10 +20,13 @@
 
 ## Công nghệ cố định
 
+- Ngoại lệ mới 13/11/2026: người dùng yêu cầu tích hợp Android AI chat theo Figma, mở rộng ngoại lệ backend AI bên dưới; Java/XML/ViewBinding, dùng JWT hiện có. Không tự deploy backend hoặc đưa key lên client.
+
 - Android chỉ viết Java; không Kotlin, Compose hoặc Gradle Kotlin DSL. Dùng XML, ViewBinding, Material Components, minSdk 26; MVVM + Repository, ViewModel và LiveData.
 - Android dùng Gradle Groovy; Retrofit, OkHttp, Gson, Glide; CameraX; WorkManager; AppWidgetProvider/RemoteViews; EncryptedSharedPreferences để lưu phiên.
 - Backend dùng Java 17, Spring Boot 3, Maven, Spring Security, JPA, Validation, PostgreSQL và Flyway. Schema thay đổi qua migration; không dùng `ddl-auto=update` trên production.
-- Firebase chỉ dùng Cloud Messaging: Messaging SDK ở Android và Admin SDK ở server để gửi FCM. Không Firebase Auth, Firestore, Firebase Storage, Cloud Functions; không chatbot AI/Gemini.
+- Firebase chỉ dùng Cloud Messaging: Messaging SDK ở Android và Admin SDK ở server để gửi FCM. Không Firebase Auth, Firestore, Firebase Storage, Cloud Functions.
+- Ngoại lệ người dùng duyệt 13/11/2026: triển khai AI-01–08 backend Gemini riêng, không Android AI UI. Key chỉ ở server; không dùng xoay key để vượt quota project, không gửi ảnh/chat riêng của Taktak cho Gemini. Không tự deploy/migrate production/commit/push. Các hạn chế không chatbot ở tài liệu cũ là lịch sử; xem docs/AI_CHATBOT.md.
 - Khóa phiên bản thư viện và bộ công cụ sau khi kiểm tra tương thích ở giai đoạn 1; không tự nâng cấp hoặc thay stack trong tiểu bước khác.
 
 ## Bảo mật và nghiệp vụ
