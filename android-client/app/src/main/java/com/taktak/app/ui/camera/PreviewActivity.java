@@ -67,7 +67,32 @@ public final class PreviewActivity extends AppCompatActivity {
         });
         binding.allFriendsCheck.setOnCheckedChangeListener((button, checked) -> { if (!rendering) { model.selectAll(checked); } });
         binding.friendsMoreButton.setOnClickListener(view -> model.loadFriends());
-        binding.sendFriendsButton.setOnClickListener(view -> commitEditsAndProceed(() -> model.sendFriends()));
+        binding.sendFriendsButton.setOnClickListener(view -> {
+            var state = model.state().getValue();
+            if (state == null) return;
+            if (state.retry() && model.friendTransfer()) {
+                commitEditsAndProceed(() -> model.sendFriends());
+                return;
+            }
+            if (!state.all() && state.selected().isEmpty()) {
+                binding.previewScroll.smoothScrollTo(0, binding.recipientHeading.getTop());
+                new MaterialAlertDialogBuilder(this)
+                        .setTitle(R.string.preview_recipients_needed_title)
+                        .setMessage(R.string.preview_recipients_needed_message)
+                        .setPositiveButton(R.string.preview_ok, null)
+                        .show();
+                return;
+            }
+            String message = state.all()
+                    ? getString(R.string.preview_confirm_send_all)
+                    : getString(R.string.preview_confirm_send_selected, state.selected().size());
+            new MaterialAlertDialogBuilder(this)
+                    .setTitle(R.string.preview_confirm_send_title)
+                    .setMessage(message)
+                    .setNegativeButton(R.string.preview_cancel, null)
+                    .setPositiveButton(R.string.preview_send_now, (dialog, which) -> commitEditsAndProceed(() -> model.sendFriends()))
+                    .show();
+        });
         binding.previewLogoutButton.setOnClickListener(view -> session.logout());
         binding.retakeButton.setOnClickListener(view -> finish());
         binding.previewSessionRetry.setOnClickListener(view -> {
@@ -81,6 +106,19 @@ public final class PreviewActivity extends AppCompatActivity {
                     .setPositiveButton(R.string.preview_confirm, (dialog, which) -> commitEditsAndProceed(() -> model.savePrivate())).show();
         });
 
+        binding.btnAddPoll.setOnClickListener(v -> {
+            binding.btnAddPoll.setVisibility(View.GONE);
+            binding.pollCreationCard.setVisibility(View.VISIBLE);
+            binding.pollQuestionInput.requestFocus();
+        });
+        binding.btnRemovePoll.setOnClickListener(v -> {
+            binding.pollQuestionInput.setText("");
+            binding.pollOptionAInput.setText("");
+            binding.pollOptionBInput.setText("");
+            binding.pollCreationCard.setVisibility(View.GONE);
+            binding.btnAddPoll.setVisibility(View.VISIBLE);
+        });
+
         setupCreativeTools();
 
         getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
@@ -90,9 +128,11 @@ public final class PreviewActivity extends AppCompatActivity {
         session.state().observe(this, value -> {
             authorized = value.destination == SessionViewModel.Destination.CAMERA;
             binding.previewScroll.setVisibility(authorized ? View.VISIBLE : View.GONE);
+            binding.previewBottomActions.setVisibility(authorized ? View.VISIBLE : View.GONE);
             binding.previewSessionRetry.setVisibility(value.destination == SessionViewModel.Destination.ERROR
                     || value.destination == SessionViewModel.Destination.PERMISSION ? View.VISIBLE : View.GONE);
             binding.previewLogoutButton.setEnabled(value.destination != SessionViewModel.Destination.CHECKING);
+            binding.previewLogoutButton.setVisibility(View.GONE);
             binding.retakeButton.setEnabled(!model.state().getValue().sending());
             if (!authorized) {
                 clearImage(); binding.previewNotice.setText(value.message == 0 ? R.string.session_checking : value.message);
@@ -142,8 +182,7 @@ public final class PreviewActivity extends AppCompatActivity {
         binding.savePrivateButton.setEnabled(ready && (!model.selectionLocked() || !model.friendTransfer()));
         binding.savePrivateButton.setText(value.retry() ? R.string.preview_retry_private : R.string.preview_private);
         binding.sendFriendsButton.setEnabled(ready && (model.selectionLocked() ? model.friendTransfer()
-                : !value.loadingFriends() && !value.friendsError() && !value.friends().isEmpty()
-                    && (value.all() || !value.selected().isEmpty())));
+                : !value.loadingFriends() && !value.friendsError() && !value.friends().isEmpty()));
         binding.sendFriendsButton.setText(value.retry() && model.friendTransfer() ? R.string.preview_retry_send : R.string.preview_send);
         binding.friendsNotice.setVisibility(value.loadingFriends() || value.friendsError() || value.friends().isEmpty() ? View.VISIBLE : View.GONE);
         binding.friendsNotice.setText(value.loadingFriends() ? R.string.auth_processing : value.friendsError()
@@ -155,13 +194,16 @@ public final class PreviewActivity extends AppCompatActivity {
         adapter.update(value); rendering = false;
         Object image = value.downloaded() != null ? value.downloaded() : value.file();
         binding.previewImage.setContentDescription(getString(value.downloaded() == null ? R.string.preview_image : R.string.moment_server_image));
+        binding.previewLiveBadge.setVisibility(value.isLiveVideo() ? View.VISIBLE : View.GONE);
         if (value.downloaded() != null) {
             binding.creativeToolsBar.setVisibility(View.GONE);
             binding.colorPaletteBar.setVisibility(View.GONE);
             binding.stickerPaletteBar.setVisibility(View.GONE);
             binding.doodleOverlay.setMode(DoodleOverlayView.Mode.DISABLED);
+            binding.previewBottomActions.setVisibility(View.GONE);
         } else {
             binding.creativeToolsBar.setVisibility(View.VISIBLE);
+            binding.previewBottomActions.setVisibility(authorized ? View.VISIBLE : View.GONE);
         }
         if (!Objects.equals(image, shownImage)) {
             shownImage = image;

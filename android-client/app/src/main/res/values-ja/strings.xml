@@ -77,6 +77,8 @@
     <string name="profile_save">変更を保存</string>
     <string name="profile_reload">再読み込み</string>
     <string name="profile_logout">ログアウト</string>
+    <string name="profile_logout_confirm_title">ログアウト</string>
+    <string name="profile_logout_confirm_message">この端末のTaktakアカウントからログアウトしてもよろしいですか？</string>
     <string name="profile_saved">表示名を保存しました。</string>
     <string name="profile_avatar_saved">プロフィール写真を更新しました。</string>
     <string name="premium_profile_detail">アカウント情報とテーマ設定を管理します。</string>

@@ -42,7 +42,21 @@ public abstract class RecoveryFormActivity extends AuthFormActivity {
         binding.codeLayout.setVisibility(mode()==VERIFY ? View.VISIBLE : View.GONE);
         binding.newLayout.setVisibility(mode()==CHANGE ? View.VISIBLE : View.GONE);
         binding.confirmLayout.setVisibility(mode()==CHANGE ? View.VISIBLE : View.GONE);
-        binding.confirmCode.setVisibility(mode()==VERIFY ? View.VISIBLE : View.GONE);
+        if (mode() == VERIFY) {
+            binding.confirmCode.setVisibility(View.VISIBLE);
+            binding.submit.setBackgroundResource(R.drawable.taktak_btn_secondary_bg);
+            binding.submit.setTextColor(com.google.android.material.color.MaterialColors.getColor(binding.getRoot(), R.attr.taktakColorTextPrimary));
+            android.widget.LinearLayout.LayoutParams submitLp = (android.widget.LinearLayout.LayoutParams) binding.submit.getLayoutParams();
+            submitLp.topMargin = getResources().getDimensionPixelSize(R.dimen.taktak_space_sm);
+            binding.submit.setLayoutParams(submitLp);
+        } else {
+            binding.confirmCode.setVisibility(View.GONE);
+            binding.submit.setBackgroundResource(R.drawable.taktak_btn_primary_bg);
+            binding.submit.setTextColor(androidx.core.content.ContextCompat.getColor(this, R.color.taktak_orig_light_text_primary));
+            android.widget.LinearLayout.LayoutParams submitLp = (android.widget.LinearLayout.LayoutParams) binding.submit.getLayoutParams();
+            submitLp.topMargin = getResources().getDimensionPixelSize(R.dimen.taktak_space_lg);
+            binding.submit.setLayoutParams(submitLp);
+        }
         binding.submit.setText(mode()==FORGOT ? R.string.recovery_send : mode()==VERIFY ? R.string.recovery_request_code : R.string.recovery_save);
         recovery=new ViewModelProvider(this).get(RecoveryViewModel.class);
         recovery.state().observe(this,state -> {
@@ -99,7 +113,9 @@ public abstract class RecoveryFormActivity extends AuthFormActivity {
     }
     @Override protected void renderLoading(boolean loading) {
         binding.submit.setEnabled(!loading && (mode()!=CHANGE || ResetSessionVault.peek()!=null));
-        binding.submit.setAlpha(loading ? .55f : 1f); binding.confirmCode.setEnabled(!loading);
+        binding.submit.setAlpha(loading ? .55f : 1f);
+        binding.confirmCode.setEnabled(!loading);
+        binding.confirmCode.setAlpha(loading ? .55f : 1f);
         binding.retry.setEnabled(!loading); binding.back.setEnabled(!loading);
         for (TextInputLayout field : new TextInputLayout[]{binding.emailLayout,binding.currentLayout,binding.codeLayout,binding.newLayout,binding.confirmLayout}) field.setEnabled(!loading);
         binding.progress.setVisibility(loading ? View.VISIBLE : View.GONE);

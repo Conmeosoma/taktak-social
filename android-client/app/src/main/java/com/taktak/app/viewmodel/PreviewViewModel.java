@@ -16,7 +16,7 @@ import java.util.concurrent.*;
 public final class PreviewViewModel extends AndroidViewModel {
     public record State(File file, byte[] downloaded, List<User> friends, boolean loading,
             boolean loadingFriends, boolean hasNext, boolean friendsError, boolean sending, boolean retry,
-            int message, boolean all, Set<String> selected, int progress) { }
+            int message, boolean all, Set<String> selected, int progress, boolean isLiveVideo) { }
     private final SavedStateHandle saved;
     private final MutableLiveData<State> state = new MutableLiveData<>();
     private final ExecutorService worker = Executors.newSingleThreadExecutor();
@@ -29,7 +29,7 @@ public final class PreviewViewModel extends AndroidViewModel {
     private String id, momentId;
     private File file;
     private byte[] downloaded;
-    private boolean loading, loadingFriends, hasNext, friendsError, sending, retry, all;
+    private boolean loading, loadingFriends, hasNext, friendsError, sending, retry, all, isLiveVideo;
     private int page, progress, message = R.string.preview_local;
     private volatile boolean cleared;
     private boolean friendTransfer, frozen;
@@ -39,7 +39,7 @@ public final class PreviewViewModel extends AndroidViewModel {
     public boolean selectionLocked() { return frozen || downloaded != null; }
     public PreviewViewModel(Application application, SavedStateHandle saved) {
         super(application); this.saved = saved;
-        all = !Boolean.FALSE.equals(saved.get("all"));
+        all = Boolean.TRUE.equals(saved.get("all"));
         ArrayList<String> ids = saved.get("selected"); if (ids != null) { selected.addAll(ids); }
         publish();
     }
@@ -65,8 +65,16 @@ public final class PreviewViewModel extends AndroidViewModel {
         worker.execute(() -> {
             try {
                 File result = drafts.file(id);
+                File video = drafts.videoFile(id);
+                boolean hasVid = video != null && video.exists();
                 main.post(() -> {
-                    if (!cleared) { file = result; loading = false; publish(); if (friends.isEmpty()) { loadFriends(); } }
+                    if (!cleared) {
+                        file = result;
+                        isLiveVideo = hasVid;
+                        loading = false;
+                        publish();
+                        if (friends.isEmpty()) { loadFriends(); }
+                    }
                 });
             } catch (IOException failure) { main.post(this::invalid); }
         });
@@ -173,15 +181,30 @@ public final class PreviewViewModel extends AndroidViewModel {
                 }
                 if (momentId == null) {
                     byte[] jpeg = drafts.read(id); attemptedPost = true;
-                    momentId = moments.upload(jpeg, pendingCaption, pendingRecipients, idempotencyKey,
-                            (percent, bytesWritten, totalBytes) -> {
-                                main.post(() -> {
-                                    if (current() && sending) {
-                                        progress = percent;
-                                        publish();
-                                    }
+                    File video = drafts.videoFile(id);
+                    if (video != null && video.exists()) {
+                        var metadata = com.taktak.app.data.repository.LiveVideoMetadata.read(video);
+                        byte[] videoBytes = java.nio.file.Files.readAllBytes(video.toPath());
+                        momentId = moments.uploadLive(jpeg, videoBytes, pendingCaption, pendingRecipients, idempotencyKey, metadata.durationMs(), metadata.hasAudio(),
+                                (percent, bytesWritten, totalBytes) -> {
+                                    main.post(() -> {
+                                        if (current() && sending) {
+                                            progress = percent;
+                                            publish();
+                                        }
+                                    });
                                 });
-                            });
+                    } else {
+                        momentId = moments.upload(jpeg, pendingCaption, pendingRecipients, idempotencyKey,
+                                (percent, bytesWritten, totalBytes) -> {
+                                    main.post(() -> {
+                                        if (current() && sending) {
+                                            progress = percent;
+                                            publish();
+                                        }
+                                    });
+                                });
+                    }
                 }
                 main.post(() -> {
                     if (current() && sending) {
@@ -237,7 +260,7 @@ public final class PreviewViewModel extends AndroidViewModel {
         if (cleared) { return; }
         saved.set("all", all); saved.set("selected", new ArrayList<>(selected));
         state.setValue(new State(file, downloaded, List.copyOf(friends), loading, loadingFriends, hasNext,
-                friendsError, sending, retry, message, all, Set.copyOf(selected), progress));
+                friendsError, sending, retry, message, all, Set.copyOf(selected), progress, isLiveVideo));
     }
     @Override protected void onCleared() {
         cleared = true;

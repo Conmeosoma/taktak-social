@@ -77,6 +77,8 @@
     <string name="profile_save">保存更改</string>
     <string name="profile_reload">重新加载资料</string>
     <string name="profile_logout">退出登录</string>
+    <string name="profile_logout_confirm_title">退出登录</string>
+    <string name="profile_logout_confirm_message">确定要从此设备上的 Taktak 账号退出登录吗？</string>
     <string name="profile_saved">显示名称已保存。</string>
     <string name="profile_avatar_saved">头像更新成功。</string>
     <string name="premium_profile_detail">管理个人资料与界面偏好。</string>

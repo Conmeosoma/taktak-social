@@ -53,8 +53,38 @@ public final class CaptureDraftRepository {
         }
         requireCurrent(); return bytes;
     }
+    public String writeLive(byte[] jpeg, File videoSource) throws IOException {
+        String id = write(jpeg);
+        File videoTarget = videoPath(id);
+        try {
+            Files.copy(videoSource.toPath(), videoTarget.toPath());
+            return id;
+        } catch (IOException failure) {
+            discard(id);
+            throw failure;
+        }
+    }
+
+    public File videoFile(String id) throws IOException {
+        requireCurrent();
+        File file = videoPath(id);
+        if (!file.isFile() || file.length() < 3 || System.currentTimeMillis() - file.lastModified() > MAX_AGE_MILLIS) {
+            return null;
+        }
+        return file;
+    }
+
     // Chỉ xóa ID của repository sở hữu, kể cả sau logout; không duyệt/xóa thư mục khác.
-    public void discard(String id) throws IOException { Files.deleteIfExists(path(id).toPath()); }
+    public void discard(String id) throws IOException {
+        Files.deleteIfExists(path(id).toPath());
+        try { Files.deleteIfExists(videoPath(id).toPath()); } catch (Exception ignored) { }
+    }
+
+    private File videoPath(String id) throws IOException {
+        if (id == null || !id.matches("[a-f0-9]{8}(-[a-f0-9]{4}){3}-[a-f0-9]{12}")) { throw new IOException("Invalid draft ID"); }
+        return new File(directory, id + ".mp4");
+    }
+
     private File path(String id) throws IOException {
         if (id == null || !id.matches("[a-f0-9]{8}(-[a-f0-9]{4}){3}-[a-f0-9]{12}")) { throw new IOException("Invalid draft ID"); }
         return new File(directory, id + ".jpg");

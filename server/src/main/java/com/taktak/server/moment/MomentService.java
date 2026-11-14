@@ -86,6 +86,64 @@ public class MomentService {
         return id;
     }
 
+    @Transactional(rollbackFor = IOException.class)
+    public UUID uploadLive(UUID sender, MultipartFile image, MultipartFile video, String caption,
+            List<String> recipients, String idempotencyKeyRaw, Integer durationMs, Boolean hasAudio) throws IOException {
+        users.getProfile(sender);
+        UUID idempotencyKey = parseIdempotencyKey(idempotencyKeyRaw);
+        var targets = parseRecipients(sender, recipients);
+        if (caption.codePointCount(0, caption.length()) > 50 || caption.indexOf('\0') >= 0) {
+            throw new MomentFailure(HttpStatus.BAD_REQUEST, "INVALID_CAPTION");
+        }
+        byte[] imageBytes = storage.sanitize(image);
+        var validatedVideo = storage.validateVideo(video);
+        byte[] videoBytes = validatedVideo.bytes();
+        byte[] combinedBytes = new byte[imageBytes.length + videoBytes.length];
+        System.arraycopy(imageBytes, 0, combinedBytes, 0, imageBytes.length);
+        System.arraycopy(videoBytes, 0, combinedBytes, imageBytes.length, videoBytes.length);
+        String payloadHash = idempotencyKey != null ? computePayloadHash(sender, caption, targets, combinedBytes) : null;
+
+        var participants = new java.util.ArrayList<>(targets); participants.add(sender);
+        if (accounts.lockAll(participants).size() != participants.size()) { throw unavailable(); }
+
+        if (idempotencyKey != null) {
+            var existing = moments.findBySenderIdAndIdempotencyKey(sender, idempotencyKey);
+            if (existing.isPresent()) {
+                var moment = existing.get();
+                if (payloadHash.equals(moment.getPayloadHash())) {
+                    return moment.getId();
+                } else {
+                    throw new MomentFailure(HttpStatus.CONFLICT, "IDEMPOTENCY_CONFLICT");
+                }
+            }
+        }
+
+        if (!targets.isEmpty()) {
+            for (UUID target : targets) {
+                if (relations.blocked(sender, target) || !relations.alreadyFriends(sender, target)) { throw unavailable(); }
+            }
+        }
+        UUID id = UUID.randomUUID();
+        String imageKey = storage.write(id, imageBytes);
+        TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+            @Override public void afterCompletion(int status) {
+                if (status != STATUS_COMMITTED) {
+                    storage.discard(imageKey);
+                    storage.discard(id + ".mp4");
+                }
+            }
+        });
+        String videoKey = storage.writeVideo(id, videoBytes);
+        var created = clock.instant();
+        int safeDuration = validatedVideo.durationMs();
+        boolean safeAudio = validatedVideo.hasAudio();
+        moments.saveAndFlush(new Moment(id, sender, caption, imageKey, imageBytes.length, created,
+                idempotencyKey, payloadHash, "LIVE_VIDEO", videoKey, (long) videoBytes.length, safeDuration, safeAudio));
+        for (UUID target : targets) { moments.addRecipient(id, target, created); }
+        for (UUID target : targets) { outbox.enqueue("moment_created", id, null, sender, target); }
+        return id;
+    }
+
     @Transactional
     public void delete(UUID senderId, UUID momentId) {
         users.getProfile(senderId);
@@ -96,9 +154,13 @@ public class MomentService {
         }
         moment.markDeleted(clock.instant());
         moments.saveAndFlush(moment);
-        // Không xóa file khi giao dịch vẫn có thể rollback.
         TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
-            @Override public void afterCommit() { storage.discard(moment.getFilePath()); }
+            @Override public void afterCommit() {
+                storage.discard(moment.getFilePath());
+                if (moment.getVideoPath() != null) {
+                    storage.discard(moment.getVideoPath());
+                }
+            }
         });
 
         var recipients = moments.findRecipientIds(momentId);
@@ -112,6 +174,18 @@ public class MomentService {
                 && (value.getSenderId().equals(viewer) || moments.isRecipient(id, viewer)))
                 .orElseThrow(() -> new MomentFailure(HttpStatus.NOT_FOUND, "MOMENT_NOT_FOUND"));
         return storage.read(moment.getFilePath());
+    }
+
+    @Transactional(readOnly = true)
+    public byte[] video(UUID viewer, UUID id) throws IOException {
+        users.getProfile(viewer);
+        Moment moment = moments.findById(id).filter(value -> value.getDeletedAt() == null
+                && (value.getSenderId().equals(viewer) || moments.isRecipient(id, viewer)))
+                .orElseThrow(() -> new MomentFailure(HttpStatus.NOT_FOUND, "MOMENT_NOT_FOUND"));
+        if (moment.getVideoPath() == null) {
+            throw new MomentFailure(HttpStatus.NOT_FOUND, "VIDEO_NOT_FOUND");
+        }
+        return storage.readVideo(moment.getVideoPath());
     }
 
     private List<UUID> parseRecipients(UUID sender, List<String> raw) {
@@ -178,7 +252,8 @@ public class MomentService {
         var senders = accounts.findAllById(found.stream().map(Moment::getSenderId).toList());
         var items = found.stream().limit(20).map(moment -> {
             var sender = senders.stream().filter(u -> u.getId().equals(moment.getSenderId())).findFirst().orElseThrow();
-            return new MomentDtos.MomentItem(moment.getId(), MomentDtos.PublicUser.from(sender), moment.getCaption(), moment.getCreatedAt());
+            return new MomentDtos.MomentItem(moment.getId(), MomentDtos.PublicUser.from(sender), moment.getCaption(), moment.getCreatedAt(),
+                    moment.getMediaType(), moment.getDurationMs(), moment.isHasAudio());
         }).toList();
         return new MomentDtos.MomentsPage(items, page, found.size() > 20);
     }
@@ -192,7 +267,10 @@ public class MomentService {
                     moment.getId(),
                     MomentDtos.PublicUser.from(sender),
                     moment.getCaption(),
-                    moment.getCreatedAt()
+                    moment.getCreatedAt(),
+                    moment.getMediaType(),
+                    moment.getDurationMs(),
+                    moment.isHasAudio()
             );
         });
     }

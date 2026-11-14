@@ -5,6 +5,8 @@
     <string name="profile_save">Lưu thay đổi</string>
     <string name="profile_reload">Tải lại hồ sơ</string>
     <string name="profile_logout">Đăng xuất</string>
+    <string name="profile_logout_confirm_title">Đăng xuất tài khoản</string>
+    <string name="profile_logout_confirm_message">Bạn có chắc chắn muốn đăng xuất khỏi tài khoản Taktak trên thiết bị này không?</string>
     <string name="profile_saved">Đã lưu tên hiển thị.</string>
     <string name="profile_avatar_saved">Đã cập nhật ảnh đại diện.</string>
     <string name="profile_invalid_name">Nhập tên hiển thị từ 1 đến 255 ký tự.</string>

@@ -15,6 +15,7 @@ import org.springframework.web.multipart.MultipartFile;
 @Service
 public class PrivateImageStorage {
     public static final int MAX_BYTES = 5 * 1024 * 1024;
+    public static final int MAX_VIDEO_BYTES = 10 * 1024 * 1024;
     private final Path root;
 
     public PrivateImageStorage(@Value("${taktak.storage.root}") String root) {
@@ -86,8 +87,51 @@ public class PrivateImageStorage {
         }
     }
 
+    public byte[] sanitizeVideo(MultipartFile file) throws IOException {
+        return validateVideo(file).bytes();
+    }
+
+    public record ValidatedVideo(byte[] bytes, int durationMs, boolean hasAudio) { }
+
+    public ValidatedVideo validateVideo(MultipartFile file) throws IOException {
+        if (file == null || file.isEmpty()) { throw new MomentFailure(HttpStatus.BAD_REQUEST, "VIDEO_REQUIRED"); }
+        if (file.getSize() > MAX_VIDEO_BYTES) { throw new MomentFailure(HttpStatus.PAYLOAD_TOO_LARGE, "VIDEO_TOO_LARGE"); }
+        byte[] input;
+        try (var stream = file.getInputStream()) { input = stream.readNBytes(MAX_VIDEO_BYTES + 1); }
+        if (input.length > MAX_VIDEO_BYTES) { throw new MomentFailure(HttpStatus.PAYLOAD_TOO_LARGE, "VIDEO_TOO_LARGE"); }
+        var metadata = new LiveVideoValidator().inspect(input);
+        return new ValidatedVideo(input, metadata.durationMs(), metadata.hasAudio());
+    }
+
+    public String writeVideo(UUID id, byte[] bytes) throws IOException {
+        Files.createDirectories(root);
+        boolean posix = Files.getFileStore(root).supportsFileAttributeView("posix");
+        if (posix) { Files.setPosixFilePermissions(root, PosixFilePermissions.fromString("rwx------")); }
+        Path pending = posix ? Files.createTempFile(root, "pending-video-", ".tmp",
+                PosixFilePermissions.asFileAttribute(PosixFilePermissions.fromString("rw-------")))
+                : Files.createTempFile(root, "pending-video-", ".tmp");
+        String name = id + ".mp4";
+        try {
+            Files.write(pending, bytes);
+            Files.move(pending, resolve(name));
+            return name;
+        } finally { Files.deleteIfExists(pending); }
+    }
+
+    public byte[] readVideo(String name) throws IOException {
+        Path file = resolve(name);
+        if (!Files.isRegularFile(file, LinkOption.NOFOLLOW_LINKS)) {
+            throw new MomentFailure(HttpStatus.NOT_FOUND, "MOMENT_NOT_FOUND");
+        }
+        try (var input = Files.newInputStream(file)) {
+            byte[] bytes = input.readNBytes(MAX_VIDEO_BYTES + 1);
+            if (bytes.length > MAX_VIDEO_BYTES) { throw new IOException("Private video exceeds limit."); }
+            return bytes;
+        }
+    }
+
     private Path resolve(String name) {
-        if (!name.matches("[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}\\.jpg")) {
+        if (!name.matches("[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}\\.(jpg|mp4)")) {
             throw new IllegalArgumentException("Invalid private storage key.");
         }
         return root.resolve(name);

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="camera_shutter_label">순간 촬영</string>
+    <string name="camera_shutter_label">탭하여 사진 · 길게 눌러 최대 3초 동영상</string>
     <string name="camera_permission_hint">촬영을 시작하려면 카메라 접근을 허용하세요.</string>
     <string name="camera_status_ready">비공개 순간</string>
     <string name="camera_status_busy">순간 저장 중…</string>
@@ -100,6 +100,13 @@
     <string name="preview_uploading_progress">사진 전송 중 (%1$d%%)…</string>
     <string name="preview_processing_server">서버 저장 확인 중…</string>
     <string name="preview_conflict_error">전송 요청이 충돌하거나 내용이 변경되었습니다. 다시 시도하세요.</string>
+    <string name="preview_recipients_needed_title">수신자가 선택되지 않았습니다</string>
+    <string name="preview_recipients_needed_message">보내기 전에 한 명 이상의 친구를 선택하거나 \'모든 친구\'를 선택해 주세요.</string>
+    <string name="preview_confirm_send_title">전송 확인</string>
+    <string name="preview_confirm_send_all">이 순간을 모든 친구에게 전송하시겠습니까?</string>
+    <string name="preview_confirm_send_selected">선택한 %1$d명의 친구에게 이 순간을 전송하시겠습니까?</string>
+    <string name="preview_send_now">지금 보내기</string>
+    <string name="preview_ok">확인</string>
     <string name="profile_invalid_name">표시 이름을 1~255자로 입력하세요.</string>
     <string name="profile_error">프로필을 업데이트할 수 없습니다. 다시 시도하세요.</string>
     <string name="profile_network_error">완료할 수 없습니다. 연결을 확인하거나 다른 사진을 선택한 후 다시 시도하세요.</string>
@@ -179,4 +186,32 @@
     <string name="profile_avatar_desc">프로필 사진</string>
     <string name="theme_scope_notice">네 가지 테마는 계정, 카메라, 미리보기, 사진 보기, 기록, 친구, 메시지, 프로필에서 사용할 수 있습니다. 열린 화면은 다시 열 때까지 현재 작업을 유지합니다.</string>
     <string name="theme_save_error">테마를 저장할 수 없습니다. 미리보기는 유지됩니다. 적용을 다시 누르세요.</string>
+    <string name="preview_outbox_queued">전송 대기열에 저장했습니다. 연결되면 자동으로 전송합니다.</string>
+    <string name="outbox_status_pending">전송 대기 중…</string>
+    <string name="outbox_status_waiting_network">네트워크 연결 대기 중…</string>
+    <string name="outbox_status_uploading">전송 중… (%1$d%%)</string>
+    <string name="outbox_status_failed">전송 실패. 눌러서 다시 시도하세요.</string>
+    <string name="outbox_title">전송 대기 중인 순간</string>
+    <string name="outbox_cancel">취소</string>
+    <string name="outbox_retry">다시 시도</string>
+    <string name="camera_mode_single">카메라 1개</string>
+    <string name="camera_mode_dual">카메라 2개</string>
+    <string name="camera_dual_pip_label">PiP 보조 화면</string>
+    <string name="camera_dual_swap">화면 전환</string>
+    <string name="camera_dual_capturing_main">메인 카메라 촬영 중…</string>
+    <string name="camera_dual_capturing_sub">보조 카메라로 전환 중…</string>
+    <string name="camera_dual_compositing">두 사진을 합치는 중…</string>
+    <string name="poll_add">A/B 투표 추가</string>
+    <string name="poll_remove">투표 삭제</string>
+    <string name="poll_question_hint">질문을 입력하세요…</string>
+    <string name="poll_option_a_hint">선택지 A (예: 예)</string>
+    <string name="poll_option_b_hint">선택지 B (예: 아니요)</string>
+    <string name="poll_voted">내 투표: %1$s</string>
+    <string name="poll_total_votes">%1$d표</string>
+    <string name="poll_closed">투표가 종료되었습니다</string>
+    <string name="camera_live_recording">3초 순간 녹화 중…</string>
+    <string name="camera_live_audio_on">마이크 켜짐</string>
+    <string name="camera_live_audio_off">마이크 꺼짐</string>
+    <string name="viewer_live_badge">라이브 3초</string>
+    <string name="preview_live_badge">라이브 3초</string>
 </resources>

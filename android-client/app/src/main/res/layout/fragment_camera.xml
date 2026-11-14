@@ -48,6 +48,55 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
+
+            <!-- Dual Camera PiP Inset Window -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/cameraPipContainer"
+                android:layout_width="96dp"
+                android:layout_height="96dp"
+                android:layout_margin="16dp"
+                android:visibility="gone"
+                android:clickable="true"
+                android:focusable="true"
+                app:cardBackgroundColor="@android:color/black"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="6dp"
+                app:strokeColor="@android:color/white"
+                app:strokeWidth="2dp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
+
+                <FrameLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent">
+
+                    <androidx.camera.view.PreviewView
+                        android:id="@+id/cameraPipPreview"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:visibility="gone" />
+
+                    <ImageView
+                        android:id="@+id/cameraPipImage"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:scaleType="centerCrop"
+                        android:contentDescription="@string/camera_dual_pip_label" />
+
+                    <TextView
+                        android:id="@+id/cameraPipLabel"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="bottom|center_horizontal"
+                        android:layout_marginBottom="4dp"
+                        android:background="@drawable/login_notice"
+                        android:paddingHorizontal="6dp"
+                        android:paddingVertical="2dp"
+                        android:text="@string/camera_dual_swap"
+                        android:textColor="@android:color/white"
+                        android:textSize="9sp" />
+                </FrameLayout>
+            </com.google.android.material.card.MaterialCardView>
         </androidx.constraintlayout.widget.ConstraintLayout>
     </com.google.android.material.card.MaterialCardView>
 
@@ -89,6 +138,22 @@
             app:iconGravity="textStart"
             app:iconSize="20dp"
             app:iconTint="?attr/taktakColorTextPrimary" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/dualModeButton"
+            style="@style/Widget.Taktak.Button.Secondary"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/taktak_space_sm"
+            android:layout_weight="1"
+            android:enabled="false"
+            android:minHeight="@dimen/taktak_btn_height_medium"
+            android:text="@string/camera_mode_single"
+            android:textAppearance="@style/TextAppearance.Taktak.Caption"
+            app:icon="@drawable/ic_dual_cam"
+            app:iconGravity="textStart"
+            app:iconSize="20dp"
+            app:iconTint="?attr/taktakColorTextPrimary" />
     </LinearLayout>
 
     <!-- Progress Indicator -->
@@ -115,15 +180,28 @@
         android:layout_marginBottom="@dimen/taktak_space_md"
         android:text="@string/moment_camera_permission"     android:minHeight="@dimen/taktak_touch_target_min" />
 
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnLiveAudioToggle"
+        style="@style/Widget.Material3.Button.TextButton"
+        android:layout_width="wrap_content"
+        android:layout_height="48dp"
+        android:layout_marginStart="@dimen/taktak_space_xs"
+        android:paddingHorizontal="10dp"
+        android:text="@string/camera_live_audio_off"
+        android:textSize="11sp"
+        android:layout_gravity="center_horizontal"
+        app:cornerRadius="18dp" />
+
+
     <!-- Shutter Button 80dp viền kép tròn -->
-    <androidx.appcompat.widget.AppCompatImageButton
+    <com.taktak.app.ui.camera.ShutterButton
         android:id="@+id/captureButton"
         android:layout_width="@dimen/taktak_shutter_outer"
         android:layout_height="@dimen/taktak_shutter_outer"
         android:layout_gravity="center_horizontal"
         android:layout_marginTop="@dimen/taktak_space_sm"
         android:background="?attr/selectableItemBackgroundBorderless"
-        android:contentDescription="@string/moment_capture"
+        android:contentDescription="@string/camera_shutter_label"
         android:enabled="false"
         android:scaleType="fitCenter"
         android:src="@drawable/taktak_shutter_ring" />

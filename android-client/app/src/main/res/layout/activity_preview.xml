@@ -36,7 +36,8 @@
             android:minHeight="@dimen/taktak_btn_height_medium"
             android:minWidth="0dp"
             android:text="@string/session_logout"
-            android:textColor="?attr/taktakColorTextMuted" />
+            android:textColor="?attr/taktakColorTextMuted"
+            android:visibility="gone" />
     </LinearLayout>
 
     <com.google.android.material.progressindicator.LinearProgressIndicator
@@ -135,84 +136,117 @@
                             app:layout_constraintEnd_toEndOf="@id/previewImage"
                             app:layout_constraintStart_toStartOf="@id/previewImage"
                             app:layout_constraintTop_toTopOf="@id/previewImage" />
+
+                        <TextView
+                            android:id="@+id/previewLiveBadge"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_margin="12dp"
+                            android:background="@drawable/login_notice"
+                            android:paddingHorizontal="8dp"
+                            android:paddingVertical="4dp"
+                            android:text="@string/preview_live_badge"
+                            android:textColor="@android:color/white"
+                            android:textSize="11sp"
+                            android:textStyle="bold"
+                            android:visibility="gone"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toTopOf="parent" />
                     </androidx.constraintlayout.widget.ConstraintLayout>
                 </com.google.android.material.card.MaterialCardView>
 
                 <!-- Creative Tools Toolbar -->
-                <GridLayout
+                <LinearLayout
                     android:id="@+id/creativeToolsBar"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="@dimen/taktak_space_sm"
-                    android:gravity="center_vertical"
-                    android:columnCount="2">
+                    android:orientation="vertical">
 
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/btnToolDoodle"
-                        style="@style/Widget.Taktak.Button.Secondary"
-                        android:layout_width="0dp"
+                    <!-- Creative Creation Tools (Row 1) -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_columnWeight="1"
-                        android:layout_marginEnd="@dimen/taktak_space_xxs"
-                        android:insetTop="0dp"
-                        android:insetBottom="0dp"
-                        android:paddingHorizontal="@dimen/taktak_space_xxs"
-                        android:text="@string/tool_doodle"
-                        android:textSize="12sp"     android:minHeight="@dimen/taktak_touch_target_min" />
+                        android:orientation="horizontal">
 
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/btnToolSticker"
-                        style="@style/Widget.Taktak.Button.Secondary"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_columnWeight="1"
-                        android:layout_marginEnd="@dimen/taktak_space_xxs"
-                        android:insetTop="0dp"
-                        android:insetBottom="0dp"
-                        android:paddingHorizontal="@dimen/taktak_space_xxs"
-                        android:text="@string/tool_sticker"
-                        android:textSize="12sp"     android:minHeight="@dimen/taktak_touch_target_min" />
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btnToolDoodle"
+                            style="@style/Widget.Taktak.Button.Secondary"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:layout_marginEnd="@dimen/taktak_space_xs"
+                            android:insetTop="0dp"
+                            android:insetBottom="0dp"
+                            android:minHeight="@dimen/taktak_touch_target_min"
+                            android:paddingHorizontal="@dimen/taktak_space_xxs"
+                            android:text="@string/tool_doodle"
+                            android:textSize="13sp" />
 
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/btnToolTag"
-                        style="@style/Widget.Taktak.Button.Secondary"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_columnWeight="1"
-                        android:layout_marginEnd="@dimen/taktak_space_xxs"
-                        android:insetTop="0dp"
-                        android:insetBottom="0dp"
-                        android:paddingHorizontal="@dimen/taktak_space_xxs"
-                        android:text="@string/tool_tag"
-                        android:textSize="12sp"     android:minHeight="@dimen/taktak_touch_target_min" />
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btnToolSticker"
+                            style="@style/Widget.Taktak.Button.Secondary"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:layout_marginEnd="@dimen/taktak_space_xs"
+                            android:insetTop="0dp"
+                            android:insetBottom="0dp"
+                            android:minHeight="@dimen/taktak_touch_target_min"
+                            android:paddingHorizontal="@dimen/taktak_space_xxs"
+                            android:text="@string/tool_sticker"
+                            android:textSize="13sp" />
 
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/btnToolUndo"
-                        style="@style/Widget.Taktak.Button.Ghost"
-                        android:layout_width="0dp"
-                        android:layout_columnWeight="1"
-                        android:layout_height="wrap_content"
-                        android:insetTop="0dp"
-                        android:insetBottom="0dp"
-                        android:minWidth="0dp"
-                        android:paddingHorizontal="@dimen/taktak_space_xs"
-                        android:text="@string/tool_undo"
-                        android:textSize="12sp"     android:minHeight="@dimen/taktak_touch_target_min" />
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btnToolTag"
+                            style="@style/Widget.Taktak.Button.Secondary"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:insetTop="0dp"
+                            android:insetBottom="0dp"
+                            android:minHeight="@dimen/taktak_touch_target_min"
+                            android:paddingHorizontal="@dimen/taktak_space_xxs"
+                            android:text="@string/tool_tag"
+                            android:textSize="13sp" />
+                    </LinearLayout>
 
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/btnToolClear"
-                        style="@style/Widget.Taktak.Button.Ghost"
-                        android:layout_width="0dp"
-                        android:layout_columnWeight="1"
+                    <!-- Edit Actions (Row 2) -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:insetTop="0dp"
-                        android:insetBottom="0dp"
-                        android:minWidth="0dp"
-                        android:paddingHorizontal="@dimen/taktak_space_xs"
-                        android:text="@string/tool_clear"
-                        android:textColor="@color/taktak_status_error"
-                        android:textSize="12sp"     android:minHeight="@dimen/taktak_touch_target_min" />
-                </GridLayout>
+                        android:layout_marginTop="@dimen/taktak_space_xs"
+                        android:orientation="horizontal">
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btnToolUndo"
+                            style="@style/Widget.Taktak.Button.Ghost"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:layout_marginEnd="@dimen/taktak_space_xs"
+                            android:insetTop="0dp"
+                            android:insetBottom="0dp"
+                            android:minHeight="@dimen/taktak_touch_target_min"
+                            android:paddingHorizontal="@dimen/taktak_space_xs"
+                            android:text="@string/tool_undo"
+                            android:textSize="13sp" />
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btnToolClear"
+                            style="@style/Widget.Taktak.Button.Ghost"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:insetTop="0dp"
+                            android:insetBottom="0dp"
+                            android:minHeight="@dimen/taktak_touch_target_min"
+                            android:paddingHorizontal="@dimen/taktak_space_xs"
+                            android:text="@string/tool_clear"
+                            android:textColor="@color/taktak_status_error"
+                            android:textSize="13sp" />
+                    </LinearLayout>
+                </LinearLayout>
 
                 <!-- Color Palette (Doodle Mode) -->
                 <LinearLayout
@@ -308,6 +342,84 @@
                     android:textAppearance="@style/TextAppearance.Taktak.Caption"
                     android:textColor="?attr/taktakColorTextMuted" />
 
+                <!-- Photo Poll Creation Section -->
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnAddPoll"
+                    style="@style/Widget.Taktak.Button.Secondary"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/taktak_space_sm"
+                    android:text="@string/poll_add"
+                    app:icon="@drawable/ic_premium_plus"
+                    app:iconGravity="textStart" />
+
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/pollCreationCard"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/taktak_space_xs"
+                    android:visibility="gone"
+                    app:cardBackgroundColor="?attr/taktakColorSurface"
+                    app:cardCornerRadius="@dimen/taktak_radius_md"
+                    app:strokeColor="?attr/taktakColorBorder"
+                    app:strokeWidth="1dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="@dimen/taktak_space_sm">
+
+                        <com.google.android.material.textfield.TextInputLayout
+                            style="@style/Widget.Taktak.TextInputLayout"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:hint="@string/poll_question_hint">
+                            <com.google.android.material.textfield.TextInputEditText
+                                android:id="@+id/pollQuestionInput"
+                                style="@style/Widget.Taktak.TextInputEditText"
+                                android:maxLength="100"
+                                android:maxLines="2" />
+                        </com.google.android.material.textfield.TextInputLayout>
+
+                        <com.google.android.material.textfield.TextInputLayout
+                            style="@style/Widget.Taktak.TextInputLayout"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="@dimen/taktak_space_xs"
+                            android:hint="@string/poll_option_a_hint">
+                            <com.google.android.material.textfield.TextInputEditText
+                                android:id="@+id/pollOptionAInput"
+                                style="@style/Widget.Taktak.TextInputEditText"
+                                android:maxLength="40"
+                                android:maxLines="1" />
+                        </com.google.android.material.textfield.TextInputLayout>
+
+                        <com.google.android.material.textfield.TextInputLayout
+                            style="@style/Widget.Taktak.TextInputLayout"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="@dimen/taktak_space_xs"
+                            android:hint="@string/poll_option_b_hint">
+                            <com.google.android.material.textfield.TextInputEditText
+                                android:id="@+id/pollOptionBInput"
+                                style="@style/Widget.Taktak.TextInputEditText"
+                                android:maxLength="40"
+                                android:maxLines="1" />
+                        </com.google.android.material.textfield.TextInputLayout>
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btnRemovePoll"
+                            style="@style/Widget.Material3.Button.TextButton"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="end"
+                            android:layout_marginTop="@dimen/taktak_space_xxs"
+                            android:text="@string/poll_remove"
+                            android:textColor="?attr/colorError" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
                 <!-- Recipient Selection Heading -->
                 <com.google.android.material.textview.MaterialTextView
                     android:id="@+id/recipientHeading"
@@ -358,22 +470,40 @@
                     android:text="@string/preview_send_hint"
                     android:textAppearance="@style/TextAppearance.Taktak.Caption"
                     android:textColor="?attr/taktakColorTextMuted" />
-
-                <!-- Send to Friends Button (Gradient Primary) -->
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/sendFriendsButton"
-                    style="@style/Widget.Taktak.Button.Primary"
-                    android:layout_marginTop="@dimen/taktak_space_md"
-                    android:enabled="false"
-                    android:text="@string/preview_send"     android:minHeight="@dimen/taktak_touch_target_min" />
-
-                <!-- Save Private Button (Secondary) -->
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/savePrivateButton"
-                    style="@style/Widget.Taktak.Button.Secondary"
-                    android:layout_marginTop="@dimen/taktak_space_sm"
-                    android:text="@string/preview_private"     android:minHeight="@dimen/taktak_touch_target_min" />
             </LinearLayout>
         </androidx.constraintlayout.widget.ConstraintLayout>
     </ScrollView>
+
+    <!-- Fixed Bottom Actions Dock -->
+    <LinearLayout
+        android:id="@+id/previewBottomActions"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:background="?attr/taktakColorSurface"
+        android:paddingHorizontal="@dimen/taktak_space_xl"
+        android:paddingTop="@dimen/taktak_space_sm"
+        android:paddingBottom="@dimen/taktak_space_md"
+        android:visibility="gone">
+
+        <!-- Send to Friends Button (Gradient Primary) -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/sendFriendsButton"
+            style="@style/Widget.Taktak.Button.Primary"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:enabled="false"
+            android:minHeight="@dimen/taktak_touch_target_min"
+            android:text="@string/preview_send" />
+
+        <!-- Save Private Button (Secondary) -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/savePrivateButton"
+            style="@style/Widget.Taktak.Button.Secondary"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/taktak_space_xs"
+            android:minHeight="@dimen/taktak_touch_target_min"
+            android:text="@string/preview_private" />
+    </LinearLayout>
 </LinearLayout>

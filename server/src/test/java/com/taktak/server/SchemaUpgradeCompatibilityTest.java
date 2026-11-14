@@ -27,7 +27,7 @@ class SchemaUpgradeCompatibilityTest {
             var v6=Flyway.configure().dataSource(source).target("6").cleanDisabled(true).load();
             assertThat(v6.migrate().migrationsExecuted).isEqualTo(1);
             var latest=Flyway.configure().dataSource(source).cleanDisabled(true).load();
-            assertThat(latest.migrate().migrationsExecuted).isEqualTo(1);
+            assertThat(latest.migrate().migrationsExecuted).isEqualTo(3);
             latest.validate();
             assertThat(latest.migrate().migrationsExecuted).isZero();
             assertThat(jdbc.queryForObject("select min(security_version) from users",Long.class)).isEqualTo(7);

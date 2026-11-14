@@ -173,16 +173,18 @@
             </FrameLayout>
 
             <com.google.android.material.button.MaterialButton
-                android:id="@+id/submit"
+                android:id="@+id/confirmCode"
                 style="@style/Widget.Taktak.Button.Primary"
-                android:layout_marginTop="@dimen/taktak_space_lg"     android:minHeight="@dimen/taktak_touch_target_min" />
+                android:layout_marginTop="@dimen/taktak_space_lg"
+                android:text="@string/recovery_confirm_email"
+                android:visibility="gone"
+                android:minHeight="@dimen/taktak_touch_target_min" />
 
             <com.google.android.material.button.MaterialButton
-                android:id="@+id/confirmCode"
-                style="@style/Widget.Taktak.Button.Secondary"
-                android:layout_marginTop="@dimen/taktak_space_sm"
-                android:text="@string/recovery_confirm_email"
-                android:visibility="visible"     android:minHeight="@dimen/taktak_touch_target_min" />
+                android:id="@+id/submit"
+                style="@style/Widget.Taktak.Button.Primary"
+                android:layout_marginTop="@dimen/taktak_space_lg"
+                android:minHeight="@dimen/taktak_touch_target_min" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/retry"

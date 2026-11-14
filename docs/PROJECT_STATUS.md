@@ -1,5 +1,57 @@
 # Taktak — Trạng thái dự án
 
+## Chạm chụp / giữ quay — 14/11/2026
+
+Đã thực hiện yêu cầu dùng chung nút chụp: chạm chụp ảnh; nhấn giữ quay Live,
+thả tay dừng sớm, tự dừng tối đa3giây. Bỏ hai nút chọn Ảnh/Live riêng; giữ
+mic tùy chọn, ảnh kép, API/JWT và Outbox. Hủy cử chỉ/rời màn không tạo ảnh.
+
+Build debug/test APK,143/143 JVM và8/8 USB PASS; lint0errors/105warnings.
+Bản cuối USB20,302s, log shutter-hold-usb.log; build/lint trong
+shutter-hold-accessibility-build.log. Không sửa backend hoặc deploy/commit/push.
+Chi tiết [QA_SHUTTER_HOLD_20261114.md](QA_SHUTTER_HOLD_20261114.md).
+Các mục sau giữ lịch sử các lượt trước.
+
+## Sửa Live Moment / microphone / lint — 14/11/2026
+
+**PASS phạm vi sửa này; Advanced4 vẫn IN PROGRESS cho nghiệm thu E2E.**
+Server kiểm tra container, metadata và giải mã video bằng FFmpeg/ffprobe;
+không nhận MP4 giả, frame hỏng hoặc clip quá 3.300 ms. Duration/audio lấy từ
+file thực. Android khai báo RECORD_AUDIO và gửi metadata thật ở cả Preview/Outbox.
+Đã sửa 30 chuỗi thiếu cho es/hi/ja/ko/zh; lint 0 errors, 105 warnings.
+
+Full backend 228/228 PASS (BUILD SUCCESS); sau bổ sung hai assertion mới,
+targeted 13/13 PASS, BUILD SUCCESS. Android 143/143 JVM, build debug/test APK
+và lint PASS. USB Xiaomi Android 15 bản cuối 8/8 PASS trong 19,599 giây;
+quay có/không mic, ghép hai góc, Outbox/checkpoint/generation/cancel/migration.
+Đã xem ảnh Preview sạch, khôi phục quyền mic, không gửi media ra Internet.
+Không commit/push/deploy hoặc thay schema production. Cần FFmpeg/ffprobe khi
+triển khai Live. Xem [QA Advanced4](QA_ADVANCED4_20261114.md) và
+[hợp đồng video](LIVE_MOMENT_VALIDATION.md). Các mục bên dưới là lịch sử.
+
+## Sửa Photo Poll / Outbox —14/11/2026
+
+Kết quả cuối: **5/5 targeted Poll,6/6 USB,143/143 Android JVM PASS**. Fullbackend
+222/223 đạt,1FAIL duy nhất MP4 giả,0error/skip; không báo toàn suitePASS. Các lỗi
+phân quyền tạoPoll và generation/retryOutbox đã có ca hồi quy đạt. Video/mic/lint
+vẫn chặn phát hành Advanced4; kết quả cuối thay ghi chú đang xác minh bên dưới.
+
+Đã sửa phân quyền tạoPoll và retry/checkpoint/generation Outbox. TargetedPoll
+5/5PASS,USB6/6PASS,Android143JVM/buildPASS. Đang xác minh hồi quy backend sau
+đồng bộ caller multipart; không coi toàn bộ Advanced4PASS. Chưa sửa MP4/audio/
+lint và không deploy/push. Chi tiết [QA_ADVANCED4_20261114.md](QA_ADVANCED4_20261114.md).
+
+## QA Advanced4 —14/11/2026
+
+**FAIL nghiệm thu** OfflineOutbox/DualCamera/PhotoPoll/Live3s. Backend217testcũ
+PASS nhưng4acceptance mới có3FAIL; USB5ca có2FAIL; lint31errors. Có lỗi Poll
+ghi trái quyền,MP4 giả được nhận và Outbox bỏ qua generation. Capture kép và
+Livecache trên XiaomiAndroid15 đã chạy đạt. Không deploy hoặc sửa production.
+Chi tiết [QA_ADVANCED4_20261114.md](QA_ADVANCED4_20261114.md).
+
+USB bổ sungWorkManager1caFAIL: ảnh thành công+Poll503 vẫnCOMPLETED,đã tái hiện
+hai lượt0,222s/0,226s. Tổng6caUSBkhácnhau:3PASS/3FAIL; không phải toàn bộ4tínhnăngPASS.
+
 ## Deploy AI —13/11/2026, cập nhật mới nhất
 
 **PASS backend VPS:**217test local đạt,JAR mới đã triển khai,V7 thành công,

@@ -375,3 +375,22 @@ CameraX tái sử dụng3D, chỉ bind khi tab Camera RESUMED và phiên hợp l
 
 Profile screen (`fragment_profile.xml`) gỡ bỏ hoàn toàn `@style/Theme.TakTak.Premium`, kế thừa Context Theme động của Activity theo người dùng chọn (Original, Gradient, Glass, Soft). Bổ sung token `ttMediaOutlineStyle` và style `Widget.TakTakMedia.Outline` dùng `?attr/ttLoginSecondary` và `?attr/colorOnSurface`. Hoàn thiện kiểm thử ProfileThemeUiTest trên RAM qua MediaThemeFixture (hỗ trợ UserApi và DeviceApi unregister khi logout). Hoàn tất chuyển đổi toàn bộ 4 tab chính của ứng dụng sang kiến trúc 4 theme. Chi tiết nghiệm thu tại [QA_THEME_PROFILE.md](QA_THEME_PROFILE.md).
 
+
+## Sửa Live Moment — 14/11/2026
+
+Trong phạm vi bốn tính năng nâng cao đã được người dùng yêu cầu, lượt continue
+cho phép sửa validation video/mic/lint. Giữ Java/XML, stack và định danh.
+Video 3giây có dung sai đến3.300ms; MP4 H.264/optional AAC, max10MiB.
+Server xác minh bằng ffprobe + full decode FFmpeg, đọc metadata thực thay vì tin
+client; thiếu công cụ trả503, không fallback kiểm tra chữ ký. Android xin mic
+lúc dùng, không bắt buộc hardware. Đây là yêu cầu runtime của Live, chưa tự
+cài trên VPS/deploy/migrate. Chi tiết, đánh đổi và giới hạn ở
+[LIVE_MOMENT_VALIDATION.md](LIVE_MOMENT_VALIDATION.md).
+
+## Thao tác Live dùng chung nút chụp — 14/11/2026
+
+Người dùng yêu cầu bỏ mục Live riêng: chạm nút chụp để chụp ảnh, nhấn giữ
+để quay. Thả tay dừng sớm, tối đa3giây theo hợp đồng Live hiện có. Không tự
+bật microphone; giữ toggle và xin quyền khi người dùng chọn. Hủy cử chỉ hoặc
+rời Camera hủy video, không biến thành thao tác chụp ảnh. Giữ ảnh kép cho
+thao tác chạm. Không đổi API/server/schema hoặc luồng gửi/phiên.

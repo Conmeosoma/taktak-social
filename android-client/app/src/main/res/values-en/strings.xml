@@ -77,6 +77,8 @@
     <string name="profile_save">Save Changes</string>
     <string name="profile_reload">Reload profile</string>
     <string name="profile_logout">Log Out</string>
+    <string name="profile_logout_confirm_title">Log out</string>
+    <string name="profile_logout_confirm_message">Are you sure you want to log out of your Taktak account on this device?</string>
     <string name="profile_saved">Display name saved.</string>
     <string name="profile_avatar_saved">Avatar updated successfully.</string>
     <string name="premium_profile_detail">Manage your identity and app preferences.</string>

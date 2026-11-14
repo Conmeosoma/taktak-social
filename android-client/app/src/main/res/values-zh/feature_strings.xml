@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="camera_shutter_label">拍下瞬间</string>
+    <string name="camera_shutter_label">轻触拍照 · 长按录制，最长3秒</string>
     <string name="camera_permission_hint">允许相机权限以开始拍照。</string>
     <string name="camera_status_ready">私密瞬间</string>
     <string name="camera_status_busy">正在保存瞬间…</string>
@@ -100,6 +100,13 @@
     <string name="preview_uploading_progress">正在发送照片（%1$d%%）…</string>
     <string name="preview_processing_server">正在确认服务器保存状态…</string>
     <string name="preview_conflict_error">发送请求冲突或内容已更改，请重试。</string>
+    <string name="preview_recipients_needed_title">未选择接收人</string>
+    <string name="preview_recipients_needed_message">发送前请至少选择一位好友或选择“所有好友”。</string>
+    <string name="preview_confirm_send_title">确认发送</string>
+    <string name="preview_confirm_send_all">确定要将此瞬间发送给所有好友吗？</string>
+    <string name="preview_confirm_send_selected">将此瞬间发送给所选的 %1$d 位好友？</string>
+    <string name="preview_send_now">立即发送</string>
+    <string name="preview_ok">知道了</string>
     <string name="profile_invalid_name">请输入 1 至 255 个字符的显示名称。</string>
     <string name="profile_error">无法更新个人资料，请重试。</string>
     <string name="profile_network_error">无法完成请求，请检查连接或选择其他照片后重试。</string>
@@ -179,4 +186,32 @@
     <string name="profile_avatar_desc">头像</string>
     <string name="theme_scope_notice">四种主题适用于账户、相机、预览、照片查看器、历史、好友、消息和个人资料页面。已打开的页面会保留当前操作，重新打开时生效。</string>
     <string name="theme_save_error">无法保存主题，预览已保留，请再次点击应用。</string>
+    <string name="preview_outbox_queued">已加入发送队列，联网后自动发送。</string>
+    <string name="outbox_status_pending">等待发送…</string>
+    <string name="outbox_status_waiting_network">等待网络连接…</string>
+    <string name="outbox_status_uploading">正在发送… (%1$d%%)</string>
+    <string name="outbox_status_failed">发送失败，点击重试。</string>
+    <string name="outbox_title">待发送的瞬间</string>
+    <string name="outbox_cancel">取消</string>
+    <string name="outbox_retry">重试</string>
+    <string name="camera_mode_single">单摄</string>
+    <string name="camera_mode_dual">双摄</string>
+    <string name="camera_dual_pip_label">画中画视角</string>
+    <string name="camera_dual_swap">切换视角</string>
+    <string name="camera_dual_capturing_main">正在使用主摄拍摄…</string>
+    <string name="camera_dual_capturing_sub">正在切换副摄…</string>
+    <string name="camera_dual_compositing">正在合成双摄照片…</string>
+    <string name="poll_add">添加 A/B 投票</string>
+    <string name="poll_remove">移除投票</string>
+    <string name="poll_question_hint">输入投票问题…</string>
+    <string name="poll_option_a_hint">选项 A（例如：是）</string>
+    <string name="poll_option_b_hint">选项 B（例如：否）</string>
+    <string name="poll_voted">你的选择：%1$s</string>
+    <string name="poll_total_votes">%1$d 票</string>
+    <string name="poll_closed">投票已结束</string>
+    <string name="camera_live_recording">正在录制 3 秒瞬间…</string>
+    <string name="camera_live_audio_on">麦克风已开启</string>
+    <string name="camera_live_audio_off">麦克风已关闭</string>
+    <string name="viewer_live_badge">动态 3 秒</string>
+    <string name="preview_live_badge">动态 3 秒</string>
 </resources>

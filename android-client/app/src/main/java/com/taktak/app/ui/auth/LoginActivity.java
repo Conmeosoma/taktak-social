@@ -20,6 +20,7 @@ public class LoginActivity extends AuthFormActivity {
     protected void onCreate(Bundle savedInstanceState) {
         appliedTheme = new ThemePreferences(this).load();
         ThemeManager.applyBeforeCreate(this, appliedTheme, ThemeManager.ScreenRole.LOGIN);
+        com.taktak.app.ui.language.LanguageManager.initialize(this);
         super.onCreate(savedInstanceState);
         binding = ActivityLoginBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());

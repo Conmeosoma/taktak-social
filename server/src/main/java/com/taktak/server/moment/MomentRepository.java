@@ -4,6 +4,9 @@ import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface MomentRepository extends JpaRepository<Moment, UUID> {
+    @org.springframework.data.jpa.repository.Lock(jakarta.persistence.LockModeType.PESSIMISTIC_WRITE)
+    @org.springframework.data.jpa.repository.Query("select m from Moment m where m.id = :id")
+    java.util.Optional<Moment> lockForPoll(@org.springframework.data.repository.query.Param("id") UUID id);
     @org.springframework.data.jpa.repository.Modifying
     @org.springframework.data.jpa.repository.Query(value = "insert into moment_recipients(moment_id,user_id,created_at) values(:moment,:recipient,:created)", nativeQuery = true)
     int addRecipient(@org.springframework.data.repository.query.Param("moment") UUID moment,

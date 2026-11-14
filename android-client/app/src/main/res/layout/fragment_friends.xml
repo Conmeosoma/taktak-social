@@ -36,7 +36,8 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="@dimen/taktak_space_xs"
                     android:gravity="center_vertical"
-                    android:orientation="horizontal">
+                    android:orientation="horizontal"
+                    android:visibility="gone">
 
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/friendsBack"

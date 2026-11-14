@@ -162,7 +162,7 @@
         <item name="android:background">?attr/taktakColorNavBackground</item>
         <item name="itemActiveIndicatorStyle">@style/Widget.Taktak.BottomNav.Indicator</item>
         <item name="itemIconSize">24dp</item>
-        <item name="labelVisibilityMode">unlabeled</item>
+        <item name="labelVisibilityMode">selected</item>
     </style>
 
     <style name="Widget.Taktak.BottomNav.Indicator" parent="Widget.Material3.BottomNavigationView.ActiveIndicator">

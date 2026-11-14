@@ -40,11 +40,13 @@ public final class MomentViewerActivity extends AppCompatActivity {
     public static final String EXTRA_CAPTION = "extra_caption";
     public static final String EXTRA_CREATED_AT = "extra_created_at";
     public static final String EXTRA_IS_SENDER = "extra_is_sender";
+    public static final String EXTRA_MEDIA_TYPE = "extra_media_type";
 
     private ActivityMomentViewerBinding binding;
     private final Handler main = new Handler(Looper.getMainLooper());
     private final ExecutorService worker = Executors.newSingleThreadExecutor();
     private String momentId;
+    private String mediaType;
     private boolean isSender;
     private String caption;
     private boolean foreground, revoked;
@@ -107,6 +109,10 @@ public final class MomentViewerActivity extends AppCompatActivity {
         caption = getIntent().getStringExtra(EXTRA_CAPTION);
         String createdAt = getIntent().getStringExtra(EXTRA_CREATED_AT);
         isSender = getIntent().getBooleanExtra(EXTRA_IS_SENDER, false);
+        mediaType = getIntent().getStringExtra(EXTRA_MEDIA_TYPE);
+        if ("LIVE_VIDEO".equalsIgnoreCase(mediaType)) {
+            binding.viewerLiveBadge.setVisibility(View.VISIBLE);
+        }
 
         binding.viewerSenderName.setText(senderName != null ? senderName : "");
         binding.viewerSenderUsername.setText(senderUsername != null
@@ -152,6 +158,94 @@ public final class MomentViewerActivity extends AppCompatActivity {
         replyModel.state().observe(this, state -> renderReply());
 
         showLoading();
+        loadPoll(momentId);
+    }
+
+    private void loadPoll(String momentId) {
+        if (momentId == null) return;
+        new Thread(() -> {
+            try {
+                var auth = AuthGraph.repository(this);
+                var poll = auth.polls().getPoll(momentId);
+                runOnUiThread(() -> renderPoll(poll));
+            } catch (Exception ignored) { }
+        }).start();
+    }
+
+    private void renderPoll(com.taktak.app.data.model.PollModels.PollResponse poll) {
+        if (binding == null) return;
+        if (poll == null) {
+            binding.viewerPollCard.setVisibility(View.GONE);
+            return;
+        }
+
+        binding.viewerPollCard.setVisibility(View.VISIBLE);
+        binding.viewerPollQuestion.setText(poll.question);
+
+        boolean canVote = !poll.isSender && poll.userVotedOption == null && "OPEN".equalsIgnoreCase(poll.status);
+
+        if (canVote) {
+            binding.btnVoteA.setText(poll.optionA);
+            binding.btnVoteB.setText(poll.optionB);
+            binding.btnVoteA.setEnabled(true);
+            binding.btnVoteB.setEnabled(true);
+            binding.pollProgressA.setVisibility(View.GONE);
+            binding.pollProgressB.setVisibility(View.GONE);
+
+            binding.btnVoteA.setOnClickListener(v -> submitVote(poll.momentId, "A"));
+            binding.btnVoteB.setOnClickListener(v -> submitVote(poll.momentId, "B"));
+            binding.viewerPollStatus.setText(getString(R.string.poll_total_votes, poll.totalVotes));
+        } else {
+            binding.btnVoteA.setText(poll.optionA + " (" + poll.percentA + "% — " + poll.countA + ")");
+            binding.btnVoteB.setText(poll.optionB + " (" + poll.percentB + "% — " + poll.countB + ")");
+            binding.btnVoteA.setEnabled(false);
+            binding.btnVoteB.setEnabled(false);
+
+            binding.pollProgressA.setVisibility(View.VISIBLE);
+            binding.pollProgressB.setVisibility(View.VISIBLE);
+            binding.pollProgressA.setProgress(poll.percentA);
+            binding.pollProgressB.setProgress(poll.percentB);
+
+            if (poll.userVotedOption != null) {
+                String chosen = "A".equals(poll.userVotedOption) ? poll.optionA : poll.optionB;
+                binding.viewerPollStatus.setText(getString(R.string.poll_voted, chosen) + " • " + getString(R.string.poll_total_votes, poll.totalVotes));
+            } else if ("CLOSED".equalsIgnoreCase(poll.status)) {
+                binding.viewerPollStatus.setText(getString(R.string.poll_closed) + " • " + getString(R.string.poll_total_votes, poll.totalVotes));
+            } else {
+                binding.viewerPollStatus.setText(getString(R.string.poll_total_votes, poll.totalVotes));
+            }
+        }
+
+        if (poll.isSender && "OPEN".equalsIgnoreCase(poll.status)) {
+            binding.btnPollClose.setVisibility(View.VISIBLE);
+            binding.btnPollClose.setOnClickListener(v -> closePoll(poll.momentId));
+        } else {
+            binding.btnPollClose.setVisibility(View.GONE);
+        }
+    }
+
+    private void submitVote(String momentId, String option) {
+        new Thread(() -> {
+            try {
+                var auth = AuthGraph.repository(this);
+                var updated = auth.polls().vote(momentId, option);
+                runOnUiThread(() -> renderPoll(updated));
+            } catch (Exception e) {
+                runOnUiThread(() -> Toast.makeText(this, R.string.chat_error, Toast.LENGTH_SHORT).show());
+            }
+        }).start();
+    }
+
+    private void closePoll(String momentId) {
+        new Thread(() -> {
+            try {
+                var auth = AuthGraph.repository(this);
+                var updated = auth.polls().close(momentId);
+                runOnUiThread(() -> renderPoll(updated));
+            } catch (Exception e) {
+                runOnUiThread(() -> Toast.makeText(this, R.string.chat_error, Toast.LENGTH_SHORT).show());
+            }
+        }).start();
     }
 
     private void renderReply() {
@@ -314,6 +408,33 @@ public final class MomentViewerActivity extends AppCompatActivity {
         binding.viewerProgress.setVisibility(View.GONE);
         binding.viewerErrorView.setVisibility(View.GONE);
         binding.viewerImage.setImageBitmap(bitmap);
+        loadVideoIfLive();
+    }
+
+    private void loadVideoIfLive() {
+        if (!"LIVE_VIDEO".equalsIgnoreCase(mediaType) || momentId == null || repository == null) return;
+        worker.execute(() -> {
+            try {
+                java.io.File cache = new java.io.File(getCacheDir(), "moment_vid_" + momentId + ".mp4");
+                if (!cache.exists() || cache.length() == 0) {
+                    repository.downloadVideo(momentId, cache);
+                }
+                main.post(() -> {
+                    if (foreground && !revoked && !isFinishing() && !isDestroyed() && cache.exists()) {
+                        binding.viewerVideo.setVideoPath(cache.getAbsolutePath());
+                        binding.viewerVideo.setOnPreparedListener(mp -> {
+                            mp.setLooping(true);
+                            binding.viewerVideo.setVisibility(View.VISIBLE);
+                            binding.viewerVideo.start();
+                        });
+                        binding.viewerVideo.setOnErrorListener((mp, what, extra) -> {
+                            binding.viewerVideo.setVisibility(View.GONE);
+                            return true;
+                        });
+                    }
+                });
+            } catch (Exception ignored) { }
+        });
     }
 
     private void showError() {
@@ -349,7 +470,10 @@ public final class MomentViewerActivity extends AppCompatActivity {
     }
     @Override protected void onStop() {
         foreground = false; imageRequest++; PushEventBus.unregister(pushListener);
-        if (binding != null) { showLoading(); }
+        if (binding != null) {
+            if (binding.viewerVideo != null) { binding.viewerVideo.stopPlayback(); }
+            showLoading();
+        }
         super.onStop();
     }
 

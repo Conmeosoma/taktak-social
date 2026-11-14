@@ -128,6 +128,10 @@ public class ProfileAcceptanceTest {
             scenario.onActivity(activity -> {
                 assertEquals("Unsaved draft",((android.widget.EditText)activity.findViewById(R.id.profileNameInput)).getText().toString());
                 activity.findViewById(R.id.profileLogout).performClick();
+                androidx.appcompat.app.AlertDialog dialog = com.taktak.app.ui.profile.ProfileFragment.getLastLogoutDialog();
+                if (dialog != null && dialog.isShowing()) {
+                    dialog.getButton(android.content.DialogInterface.BUTTON_POSITIVE).performClick();
+                }
             });
             SessionRoutingTest.awaitView(R.id.emailInput);
             assertFalse(auth.hasSession());owned=false;

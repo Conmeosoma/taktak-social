@@ -85,39 +85,39 @@
 
                 <TextView
                     android:id="@+id/widget_react_heart"
-                    android:layout_width="32dp"
-                    android:layout_height="32dp"
+                    android:layout_width="44dp"
+                    android:layout_height="44dp"
                     android:gravity="center"
                     android:text="@string/ui_glyph_heart"
-                android:contentDescription="@string/ui_reaction_heart"
-                    android:textSize="16sp" />
+                    android:contentDescription="@string/ui_reaction_heart"
+                    android:textSize="20sp" />
 
                 <TextView
                     android:id="@+id/widget_react_fire"
-                    android:layout_width="32dp"
-                    android:layout_height="32dp"
+                    android:layout_width="44dp"
+                    android:layout_height="44dp"
                     android:gravity="center"
                     android:text="@string/ui_glyph_fire"
-                android:contentDescription="@string/ui_reaction_fire"
-                    android:textSize="16sp" />
+                    android:contentDescription="@string/ui_reaction_fire"
+                    android:textSize="20sp" />
 
                 <TextView
                     android:id="@+id/widget_react_laugh"
-                    android:layout_width="32dp"
-                    android:layout_height="32dp"
+                    android:layout_width="44dp"
+                    android:layout_height="44dp"
                     android:gravity="center"
                     android:text="@string/ui_glyph_laugh"
-                android:contentDescription="@string/ui_reaction_laugh"
-                    android:textSize="16sp" />
+                    android:contentDescription="@string/ui_reaction_laugh"
+                    android:textSize="20sp" />
 
                 <TextView
                     android:id="@+id/widget_react_wow"
-                    android:layout_width="32dp"
-                    android:layout_height="32dp"
+                    android:layout_width="44dp"
+                    android:layout_height="44dp"
                     android:gravity="center"
                     android:text="@string/ui_glyph_wow"
-                android:contentDescription="@string/ui_reaction_wow"
-                    android:textSize="16sp" />
+                    android:contentDescription="@string/ui_reaction_wow"
+                    android:textSize="20sp" />
             </LinearLayout>
         </LinearLayout>
     </LinearLayout>

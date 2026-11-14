@@ -54,13 +54,19 @@ public final class AuthRepository {
 
     public void logout() throws IOException { client.sessions.logout(); }
     public void logout(android.content.Context context) throws IOException {
+        long gen = 0;
+        try { gen = sessionGeneration(); } catch (Exception ignored) { }
         devices(context).unregister();
         client.sessions.logout();
+        if (context != null && gen > 0) {
+            com.taktak.app.data.outbox.OutboxRepository.getInstance(context).handleLogout(gen);
+        }
     }
     public DeviceRepository devices(android.content.Context context) {
         return new DeviceRepository(client, new com.taktak.app.data.session.AppDeviceIdProvider(context));
     }
     public MomentRepository moments() { return new MomentRepository(client); }
+    public PollRepository polls() { return new PollRepository(client); }
     public ProfileRepository profiles() { return new ProfileRepository(client); }
     public AccountRecoveryRepository recovery() { return new AccountRecoveryRepository(client.auth); }
     public FriendRepository friends() { return new FriendRepository(client); }

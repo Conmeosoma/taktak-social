@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="camera_shutter_label">Capturar un momento</string>
+    <string name="camera_shutter_label">Toca para foto · Mantén para vídeo de hasta 3 segundos</string>
     <string name="camera_permission_hint">Permite el acceso a la cámara para empezar.</string>
     <string name="camera_status_ready">Momento privado</string>
     <string name="camera_status_busy">Guardando momento…</string>
@@ -100,6 +100,13 @@
     <string name="preview_uploading_progress">Enviando foto (%1$d%%)…</string>
     <string name="preview_processing_server">Confirmando guardado en el servidor…</string>
     <string name="preview_conflict_error">El envío presenta un conflicto o cambió el contenido. Inténtalo de nuevo.</string>
+    <string name="preview_recipients_needed_title">Ningún destinatario seleccionado</string>
+    <string name="preview_recipients_needed_message">Selecciona al menos un amigo o elige \'Todos los amigos\' antes de enviar.</string>
+    <string name="preview_confirm_send_title">Confirmar envío</string>
+    <string name="preview_confirm_send_all">¿Estás seguro de que quieres enviar este momento a todos tus amigos?</string>
+    <string name="preview_confirm_send_selected">¿Enviar este momento a los %1$d amigos seleccionados?</string>
+    <string name="preview_send_now">Enviar ahora</string>
+    <string name="preview_ok">Entendido</string>
     <string name="profile_invalid_name">Introduce un nombre de 1 a 255 caracteres.</string>
     <string name="profile_error">No se pudo actualizar el perfil. Reintenta.</string>
     <string name="profile_network_error">No se pudo completar. Comprueba la conexión o elige otra foto y reintenta.</string>
@@ -179,4 +186,32 @@
     <string name="profile_avatar_desc">Avatar</string>
     <string name="theme_scope_notice">Los cuatro temas están disponibles en las pantallas de cuenta, Cámara, Vista previa, Fotos, Historial, Amigos, Mensajes y Perfil. Las pantallas abiertas conservan tu trabajo hasta que se vuelvan a abrir.</string>
     <string name="theme_save_error">No se puede guardar el tema. Se conserva la vista previa; pulsa Aplicar de nuevo.</string>
+    <string name="preview_outbox_queued">Guardado en la cola. Se enviará cuando haya conexión.</string>
+    <string name="outbox_status_pending">Pendiente de envío…</string>
+    <string name="outbox_status_waiting_network">Esperando conexión…</string>
+    <string name="outbox_status_uploading">Enviando… (%1$d%%)</string>
+    <string name="outbox_status_failed">Error al enviar. Toca para reintentar.</string>
+    <string name="outbox_title">Envíos pendientes</string>
+    <string name="outbox_cancel">Cancelar</string>
+    <string name="outbox_retry">Reintentar</string>
+    <string name="camera_mode_single">1 cámara</string>
+    <string name="camera_mode_dual">2 cámaras</string>
+    <string name="camera_dual_pip_label">Vista secundaria PiP</string>
+    <string name="camera_dual_swap">Cambiar vista</string>
+    <string name="camera_dual_capturing_main">Capturando cámara principal…</string>
+    <string name="camera_dual_capturing_sub">Cambiando de cámara…</string>
+    <string name="camera_dual_compositing">Combinando las dos vistas…</string>
+    <string name="poll_add">Añadir encuesta A/B</string>
+    <string name="poll_remove">Quitar encuesta</string>
+    <string name="poll_question_hint">Escribe tu pregunta…</string>
+    <string name="poll_option_a_hint">Opción A (p. ej., Sí)</string>
+    <string name="poll_option_b_hint">Opción B (p. ej., No)</string>
+    <string name="poll_voted">Has votado: %1$s</string>
+    <string name="poll_total_votes">%1$d votos</string>
+    <string name="poll_closed">Encuesta finalizada</string>
+    <string name="camera_live_recording">Grabando momento de 3 s…</string>
+    <string name="camera_live_audio_on">Micrófono activado</string>
+    <string name="camera_live_audio_off">Micrófono desactivado</string>
+    <string name="viewer_live_badge">LIVE 3 S</string>
+    <string name="preview_live_badge">LIVE 3 S</string>
 </resources>

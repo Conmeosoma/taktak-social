@@ -77,6 +77,8 @@
     <string name="profile_save">Guardar cambios</string>
     <string name="profile_reload">Recargar perfil</string>
     <string name="profile_logout">Cerrar sesión</string>
+    <string name="profile_logout_confirm_title">Cerrar sesión</string>
+    <string name="profile_logout_confirm_message">¿Estás seguro de que quieres cerrar sesión de tu cuenta de Taktak en este dispositivo?</string>
     <string name="profile_saved">Nombre guardado.</string>
     <string name="profile_avatar_saved">Foto de perfil actualizada.</string>
     <string name="premium_profile_detail">Administra tu perfil y preferencias de apariencia.</string>

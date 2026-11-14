@@ -58,7 +58,7 @@
                         android:minWidth="0dp"
                         android:text="@string/history_refresh"
                         android:textAppearance="@style/TextAppearance.Taktak.Caption"
-                        app:icon="@drawable/ic_premium_plus"
+                        app:icon="@drawable/ic_refresh"
                         app:iconGravity="textStart"
                         app:iconSize="16dp"
                         app:iconTint="?attr/taktakColorTextPrimary" />
@@ -118,6 +118,96 @@
                     android:textAppearance="@style/TextAppearance.Taktak.Secondary"
                     android:textColor="?attr/taktakColorTextPrimary"
                     android:visibility="gone" />
+
+                <!-- Outbox Pending Uploads Card -->
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/outboxCard"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginVertical="@dimen/taktak_space_xs"
+                    android:visibility="gone"
+                    app:cardBackgroundColor="?attr/taktakColorSurface"
+                    app:cardCornerRadius="@dimen/taktak_radius_md"
+                    app:cardElevation="2dp"
+                    app:strokeColor="?attr/taktakColorBorder"
+                    app:strokeWidth="1dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="@dimen/taktak_space_sm">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal">
+
+                            <ImageView
+                                android:id="@+id/outboxThumbnail"
+                                android:layout_width="48dp"
+                                android:layout_height="48dp"
+                                android:background="?attr/taktakColorBorder"
+                                android:scaleType="centerCrop"
+                                android:contentDescription="@string/outbox_title" />
+
+                            <LinearLayout
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:layout_marginStart="@dimen/taktak_space_sm"
+                                android:orientation="vertical">
+
+                                <com.google.android.material.textview.MaterialTextView
+                                    android:id="@+id/outboxStatusTitle"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="@string/outbox_title"
+                                    android:textAppearance="@style/TextAppearance.Taktak.Body"
+                                    android:textStyle="bold"
+                                    android:textColor="?attr/taktakColorTextPrimary" />
+
+                                <com.google.android.material.textview.MaterialTextView
+                                    android:id="@+id/outboxStatusDetail"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:textAppearance="@style/TextAppearance.Taktak.Caption"
+                                    android:textColor="?attr/taktakColorTextMuted" />
+                            </LinearLayout>
+
+                            <com.google.android.material.button.MaterialButton
+                                android:id="@+id/outboxRetryButton"
+                                style="@style/Widget.Taktak.Button.Secondary"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:minWidth="0dp"
+                                android:minHeight="36dp"
+                                android:text="@string/outbox_retry"
+                                android:textSize="12sp"
+                                android:visibility="gone" />
+
+                            <com.google.android.material.button.MaterialButton
+                                android:id="@+id/outboxCancelButton"
+                                style="@style/Widget.Material3.Button.TextButton"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:minWidth="0dp"
+                                android:minHeight="36dp"
+                                android:text="@string/outbox_cancel"
+                                android:textSize="12sp"
+                                android:textColor="?attr/colorError" />
+                        </LinearLayout>
+
+                        <com.google.android.material.progressindicator.LinearProgressIndicator
+                            android:id="@+id/outboxProgress"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="@dimen/taktak_space_xs"
+                            app:indicatorColor="?attr/taktakColorBrandPrimary"
+                            app:trackColor="?attr/taktakColorBorder" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
 
                 <!-- Memories & Weekly Recap Card -->
                 <com.google.android.material.card.MaterialCardView

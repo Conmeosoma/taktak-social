@@ -20,6 +20,7 @@ public final class ApiClient {
     public final DeviceApi devices;
     public final ChatApi chat;
     public final AiApi ai;
+    public final PollApi poll;
     public final SessionManager sessions;
     private final OkHttpClient apiHttp;
     private final HttpUrl base;
@@ -60,6 +61,7 @@ public final class ApiClient {
         friends = retrofit(baseUrl, apiHttp).create(FriendApi.class);
         devices = retrofit(baseUrl, apiHttp).create(DeviceApi.class);
         chat = retrofit(baseUrl, apiHttp).create(ChatApi.class);
+        poll = retrofit(baseUrl, apiHttp).create(PollApi.class);
         // AI có deadline dài hơn API thông thường, dùng chung interceptor/refresh/phiên.
         ai = retrofit(baseUrl, apiHttp.newBuilder().readTimeout(60, TimeUnit.SECONDS)
                 .callTimeout(70, TimeUnit.SECONDS).build()).create(AiApi.class);

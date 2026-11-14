@@ -62,6 +62,56 @@ public final class MomentRepository {
         catch (IllegalArgumentException invalid) { throw new ApiFailure(ApiFailure.Kind.SERVER); }
     }
 
+    public String uploadLive(byte[] thumbnailJpeg, byte[] videoMp4, String caption,
+            java.util.List<String> recipients, String idempotencyKey, Integer durationMs,
+            Boolean hasAudio, ProgressListener progressListener) throws IOException {
+        if (caption == null || caption.codePointCount(0, caption.length()) > 50 || caption.indexOf('\0') >= 0) {
+            throw new ApiFailure(ApiFailure.Kind.VALIDATION);
+        }
+        if (recipients == null || recipients.size() > 100) { throw new ApiFailure(ApiFailure.Kind.VALIDATION); }
+        if (idempotencyKey != null && !com.taktak.app.data.model.FriendModels.uuid(idempotencyKey)) {
+            throw new ApiFailure(ApiFailure.Kind.VALIDATION);
+        }
+        Session owner = requireSession();
+        RequestBody rawImage = RequestBody.create(thumbnailJpeg, MediaType.get("image/jpeg"));
+        var imagePart = MultipartBody.Part.createFormData("image", "moment.jpg", rawImage);
+        RequestBody rawVideo = RequestBody.create(videoMp4, MediaType.get("video/mp4"));
+        RequestBody videoBody = progressListener == null ? rawVideo : new CountingRequestBody(rawVideo, (bytesWritten, contentLength) -> {
+            int percent = contentLength > 0 ? (int) Math.min(100, Math.max(0, (100 * bytesWritten) / contentLength)) : 0;
+            progressListener.onProgress(percent, bytesWritten, contentLength);
+        });
+        var videoPart = MultipartBody.Part.createFormData("video", "moment.mp4", videoBody);
+        var text = MediaType.get("text/plain; charset=utf-8");
+        var parts = recipients.isEmpty() ? java.util.List.of(RequestBody.create("[]", text))
+                : recipients.stream().map(id -> RequestBody.create(id, text)).collect(java.util.stream.Collectors.toList());
+        int safeDuration = durationMs != null ? durationMs : 3000;
+        var response = client.moments.uploadLive(idempotencyKey, imagePart, videoPart, parts,
+                RequestBody.create(caption, text),
+                RequestBody.create(String.valueOf(safeDuration), text),
+                RequestBody.create(String.valueOf(hasAudio != null && hasAudio), text)).execute();
+        if (!response.isSuccessful()) { throw ApiFailure.from(response); }
+        ensureCurrent(owner);
+        if (response.body() == null || response.body().id == null) { throw new ApiFailure(ApiFailure.Kind.SERVER); }
+        try { return UUID.fromString(response.body().id).toString(); }
+        catch (IllegalArgumentException invalid) { throw new ApiFailure(ApiFailure.Kind.SERVER); }
+    }
+
+    public void downloadVideo(String id, java.io.File destination) throws IOException {
+        Session owner = requireSession();
+        var response = client.moments.video(id).execute();
+        if (!response.isSuccessful()) { throw ApiFailure.from(response); }
+        if (response.body() == null) { throw new ApiFailure(ApiFailure.Kind.SERVER); }
+        try (var body = response.body(); var input = body.byteStream();
+             var output = new java.io.FileOutputStream(destination)) {
+            byte[] buffer = new byte[8192];
+            int read;
+            while ((read = input.read(buffer)) != -1) {
+                output.write(buffer, 0, read);
+            }
+        }
+        ensureCurrent(owner);
+    }
+
     public byte[] download(String id) throws IOException {
         try { return downloadOnce(id); }
         catch (ApiFailure failure) { throw failure; }

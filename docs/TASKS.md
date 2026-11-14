@@ -1,5 +1,40 @@
 # Taktak — Công việc và cổng xác nhận
 
+## Nút chụp chung — 14/11/2026
+
+- [x] Chạm chụp, giữ quay, thả dừng sớm và cap3giây.
+- [x] Bỏ mode Ảnh/Live riêng, giữ microphone tùy chọn.
+- [x] Build/unit/lint/8caUSB đạt; không commit/push/deploy.
+- [x] Bàn giao tại QA_SHUTTER_HOLD_20261114.md.
+
+## Sửa Live / microphone / lint — 14/11/2026
+
+- [x] Từ chối MP4 giả, frame hỏng, quá dài; đọc metadata thực và full decode.
+- [x] RECORD_AUDIO optional hardware; metadata thật cho gửi trực tiếp/Outbox.
+- [x] Bổ sung 30 chuỗi × 5 locale; lint 0 lỗi, còn 105 cảnh báo.
+- [x] Backend full 228/228; targeted mới nhất 13/13; Android JVM 143/143.
+- [x] USB bản cuối 8/8: có/không mic, dual cache và hồi quy Outbox.
+- [x] Khắc phục sáu lỗi ban đầu đã tái hiện; không bỏ/nới assertion lỗi.
+- [ ] Nghiệm thu đầy đủ Advanced4: offline/restart, vote/close concurrency,
+      quyền bị từ chối qua UI, playback/cache private và E2E video/network.
+- [ ] Triển khai có duyệt và xác minh runtime FFmpeg/ffprobe trên VPS.
+
+Các kết quả FAIL/chưa sửa ở mục cũ bên dưới là lịch sử, được thay bằng kết quả
+mới trên đây. Không đồng nghĩa mọi ca nghiệm thu Advanced4 đã đạt.
+
+## QA Advanced4 —14/11/2026
+
+Cập nhật lượt sửa tiếp: đã xử lý lỗi1/2/4/6 trong báo cáo; targeted5Poll và6USB
+đạt. SQLiteV2 giữcheckpoint, retryPoll khônguploadlại và chặn latecallback.
+Fullbackendcòn1/223FAIL vềMP4giả. Chưa sửa video/mic/lint,khôngdeploy/push.
+
+- [x] Đọc code/thay đổi hiện có và chạy hồi quy217backend+143AndroidJVM.
+- [x] Thêm4ca backend:1PASS/3FAIL phân quyềnPoll vàMP4giả.
+- [x] USB camera cache/compositor/SQLite đạt; generation/micManifest thất bại.
+- [x] WorkManager thật tái hiện upload thành công+Poll503 vẫnCOMPLETED.
+- [ ] Sửa6phát hiện trước nghiệm thu. Lint31errors cũng chưa đạt.
+- [ ] QA offlineonline/restart/owner/cancel,vote/race,playback/privatecache đầy đủ.
+
 ## Rollout AI VPS được duyệt —13/11/2026
 
 - [x] Full217backend tests trướcdeploy,backupJAR/env/DB và kiểmtra dumpcatalog.

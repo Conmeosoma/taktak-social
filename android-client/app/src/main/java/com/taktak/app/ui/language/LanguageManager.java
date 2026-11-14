@@ -1,6 +1,7 @@
 package com.taktak.app.ui.language;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.core.os.LocaleListCompat;
@@ -10,6 +11,9 @@ import java.util.List;
 import java.util.Locale;
 
 public final class LanguageManager {
+    private static final String PREFS_NAME = "taktak_language_prefs";
+    private static final String KEY_USER_LOCALE = "user_selected_locale";
+
     public record SupportedLanguage(String code, String displayName, String nativeName) {}
 
     public static final List<SupportedLanguage> SUPPORTED_LANGUAGES = List.of(
@@ -23,6 +27,23 @@ public final class LanguageManager {
     );
 
     private LanguageManager() {}
+
+    public static void initialize(@NonNull Context context) {
+        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        String saved = prefs.getString(KEY_USER_LOCALE, null);
+        if (saved != null && !saved.isEmpty()) {
+            LocaleListCompat current = AppCompatDelegate.getApplicationLocales();
+            if (current.isEmpty() || !saved.equalsIgnoreCase(current.get(0).getLanguage())) {
+                AppCompatDelegate.setApplicationLocales(LocaleListCompat.forLanguageTags(saved));
+            }
+        } else {
+            // Default to Vietnamese when no choice has been made
+            LocaleListCompat current = AppCompatDelegate.getApplicationLocales();
+            if (current.isEmpty()) {
+                AppCompatDelegate.setApplicationLocales(LocaleListCompat.forLanguageTags("vi"));
+            }
+        }
+    }
 
     @NonNull
     public static String getCurrentLanguageCode() {
@@ -47,6 +68,12 @@ public final class LanguageManager {
         return "Tiếng Việt";
     }
 
+    public static void setLanguage(@NonNull Context context, @NonNull String languageCode) {
+        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        prefs.edit().putString(KEY_USER_LOCALE, languageCode).apply();
+        AppCompatDelegate.setApplicationLocales(LocaleListCompat.forLanguageTags(languageCode));
+    }
+
     public static void setLanguage(@NonNull String languageCode) {
         AppCompatDelegate.setApplicationLocales(LocaleListCompat.forLanguageTags(languageCode));
     }
@@ -69,7 +96,7 @@ public final class LanguageManager {
                     dialog.dismiss();
                     SupportedLanguage selected = SUPPORTED_LANGUAGES.get(which);
                     if (!selected.code().equalsIgnoreCase(currentCode)) {
-                        setLanguage(selected.code());
+                        setLanguage(context, selected.code());
                         if (onLanguageSelected != null) {
                             onLanguageSelected.run();
                         }

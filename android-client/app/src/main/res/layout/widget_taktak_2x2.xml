@@ -71,30 +71,30 @@
 
             <TextView
                 android:id="@+id/widget_react_heart"
-                android:layout_width="28dp"
-                android:layout_height="28dp"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
                 android:gravity="center"
                 android:text="@string/ui_glyph_heart"
                 android:contentDescription="@string/ui_reaction_heart"
-                android:textSize="14sp" />
+                android:textSize="16sp" />
 
             <TextView
                 android:id="@+id/widget_react_fire"
-                android:layout_width="28dp"
-                android:layout_height="28dp"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
                 android:gravity="center"
                 android:text="@string/ui_glyph_fire"
                 android:contentDescription="@string/ui_reaction_fire"
-                android:textSize="14sp" />
+                android:textSize="16sp" />
 
             <TextView
                 android:id="@+id/widget_react_laugh"
-                android:layout_width="28dp"
-                android:layout_height="28dp"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
                 android:gravity="center"
                 android:text="@string/ui_glyph_laugh"
                 android:contentDescription="@string/ui_reaction_laugh"
-                android:textSize="14sp" />
+                android:textSize="16sp" />
         </LinearLayout>
 
         <!-- Emoji Burst Badge -->

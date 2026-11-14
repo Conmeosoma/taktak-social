@@ -42,6 +42,37 @@ public final class CaptureViewModel extends AndroidViewModel {
             finally { bitmap.recycle(); }
         });
     }
+    public void acceptRawJpeg(byte[] jpeg) {
+        if (cleared) return;
+        worker.execute(() -> {
+            try {
+                String id = drafts.write(jpeg);
+                main.post(() -> {
+                    if (cleared) { discard(id); }
+                    else { state.setValue(new State(false, R.string.preview_capture_hint, id)); }
+                });
+            } catch (IOException | RuntimeException failure) { main.post(this::captureFailed); }
+        });
+    }
+    public void acceptLiveCapture(byte[] thumbnailJpeg, java.io.File tempVideoFile) {
+        if (cleared) {
+            if (tempVideoFile != null) { tempVideoFile.delete(); }
+            return;
+        }
+        worker.execute(() -> {
+            try {
+                String id = drafts.writeLive(thumbnailJpeg, tempVideoFile);
+                main.post(() -> {
+                    if (cleared) { discard(id); }
+                    else { state.setValue(new State(false, R.string.preview_capture_hint, id)); }
+                });
+            } catch (IOException | RuntimeException failure) {
+                main.post(this::captureFailed);
+            } finally {
+                if (tempVideoFile != null) { tempVideoFile.delete(); }
+            }
+        });
+    }
     public void captureFailed() { if (!cleared) { state.setValue(new State(false, R.string.moment_camera_error, null)); } }
     public void consume() { state.setValue(new State(false, R.string.preview_capture_hint, null)); }
     private void discard(String id) {

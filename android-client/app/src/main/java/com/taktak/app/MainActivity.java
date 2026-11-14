@@ -54,6 +54,7 @@ public class MainActivity extends AppCompatActivity {
         createdTheme = new com.taktak.app.ui.theme.ThemePreferences(this).load();
         com.taktak.app.ui.theme.ThemeManager.applyBeforeCreate(this,createdTheme,
                 com.taktak.app.ui.theme.ThemeManager.ScreenRole.MAIN);
+        com.taktak.app.ui.language.LanguageManager.initialize(this);
         super.onCreate(savedInstanceState);
         splash.setOnExitAnimationListener(androidx.core.splashscreen.SplashScreenViewProvider::remove);
         com.taktak.app.data.push.ChatNotifications.initialize(getApplication());
@@ -146,7 +147,7 @@ public class MainActivity extends AppCompatActivity {
             if (state.message != 0) { binding.sessionMessage.setText(state.message); }
             binding.retryButton.setVisibility(state.destination == SessionViewModel.Destination.ERROR
                     || state.destination == SessionViewModel.Destination.PERMISSION ? View.VISIBLE : View.GONE);
-            binding.logoutButton.setVisibility(checking || state.destination == SessionViewModel.Destination.LOGIN ? View.GONE : View.VISIBLE);
+            binding.logoutButton.setVisibility(View.GONE);
             if (state.destination == SessionViewModel.Destination.LOGIN && !navigating) {
                 navigating = true;
                 startActivity(new Intent(this, LoginActivity.class).putExtra(LoginActivity.SESSION_NOTICE, state.message)

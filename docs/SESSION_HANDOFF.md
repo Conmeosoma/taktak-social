@@ -1,5 +1,64 @@
 # Taktak — Bàn giao phiên khôi phục
 
+## Chạm chụp / giữ quay — 14/11/2026
+
+Đã thực hiện yêu cầu dùng chung nút chụp: chạm chụp ảnh; nhấn giữ quay Live,
+thả tay dừng sớm, tự dừng tối đa3giây. Bỏ hai nút chọn Ảnh/Live riêng; giữ
+mic tùy chọn, ảnh kép, API/JWT và Outbox. Hủy cử chỉ/rời màn không tạo ảnh.
+
+Build debug/test APK,143/143 JVM và8/8 USB PASS; lint0errors/105warnings.
+Bản cuối USB20,302s, log shutter-hold-usb.log; build/lint trong
+shutter-hold-accessibility-build.log. Không sửa backend hoặc deploy/commit/push.
+Chi tiết [QA_SHUTTER_HOLD_20261114.md](QA_SHUTTER_HOLD_20261114.md).
+Các mục sau giữ lịch sử các lượt trước.
+
+## Bàn giao sửa Live / microphone / lint — 14/11/2026
+
+Đã hoàn tất phạm vi sửa được duyệt bằng “continue”. Full backend 228/228 PASS,
+BUILD SUCCESS; bổ sung hai ca nữa rồi chạy targeted 13/13 PASS/BUILD SUCCESS.
+Không cộng 228+13 vì các ca trùng. Android 143/143 JVM, APK debug/test và lint
+PASS (0 errors, 105 warnings). USB cuối 8/8 PASS, 19,599 giây.
+
+Nguồn: advanced4-live-backend-verify.log, advanced4-live-additional-verify.log,
+advanced4-live-final-android.log, advanced4-live-preview-qa-build.log và
+advanced4-live-usb-final.log, đều trong .local/artifacts. Ảnh live/dual-preview
+cuối đã xem, không còn chụp giữa transition. Draft QA được dọn; quyền mic trước
+suite false và sau suite false. Không đổi session cá nhân hoặc gửi media.
+
+Runner scripts/qa/advanced4-usb.ps1 cấp quyền tạm, chỉ revoke sau instrumentation.
+Lượt trước pass hai ca rồi process bị kill khi revoke mic trong test; đã sửa
+harness và chạy lại đủ suite, không bỏ test. Không sửa code production để né QA.
+
+FFmpeg/ffprobe local 9.0.2; production chưa cài/deploy trong lượt này. Xem
+LIVE_MOMENT_VALIDATION.md để chuẩn bị runtime và giới hạn. Advanced4 chưa DONE:
+còn offline→online/process death E2E, vote/close race, viewer/cache privacy,
+permission-denial UI và upload/download video tới backend thật. Dừng chờ duyệt
+phạm vi tiếp theo, không tự commit/push/deploy.
+
+## Sửa P1 Poll và Outbox —14/11/2026
+
+Kết quả cuối: fullbackend222/223,FAIL1caMP4giả,0error/skip,02:10. Lượtfulltrước
+32fail/6error đã tìm được caller multipart cũ và sửa; các ca upload/push hồi quy
+đã đạt ở lượtcuối. USBreviewed6/6PASS0,562s và143unit Android/build đạt.
+Không đánh dấu toàn bộ Advanced4 DONE; còn Live validation/mic/lint và các ca E2E trong QA.
+
+Tiếp tục theo người dùng: đã sửa PollService/PollController/MomentController/
+MomentRepository; actorJWT+owner+rowlock và retryidempotent cùng transaction.
+AndroidOutbox DBversion2 thêmcheckpoint,genconditionalSQL,khôngnuốtPoll503,
+khônguploadlạiảnh khi retry; PollRepository session/bodyguard. Giữ sourceuncommitted
+khác. Targeted5Poll và6USBBảncuốiPASS,143JVM/buildPASS. Fullbackend đang kiểm
+lại sau sửa caller cũ; MP4giả/micManifest/lint vẫn mở. Khôngdeploy/commit/push.
+Xem [QA_ADVANCED4_20261114.md](QA_ADVANCED4_20261114.md), các log `advanced4-integrity-*`.
+
+## QA Advanced4 —14/11/2026
+
+User chuyển từAVD sangUSB; đã kiểm trênXiaomiAndroid15 và được phép chụp/quayQA
+chỉcache. Thêm2file acceptance tests,giữ nguyên toàn bộsourceuncommitted. Backend
+4ca mới1PASS/3FAIL,USB5ca3PASS/2FAIL; lint31errors. Capturekép/Live2–4giây cache,
+compositor vàSQLitepersistence đạt; không phải fullE2E. Phân quyềnPoll/MP4 giả/
+Outboxgeneration/micManifest thất bại. Xem [QA_ADVANCED4_20261114.md](QA_ADVANCED4_20261114.md).
+Không sửa lỗi production hoặc deploy/commit/push trong lượtQA này.
+
 ## Deploy/push AI —13/11/2026, kết quả mới nhất
 
 Người dùng duyệt backendVPS+pushmain,hoãn buildAPK. Full Maven217/217PASS,

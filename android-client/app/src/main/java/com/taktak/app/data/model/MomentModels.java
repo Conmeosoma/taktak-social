@@ -23,6 +23,13 @@ public final class MomentModels {
         public PublicUser sender;
         public String caption;
         public String createdAt;
+        public String mediaType;
+        public Integer durationMs;
+        public Boolean hasAudio;
+
+        public boolean isLiveVideo() {
+            return "LIVE_VIDEO".equalsIgnoreCase(mediaType);
+        }
 
         public boolean valid() {
             return FriendModels.uuid(id) && sender != null && sender.valid()

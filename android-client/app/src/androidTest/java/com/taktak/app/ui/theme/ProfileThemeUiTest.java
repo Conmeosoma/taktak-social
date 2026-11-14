@@ -270,7 +270,13 @@ public class ProfileThemeUiTest {
 
         // Test Logout interaction on same screen
         await(() -> visible(activity, R.id.profileLogout), "Profile logout visible");
-        main(() -> activity.findViewById(R.id.profileLogout).performClick());
+        main(() -> {
+            activity.findViewById(R.id.profileLogout).performClick();
+            androidx.appcompat.app.AlertDialog dialog = com.taktak.app.ui.profile.ProfileFragment.getLastLogoutDialog();
+            if (dialog != null && dialog.isShowing()) {
+                dialog.getButton(android.content.DialogInterface.BUTTON_POSITIVE).performClick();
+            }
+        });
         await(() -> activity.isFinishing(), "MainActivity finishes after logout click");
 
         assertFalse("Session cleared on logout", fixture.auth.hasSession());

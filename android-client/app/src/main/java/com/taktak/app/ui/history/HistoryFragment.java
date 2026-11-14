@@ -64,6 +64,7 @@ public final class HistoryFragment extends Fragment {
             intent.putExtra(MomentViewerActivity.EXTRA_SENDER_USERNAME, item.sender.username);
             intent.putExtra(MomentViewerActivity.EXTRA_CAPTION, item.caption);
             intent.putExtra(MomentViewerActivity.EXTRA_CREATED_AT, item.createdAt);
+            intent.putExtra(MomentViewerActivity.EXTRA_MEDIA_TYPE, item.mediaType);
             boolean isSender = model.state().getValue() != null && model.state().getValue().activeTab == HistoryViewModel.Tab.SENT;
             intent.putExtra(MomentViewerActivity.EXTRA_IS_SENDER, isSender);
             startActivity(intent);
@@ -117,7 +118,52 @@ public final class HistoryFragment extends Fragment {
             adapter.submit(state.moments, state.hasNext, state.busy);
         });
 
+        // Setup Outbox observer
+        var outbox = com.taktak.app.data.outbox.OutboxRepository.getInstance(requireContext());
+        outbox.getActiveTasks().observe(getViewLifecycleOwner(), tasks -> {
+            if (binding == null) return;
+            if (tasks == null || tasks.isEmpty()) {
+                binding.outboxCard.setVisibility(View.GONE);
+            } else {
+                var task = tasks.get(0);
+                binding.outboxCard.setVisibility(View.VISIBLE);
+                Glide.with(this)
+                        .load(task.thumbnailPath != null ? task.thumbnailPath : task.payloadPath)
+                        .into(binding.outboxThumbnail);
+
+                if (task.status == com.taktak.app.data.outbox.OutboxStatus.UPLOADING) {
+                    binding.outboxStatusTitle.setText(getString(R.string.outbox_status_uploading, task.uploadProgress));
+                    binding.outboxProgress.setIndeterminate(false);
+                    binding.outboxProgress.setProgress(task.uploadProgress);
+                    binding.outboxRetryButton.setVisibility(View.GONE);
+                } else if (task.status == com.taktak.app.data.outbox.OutboxStatus.FAILED_RETRYABLE) {
+                    binding.outboxStatusTitle.setText(R.string.outbox_status_failed);
+                    binding.outboxProgress.setIndeterminate(false);
+                    binding.outboxProgress.setProgress(0);
+                    binding.outboxRetryButton.setVisibility(View.VISIBLE);
+                } else {
+                    binding.outboxStatusTitle.setText(R.string.outbox_status_waiting_network);
+                    binding.outboxProgress.setIndeterminate(true);
+                    binding.outboxRetryButton.setVisibility(View.GONE);
+                }
+                String detail = task.caption != null && !task.caption.isEmpty() ? task.caption : task.mediaType;
+                binding.outboxStatusDetail.setText(detail);
+
+                binding.outboxRetryButton.setOnClickListener(btn -> outbox.retry(task.id, task.sessionGeneration));
+                binding.outboxCancelButton.setOnClickListener(btn -> outbox.cancel(task.id, task.sessionGeneration));
+            }
+        });
+
         model.load();
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        try {
+            long gen = com.taktak.app.data.AuthGraph.repository(requireContext()).sessionGeneration();
+            com.taktak.app.data.outbox.OutboxRepository.getInstance(requireContext()).refreshActiveTasks(gen);
+        } catch (Exception ignored) { }
     }
 
     private void showRecapDialog() {

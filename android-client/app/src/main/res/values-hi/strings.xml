@@ -77,6 +77,8 @@
     <string name="profile_save">परिवर्तन सहेजें</string>
     <string name="profile_reload">प्रोफ़ाइल पुनः लोड करें</string>
     <string name="profile_logout">लॉग आउट</string>
+    <string name="profile_logout_confirm_title">लॉग आउट करें</string>
+    <string name="profile_logout_confirm_message">क्या आप वाकई इस डिवाइस पर अपने Taktak खाते से लॉग आउट करना चाहते हैं?</string>
     <string name="profile_saved">प्रदर्शित नाम सहेजा गया।</string>
     <string name="profile_avatar_saved">अवतार सफलतापूर्वक अपडेट किया गया।</string>
     <string name="premium_profile_detail">अपनी प्रोफ़ाइल और थीम प्राथमिकताएँ प्रबंधित करें।</string>

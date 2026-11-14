@@ -31,6 +31,22 @@ public interface MomentApi {
     @Streaming @GET("api/moments/{id}/image")
     Call<ResponseBody> image(@Path("id") String id);
 
+    @Streaming @GET("api/moments/{id}/video")
+    Call<ResponseBody> video(@Path("id") String id);
+
+    @Streaming @GET("api/moments/{id}/video")
+    Call<ResponseBody> videoRange(@Path("id") String id, @Header("Range") String range);
+
+    @Multipart @POST("api/moments")
+    Call<CreatedMoment> uploadLive(
+            @Header("Idempotency-Key") String idempotencyKey,
+            @Part MultipartBody.Part image,
+            @Part MultipartBody.Part video,
+            @Part("recipientIds") java.util.List<RequestBody> recipients,
+            @Part("caption") RequestBody caption,
+            @Part("durationMs") RequestBody durationMs,
+            @Part("hasAudio") RequestBody hasAudio);
+
     @GET("api/moments")
     Call<com.taktak.app.data.model.MomentModels.MomentsPage> listMoments(
             @Query("type") String type,

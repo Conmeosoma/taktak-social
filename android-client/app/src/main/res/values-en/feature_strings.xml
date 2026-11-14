@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="camera_shutter_label">Capture a moment</string>
+    <string name="camera_shutter_label">Tap for photo · Hold for video up to 3 seconds</string>
     <string name="camera_permission_hint">Allow camera access to start taking photos.</string>
     <string name="camera_status_ready">Private moment</string>
     <string name="camera_status_busy">Saving moment…</string>
@@ -100,6 +100,13 @@
     <string name="preview_uploading_progress">Sending photo (%1$d%%)…</string>
     <string name="preview_processing_server">Confirming save on server…</string>
     <string name="preview_conflict_error">The send request conflicts or its content changed. Please retry.</string>
+    <string name="preview_recipients_needed_title">No recipients selected</string>
+    <string name="preview_recipients_needed_message">Please select at least one friend or choose \'All friends\' before sending.</string>
+    <string name="preview_confirm_send_title">Confirm send</string>
+    <string name="preview_confirm_send_all">Are you sure you want to send this moment to all friends?</string>
+    <string name="preview_confirm_send_selected">Send this moment to %1$d selected friend(s)?</string>
+    <string name="preview_send_now">Send now</string>
+    <string name="preview_ok">OK</string>
     <string name="profile_invalid_name">Enter a display name between 1 and 255 characters.</string>
     <string name="profile_error">Unable to update profile. Please retry.</string>
     <string name="profile_network_error">Cannot finish. Check your connection or choose another photo, then retry.</string>
@@ -143,4 +150,32 @@
     <string name="moment_transfer_error">Send or download could not be confirmed. Check your connection and retry. If the server received it but the response was lost, resending may create another private photo.</string>
     <string name="theme_scope_notice">Four themes are available across account, Camera, Preview, photo viewer, History, Friends, Messages and Profile screens. Open screens keep your current work until reopened.</string>
     <string name="theme_save_error">Cannot save theme. Your preview is kept; try Apply again.</string>
+    <string name="preview_outbox_queued">Saved to outbox queue. Moment will automatically upload when network is available.</string>
+    <string name="outbox_status_pending">Waiting to send…</string>
+    <string name="outbox_status_waiting_network">Waiting for network…</string>
+    <string name="outbox_status_uploading">Sending… (%1$d%%)</string>
+    <string name="outbox_status_failed">Send failed. Tap to retry.</string>
+    <string name="outbox_title">Sending moment</string>
+    <string name="outbox_cancel">Cancel</string>
+    <string name="outbox_retry">Retry</string>
+    <string name="camera_mode_single">Single</string>
+    <string name="camera_mode_dual">Dual Cam</string>
+    <string name="camera_dual_pip_label">PiP secondary view</string>
+    <string name="camera_dual_swap">Swap</string>
+    <string name="camera_dual_capturing_main">Capturing main camera…</string>
+    <string name="camera_dual_capturing_sub">Switching to secondary camera…</string>
+    <string name="camera_dual_compositing">Compositing views…</string>
+    <string name="poll_add">Add A/B Poll</string>
+    <string name="poll_remove">Remove Poll</string>
+    <string name="poll_question_hint">Ask a question…</string>
+    <string name="poll_option_a_hint">Option A (e.g. Yes)</string>
+    <string name="poll_option_b_hint">Option B (e.g. No)</string>
+    <string name="poll_voted">You voted: %1$s</string>
+    <string name="poll_total_votes">%1$d votes</string>
+    <string name="poll_closed">Poll ended</string>
+    <string name="camera_live_recording">Recording 3s moment…</string>
+    <string name="camera_live_audio_on">Mic On</string>
+    <string name="camera_live_audio_off">Mic Off</string>
+    <string name="viewer_live_badge">LIVE 3S</string>
+    <string name="preview_live_badge">LIVE 3S</string>
 </resources>

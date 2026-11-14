@@ -14,7 +14,11 @@ public final class MomentDtos {
         }
     }
 
-    public record MomentItem(UUID id, PublicUser sender, String caption, Instant createdAt) { }
+    public record MomentItem(UUID id, PublicUser sender, String caption, Instant createdAt, String mediaType, Integer durationMs, Boolean hasAudio) {
+        public MomentItem(UUID id, PublicUser sender, String caption, Instant createdAt) {
+            this(id, sender, caption, createdAt, "PHOTO", null, false);
+        }
+    }
 
     public record MomentsPage(List<MomentItem> items, int page, boolean hasNext) { }
 }

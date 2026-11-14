@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="camera_shutter_label">पल कैप्चर करें</string>
+    <string name="camera_shutter_label">फ़ोटो के लिए टैप करें · 3 सेकंड तक वीडियो के लिए दबाए रखें</string>
     <string name="camera_permission_hint">फ़ोटो लेने के लिए कैमरे की अनुमति दें।</string>
     <string name="camera_status_ready">निजी पल</string>
     <string name="camera_status_busy">पल सहेजा जा रहा है…</string>
@@ -100,6 +100,13 @@
     <string name="preview_uploading_progress">फ़ोटो भेजी जा रही है (%1$d%%)…</string>
     <string name="preview_processing_server">सर्वर पर सहेजने की पुष्टि हो रही है…</string>
     <string name="preview_conflict_error">भेजने के अनुरोध में टकराव है या सामग्री बदली है। फिर कोशिश करें।</string>
+    <string name="preview_recipients_needed_title">कोई प्राप्तकर्ता नहीं चुना गया</string>
+    <string name="preview_recipients_needed_message">कृपया भेजने से पहले कम से कम एक मित्र चुनें या \'सभी मित्र\' चुनें।</string>
+    <string name="preview_confirm_send_title">भेजने की पुष्टि करें</string>
+    <string name="preview_confirm_send_all">क्या आप वाकई इस पल को सभी दोस्तों को भेजना चाहते हैं?</string>
+    <string name="preview_confirm_send_selected">इस पल को चुने गए %1$d मित्रों को भेजें?</string>
+    <string name="preview_send_now">अभी भेजें</string>
+    <string name="preview_ok">समझ गया</string>
     <string name="profile_invalid_name">1 से 255 अक्षरों का नाम दर्ज करें।</string>
     <string name="profile_error">प्रोफ़ाइल अपडेट नहीं हुई। फिर कोशिश करें।</string>
     <string name="profile_network_error">पूरा नहीं हो सका। कनेक्शन जाँचें या दूसरी फ़ोटो चुनकर फिर कोशिश करें।</string>
@@ -179,4 +186,32 @@
     <string name="profile_avatar_desc">प्रोफ़ाइल फ़ोटो</string>
     <string name="theme_scope_notice">चार थीम खाता, कैमरा, पूर्वावलोकन, फ़ोटो व्यूअर, इतिहास, मित्र, संदेश और प्रोफ़ाइल में उपलब्ध हैं। खुली स्क्रीन फिर खोलने तक वर्तमान काम सुरक्षित रखती हैं।</string>
     <string name="theme_save_error">थीम नहीं सहेजी गई। पूर्वावलोकन सुरक्षित है; फिर लागू करें चुनें।</string>
+    <string name="preview_outbox_queued">भेजने की कतार में सहेजा गया। नेटवर्क मिलने पर अपने आप भेजा जाएगा।</string>
+    <string name="outbox_status_pending">भेजने की प्रतीक्षा…</string>
+    <string name="outbox_status_waiting_network">नेटवर्क की प्रतीक्षा…</string>
+    <string name="outbox_status_uploading">भेजा जा रहा है… (%1$d%%)</string>
+    <string name="outbox_status_failed">भेजना विफल। फिर कोशिश करने के लिए टैप करें।</string>
+    <string name="outbox_title">भेजने की कतार</string>
+    <string name="outbox_cancel">रद्द करें</string>
+    <string name="outbox_retry">फिर कोशिश करें</string>
+    <string name="camera_mode_single">1 कैमरा</string>
+    <string name="camera_mode_dual">2 कैमरे</string>
+    <string name="camera_dual_pip_label">PiP सहायक दृश्य</string>
+    <string name="camera_dual_swap">दृश्य बदलें</string>
+    <string name="camera_dual_capturing_main">मुख्य कैमरे से फ़ोटो ली जा रही है…</string>
+    <string name="camera_dual_capturing_sub">दूसरे कैमरे पर जा रहे हैं…</string>
+    <string name="camera_dual_compositing">दोनों फ़ोटो जोड़ी जा रही हैं…</string>
+    <string name="poll_add">A/B मतदान जोड़ें</string>
+    <string name="poll_remove">मतदान हटाएँ</string>
+    <string name="poll_question_hint">अपना प्रश्न लिखें…</string>
+    <string name="poll_option_a_hint">विकल्प A (जैसे: हाँ)</string>
+    <string name="poll_option_b_hint">विकल्प B (जैसे: नहीं)</string>
+    <string name="poll_voted">आपका वोट: %1$s</string>
+    <string name="poll_total_votes">%1$d वोट</string>
+    <string name="poll_closed">मतदान समाप्त</string>
+    <string name="camera_live_recording">3 सेकंड का पल रिकॉर्ड हो रहा है…</string>
+    <string name="camera_live_audio_on">माइक चालू</string>
+    <string name="camera_live_audio_off">माइक बंद</string>
+    <string name="viewer_live_badge">लाइव 3 सेकंड</string>
+    <string name="preview_live_badge">लाइव 3 सेकंड</string>
 </resources>

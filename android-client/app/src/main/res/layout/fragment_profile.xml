@@ -100,7 +100,8 @@
                 android:minHeight="@dimen/taktak_btn_height_small"
                 android:text="@string/profile_change_avatar"
                 app:icon="@drawable/ic_camera_shutter"
-                app:iconSize="16dp" />
+                app:iconSize="16dp"
+                android:visibility="gone" />
 
             <!-- User Info -->
             <TextView
