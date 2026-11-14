@@ -6,9 +6,14 @@
 
 **Chia sẻ khoảnh khắc, kết nối những người thân thương.**
 
-Taktak là ứng dụng Android dành cho những nhóm bạn muốn chia sẻ cuộc sống thường ngày trong một không gian riêng tư. Chụp một tấm ảnh, chọn người nhận và gửi đi; ảnh mới nhất có thể xuất hiện trên widget màn hình chính của bạn bè mà không cần mở ứng dụng.
+TAKTAK
+Chia sẻ khoảnh khắc, kết nối yêu thương.
 
-Không có bảng tin công khai. Ảnh được lưu trên máy chủ riêng và chỉ truy cập qua API có xác thực, theo quyền người gửi/người nhận.
+TAKTAK là ứng dụng Android cho phép người dùng chia sẻ những khoảnh khắc đời thường với bạn bè và người thân một cách riêng tư.
+
+Thay vì phải mở ứng dụng để xem ảnh, người dùng có thể nhận và xem những khoảnh khắc mới nhất ngay trên widget màn hình chính.
+
+Điểm nổi bật: Chụp ảnh nhanh, chia sẻ riêng tư, kết nối bạn bè và tương tác trực tiếp qua ảnh.
 
 **Chụp → Xem trước → Chọn bạn → Chia sẻ → Widget**
 
