@@ -6,188 +6,146 @@
 
 **Chia sẻ khoảnh khắc, kết nối những người thân thương.**
 
-Taktak là ứng dụng Android dành cho những nhóm bạn muốn chia sẻ cuộc sống thường ngày trong một không gian riêng tư. Chụp một tấm ảnh, chọn người nhận và gửi đi; ảnh mới nhất có thể xuất hiện trên widget màn hình chính của bạn bè mà không cần mở ứng dụng.
+Taktak là ứng dụng Android để chia sẻ ảnh với bạn bè trong một không gian riêng tư. Mở camera, chụp một tấm ảnh, thêm lời nhắn và chọn người nhận. Khoảnh khắc mới có thể xuất hiện ngay trên widget màn hình chính của bạn bè.
 
-Không có bảng tin công khai. Ảnh được lưu trên máy chủ riêng và chỉ truy cập qua API có xác thực, theo quyền người gửi/người nhận.
+Ứng dụng không có bảng tin công khai. Ảnh được lưu trên máy chủ riêng và chỉ người có quyền mới truy cập được qua API xác thực.
 
-**Chụp → Xem trước → Chọn bạn → Chia sẻ → Widget**
+**Chụp → Xem trước → Chọn bạn → Gửi khoảnh khắc**
 
-[Ảnh ứng dụng](#ảnh-ứng-dụng) · [Chạy local](#chạy-local-trên-windows) · [API](#api) · [Kiểm thử](#kiểm-thử) · [Triển khai](#triển-khai)
-
-## Ảnh ứng dụng
+## Giao diện
 
 <table>
   <tr>
-    <td align="center"><a href="docs/screenshots/login.png"><img src="docs/screenshots/login.png" width="210" alt="Đăng nhập"></a><br>Đăng nhập</td>
-    <td align="center"><a href="docs/screenshots/register.png"><img src="docs/screenshots/register.png" width="210" alt="Đăng ký"></a><br>Đăng ký</td>
-    <td align="center"><a href="docs/screenshots/preview.png"><img src="docs/screenshots/preview.png" width="210" alt="Chụp → Preview · cảnh ảo"></a><br>Chụp → Preview · cảnh ảo</td>
+    <td align="center"><img src="docs/screenshots/login.png" width="210" alt="Màn hình đăng nhập"><br>Đăng nhập</td>
+    <td align="center"><img src="docs/screenshots/register.png" width="210" alt="Màn hình đăng ký"><br>Đăng ký</td>
+    <td align="center"><img src="docs/screenshots/preview.png" width="210" alt="Xem trước ảnh chụp"><br>Xem trước khoảnh khắc</td>
   </tr>
   <tr>
-    <td align="center"><a href="docs/screenshots/history-received.png"><img src="docs/screenshots/history-received.png" width="210" alt="Ảnh đã nhận · QA"></a><br>Ảnh đã nhận · QA</td>
-    <td align="center"><a href="docs/screenshots/friends.png"><img src="docs/screenshots/friends.png" width="210" alt="Bạn bè · QA"></a><br>Bạn bè · QA</td>
-    <td align="center"><a href="docs/screenshots/profile.png"><img src="docs/screenshots/profile.png" width="210" alt="Hồ sơ · QA"></a><br>Hồ sơ · QA</td>
+    <td align="center"><img src="docs/screenshots/history-received.png" width="210" alt="Lịch sử ảnh đã nhận"><br>Lịch sử</td>
+    <td align="center"><img src="docs/screenshots/friends.png" width="210" alt="Danh sách bạn bè"><br>Bạn bè</td>
+    <td align="center"><img src="docs/screenshots/profile.png" width="210" alt="Hồ sơ cá nhân"><br>Hồ sơ</td>
   </tr>
   <tr>
-    <td align="center"><a href="docs/screenshots/messages.png"><img src="docs/screenshots/messages.png" width="210" alt="Tin nhắn · QA"></a><br>Tin nhắn · QA</td>
-    <td align="center"><a href="docs/screenshots/photo-reply.png"><img src="docs/screenshots/photo-reply.png" width="210" alt="Trả lời ảnh · QA"></a><br>Trả lời ảnh · QA</td>
-    <td align="center"><a href="docs/screenshots/widget-signed-out.png"><img src="docs/screenshots/widget-signed-out.png" width="210" alt="Widget 2×2 · chưa đăng nhập"></a><br>Widget 2×2 · chưa đăng nhập</td>
+    <td align="center"><img src="docs/screenshots/messages.png" width="210" alt="Danh sách tin nhắn"><br>Tin nhắn</td>
+    <td align="center"><img src="docs/screenshots/photo-reply.png" width="210" alt="Trả lời khoảnh khắc trong chat riêng"><br>Trả lời ảnh</td>
+    <td align="center"><img src="docs/screenshots/theme-picker.png" width="210" alt="Chọn giao diện ứng dụng"><br>Tùy chỉnh giao diện</td>
   </tr>
 </table>
 
-<details>
-<summary>Xem thêm: lịch sử gửi, recovery, theme, QR và trạng thái Camera</summary>
-
-<table>
-  <tr>
-    <td align="center"><a href="docs/screenshots/history-sent.png"><img src="docs/screenshots/history-sent.png" width="210" alt="Ảnh đã gửi · QA"></a><br>Ảnh đã gửi · QA</td>
-    <td align="center"><a href="docs/screenshots/forgot-password.png"><img src="docs/screenshots/forgot-password.png" width="210" alt="Quên mật khẩu"></a><br>Quên mật khẩu</td>
-    <td align="center"><a href="docs/screenshots/verify-email.png"><img src="docs/screenshots/verify-email.png" width="210" alt="Xác minh email"></a><br>Xác minh email</td>
-  </tr>
-  <tr>
-    <td align="center"><a href="docs/screenshots/theme-picker.png"><img src="docs/screenshots/theme-picker.png" width="210" alt="Chọn theme"></a><br>Chọn theme</td>
-    <td align="center"><a href="docs/screenshots/my-qr.png"><img src="docs/screenshots/my-qr.png" width="210" alt="QR cá nhân · QA"></a><br>QR cá nhân · QA</td>
-    <td align="center"><a href="docs/screenshots/camera-starting.png"><img src="docs/screenshots/camera-starting.png" width="210" alt="Camera · đang khởi tạo"></a><br>Camera · đang khởi tạo</td>
-  </tr>
-</table>
-
-</details>
-
-Ảnh chụp trực tiếp ứng dụng trên Android Emulator, không phải concept hoặc mockup. Tên, hội thoại và ảnh trong các màn đã đăng nhập là dữ liệu QA giả lập; gallery minh họa giao diện, không chứng minh SMTP, FCM hoặc VPS đã hoạt động thực tế.
+Ảnh chụp từ ứng dụng trên emulator với dữ liệu thử nghiệm. Đây là bộ ảnh minh họa đã lưu trong repository; một số chi tiết có thể khác giao diện mới nhất.
 
 ## Tính năng
 
-### Chia sẻ ảnh riêng tư
+### Chụp và chia sẻ khoảnh khắc
 
-- CameraX: chụp ảnh vuông, đổi camera và chọn chế độ flash khi phần cứng hỗ trợ.
-- Xem trước, chụp lại, caption tối đa 50 ký tự Unicode và chọn người nhận.
-- Gửi cho một hoặc nhiều bạn; chế độ chỉ mình tôi không phát thông báo cho người khác.
-- Nén ảnh mục tiêu 500–800 KB, tiến trình upload và thử lại với mã chống gửi trùng.
-- Lịch sử Đã nhận/Đã gửi, phân trang, mở ảnh và lưu vào thư viện khi người dùng chọn.
-- Người gửi được xóa ảnh; server từ chối các yêu cầu tải mới sau khi ảnh bị xóa.
+- Chụp ảnh vuông, đổi camera trước/sau và sử dụng flash khi thiết bị hỗ trợ.
+- Xem trước, chụp lại, thêm caption tối đa 50 ký tự và chọn một hoặc nhiều người nhận.
+- Lưu khoảnh khắc chỉ cho mình hoặc gửi riêng cho bạn bè.
+- Xem lịch sử Đã nhận/Đã gửi, mở ảnh toàn màn hình và lưu vào thư viện khi muốn.
+- Xóa khoảnh khắc đã gửi; server thu hồi quyền tải ảnh ở những yêu cầu tiếp theo.
 
-### Bạn bè và trò chuyện
+### Kết nối bạn bè
 
-- Tìm theo username, gửi/chấp nhận/từ chối lời mời, hủy bạn và chặn người dùng.
-- Mã QR cá nhân, quét camera hoặc chọn ảnh QR để tìm người dùng.
-- Chat riêng 1–1 giữa bạn bè: văn bản, tham chiếu khoảnh khắc, trạng thái đã đọc và số tin chưa đọc.
-- Trả lời ảnh đã nhận ngay trong trình xem; bình luận xuất hiện trong cuộc trò chuyện với chủ ảnh, không phải bình luận công khai.
-- Chat không cấp thêm quyền xem ảnh. Khi ảnh bị thu hồi, nội dung trả lời vẫn được giữ nhưng tham chiếu ảnh không còn khả dụng.
+Tìm bạn bằng username hoặc mã QR. Người dùng có thể hiển thị mã cá nhân, quét bằng camera hoặc chọn ảnh QR từ thư viện; gửi, chấp nhận và từ chối lời mời kết bạn; hủy kết bạn hoặc chặn người dùng.
 
-### Tài khoản và giao diện
+### Tin nhắn riêng
 
-- Đăng ký, đăng nhập, duy trì phiên bằng access JWT và refresh token xoay vòng.
-- Xác minh email, yêu cầu mật khẩu tạm và đặt lại mật khẩu. Reset thành công thu hồi mọi refresh token và vô hiệu JWT cũ ở yêu cầu tiếp theo.
-- Hồ sơ cá nhân, chỉnh tên hiển thị, tải avatar và đăng xuất.
-- Năm tab: Camera / Lịch sử / Tin nhắn / Bạn bè / Hồ sơ.
-- Bốn phong cách Original, Gradient, Glass và Soft; sáng/tối/theo hệ thống, chọn và xem trước theme.
-- Intro thương hiệu có tiếng từ video local; có Bỏ qua, Quick Start và bật/tắt âm thanh trong Hồ sơ → Hiệu ứng khởi động. Âm thanh tôn trọng chế độ im lặng và Không làm phiền.
+- Trò chuyện 1–1 với bạn bè, theo dõi tin chưa đọc và trạng thái đã đọc.
+- Chia sẻ khoảnh khắc trong hội thoại.
+- Trả lời ảnh đã nhận: lời nhắn xuất hiện trong cuộc trò chuyện với chủ ảnh, không hiển thị thành bình luận công khai.
+- Quyền xem ảnh vẫn do server kiểm tra, kể cả khi ảnh được tham chiếu trong tin nhắn.
 
 ### Widget và thông báo
 
-- Có AppWidgetProvider/RemoteViews cho widget 2×2 và 4×2.
-- FCM báo thay đổi; WorkManager tải lại ảnh có xác thực và cập nhật widget. Có đồng bộ định kỳ dự phòng.
-- Cập nhật nền phụ thuộc Android, mạng và chính sách pin/OEM; không bảo đảm tức thì, đặc biệt sau force-stop.
-- Hiệu ứng reaction widget hiện là phản hồi cục bộ, chưa phải gửi reaction đến bạn bè qua server.
+Widget 2×2 và 4×2 đưa ảnh mới nhất lên màn hình chính. Firebase Cloud Messaging báo có thay đổi, sau đó WorkManager tải nội dung bằng phiên đăng nhập và cập nhật widget.
 
-### Trạng thái xác minh
+Tốc độ cập nhật phụ thuộc kết nối mạng, quyền thông báo và chính sách chạy nền của Android/nhà sản xuất; ứng dụng không bảo đảm cập nhật tức thì sau khi bị buộc dừng.
 
-Nội dung được đối chiếu với mã nguồn và hồ sơ QA đến ngày 23/10/2026. Các kết quả
-dưới đây có phạm vi riêng; không có tuyên bố toàn bộ ứng dụng đã qua nghiệm thu production.
+### Tài khoản và cá nhân hóa
 
-| Phần | Trạng thái của workspace |
+- Đăng ký, đăng nhập, xác minh email và khôi phục mật khẩu qua email.
+- Đặt lại mật khẩu thành công thu hồi các phiên cũ.
+- Cập nhật tên hiển thị và ảnh đại diện.
+- Năm tab chính: Camera, Lịch sử, Tin nhắn, Bạn bè và Hồ sơ.
+- Bốn phong cách Original, Gradient, Glass và Soft; hỗ trợ sáng, tối và theo hệ thống.
+- Intro thương hiệu có tùy chọn bỏ qua, khởi động nhanh và âm thanh.
+
+### Taktak AI
+
+Trò chuyện với trợ lý Gemini trong ứng dụng, quản lý lịch sử và xóa hội thoại AI. Tính năng cần được bật và cấu hình ở backend.
+
+Nội dung cuộc trò chuyện AI được gửi tới Google khi người dùng đồng ý. Ảnh riêng tư và tin nhắn giữa bạn bè không được tự động đưa vào cuộc trò chuyện AI. API key chỉ nằm trên server.
+
+### Các tính năng nâng cao đang hoàn thiện nghiệm thu
+
+Repository đã có triển khai cho:
+
+| Tính năng | Trải nghiệm |
 |---|---|
-| Auth, bạn bè, chia sẻ ảnh, lịch sử, hồ sơ | Có triển khai và bằng chứng kiểm thử local/UI trong [hồ sơ QA](docs/PROJECT_STATUS.md) |
-| Chat và trả lời ảnh riêng | Đã kiểm thử backend/local, AVD và USB; chưa nghiệm thu toàn luồng reply qua VPS/FCM thật |
-| Recovery qua email | Kiểm thử Gmail thật đã gửi và xác nhận nhận đủ 3 thư QA; chưa nghiệm thu SMTP của service VPS |
-| FCM/widget | FCM thật → Worker → AppWidgetHost trên điện thoại đã đạt; còn nghiệm thu widget ghim launcher/OEM và hình ảnh logout |
-| UI toàn ứng dụng | Đã sửa lỗi thiếu bản dịch; lint debug 0 error/85 warning. Còn tương phản Friends/History sáng, Recap mẫu và nghiệm thu accessibility/đa thiết bị |
-| Intro thương hiệu | Video local có tiếng, Full Intro/Quick Start và preview; đã xác minh trên Android 15, còn ma trận API/chế độ âm thanh mở rộng |
-| Backup/restore | Native QA khôi phục DB/ảnh và bảo toàn thu hồi phiên đạt; script/SQL/systemd guard đã cài production, chưa restore dữ liệu production |
-| Production | Đã có ghi nhận VPS/V6 và bật FCM; rollout restore-security đã kiểm tra health/PID, không phải nghiệm thu mọi chức năng trên VPS |
+| Offline Outbox | Hàng đợi gửi khoảnh khắc và thử lại khi kết nối trở lại |
+| Dual Camera | Ghép ảnh camera trước/sau; có phương án chụp tuần tự theo khả năng thiết bị |
+| Photo Poll | Tạo bình chọn gắn với khoảnh khắc |
+| Live Moment | Chạm nút chụp để chụp ảnh, giữ để quay clip ngắn 3 giây |
 
-Kết quả và giới hạn: [nghiệm thu tổng hợp](docs/QA_ACCEPTANCE_ALL.md),
-[bản sửa restore](docs/QA_RESTORE_SECURITY.md),
-[rollout production](docs/QA_RESTORE_PRODUCTION_ROLLOUT.md) và
-[audit UI/UX](docs/UI_UX_AUDIT.md). Các báo cáo cũ giữ lại lịch sử từng lượt thử.
+Các tính năng này còn ca kiểm thử đầu cuối và vòng đời cần hoàn tất, chưa được coi là đã nghiệm thu toàn bộ trên production. Xem [hồ sơ kiểm thử tính năng nâng cao](docs/QA_ADVANCED4_20261114.md).
 
-## Công nghệ
+## Công nghệ và kiến trúc
 
-Phiên bản lấy từ cấu hình trong repository, không phải tuyên bố phiên bản mới nhất.
+| Thành phần | Công nghệ |
+|---|---|
+| Android | Java, XML, ViewBinding, Material Components; Android 8.0/API 26 trở lên |
+| Kiến trúc client | MVVM, ViewModel, LiveData, Repository |
+| API và hình ảnh | Retrofit, OkHttp, Gson, Glide |
+| Camera và tác vụ nền | CameraX, WorkManager, AppWidgetProvider/RemoteViews |
+| Backend | Java 17, Spring Boot 3, Spring Security, JPA, Validation |
+| Database | PostgreSQL, Flyway |
+| Xác thực | BCrypt, JWT access token, refresh token xoay vòng |
+| Thông báo | Firebase Cloud Messaging |
+| AI | Gemini API qua backend |
+| Build và triển khai | Gradle Groovy, Maven, Nginx/TLS, systemd; cấu hình Docker Compose |
 
-| Thành phần | Công nghệ | Vai trò |
-|---|---|---|
-| Android | Java 17, XML, ViewBinding | Native UI; minSdk 26, compile/targetSdk 37 |
-| UI | Material Components 1.14.0, AppCompat 1.8.0 | Theme, form, dialog, điều hướng |
-| Kiến trúc client | ViewModel/LiveData 2.11.0, Repository | MVVM, trạng thái và dữ liệu |
-| HTTP/JSON | Retrofit 3.0.0, OkHttp 5.5.0, Gson 2.14.0 | API và xử lý response |
-| Ảnh/camera | Glide 5.0.9, CameraX 1.6.2 | Hiển thị và chụp ảnh |
-| Nền/widget | WorkManager 2.12.0, AppWidgetProvider/RemoteViews | Đồng bộ và widget |
-| Phiên/QR | EncryptedSharedPreferences 1.1.0, ZXing 3.5.3 | Phiên mã hóa, mã QR |
-| Backend | Java 17, Spring Boot 3.5.16, Spring Security/JPA/Validation | API, nghiệp vụ và phân quyền |
-| Database | PostgreSQL, Flyway | Dữ liệu quan hệ, migration V1–V6; transactional outbox |
-| Push | Firebase Messaging BoM 35.0.1; Admin SDK 9.4.3 | Tín hiệu ảnh và chat |
-| Build | Gradle Groovy 9.6.0 / AGP 9.4.1; Maven Wrapper 3.9.16 | Hai project build độc lập |
-| Triển khai | Nginx/TLS, systemd; phương án Docker Compose | Cấu hình và script trong deploy/ |
-
-Compose chọn PostgreSQL `16-alpine`; không coi phiên bản native mặc nhiên giống image Docker. Android không dùng Kotlin hoặc Jetpack Compose. Firebase **chỉ dùng FCM**, không dùng Auth, Firestore, Storage hoặc Cloud Functions; không có chatbot AI.
-
-## Kiến trúc
-
-```mermaid
-flowchart LR
-    UI[Android Java / XML] --> VM[ViewModel + LiveData]
-    VM --> REPO[Repository]
-    REPO --> HTTP[Retrofit / OkHttp + JWT]
-    HTTP --> API[Spring Boot REST API]
-    API --> DB[(PostgreSQL / Flyway)]
-    API --> FILES[Private image storage]
-    DB -->|Outbox| DISPATCH[Retry dispatcher]
-    DISPATCH --> FCM[Firebase Cloud Messaging]
-    FCM --> SERVICE[Android MessagingService]
-    SERVICE --> WORK[WorkManager]
-    WORK --> HTTP
-    WORK --> WIDGET[RemoteViews Widget]
-```
-
-Client đăng nhập, gửi ảnh và danh sách người nhận qua API. Server kiểm tra quyền, quan hệ bạn bè/block, xử lý ảnh và ghi metadata vào PostgreSQL; file ảnh nằm ngoài web root. Event push được ghi vào outbox cùng transaction nghiệp vụ. Dispatcher gửi FCM và retry khi lỗi, không rollback ảnh đã lưu chỉ vì gửi thông báo thất bại. Máy nhận tải lại dữ liệu bằng phiên hợp lệ; push không chứa ảnh, caption, nội dung chat hay credential và không tự cấp quyền truy cập.
-
-Package Android/applicationId: `com.taktak.app`. Package backend: `com.taktak.server`.
-
-## Cấu trúc repository
+Android không sử dụng Kotlin hoặc Jetpack Compose. Firebase chỉ phục vụ FCM; tài khoản, dữ liệu và ảnh do backend Taktak quản lý.
 
 ```text
-taktak/
-├── android-client/     Java/XML, Gradle Wrapper, kiểm thử Android
-├── server/             REST API, Maven Wrapper, Flyway, integration tests
-├── docs/               Hợp đồng API, quyết định, hướng dẫn, báo cáo QA
-├── deploy/             Nginx, systemd, Docker, script bảo trì/backup
-├── scripts/            Chọn JDK, smoke test và nghiệm thu trên Windows
-├── AGENTS.md           Quy ước phát triển và giới hạn an toàn
-└── README.md
+Android (Java/XML)
+    │ HTTPS · REST API · JWT
+    ▼
+Spring Boot
+    ├── PostgreSQL: tài khoản, quan hệ, khoảnh khắc, hội thoại
+    ├── Private storage: ảnh và video
+    ├── Transactional outbox → FCM → WorkManager → Widget
+    ├── SMTP: xác minh email và khôi phục tài khoản
+    └── Gemini: hội thoại AI có sự đồng ý của người dùng
 ```
 
-## Chạy local trên Windows
+Package Android: `com.taktak.app`. Package backend: `com.taktak.server`.
 
-### 1. Chuẩn bị
+## Chạy dự án
 
-- Git và PowerShell.
-- JDK **17 cho backend**. Android dùng Gradle JDK tương thích AGP/Gradle đang khóa, qua Android Studio; source level Java 17 không đồng nghĩa JDK chạy Gradle phải là 17.
-- Android Studio, SDK Platform **37**, Platform Tools; emulator/system image hoặc thiết bị Android **8.0/API 26** trở lên.
-- PostgreSQL đang chạy với database/role local dành riêng cho phát triển.
-- Maven/Gradle có wrapper; không cần bản toàn cục nếu wrapper tải được dependency.
+Repository gồm hai project build độc lập:
+
+```text
+android-client/    Ứng dụng Android và kiểm thử
+server/            Backend Spring Boot và migration
+docs/              Hướng dẫn, hợp đồng API, hồ sơ kiểm thử
+deploy/            Cấu hình VPS, backup và bảo trì
+scripts/           Công cụ phát triển và QA
+```
+
+### Chuẩn bị trên Windows
+
+Cài Git, Android Studio với SDK Platform 37/Platform Tools, JDK 17 cho backend và PostgreSQL. Android dùng JDK chạy Gradle tương thích với phiên bản đã khóa trong repository; script bên dưới ưu tiên JBR đi kèm Android Studio. Maven và Gradle đều có wrapper.
 
 ```powershell
 git clone https://github.com/Conmeosoma/taktak-social.git
 Set-Location taktak-social
 ```
 
-Kiểm tra `git branch --show-current` và source của bạn; không cần tự chuyển sang một nhánh cố định.
+### Backend
 
-### 2. Backend
+Tạo database và role PostgreSQL riêng cho môi trường phát triển. Tham khảo [server/.env.example](server/.env.example), rồi nạp cấu hình vào environment; Spring Boot không tự đọc file `.env`.
 
-Tạo database local `taktak` và role riêng bằng công cụ PostgreSQL bạn sử dụng. Role cần quyền tạo schema/bảng trong database đó để Flyway chạy. Không dùng database production để thử.
-
-Tham khảo [server/.env.example](server/.env.example), rồi nạp cấu hình vào environment. **Spring Boot không tự đọc file .env.** Ví dụ dưới là placeholder cần thay bằng giá trị local, không commit giá trị thật:
+Ví dụ PowerShell từ thư mục gốc — thay các placeholder bằng cấu hình local:
 
 ```powershell
 . .\scripts\Use-TaktakJava.ps1 -Target Server
@@ -200,22 +158,20 @@ Set-Location server
 .\mvnw.cmd spring-boot:run
 ```
 
-Helper chọn JDK 17 từ `.tools/` nếu có, nếu không dùng `JAVA_HOME`; không tự cài JDK. JWT secret phải là Base64 của ít nhất 32 byte ngẫu nhiên, không phải chuỗi ví dụ. Server từ chối secret không hợp lệ.
-
-Flyway tự áp migration khi khởi động, Hibernate dùng `validate`, không `update`. Chỉ trỏ tới database dev đã kiểm tra. Ở cửa sổ khác:
+Flyway áp migration khi khởi động. Kiểm tra kết nối ở cửa sổ PowerShell khác:
 
 ```powershell
 Invoke-RestMethod http://127.0.0.1:8080/actuator/health
 ```
 
-Kỳ vọng `status=UP`. Local mặc định bind `127.0.0.1:8080` và tắt FCM server; kiểm tra API cơ bản không cần Admin key.
+Email cần cấu hình SMTP; FCM cần Firebase Admin credentials riêng cho server; Gemini cần cấu hình AI. Khi dùng Live Moment, chuẩn bị FFmpeg/ffprobe theo [hướng dẫn xử lý video](docs/LIVE_MOMENT_VALIDATION.md).
 
-### 3. Android
+### Android
 
-1. Mở `android-client/` bằng Android Studio, chuẩn bị SDK 37 và Gradle JDK phù hợp.
-2. Đăng ký Firebase Android app đúng package `com.taktak.app`; đặt config local tại `android-client/app/google-services.json`. Không đưa file này vào Git.
-3. Đặt SDK path qua Android Studio/`local.properties`. Repo hiện có đường dẫn JDK máy phát triển trong `gradle.properties`; kiểm tra và override cho máy của bạn.
-4. Từ repository root, chạy:
+1. Mở thư mục **android-client/** trong Android Studio, không mở thư mục gốc repository làm Gradle project.
+2. Cấu hình SDK và Gradle JDK, sau đó Sync project.
+3. Đặt Firebase config đúng package tại `android-client/app/google-services.json`; giữ file này ngoài Git.
+4. Chạy module `app`, hoặc build từ repository root:
 
 ```powershell
 . .\scripts\Use-TaktakJava.ps1 -Target Android
@@ -226,196 +182,51 @@ Set-Location android-client
   -PTAKTAK_DEBUG_BASE_URL=http://10.0.2.2:8080/ assembleDebug
 ```
 
-Helper Android chọn JBR của Android Studio nếu có. APK: `app/build/outputs/apk/debug/app-debug.apk`. Chạy module `app` bằng Android Studio hoặc cài bằng `adb install -r <apk-path>`.
+APK debug nằm tại `android-client/app/build/outputs/apk/debug/app-debug.apk`.
 
-| Môi trường | Kết nối backend |
+| Thiết bị/môi trường | API base URL |
 |---|---|
-| Emulator | `http://10.0.2.2:8080/` trỏ về máy host |
-| Điện thoại USB | `adb -s <serial> reverse tcp:8080 tcp:8080`, build với `http://127.0.0.1:8080/` |
-| LAN/tunnel | Dùng HTTPS; cấu hình hiện tại không cho HTTP tới IP LAN tùy ý |
-| Release | Bắt buộc `-PTAKTAK_RELEASE_BASE_URL=https://<your-api-host>/`; cần cấu hình ký riêng để phân phối |
+| Emulator gọi backend trên máy tính | `http://10.0.2.2:8080/` |
+| Điện thoại USB, sau khi chạy `adb reverse tcp:8080 tcp:8080` | `http://127.0.0.1:8080/` |
+| Backend triển khai | URL HTTPS của server |
+| Release build | Truyền `-PTAKTAK_RELEASE_BASE_URL=https://<your-api-host>/` và cấu hình ký APK |
 
-URL phải có dấu `/` cuối. HTTP debug chỉ cho emulator/loopback, không dùng trên mạng công cộng. `localhost` trên điện thoại không phải máy tính nếu chưa có ADB reverse.
+Base URL cần dấu `/` cuối. HTTP chỉ dành cho debug local được cho phép; release bắt buộc HTTPS. `google-services.json` phía Android không phải Firebase Admin private key.
 
-### 4. FCM và email
+## Quyền riêng tư
 
-- `google-services.json` là config client, **khác** Admin service-account JSON chứa private key phía server. Cả hai giữ local theo chính sách repo.
-- [Firebase setup](docs/FIREBASE_SETUP.md): bật FCM và đăng ký token. Prod dùng `FCM_ENABLED`/`GOOGLE_APPLICATION_CREDENTIALS`; chỉ bật khi đã chuẩn bị quyền đọc credential.
-- Recovery cần SMTP STARTTLS. Gmail dùng App Password phù hợp chính sách tài khoản, không dùng mật khẩu đăng nhập thường. Xem [ACCOUNT_RECOVERY.md](docs/ACCOUNT_RECOVERY.md).
-- Thiếu SMTP không đồng nghĩa gửi thư thành công; không dùng tài khoản cá nhân cho test reset.
+Ảnh và video nằm ngoài web root, được tải qua API có xác thực và kiểm tra quyền. Server kiểm tra người gửi, người nhận, quan hệ bạn bè và chặn; việc biết ID ảnh không đủ để xem ảnh.
 
-### Biến cấu hình chính
+Mật khẩu được băm bằng BCrypt, refresh token chỉ lưu hash ở server. Push dùng để báo thay đổi, không mang nội dung ảnh hoặc tin nhắn riêng. Ứng dụng chỉ lưu ảnh vào gallery khi người dùng chọn; xóa ảnh trên server không xóa được bản đã được người nhận lưu ra ngoài ứng dụng.
 
-| Biến | Mục đích | Bắt buộc |
-|---|---|---|
-| `DB_URL`, `DB_USERNAME`, `DB_PASSWORD` | PostgreSQL | Backend |
-| `JWT_ACCESS_SECRET` | Ký access JWT; Base64 ≥32 byte | Backend |
-| `JWT_ACCESS_MINUTES`, `JWT_REFRESH_DAYS` | Thời hạn token | Mặc định 15 phút/30 ngày |
-| `IMAGE_STORAGE_ROOT` | Thư mục ảnh private ngoài web root | Có mặc định local; cấu hình rõ khi triển khai |
-| `SERVER_ADDRESS`, `SERVER_PORT` | Bind local; profile prod khóa address loopback | Có mặc định |
-| `FCM_ENABLED` | Bật Admin sender trong prod | Local mặc định tắt; prod có mặc định riêng |
-| `GOOGLE_APPLICATION_CREDENTIALS` | Admin JSON chỉ server đọc | Khi bật FCM |
-| `MAIL_HOST`, `MAIL_PORT`, `MAIL_USERNAME`, `MAIL_PASSWORD`, `MAIL_FROM` | SMTP STARTTLS | Khi dùng xác minh/recovery email |
-| `TRUSTED_PROXY_REGEX` | Proxy tin cậy trong prod | Khi thay topology proxy mặc định |
+## Tài liệu phát triển
 
-`TAKTAK_DEBUG_BASE_URL` / `TAKTAK_RELEASE_BASE_URL` là **Gradle properties** (`-P`), không phải biến backend.
+| Nội dung | Tài liệu |
+|---|---|
+| API tài khoản và email | [Auth](docs/AUTH_API.md) · [Recovery](docs/ACCOUNT_RECOVERY.md) |
+| API bạn bè, khoảnh khắc và chat | [Friends](docs/FRIEND_RELATIONS_API.md) · [Moments](docs/MOMENT_API.md) · [Chat](docs/CHAT_API.md) |
+| Firebase và AI | [FCM setup](docs/FIREBASE_SETUP.md) · [Taktak AI](docs/AI_CHATBOT.md) |
+| Triển khai và bảo trì | [VPS](docs/DEPLOYMENT_GUIDE.md) · [Maintenance](deploy/MAINTENANCE.md) |
+| Độ tin cậy và vận hành | [Outbox](docs/RELIABILITY_OUTBOX.md) · [Observability](docs/OBSERVABILITY.md) · [Compatibility](docs/CLIENT_SERVER_COMPATIBILITY.md) |
+| Quyền riêng tư | [Lưu trữ và xóa dữ liệu](docs/PRIVACY_AND_RETENTION.md) |
+| Kiểm thử | [Chuẩn bị QA](docs/QA_BOOTSTRAP.md) · [Trạng thái dự án](docs/PROJECT_STATUS.md) |
 
-## API
+Backend có thể kiểm thử bằng `mvnw.cmd verify` trong `server/` với JDK 17. Android có các tác vụ `testDebugUnitTest`, `lintDebug` và instrumentation trên emulator/thiết bị. Dùng database và tài khoản QA riêng; xem hướng dẫn của từng suite trước khi chạy.
 
-API nghiệp vụ cần Bearer JWT và kiểm tra quyền server. Bảng rút gọn từ controller:
-
-| Method | Endpoint | Mục đích / xác thực |
-|---|---|---|
-| POST | `/api/auth/register`, `/api/auth/login` | Tạo tài khoản/đăng nhập; không yêu cầu access JWT |
-| GET | `/api/auth/check-username` | Username khả dụng; public, response no-store |
-| POST | `/api/auth/refresh`, `/api/auth/logout` | Refresh credential trong body; không cần access JWT còn hạn |
-| POST | `/api/auth/verification/request`, `/api/auth/verification/confirm` | Mật khẩu hiện tại và mã xác minh theo từng bước |
-| POST | `/api/auth/forgot-password`, `/api/auth/reset-password` | Recovery; reset cần credential dùng một lần |
-| GET / PUT | `/api/users/me` | Hồ sơ của mình; JWT |
-| POST / GET | `/api/users/me/avatar` | Tải lên/đọc avatar của mình; JWT |
-| GET | `/api/users/{id}/avatar` | Avatar theo quyền server; JWT |
-| GET | `/api/users/search` | Tìm username, lọc block; JWT |
-| GET / POST | `/api/friends/requests` | Lời mời đến/gửi lời mời; JWT |
-| PUT | `/api/friends/requests/{id}` | Chấp nhận/từ chối; JWT người nhận |
-| GET / DELETE | `/api/friends`, `/api/friends/{id}` | Danh sách/hủy bạn; JWT |
-| POST / DELETE | `/api/blocks/{userId}` | Chặn/bỏ chặn; JWT |
-| POST / GET | `/api/moments` | Upload multipart/lịch sử; JWT |
-| GET | `/api/moments/latest`, `/api/moments/{id}/image` | Ảnh mới nhất/tải ảnh được phép; JWT |
-| DELETE | `/api/moments/{id}` | Xóa ảnh; chỉ sender |
-| GET / POST | `/api/devices` | Danh sách/đăng ký thiết bị; JWT |
-| DELETE | `/api/devices/{deviceId}` | Bỏ đăng ký thiết bị của mình; JWT |
-| GET | `/api/conversations`, `/api/conversations/{id}` | Inbox/chi tiết; JWT thành viên và quan hệ hợp lệ |
-| POST | `/api/conversations/with-friend/{friendId}` | Mở chat với bạn; JWT |
-| GET / POST | `/api/conversations/{id}/messages` | Đọc/gửi TEXT, MOMENT, MOMENT_REPLY; JWT |
-| PUT | `/api/conversations/{id}/read` | Đánh dấu đã đọc; JWT |
-
-Schema, validation và mã lỗi: [Auth](docs/AUTH_API.md), [Recovery](docs/ACCOUNT_RECOVERY.md), [Friends](docs/FRIEND_RELATIONS_API.md), [Moments](docs/MOMENT_API.md), [Chat](docs/CHAT_API.md), [Errors](docs/API_ERRORS.md).
-
-## Kiểm thử
-
-Từ repository root, dùng JDK đúng cho từng project:
-
-```powershell
-. .\scripts\Use-TaktakJava.ps1 -Target Server
-Push-Location server
-.\mvnw.cmd verify
-Pop-Location
-
-. .\scripts\Use-TaktakJava.ps1 -Target Android
-Push-Location android-client
-.\gradlew.bat "-Dorg.gradle.java.home=$env:JAVA_HOME" `
-  "-Porg.gradle.java.installations.paths=$env:JAVA_HOME" `
-  -Porg.gradle.java.installations.auto-detect=false `
-  -PTAKTAK_DEBUG_BASE_URL=http://10.0.2.2:8080/ `
-  testDebugUnitTest assembleDebug assembleDebugAndroidTest
-Pop-Location
-```
-
-Integration tests server dùng PostgreSQL nhúng; không cần trỏ test vào DB production. Trên AVD QA riêng, sau khi cài app và test APK:
-
-```powershell
-adb -s '<avd-serial>' shell am instrument -w -r `
-  -e taktak.allowReplyQa true `
-  -e class com.taktak.app.ui.theme.MomentReplyUiTest `
-  com.taktak.app.test/androidx.test.runner.AndroidJUnitRunner
-```
-
-Không chạy toàn bộ instrumentation tùy tiện trên điện thoại có tài khoản cá nhân: từng suite có fixture/opt-in riêng. Xem [QA bootstrap](docs/QA_BOOTSTRAP.md). Lần đầu cần mạng tải dependency; chỉ dùng `--offline` khi cache đầy đủ.
-
-Kết quả đã ghi nhận trước đó: backend **191/191** (`mvn verify`), Android JVM
-**127/127**, build debug/test/release unsigned đã đạt. Bộ shell bảo trì **12/12**,
-kiểm thử restore SQL/HTTP **4/4** và diễn tập native QA đạt. Xem
-[QA tổng hợp](docs/QA_ACCEPTANCE_ALL.md) và [QA restore](docs/QA_RESTORE_SECURITY.md).
-Đây là kết quả đã ghi nhận, **không phải các suite vừa chạy lại để sửa README**.
-Lượt Android ngày **23/10/2026**: JVM **135/135**, lint debug **0 error/85 warning**,
-USB **22/22** ca hồi quy và lượt launcher riêng **1/1** đạt. Có xác nhận nghe
-soundtrack intro gốc; xem [hồ sơ intro](docs/QA_BRANDED_INTRO_20261023.md).
-179 lỗi MissingTranslation cũ đã sửa, không còn là trạng thái hiện tại.
-Không coi kết quả Android này là chạy lại backend, release signing hay QA toàn
-ứng dụng. Không có tuyên bố coverage hoặc badge CI xanh.
-
-Lượt chụp README ngày **21/10/2026**: AVD Medium_Phone API 37, 1080×2400;
-**9/9 ca UI chính đạt (213,849s)** và **3/3 ca bổ sung đạt (72,178s)**.
-Tận dụng suite có sẵn, không sửa source hoặc build lại ở lượt tài liệu này.
-Widget 2×2 được thêm qua launcher thật, ảnh chỉ xác nhận trạng thái chưa đăng nhập;
-Camera trong ảnh riêng đang khởi tạo, còn ảnh Preview là kết quả chụp cảnh ảo
-vào cache qua CameraX. Không gửi ảnh ra Internet hoặc lưu gallery.
-Log local ignored: `.local/artifacts/readme-screenshots-avd-final.log` và
-`readme-screenshots-extra.log`. Lượt đầu dùng sai cấu hình userdata làm user
-RUNNING_LOCKED, 8 ca không đạt; đã giữ log `readme-screenshots-avd.log`, sửa
-đường dẫn file userdata QA rồi chạy lại. Không coi lỗi môi trường đó là PASS.
-Lượt cập nhật README chỉ kiểm tra tài liệu/liên kết; không chạy lại ứng dụng,
-gửi email, FCM hoặc deploy. Các lần nghiệm thu vận hành sau lượt chụp ảnh được
-ghi riêng trong hồ sơ QA; ảnh minh họa ở trên không thay thế những bằng chứng đó.
-
-## Bảo mật và quyền riêng tư
-
-- Mật khẩu BCrypt; server chỉ lưu hash refresh token. Reset tăng security version để từ chối JWT cũ ở request mới.
-- Kiểm tra sender/recipient, bạn bè và block; không public image URL.
-- Kiểm tra định dạng ảnh thực tế và xử lý trước lưu private; xóa thu hồi truy cập mới.
-- Phiên Android mã hóa; release chặn cleartext, yêu cầu HTTPS.
-- Không tự lưu gallery. Push không mang credential hoặc nội dung riêng tư.
-- Không đưa .env, config Firebase, Admin JSON, keystore hoặc mật khẩu SMTP vào Git/log/README.
-
-Các cơ chế này không thay thế security review/nghiệm thu triển khai; không cam kết an toàn tuyệt đối.
-
-## Triển khai
-
-Bắt đầu với [runbook bảo trì hiện hành](deploy/MAINTENANCE.md), sau đó [hướng dẫn triển khai VPS](docs/DEPLOYMENT_GUIDE.md) và [hướng dẫn sử dụng VPS Ubuntu](docs/HUONG_DAN_SU_DUNG_VPS_UBUNTU.md). Repository có Nginx/TLS/systemd và phương án Docker Compose.
-
-Chuẩn bị domain/TLS, database private, user non-root, secret ngoài Git, quyền thư mục ảnh và backup đã thử phục hồi. Không chạy setup/update/restore chỉ để xem demo. Update có thể áp Flyway; rollback JAR không tự đảo schema.
-
-Runbook native/Docker có giới hạn nghiệm thu riêng. Reply cần backend từ V5 và
-client tương thích; kiểm tra schema/binary thực tế trước khi cài APK mới.
-Push mã nguồn không tự cập nhật JAR hoặc chạy migration production.
-
-Outbox cần schema V6. Bản restore mới hòa giải version phiên, giữ credential
-hiện tại, thu hồi refresh và để service cách ly cho đến khi operator review.
-`RESTORE_QUARANTINED` không phải tín hiệu được phép mở traffic. Script/SQL và
-guard production đã được [cài, xác minh](docs/QA_RESTORE_PRODUCTION_ROLLOUT.md),
-không restart ứng dụng hoặc restore database production trong lượt rollout đó.
-
-## Giới hạn hiện tại
-
-- Còn lỗi bản dịch/lint, audit accessibility và một số kiểm tra UI trên thiết bị thật.
-- Chưa khép nghiệm thu chat/reply hai tài khoản qua VPS, widget launcher/OEM và SMTP từ service VPS.
-- Chưa đủ bằng chứng cho process-crash outbox, mixed-version/rollback, tải dài hạn hoặc cảnh báo vận hành thực.
-
-Chi tiết: [PROJECT_STATUS](docs/PROJECT_STATUS.md), [TASKS](docs/TASKS.md) và
-[SESSION_HANDOFF](docs/SESSION_HANDOFF.md). Không suy ra phần trăm hoàn thành từ số module.
-
-## Độ tin cậy và vận hành
-
-Push ảnh/tin nhắn được đưa vào transactional outbox để retry khi Firebase lỗi;
-ảnh đã lưu vẫn truy cập qua API có xác thực. Cache ảnh RAM gắn với phiên và
-không thay thế kiểm tra quyền server. Có request ID, metric và runbook điều tra
-không ghi nội dung riêng tư.
-
-Xem [kết quả hardening local](docs/QA_SYSTEM_HARDENING.md),
-[outbox](docs/RELIABILITY_OUTBOX.md), [cập nhật/rollback](docs/CLIENT_SERVER_COMPATIBILITY.md),
-[quan sát hệ thống](docs/OBSERVABILITY.md), [đo tải](docs/PERFORMANCE.md),
-[lưu/xóa dữ liệu](docs/PRIVACY_AND_RETENTION.md) và
-[review/onboarding](docs/ENGINEERING_PLAYBOOK.md).
-FCM thật và rollout guard đã có bằng chứng riêng; các cơ chế này chưa thay thế
-nghiệm thu crash/restart, cảnh báo, capacity và khả năng khôi phục toàn hệ thống.
+Các báo cáo QA ghi rõ phạm vi và thời điểm kiểm thử. Source có tính năng không đồng nghĩa tính năng đó đã được triển khai hoặc nghiệm thu trên mọi thiết bị/VPS.
 
 ## Nhóm phát triển
 
 **Nhóm 3**
 
-1. Nguyễn Xuân Trường
-2. Nguyễn Nam Tiến
-3. Nguyễn Hữu Đức
-4. Nguyễn Công Thuần
-5. Tống Việt Hà
+- Nguyễn Xuân Trường
+- Nguyễn Nam Tiến
+- Nguyễn Hữu Đức
+- Nguyễn Công Thuần
+- Tống Việt Hà
 
 ## Đóng góp
 
-Đọc [AGENTS.md](AGENTS.md) và [PROJECT_DECISIONS.md](docs/PROJECT_DECISIONS.md). Giữ Java/XML, định danh và stack đã khóa; làm thay đổi nhỏ có kiểm thử, không đưa secret vào Git. Quy ước nhánh: `feat/`, `fix/`, `docs/`, `chore/`. Đề xuất gửi pull request để review; đây không phải branch protection đã được xác minh.
+Tham khảo [quy ước dự án](AGENTS.md) và [quyết định kỹ thuật](docs/PROJECT_DECISIONS.md) trước khi thay đổi. Gửi pull request với mô tả và kết quả kiểm thử liên quan; không đưa credentials, Firebase Admin JSON, keystore hoặc cấu hình bí mật vào Git.
 
-## Giấy phép và liên hệ
-
-Chưa tìm thấy LICENSE; không mặc định dự án có giấy phép MIT hay giấy phép mã nguồn mở khác.
-
-<!-- TODO: Bổ sung thông tin giấy phép sử dụng -->
-<!-- TODO: Bổ sung email liên hệ chính thức -->
+Repository chưa có file LICENSE quy định quyền sử dụng và phân phối.
