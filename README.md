@@ -6,7 +6,7 @@
 
 **Chia sẻ khoảnh khắc, kết nối những người thân thương.**
 
-Taktak là ứng dụng Android để chia sẻ ảnh với bạn bè trong một không gian riêng tư. Mở camera, chụp một tấm ảnh, thêm lời nhắn và chọn người nhận. Khoảnh khắc mới có thể xuất hiện ngay trên widget màn hình chính của bạn bè.
+Taktak là ứng dụng Android để chia sẻ ảnh và video ngắn với bạn bè. Chạm để chụp ảnh hoặc giữ nút chụp để quay clip tối đa 3 giây, sau đó thêm lời nhắn và chọn người nhận. Khoảnh khắc mới có thể xuất hiện trên widget màn hình chính của bạn bè.
 
 Ứng dụng không có bảng tin công khai. Ảnh được lưu trên máy chủ riêng và chỉ người có quyền mới truy cập được qua API xác thực.
 
@@ -16,31 +16,21 @@ Taktak là ứng dụng Android để chia sẻ ảnh với bạn bè trong mộ
 
 <table>
   <tr>
-    <td align="center"><img src="docs/screenshots/login.png" width="210" alt="Màn hình đăng nhập"><br>Đăng nhập</td>
-    <td align="center"><img src="docs/screenshots/register.png" width="210" alt="Màn hình đăng ký"><br>Đăng ký</td>
-    <td align="center"><img src="docs/screenshots/preview.png" width="210" alt="Xem trước ảnh chụp"><br>Xem trước khoảnh khắc</td>
-  </tr>
-  <tr>
-    <td align="center"><img src="docs/screenshots/history-received.png" width="210" alt="Lịch sử ảnh đã nhận"><br>Lịch sử</td>
-    <td align="center"><img src="docs/screenshots/friends.png" width="210" alt="Danh sách bạn bè"><br>Bạn bè</td>
-    <td align="center"><img src="docs/screenshots/profile.png" width="210" alt="Hồ sơ cá nhân"><br>Hồ sơ</td>
-  </tr>
-  <tr>
-    <td align="center"><img src="docs/screenshots/messages.png" width="210" alt="Danh sách tin nhắn"><br>Tin nhắn</td>
-    <td align="center"><img src="docs/screenshots/photo-reply.png" width="210" alt="Trả lời khoảnh khắc trong chat riêng"><br>Trả lời ảnh</td>
-    <td align="center"><img src="docs/screenshots/theme-picker.png" width="210" alt="Chọn giao diện ứng dụng"><br>Tùy chỉnh giao diện</td>
+    <td align="center"><img src="docs/screenshots/readme/login.png" width="210" alt="Màn hình đăng nhập"><br>Đăng nhập</td>
+    <td align="center"><img src="docs/screenshots/readme/preview-poll.png" width="210" alt="Chọn người nhận và thêm câu hỏi bình chọn trong màn xem trước"><br>Chọn người nhận và tạo Poll</td>
+    <td align="center"><img src="docs/screenshots/readme/widget-launcher.png" width="210" alt="Widget Taktak 2×2 trên màn hình chính ở trạng thái chưa đăng nhập"><br>Widget màn hình chính</td>
   </tr>
 </table>
 
-Ảnh chụp từ ứng dụng trên emulator với dữ liệu thử nghiệm. Đây là bộ ảnh minh họa đã lưu trong repository; một số chi tiết có thể khác giao diện mới nhất.
+Ảnh chụp từ bản QA ngày 16/11/2026 trên máy ảo, dùng dữ liệu thử nghiệm.
 
 ## Tính năng
 
 ### Chụp và chia sẻ khoảnh khắc
 
 - Chụp ảnh vuông, đổi camera trước/sau và sử dụng flash khi thiết bị hỗ trợ.
-- Xem trước, chụp lại, thêm caption tối đa 50 ký tự và chọn một hoặc nhiều người nhận.
-- Lưu khoảnh khắc chỉ cho mình hoặc gửi riêng cho bạn bè.
+- Xem trước, chụp lại, thêm chú thích tối đa 50 ký tự hoặc trang trí bằng nét vẽ, sticker và thẻ ngữ cảnh.
+- Chọn người nhận trước khi gửi hoặc lưu khoảnh khắc chỉ cho mình.
 - Xem lịch sử Đã nhận/Đã gửi, mở ảnh toàn màn hình và lưu vào thư viện khi muốn.
 - Xóa khoảnh khắc đã gửi; server thu hồi quyền tải ảnh ở những yêu cầu tiếp theo.
 
@@ -76,18 +66,14 @@ Trò chuyện với trợ lý Gemini trong ứng dụng, quản lý lịch sử 
 
 Nội dung cuộc trò chuyện AI được gửi tới Google khi người dùng đồng ý. Ảnh riêng tư và tin nhắn giữa bạn bè không được tự động đưa vào cuộc trò chuyện AI. API key chỉ nằm trên server.
 
-### Các tính năng nâng cao đang hoàn thiện nghiệm thu
-
-Repository đã có triển khai cho:
+### Gửi khi mất mạng, camera kép và bình chọn
 
 | Tính năng | Trải nghiệm |
 |---|---|
 | Offline Outbox | Hàng đợi gửi khoảnh khắc và thử lại khi kết nối trở lại |
 | Dual Camera | Ghép ảnh camera trước/sau; có phương án chụp tuần tự theo khả năng thiết bị |
-| Photo Poll | Tạo bình chọn gắn với khoảnh khắc |
-| Live Moment | Chạm nút chụp để chụp ảnh, giữ để quay clip ngắn 3 giây |
-
-Các tính năng này còn ca kiểm thử đầu cuối và vòng đời cần hoàn tất, chưa được coi là đã nghiệm thu toàn bộ trên production. Xem [hồ sơ kiểm thử tính năng nâng cao](docs/QA_ADVANCED4_20261114.md).
+| Photo Poll | Gắn bình chọn hai lựa chọn vào ảnh. Người nhận bỏ phiếu, chủ ảnh có thể đóng bình chọn |
+| Live Moment | Chạm để chụp, giữ để quay tối đa 3 giây hoặc thả tay để dừng sớm |
 
 ## Công nghệ và kiến trúc
 
@@ -189,7 +175,7 @@ APK debug nằm tại `android-client/app/build/outputs/apk/debug/app-debug.apk`
 | Emulator gọi backend trên máy tính | `http://10.0.2.2:8080/` |
 | Điện thoại USB, sau khi chạy `adb reverse tcp:8080 tcp:8080` | `http://127.0.0.1:8080/` |
 | Backend triển khai | URL HTTPS của server |
-| Release build | Truyền `-PTAKTAK_RELEASE_BASE_URL=https://<your-api-host>/` và cấu hình ký APK |
+| Release build | Chạy `assembleRelease` với `-PTAKTAK_RELEASE_BASE_URL=https://<your-api-host>/`, sau đó ký APK bằng khóa phát hành |
 
 Base URL cần dấu `/` cuối. HTTP chỉ dành cho debug local được cho phép; release bắt buộc HTTPS. `google-services.json` phía Android không phải Firebase Admin private key.
 
