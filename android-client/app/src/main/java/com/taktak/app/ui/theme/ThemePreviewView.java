@@ -14,7 +14,7 @@ public final class ThemePreviewView extends View {
     private final Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
     private final RectF rect = new RectF();
     private AppTheme style = AppTheme.ORIGINAL;
-    private int background, ink, primary, start, end;
+    private int background, ink, primary, onPrimary, start, end;
     private Shader gradient;
     public ThemePreviewView(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -31,6 +31,7 @@ public final class ThemePreviewView extends View {
         background = color(themed, com.google.android.material.R.attr.colorSurface);
         ink = color(themed, com.google.android.material.R.attr.colorOnSurface);
         primary = color(themed, androidx.appcompat.R.attr.colorPrimary);
+        onPrimary = color(themed, com.google.android.material.R.attr.colorOnPrimary);
         start = color(themed, R.attr.ttPreviewStart);
         end = color(themed, R.attr.ttPreviewEnd);
         updateShader();
@@ -59,14 +60,21 @@ public final class ThemePreviewView extends View {
             canvas.drawRoundRect(rect, radius, radius, paint);
             paint.setStyle(Paint.Style.FILL);
         }
-        paint.setColor(MaterialColors.layer(background, ink, .7f));
-        rect.set(width * .16f, height * .26f, width * .62f, height * .32f);
-        canvas.drawRoundRect(rect, radius, radius, paint);
-        paint.setColor(MaterialColors.layer(background, ink, .24f));
+        paint.setColor(ink);
+        paint.setTextSize(Math.min(width * .12f, height * .14f));
+        paint.setTypeface(Typeface.create(Typeface.DEFAULT, Typeface.BOLD));
+        canvas.drawText(getResources().getString(R.string.app_name), width * .16f, height * .33f, paint);
+        paint.setColor(MaterialColors.layer(background, ink, .12f));
         rect.set(width * .16f, height * .41f, width * .82f, height * .52f);
         canvas.drawRoundRect(rect, radius, radius, paint);
+        paint.setTypeface(Typeface.DEFAULT);
+        paint.setTextSize(Math.min(width * .065f, height * .085f));
+        paint.setColor(ink);
+        canvas.drawText(getResources().getString(R.string.auth_email), width * .2f, height * .49f, paint);
         paint.setColor(primary);
         rect.set(width * .16f, height * .64f, width * .76f, height * .76f);
         canvas.drawRoundRect(rect, radius, radius, paint);
+        paint.setColor(onPrimary);
+        canvas.drawText(getResources().getString(R.string.auth_login), width * .2f, height * .73f, paint);
     }
 }

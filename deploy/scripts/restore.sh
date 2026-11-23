@@ -44,7 +44,8 @@ for name in db.dump private-images.tar.gz app.env; do
 done
 pg_restore --list "$STAGE/db.dump" >/dev/null
 while IFS= read -r name; do
-    [[ "$name" = private-images/ || "$name" = private-images/avatars/ || "$name" =~ ^private-images/(avatars/)?[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}\.jpg$ ]] || die 'Unsafe image entry.'
+    if [[ "$name" = private-images/ || "$name" = private-images/avatars/ ]]; then continue; fi
+    [[ "$name" = private-images/* ]] && valid_private_media_path "${name#private-images/}" || die 'Unsafe media entry.'
 done < <(tar -tzf "$STAGE/private-images.tar.gz")
 [[ -z "$(tar -tvzf "$STAGE/private-images.tar.gz" | awk 'substr($0,1,1)!="-" && substr($0,1,1)!="d" {print}')" ]] || die 'Image links rejected.'
 tar -xzf "$STAGE/private-images.tar.gz" --no-same-owner --no-same-permissions -C "$STAGE"
@@ -77,9 +78,9 @@ DB_APPLIED=1
         -q --single-transaction -v ON_ERROR_STOP=1 > /dev/null 2> "$STAGE/reconcile-error.log" \
     || die 'Security reconciliation failed; rolling back while quarantined.'
 PGPASSWORD="$DB_PASSWORD" psql -h "$DB_HOST" -p "$DB_PORT" -U "$DB_USER" -d "$DB_NAME" -v ON_ERROR_STOP=1 -At \
-    -c "SELECT file_path FROM moments WHERE deleted_at IS NULL UNION ALL SELECT 'avatars/' || avatar_path FROM users WHERE avatar_path IS NOT NULL" > "$STAGE/active-images.txt"
+    -c "SELECT file_path FROM moments WHERE deleted_at IS NULL UNION ALL SELECT video_path FROM moments WHERE deleted_at IS NULL AND video_path IS NOT NULL UNION ALL SELECT 'avatars/' || avatar_path FROM users WHERE avatar_path IS NOT NULL" > "$STAGE/active-images.txt"
 while IFS= read -r name; do
-    [[ "$name" =~ ^(avatars/)?[a-f0-9-]{36}\.jpg$ && -f "$STAGE/private-images/$name" ]] || die 'Database references a missing/unsafe image.'
+    valid_private_media_path "$name" && [[ -f "$STAGE/private-images/$name" ]] || die 'Database references a missing/unsafe media file.'
 done < "$STAGE/active-images.txt"
 mv -- "$IMAGE_DIR" "$BEFORE_IMAGES"; OLD_IMAGES=1
 mv -- "$STAGE/private-images" "$IMAGE_DIR"; NEW_IMAGES=1

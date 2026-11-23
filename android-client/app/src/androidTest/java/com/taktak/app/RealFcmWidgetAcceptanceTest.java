@@ -71,10 +71,19 @@ public class RealFcmWidgetAcceptanceTest {
     @Test public void realCloudPushUpdatesBoundWidgetInBackgroundThenDeletionAndLogoutClearIt() throws Exception {
         org.junit.Assume.assumeTrue("Real Firebase requires explicit integration opt-in",
                 "true".equals(InstrumentationRegistry.getArguments().getString("taktakRealFcm")));
-        var receiver=AuthGraph.repository(context);assertFalse("Không thay tài khoản cá nhân",receiver.hasSession());
+        var originalReceiver=AuthGraph.repository(context);assertFalse("Không thay tài khoản cá nhân",originalReceiver.hasSession());
+        final AuthRepository receiver;
+        String qaBase=InstrumentationRegistry.getArguments().getString("taktak.widgetBaseUrl");
+        var graph=AuthGraph.class.getDeclaredField("repository");graph.setAccessible(true);
+        Object previous=graph.get(null);
+        if(qaBase!=null) {
+            assertTrue("Only dedicated loopback QA backend allowed",qaBase.matches("http://127\\.0\\.0\\.1:[1-9][0-9]{3,4}/"));
+            receiver=AuthGraph.createRepository(context,new ApiClient(qaBase,new Memory()));
+            graph.set(null,receiver);
+        } else { receiver=originalReceiver; }
         if(android.os.Build.VERSION.SDK_INT>=37) InstrumentationRegistry.getInstrumentation().getUiAutomation().grantRuntimePermission(context.getPackageName(),"android.permission.ACCESS_LOCAL_NETWORK");
         InstrumentationRegistry.getInstrumentation().getUiAutomation().grantRuntimePermission(context.getPackageName(),"android.permission.CAMERA");
-        var sender=new AuthRepository(new ApiClient(BuildConfig.BASE_URL,new Memory()));
+        var sender=new AuthRepository(new ApiClient(qaBase!=null?qaBase:BuildConfig.BASE_URL,new Memory()));
         AppWidgetHost host=new AppWidgetHost(context,65018);int widgetId=0;boolean receiverOwned=false,senderOwned=false;
         var ownedMoments=new ArrayList<String>();
         var created=new CopyOnWriteArrayList<String>();var deleted=new CopyOnWriteArrayList<String>();
@@ -105,10 +114,13 @@ public class RealFcmWidgetAcceptanceTest {
                 }
                 SessionRoutingTest.awaitView(R.id.bottomNavigation);
             }
-            try(var scenario=ActivityScenario.launch(MainActivity.class)) {
-                SessionRoutingTest.awaitView(R.id.bottomNavigation);
+            var hostIntent=new Intent(context,qaBase!=null?com.taktak.app.qa.WidgetQaHostActivity.class:MainActivity.class);
+            try(ActivityScenario<android.app.Activity> scenario=ActivityScenario.launch(hostIntent)) {
+                if(qaBase==null)SessionRoutingTest.awaitView(R.id.bottomNavigation);
                 var reference=new AtomicReference<AppWidgetHostView>();
+                var hostTask=new java.util.concurrent.atomic.AtomicInteger();
                 scenario.onActivity(activity -> {
+                    hostTask.set(activity.getTaskId());
                     // Context app dùng inflater framework như launcher, không Factory2 AppCompat của Activity.
                     host.startListening();var widget=host.createView(context,boundId,manager.getAppWidgetInfo(boundId));
                     activity.addContentView(widget,new ViewGroup.LayoutParams(600,600));reference.set(widget);
@@ -143,6 +155,13 @@ public class RealFcmWidgetAcceptanceTest {
                     });return empty.get();
                 },"Widget removes deleted images");
                 captureWidget(widget,"deleted-empty");
+                try(var descriptor=InstrumentationRegistry.getInstrumentation().getUiAutomation()
+                        .executeShellCommand("am task focus "+hostTask.get());
+                    var input=new android.os.ParcelFileDescriptor.AutoCloseInputStream(descriptor)) {
+                    String result=new String(input.readAllBytes(),java.nio.charset.StandardCharsets.UTF_8);
+                    assertFalse("QA host task must return to foreground",result.contains("Error"));
+                }
+                await(()->visible(widget,R.id.widget_empty_container),"QA host visible again before logout");
                 phase("logout_receiver");
                 receiver.logout(context);receiverOwned=false;
                 await(() -> {
@@ -151,6 +170,12 @@ public class RealFcmWidgetAcceptanceTest {
                     });return loggedOut.get();
                 },"Widget clears on logout");
                 captureWidget(widget,"logged-out");
+                InstrumentationRegistry.getInstrumentation().runOnMainSync(()->{
+                    var title=(android.widget.TextView)widget.findViewById(R.id.widget_logged_out_title);
+                    assertTrue("Logout title must actually be shown",title.isShown());
+                    assertEquals(context.getString(R.string.widget_logged_out_title),title.getText().toString());
+                    assertTrue("Logout title must have measured content",title.getWidth()>0&&title.getHeight()>0);
+                });
             }
         } finally {
             phase("cleanup");
@@ -160,7 +185,8 @@ public class RealFcmWidgetAcceptanceTest {
                 catch(Exception failure) { android.util.Log.w("TaktakOpsQA","QA image cleanup incomplete"); }
             }
             PushEventBus.unregister(listener);host.stopListening();if(widgetId!=0)host.deleteAppWidgetId(widgetId);
-            if(receiverOwned)receiver.logout(context);if(senderOwned)sender.logout();
+            try {if(receiverOwned)receiver.logout(context);if(senderOwned)sender.logout();}
+            finally {if(qaBase!=null)graph.set(null,previous);}
         }
     }
 }

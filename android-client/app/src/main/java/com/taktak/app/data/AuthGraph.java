@@ -17,15 +17,21 @@ public final class AuthGraph {
             try {
                 Context app = context.getApplicationContext();
                 var client = new ApiClient(BuildConfig.BASE_URL, new EncryptedSessionStore(app, BuildConfig.BASE_URL));
-                client.sessions.setOnCleared(() -> {
-                    com.taktak.app.ui.history.HistoryImageCache.clear();
-                    com.taktak.app.data.push.PushEventBus.emitSessionCleared();
-                    com.taktak.app.data.push.ChatNotifications.clear(app);
-                    com.taktak.app.widget.WidgetUpdater.clearForLogout(app);
-                });
-                repository = new AuthRepository(client);
+                repository = createRepository(app, client);
             } catch (IOException failure) { throw new ApiFailure(ApiFailure.Kind.STORAGE); }
         }
         return repository;
+    }
+
+    /** Dùng chung cleanup phiên cho graph thật và transport QA được inject. */
+    public static AuthRepository createRepository(Context context, ApiClient client) {
+        Context app=context.getApplicationContext();
+        client.sessions.setOnCleared(() -> {
+            com.taktak.app.ui.history.HistoryImageCache.clear();
+            com.taktak.app.data.push.PushEventBus.emitSessionCleared();
+            com.taktak.app.data.push.ChatNotifications.clear(app);
+            com.taktak.app.widget.WidgetUpdater.clearForLogout(app);
+        });
+        return new AuthRepository(client);
     }
 }

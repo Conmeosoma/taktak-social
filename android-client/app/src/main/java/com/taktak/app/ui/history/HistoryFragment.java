@@ -76,8 +76,7 @@ public final class HistoryFragment extends Fragment {
 
         binding.historyRefresh.setOnClickListener(v -> model.refresh());
 
-        binding.btnViewRecap.setOnClickListener(v -> showRecapDialog());
-        binding.historyMemoriesCard.setOnClickListener(v -> showRecapDialog());
+        binding.historyMemoriesCard.setVisibility(View.GONE);
 
         model.state().observe(getViewLifecycleOwner(), state -> {
             if (state.expired) {
@@ -122,6 +121,11 @@ public final class HistoryFragment extends Fragment {
         var outbox = com.taktak.app.data.outbox.OutboxRepository.getInstance(requireContext());
         outbox.getActiveTasks().observe(getViewLifecycleOwner(), tasks -> {
             if (binding == null) return;
+            try {
+                long generation = com.taktak.app.data.AuthGraph.repository(requireContext()).sessionGeneration();
+                if (tasks != null) tasks = tasks.stream().filter(task -> task.sessionGeneration == generation)
+                        .collect(java.util.stream.Collectors.toList());
+            } catch (java.io.IOException failure) { binding.outboxCard.setVisibility(View.GONE); return; }
             if (tasks == null || tasks.isEmpty()) {
                 binding.outboxCard.setVisibility(View.GONE);
             } else {
@@ -129,6 +133,7 @@ public final class HistoryFragment extends Fragment {
                 binding.outboxCard.setVisibility(View.VISIBLE);
                 Glide.with(this)
                         .load(task.thumbnailPath != null ? task.thumbnailPath : task.payloadPath)
+                        .diskCacheStrategy(com.bumptech.glide.load.engine.DiskCacheStrategy.NONE).skipMemoryCache(true)
                         .into(binding.outboxThumbnail);
 
                 if (task.status == com.taktak.app.data.outbox.OutboxStatus.UPLOADING) {
@@ -136,21 +141,25 @@ public final class HistoryFragment extends Fragment {
                     binding.outboxProgress.setIndeterminate(false);
                     binding.outboxProgress.setProgress(task.uploadProgress);
                     binding.outboxRetryButton.setVisibility(View.GONE);
-                } else if (task.status == com.taktak.app.data.outbox.OutboxStatus.FAILED_RETRYABLE) {
-                    binding.outboxStatusTitle.setText(R.string.outbox_status_failed);
+                } else if (task.status == com.taktak.app.data.outbox.OutboxStatus.FAILED_RETRYABLE
+                        || task.status == com.taktak.app.data.outbox.OutboxStatus.FAILED_PERMANENT) {
+                    binding.outboxStatusTitle.setText(task.status == com.taktak.app.data.outbox.OutboxStatus.FAILED_PERMANENT
+                            ? R.string.outbox_permanent_error : R.string.outbox_status_failed);
                     binding.outboxProgress.setIndeterminate(false);
                     binding.outboxProgress.setProgress(0);
-                    binding.outboxRetryButton.setVisibility(View.VISIBLE);
+                    binding.outboxRetryButton.setVisibility(task.status == com.taktak.app.data.outbox.OutboxStatus.FAILED_PERMANENT ? View.GONE : View.VISIBLE);
                 } else {
                     binding.outboxStatusTitle.setText(R.string.outbox_status_waiting_network);
                     binding.outboxProgress.setIndeterminate(true);
                     binding.outboxRetryButton.setVisibility(View.GONE);
                 }
                 String detail = task.caption != null && !task.caption.isEmpty() ? task.caption : task.mediaType;
-                binding.outboxStatusDetail.setText(detail);
+                binding.outboxStatusDetail.setText(getString(R.string.format_outbox_detail, getString(R.string.outbox_queue_count, tasks.size()), detail));
 
                 binding.outboxRetryButton.setOnClickListener(btn -> outbox.retry(task.id, task.sessionGeneration));
-                binding.outboxCancelButton.setOnClickListener(btn -> outbox.cancel(task.id, task.sessionGeneration));
+                binding.outboxCancelButton.setOnClickListener(btn -> new com.google.android.material.dialog.MaterialAlertDialogBuilder(requireContext())
+                        .setMessage(R.string.outbox_cancel_confirm).setNegativeButton(android.R.string.cancel, null)
+                        .setPositiveButton(R.string.outbox_cancel, (dialog, which) -> outbox.cancel(task.id, task.sessionGeneration)).show());
             }
         });
 
@@ -164,18 +173,6 @@ public final class HistoryFragment extends Fragment {
             long gen = com.taktak.app.data.AuthGraph.repository(requireContext()).sessionGeneration();
             com.taktak.app.data.outbox.OutboxRepository.getInstance(requireContext()).refreshActiveTasks(gen);
         } catch (Exception ignored) { }
-    }
-
-    private void showRecapDialog() {
-        String content = getString(R.string.recap_stat_moments) + "\n\n"
-                + getString(R.string.recap_stat_friends) + "\n\n"
-                + getString(R.string.recap_stat_streak);
-
-        new com.google.android.material.dialog.MaterialAlertDialogBuilder(requireContext())
-                .setTitle(R.string.recap_dialog_title)
-                .setMessage(content)
-                .setPositiveButton(R.string.recap_close, null)
-                .show();
     }
 
     @Override

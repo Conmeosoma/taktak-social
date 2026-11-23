@@ -67,7 +67,7 @@
     <string name="widget_2x2_name">Khoảnh khắc Taktak</string>
     <string name="widget_2x2_description">Hiển thị khoảnh khắc mới nhất nhận được từ bạn bè.</string>
     <string name="widget_4x2_name">Khoảnh khắc Taktak Toàn cảnh</string>
-    <string name="widget_4x2_description">Hiển thị ảnh kích thước rộng (4x2) kèm thả biểu cảm trực tiếp.</string>
+    <string name="widget_4x2_description">Hiển thị khoảnh khắc mới nhất từ bạn bè trong widget rộng (4x2).</string>
     <string name="widget_reacted">Đã thả biểu cảm %s!</string>
     <string name="widget_empty_title">Chưa có ảnh nào</string>
     <string name="widget_empty_subtitle">Chạm để mở Taktak</string>

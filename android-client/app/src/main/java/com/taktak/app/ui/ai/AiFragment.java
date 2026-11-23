@@ -131,11 +131,11 @@ public final class AiFragment extends Fragment {
             var params = (LinearLayout.LayoutParams) b.aiBubble.getLayoutParams();
             params.setMarginStart(dp(user ? 84 : 0)); params.setMarginEnd(dp(user ? 0 : chat ? 36 : 0)); b.aiBubble.setLayoutParams(params);
             b.aiBubble.setBackgroundResource(user ? R.drawable.ai_primary : R.drawable.ai_card);
-            b.aiText.setTextColor(requireContext().getColor(user ? R.color.ai_onbrand : R.color.ai_text));
+            b.aiText.setTextColor(com.google.android.material.color.MaterialColors.getColor(b.getRoot(), user ? com.google.android.material.R.attr.colorOnPrimary : R.attr.taktakColorTextPrimary));
             b.aiText.setTextIsSelectable(chat);
             if (chat) { b.aiText.setText(messages.get(pos).content); b.aiBubble.setOnClickListener(null); b.aiBubble.setOnLongClickListener(null); }
             else {
-                Conversation c = conversations.get(pos); b.aiText.setText(c.title + "\n" + HistoryTimeFormatter.format(requireContext(), c.updatedAt));
+                Conversation c = conversations.get(pos); b.aiText.setText(getString(R.string.format_ai_conversation, c.title, HistoryTimeFormatter.format(requireContext(), c.updatedAt)));
                 b.aiBubble.setOnClickListener(v -> model.open(c.id));
                 b.aiBubble.setOnLongClickListener(v -> { if (!model.state().getValue().busy) confirmDelete(c.id); return true; });
             }

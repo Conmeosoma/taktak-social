@@ -16,11 +16,13 @@ public abstract class RecoveryFormActivity extends AuthFormActivity {
     private ActivityRecoveryFormBinding binding;
     private RecoveryViewModel recovery;
     private boolean lastConfirm;
+    private boolean codeRequested;
     @Override protected void onCreate(Bundle saved) {
         com.taktak.app.ui.theme.ThemeManager.applyBeforeCreate(this,
                 new com.taktak.app.ui.theme.ThemePreferences(this).load(),
                 com.taktak.app.ui.theme.ThemeManager.ScreenRole.AUTH);
         super.onCreate(saved);
+        codeRequested = saved != null && saved.getBoolean("codeRequested");
         binding=ActivityRecoveryFormBinding.inflate(getLayoutInflater()); setContentView(binding.getRoot());
         configureInsets(binding.getRoot());
         configureAuthBars(binding.getRoot());
@@ -39,10 +41,10 @@ public abstract class RecoveryFormActivity extends AuthFormActivity {
         binding.emailLayout.setVisibility(mode()==CHANGE ? View.GONE : View.VISIBLE);
         binding.currentLayout.setVisibility(mode()==FORGOT ? View.GONE : View.VISIBLE);
         binding.currentLayout.setHint(mode()==CHANGE ? R.string.recovery_temporary : R.string.recovery_current);
-        binding.codeLayout.setVisibility(mode()==VERIFY ? View.VISIBLE : View.GONE);
+        binding.codeLayout.setVisibility(mode()==VERIFY && codeRequested ? View.VISIBLE : View.GONE);
         binding.newLayout.setVisibility(mode()==CHANGE ? View.VISIBLE : View.GONE);
         binding.confirmLayout.setVisibility(mode()==CHANGE ? View.VISIBLE : View.GONE);
-        if (mode() == VERIFY) {
+        if (mode() == VERIFY && codeRequested) {
             binding.confirmCode.setVisibility(View.VISIBLE);
             binding.submit.setBackgroundResource(R.drawable.taktak_btn_secondary_bg);
             binding.submit.setTextColor(com.google.android.material.color.MaterialColors.getColor(binding.getRoot(), R.attr.taktakColorTextPrimary));
@@ -61,6 +63,15 @@ public abstract class RecoveryFormActivity extends AuthFormActivity {
         recovery=new ViewModelProvider(this).get(RecoveryViewModel.class);
         recovery.state().observe(this,state -> {
             setLoading(state.loading);
+            if (mode()==VERIFY && state.message==R.string.recovery_code_sent) {
+                boolean first = !codeRequested;
+                codeRequested = true;
+                binding.codeLayout.setVisibility(View.VISIBLE);
+                binding.confirmCode.setVisibility(View.VISIBLE);
+                binding.submit.setBackgroundResource(R.drawable.taktak_btn_secondary_bg);
+                binding.submit.setTextColor(com.google.android.material.color.MaterialColors.getColor(binding.getRoot(), R.attr.taktakColorTextPrimary));
+                if (first) binding.codeInput.requestFocus();
+            }
             int message=state.message;
             if (message==0 && !state.loading && mode()==CHANGE && ResetSessionVault.peek()==null) {
                 message=R.string.recovery_expired;
@@ -82,6 +93,10 @@ public abstract class RecoveryFormActivity extends AuthFormActivity {
         if (mode()==CHANGE && ResetSessionVault.peek()==null) {
             binding.submit.setEnabled(false); binding.notice.setText(R.string.recovery_expired); binding.notice.setVisibility(View.VISIBLE);
         }
+    }
+    @Override protected void onSaveInstanceState(Bundle out) {
+        out.putBoolean("codeRequested", codeRequested);
+        super.onSaveInstanceState(out);
     }
     private void goLogin(boolean changed) {
         Intent intent=new Intent(this,LoginActivity.class).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);

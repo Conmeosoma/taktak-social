@@ -30,7 +30,7 @@ final class QrFixture implements AutoCloseable {
         client=new ApiClient("http://127.0.0.1:9/",memory);
         replace("users",UserApi.class);replace("friends",FriendApi.class);replace("devices",DeviceApi.class);
         graph=AuthGraph.class.getDeclaredField("repository");graph.setAccessible(true);
-        previous=graph.get(null);graph.set(null,new AuthRepository(client));
+        synchronized(AuthGraph.class){previous=graph.get(null);graph.set(null,new AuthRepository(client));}
     }
     private void replace(String field,Class<?> api)throws Exception {
         Object proxy=Proxy.newProxyInstance(api.getClassLoader(),new Class<?>[]{api},(target,method,args)->call(()->response(field,method.getName(),args)));
@@ -69,5 +69,5 @@ final class QrFixture implements AutoCloseable {
         case "execute"->response.get();case "clone"->call(response);case "isExecuted","isCanceled"->false;case "cancel"->null;case "timeout"->new okio.Timeout();
         case "request"->new Request.Builder().url("http://127.0.0.1:9/qa").build();default->"QR QA call";
     });}
-    @Override public void close()throws Exception{graph.set(null,previous);}
+    @Override public void close()throws Exception{synchronized(AuthGraph.class){graph.set(null,previous);}}
 }

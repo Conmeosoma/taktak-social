@@ -1,0 +1,21 @@
+<resources>
+    <string name="preview_preparing">Preparing image…</string>
+    <string name="preview_prepare_error">Could not save edits. Nothing was sent; please try again.</string>
+    <string name="preview_queued">Saved to the outbox. Track delivery and retry in History; delivery is not confirmed yet.</string>
+    <string name="preview_done">Back to Camera</string>
+    <string name="preview_selected_summary">%1$d recipients selected</string>
+    <string name="preview_poll_required">Enter a valid question and both options.</string>
+    <string name="preview_play_live">Play Live clip</string>
+    <string name="preview_video_error">Could not play this clip. Try opening the preview again.</string>
+    <string name="preview_add_sticker">Add sticker %1$s</string>
+    <string name="preview_color_white">White</string>
+    <string name="preview_color_yellow">Yellow</string>
+    <string name="preview_color_coral">Coral</string>
+    <string name="preview_color_mint">Mint</string>
+    <string name="preview_color_purple">Purple</string>
+    <string name="preview_color_selected">Selected</string>
+    <string name="outbox_permanent_error">Could not complete delivery. Check recipients and content before sending again.</string>
+    <string name="outbox_queue_count">%1$d items in outbox</string>
+    <string name="outbox_cancel_confirm">Stop sending this item? Content already received by the server may remain in History.</string>
+    <string name="poll_close_action">Close poll</string>
+</resources>

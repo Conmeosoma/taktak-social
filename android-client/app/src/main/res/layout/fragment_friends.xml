@@ -120,14 +120,16 @@
 
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/friendsRefresh"
-                        style="@style/Widget.Taktak.Button.Secondary"
-                        android:layout_width="0dp"
+                        style="@style/Widget.Taktak.Button.Ghost"
+                        android:layout_width="48dp"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="@dimen/taktak_space_sm"
-                        android:layout_weight="1"
+                        android:paddingHorizontal="0dp"
+                        app:icon="@drawable/ic_refresh" app:iconPadding="0dp" app:iconGravity="textStart"
+                        app:iconTint="?attr/taktakColorBrandPrimary"
                         android:minHeight="@dimen/taktak_btn_height_medium"
                         android:minWidth="0dp"
-                        android:text="@string/friends_refresh" />
+                        android:contentDescription="@string/friends_refresh" />
                 </LinearLayout>
 
                 <!-- QR Code Actions Row -->
@@ -140,7 +142,7 @@
 
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/friendsScanQr"
-                        style="@style/Widget.Taktak.Button.Secondary"
+                        style="@style/Widget.Taktak.Button.Ghost"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
@@ -149,11 +151,12 @@
                         android:text="@string/friends_scan_qr_btn"
                         app:icon="@drawable/ic_qr_scan"
                         app:iconGravity="textStart"
-                        app:iconSize="18dp" />
+                        app:iconSize="18dp" app:iconTint="?attr/taktakColorBrandPrimary"
+                        android:paddingHorizontal="4dp" />
 
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/friendsMyQr"
-                        style="@style/Widget.Taktak.Button.Secondary"
+                        style="@style/Widget.Taktak.Button.Ghost"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="@dimen/taktak_space_sm"
@@ -163,7 +166,8 @@
                         android:text="@string/friends_my_qr_btn"
                         app:icon="@drawable/ic_qr_code"
                         app:iconGravity="textStart"
-                        app:iconSize="18dp" />
+                        app:iconSize="18dp" app:iconTint="?attr/taktakColorBrandPrimary"
+                        android:paddingHorizontal="4dp" />
                 </LinearLayout>
 
                 <!-- Progress Indicator -->

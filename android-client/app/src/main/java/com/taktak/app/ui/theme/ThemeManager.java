@@ -101,7 +101,11 @@ public final class ThemeManager {
 
     public static void configureBars(AppCompatActivity activity, android.view.View root, int surface) {
         var bars = androidx.core.view.WindowCompat.getInsetsController(activity.getWindow(), root);
-        boolean light = androidx.core.graphics.ColorUtils.calculateLuminance(surface) > .5;
+        // Nền thực của Taktak có thể khác colorSurface mặc định của Material.
+        surface = com.google.android.material.color.MaterialColors.getColor(root, R.attr.taktakColorSurface, surface);
+        surface = androidx.core.graphics.ColorUtils.setAlphaComponent(surface, 255);
+        boolean light = androidx.core.graphics.ColorUtils.calculateContrast(android.graphics.Color.BLACK, surface)
+                >= androidx.core.graphics.ColorUtils.calculateContrast(android.graphics.Color.WHITE, surface);
         bars.setAppearanceLightStatusBars(light);
         bars.setAppearanceLightNavigationBars(light);
     }

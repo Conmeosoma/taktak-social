@@ -31,6 +31,7 @@ public class AiChatUiTest {
     private AiViewModel model;
     private final List<Send> sends = new java.util.concurrent.CopyOnWriteArrayList<>();
     private volatile boolean fail = true, deleted;
+    private volatile boolean disabled, paged, rateLimited;
     private static final String ID="00000000-0000-4000-8000-000000000077";
     private static final String TIME="2026-11-13T00:00:00Z";
     @Test public void consentRetryHistoryDeleteAndSessionWipe() throws Exception {
@@ -39,10 +40,14 @@ public class AiChatUiTest {
             fixture=new ChatThemeFixture(context);
             var proxy=Proxy.newProxyInstance(AiApi.class.getClassLoader(),new Class<?>[]{AiApi.class},(o,m,a)->call(()->{
                 switch(m.getName()) {
-                    case "status": { var s=new Status();s.availability="CONFIGURED";s.privacyNotice="QA Google";return Response.success(s); }
-                    case "conversations": { var p=new Page<Conversation>();p.items=List.of();return Response.success(p); }
+                    case "status": { var s=new Status();s.availability=disabled?"DISABLED":"CONFIGURED";s.privacyNotice="QA Google";return Response.success(s); }
+                    case "conversations": { var p=new Page<Conversation>();
+                        if(paged){var first=conversation(ID);var second=conversation("00000000-0000-4000-8000-000000000088");
+                            boolean initial=((Integer)a[0])==0;p.items=initial?List.of(first):List.of(first,second);p.hasNext=initial;
+                        }else p.items=List.of();return Response.success(p); }
                     case "send": {
-                        sends.add((Send)a[0]); if(fail){fail=false;return Response.error(503,okhttp3.ResponseBody.create("{}",okhttp3.MediaType.get("application/json")));}
+                        sends.add((Send)a[0]); if(rateLimited)return Response.error(429,okhttp3.ResponseBody.create("{}",okhttp3.MediaType.get("application/json")));
+                        if(fail){fail=false;return Response.error(503,okhttp3.ResponseBody.create("{}",okhttp3.MediaType.get("application/json")));}
                         var msg=new Message();msg.id=UUID.randomUUID().toString();msg.conversationId=ID;msg.createdAt=TIME;msg.role="assistant";msg.content="QA: Xin chào!";return Response.success(msg);
                     }
                     case "delete": deleted=true;return Response.success(204,null);
@@ -73,10 +78,22 @@ public class AiChatUiTest {
             assertEquals(sends.get(0).clientRequestId,sends.get(1).clientRequestId);assertNull(sends.get(1).conversationId);
             assertEquals(2,state().messages.size());assertFalse(state().pending);screenshot("ai-usb-chat.png");
             main(()->model.delete(ID));await(()->ready()&&deleted);
+            paged=true;main(()->model.backToList());await(()->ready()&&state().conversations.size()==1);
+            main(()->activity.findViewById(R.id.aiMore).performClick());await(()->ready()&&state().conversations.size()==2);
+            assertFalse(state().hasNext);assertEquals(2,state().conversations.stream().map(c->c.id).distinct().count());
+            main(()->activity.findViewById(R.id.aiNew).performClick());await(this::ready);
+            rateLimited=true;
+            main(()->{((EditText)activity.findViewById(R.id.aiInput)).setText("QA quota");activity.findViewById(R.id.aiSend).performClick();});
+            await(()->ready()&&state().pending&&state().error==R.string.ai_rate);
+            assertTrue("Quota failure must not fabricate an answer",state().messages.isEmpty());screenshot("ai-qa-quota.png");
+            main(()->model.discard());disabled=true;main(()->model.refresh());await(()->ready()&&!state().configured);
+            assertEquals(R.string.ai_unavailable,state().error);
+            main(()->assertFalse(activity.findViewById(R.id.aiSend).isEnabled()));screenshot("ai-qa-disabled.png");
             main(()->com.taktak.app.data.push.PushEventBus.emitSessionCleared());await(()->state().expired);
             assertTrue(state().messages.isEmpty());assertEquals("",state().draft);
         } finally { if(activity!=null)main(()->activity.finish());inst.waitForIdleSync();if(fixture!=null)fixture.close(); }
     }
+    private Conversation conversation(String id){var c=new Conversation();c.id=id;c.title="QA history";c.createdAt=TIME;c.updatedAt=TIME;return c;}
     private AiViewModel.State state(){var r=new AtomicReference<AiViewModel.State>();main(()->r.set(model.state().getValue()));return r.get();}
     private boolean ready(){return model!=null&&!state().busy;}
     private boolean visible(int id){var r=new java.util.concurrent.atomic.AtomicBoolean();main(()->{var v=activity.findViewById(id);r.set(v!=null&&v.isShown());});return r.get();}

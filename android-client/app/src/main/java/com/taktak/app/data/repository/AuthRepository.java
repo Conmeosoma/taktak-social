@@ -8,6 +8,8 @@ import retrofit2.Response;
 
 public final class AuthRepository {
     private final ApiClient client;
+    private record Owner(long generation, String id) { }
+    private volatile Owner owner;
     public AuthRepository(ApiClient client) { this.client = client; }
 
     public UserProfile register(String email, String username, String name, String password) throws IOException {
@@ -39,7 +41,18 @@ public final class AuthRepository {
         return profile();
     }
 
-    public UserProfile profile() throws IOException { return checked(client.users.me().execute()); }
+    public UserProfile profile() throws IOException {
+        long generation = sessionGeneration();
+        UserProfile profile = checked(client.users.me().execute());
+        publishIfCurrent(generation, () -> owner = new Owner(generation, profile.id));
+        return profile;
+    }
+    /** Danh tính đã kiểm tra trong phiên hiện tại, không gọi mạng khi xếp hàng offline. */
+    public String currentUserId() throws IOException {
+        Owner value = owner;
+        if (value == null || value.generation != sessionGeneration()) throw new ApiFailure(ApiFailure.Kind.UNAUTHORIZED);
+        return value.id;
+    }
 
     public boolean hasSession() { return client.sessions.snapshot() != null; }
     public ChatRepository chat() { return new ChatRepository(client); }

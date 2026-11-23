@@ -50,7 +50,7 @@ public final class OutboxDatabaseHelper extends SQLiteOpenHelper {
     public synchronized void insert(OutboxRecord record) {
         SQLiteDatabase db = getWritableDatabase();
         ContentValues values = toContentValues(record);
-        db.insertWithOnConflict(TABLE_OUTBOX, null, values, SQLiteDatabase.CONFLICT_REPLACE);
+        db.insertOrThrow(TABLE_OUTBOX, null, values);
     }
 
     public synchronized OutboxRecord get(String id) {
@@ -66,7 +66,7 @@ public final class OutboxDatabaseHelper extends SQLiteOpenHelper {
     public synchronized List<OutboxRecord> listActive(long sessionGeneration) {
         SQLiteDatabase db = getReadableDatabase();
         List<OutboxRecord> result = new ArrayList<>();
-        String where = "session_generation = ? AND status IN ('PENDING', 'WAITING_NETWORK', 'UPLOADING', 'FAILED_RETRYABLE')";
+        String where = "session_generation = ? AND status IN ('PENDING', 'WAITING_NETWORK', 'UPLOADING', 'FAILED_RETRYABLE', 'FAILED_PERMANENT')";
         try (Cursor c = db.query(TABLE_OUTBOX, null, where, new String[]{String.valueOf(sessionGeneration)}, null, null, "created_at ASC")) {
             if (c != null) {
                 while (c.moveToNext()) {

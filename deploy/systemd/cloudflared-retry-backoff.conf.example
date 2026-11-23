@@ -1,0 +1,3 @@
+# Tránh vòng lặp xin Quick Tunnel mỗi 5 giây khi mạng lỗi hoặc HTTP 429.
+[Service]
+RestartSec=300

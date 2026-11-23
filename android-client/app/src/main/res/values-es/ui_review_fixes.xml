@@ -1,0 +1,21 @@
+<resources>
+    <string name="preview_preparing">Preparando imagen…</string>
+    <string name="preview_prepare_error">No se pudieron guardar los cambios. No se envió nada; inténtalo de nuevo.</string>
+    <string name="preview_queued">Guardado en la cola. Consulta el envío y reintenta en Historial; la entrega aún no está confirmada.</string>
+    <string name="preview_done">Volver a Cámara</string>
+    <string name="preview_selected_summary">%1$d destinatarios seleccionados</string>
+    <string name="preview_poll_required">Introduce una pregunta válida y ambas opciones.</string>
+    <string name="preview_play_live">Reproducir clip Live</string>
+    <string name="preview_video_error">No se pudo reproducir el clip. Abre la vista previa de nuevo.</string>
+    <string name="preview_add_sticker">Añadir sticker %1$s</string>
+    <string name="preview_color_white">Blanco</string>
+    <string name="preview_color_yellow">Amarillo</string>
+    <string name="preview_color_coral">Coral</string>
+    <string name="preview_color_mint">Menta</string>
+    <string name="preview_color_purple">Morado</string>
+    <string name="preview_color_selected">Seleccionado</string>
+    <string name="outbox_permanent_error">No se pudo completar el envío. Revisa los destinatarios y el contenido antes de reenviar.</string>
+    <string name="outbox_queue_count">%1$d elementos en la cola</string>
+    <string name="outbox_cancel_confirm">¿Detener este envío? El contenido que ya recibió el servidor puede permanecer en Historial.</string>
+    <string name="poll_close_action">Cerrar encuesta</string>
+</resources>

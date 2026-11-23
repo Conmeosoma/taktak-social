@@ -75,7 +75,11 @@ public class PollService {
         if (option == null || (!option.equals("A") && !option.equals("B"))) {
             throw new MomentFailure(HttpStatus.BAD_REQUEST, "INVALID_VOTE_OPTION");
         }
-        Moment moment = requireAuthorizedMoment(voterId, momentId);
+        // Cùng khóa với create/close: không ghi vote dựa trên trạng thái OPEN đã cũ.
+        Moment moment = moments.lockForPoll(momentId)
+                .filter(m -> m.getDeletedAt() == null
+                        && (m.getSenderId().equals(voterId) || moments.isRecipient(momentId, voterId)))
+                .orElseThrow(() -> new MomentFailure(HttpStatus.NOT_FOUND, "MOMENT_NOT_FOUND"));
         if (moment.getSenderId().equals(voterId)) {
             throw new MomentFailure(HttpStatus.FORBIDDEN, "SENDER_CANNOT_VOTE");
         }
@@ -104,7 +108,7 @@ public class PollService {
     @Transactional
     public PollDtos.PollResponse closePoll(UUID senderId, UUID momentId) {
         users.getProfile(senderId);
-        Moment moment = moments.findById(momentId).filter(m -> m.getDeletedAt() == null)
+        Moment moment = moments.lockForPoll(momentId).filter(m -> m.getDeletedAt() == null)
                 .orElseThrow(() -> new MomentFailure(HttpStatus.NOT_FOUND, "MOMENT_NOT_FOUND"));
         if (!moment.getSenderId().equals(senderId)) {
             throw new MomentFailure(HttpStatus.FORBIDDEN, "FORBIDDEN");

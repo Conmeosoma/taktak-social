@@ -45,7 +45,7 @@ final class ChatThemeFixture implements AutoCloseable {
         replace("moments",MomentApi.class);replace("devices",DeviceApi.class);
         auth=new AuthRepository(client);
         graph=AuthGraph.class.getDeclaredField("repository");graph.setAccessible(true);
-        previous=graph.get(null);graph.set(null,auth);
+        synchronized(AuthGraph.class){previous=graph.get(null);graph.set(null,auth);}
     }
     private void replace(String field,Class<?> api) throws Exception {
         var proxy=Proxy.newProxyInstance(api.getClassLoader(),new Class<?>[]{api},(target,method,args)->{
@@ -110,5 +110,5 @@ final class ChatThemeFixture implements AutoCloseable {
         case "request"->new Request.Builder().url("http://127.0.0.1:9/qa").build();
         case "toString"->"Chat QA call";default->throw new AssertionError(method.getName());
     });}
-    @Override public void close()throws Exception{graph.set(null,previous);}
+    @Override public void close()throws Exception{synchronized(AuthGraph.class){graph.set(null,previous);}}
 }

@@ -1,0 +1,21 @@
+<resources>
+    <string name="preview_preparing">Đang chuẩn bị ảnh…</string>
+    <string name="preview_prepare_error">Chưa thể lưu chỉnh sửa. Ảnh chưa được gửi; hãy thử lại.</string>
+    <string name="preview_queued">Đã lưu vào hàng đợi. Theo dõi gửi và thử lại trong Lịch sử; chưa xác nhận người nhận đã nhận ảnh.</string>
+    <string name="preview_done">Về Camera</string>
+    <string name="preview_selected_summary">Đã chọn %1$d người nhận</string>
+    <string name="preview_poll_required">Nhập nội dung hợp lệ cho câu hỏi và cả hai lựa chọn.</string>
+    <string name="preview_play_live">Xem clip Live</string>
+    <string name="preview_video_error">Không phát được clip. Hãy thử mở lại bản xem trước.</string>
+    <string name="preview_add_sticker">Thêm sticker %1$s</string>
+    <string name="preview_color_white">Màu trắng</string>
+    <string name="preview_color_yellow">Màu vàng</string>
+    <string name="preview_color_coral">Màu san hô</string>
+    <string name="preview_color_mint">Màu xanh bạc hà</string>
+    <string name="preview_color_purple">Màu tím</string>
+    <string name="preview_color_selected">Đã chọn</string>
+    <string name="outbox_permanent_error">Không thể hoàn tất. Kiểm tra người nhận và nội dung trước khi gửi lại.</string>
+    <string name="outbox_queue_count">%1$d mục trong hàng đợi</string>
+    <string name="outbox_cancel_confirm">Dừng gửi mục này? Nội dung đã được server nhận có thể vẫn còn trong Lịch sử.</string>
+    <string name="poll_close_action">Đóng bình chọn</string>
+</resources>

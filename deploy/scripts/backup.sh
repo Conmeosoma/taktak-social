@@ -24,7 +24,8 @@ pg_restore --list "$STAGE/db.dump" >/dev/null
 tar -czf "$STAGE/private-images.tar.gz" -C "$APP_ROOT" private-images
 # Không công bố snapshot mà restore sẽ từ chối (vd. symlink hoặc file tạm sau crash).
 while IFS= read -r name; do
-    [[ "$name" = private-images/ || "$name" = private-images/avatars/ || "$name" =~ ^private-images/(avatars/)?[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}\.jpg$ ]] || die 'Unexpected private storage entry; inspect before backup.'
+    if [[ "$name" = private-images/ || "$name" = private-images/avatars/ ]]; then continue; fi
+    [[ "$name" = private-images/* ]] && valid_private_media_path "${name#private-images/}" || die 'Unexpected private storage entry; inspect before backup.'
 done < <(tar -tzf "$STAGE/private-images.tar.gz")
 [[ -z "$(tar -tvzf "$STAGE/private-images.tar.gz" | awk 'substr($0,1,1)!="-" && substr($0,1,1)!="d" {print}')" ]] || die 'Private image links rejected.'
 cp -- "$ENV_FILE" "$STAGE/app.env"

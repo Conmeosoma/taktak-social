@@ -19,6 +19,7 @@ new_case() {
     printf 'fixture-encryption-key-0123456789abcdef0123456789abcdef\n' > "$TAKTAK_BACKUP_KEY_FILE"; chmod 600 "$TAKTAK_BACKUP_KEY_FILE"
     printf 'before-db' > "$CASE_ROOT/db"; touch "$CASE_ROOT/active"
     printf 'before-image' > "$TAKTAK_ROOT/private-images/11111111-1111-1111-1111-111111111111.jpg"
+    printf 'before-video' > "$TAKTAK_ROOT/private-images/11111111-1111-1111-1111-111111111111.mp4"
     mkdir -p "$TAKTAK_ROOT/private-images/avatars"
     printf 'before-avatar' > "$TAKTAK_ROOT/private-images/avatars/22222222-2222-2222-2222-222222222222.jpg"
     printf 'old-good-jar' > "$TAKTAK_ROOT/taktak-server.jar"
@@ -29,6 +30,7 @@ fail_command() { if "$@" > "$CASE_ROOT/expected-failure.log" 2>&1; then echo 'Ex
 check_data() {
     [[ "$(< "$CASE_ROOT/db")" = before-db ]]
     [[ "$(< "$TAKTAK_ROOT/private-images/11111111-1111-1111-1111-111111111111.jpg")" = before-image ]]
+    [[ "$(< "$TAKTAK_ROOT/private-images/11111111-1111-1111-1111-111111111111.mp4")" = before-video ]]
     [[ "$(< "$TAKTAK_ROOT/private-images/avatars/22222222-2222-2222-2222-222222222222.jpg")" = before-avatar ]]
 }
 check_unchanged() { check_data; [[ -f "$CASE_ROOT/active" ]]; }
@@ -38,6 +40,7 @@ new_case; backup; ARCHIVE="$(archive)"; [[ -s "$ARCHIVE" && -f "$CASE_ROOT/activ
 echo 'PASS encrypted consistent backup and env password parsing'
 printf 'changed-db' > "$CASE_ROOT/db"
 printf 'changed-image' > "$TAKTAK_ROOT/private-images/11111111-1111-1111-1111-111111111111.jpg"
+printf 'changed-video' > "$TAKTAK_ROOT/private-images/11111111-1111-1111-1111-111111111111.mp4"
 printf 'changed-avatar' > "$TAKTAK_ROOT/private-images/avatars/22222222-2222-2222-2222-222222222222.jpg"
 bash "$ROOT/deploy/scripts/restore.sh" "$ARCHIVE" --yes > "$CASE_ROOT/restore.log" 2>&1
 check_quarantined; echo 'PASS restore replaces DB/images but remains quarantined'

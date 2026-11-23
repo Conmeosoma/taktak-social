@@ -80,10 +80,23 @@ public class AuthThemeUiTest {
                         assertFalse(active.findViewById(R.id.submit).isEnabled());
                         assertEquals(active.getString(R.string.recovery_expired), ((TextView)active.findViewById(R.id.notice)).getText().toString());
                     } else {
-                        active.findViewById(type == EmailVerificationActivity.class ? R.id.confirmCode : R.id.submit).performClick();
+                        active.findViewById(R.id.submit).performClick();
                         assertNotNull(((TextInputLayout)active.findViewById(R.id.emailLayout)).getError());
                         if (type == EmailVerificationActivity.class) {
                             assertNotNull(((TextInputLayout)active.findViewById(R.id.currentLayout)).getError());
+                            assertEquals(View.GONE, active.findViewById(R.id.codeLayout).getVisibility());
+                            assertEquals(View.GONE, active.findViewById(R.id.confirmCode).getVisibility());
+                            try {
+                                var vm = new androidx.lifecycle.ViewModelProvider((androidx.lifecycle.ViewModelStoreOwner)active)
+                                        .get(com.taktak.app.viewmodel.RecoveryViewModel.class);
+                                var ctor = com.taktak.app.viewmodel.RecoveryViewModel.State.class.getDeclaredConstructor(boolean.class,int.class,boolean.class,boolean.class,int.class);
+                                ctor.setAccessible(true);
+                                ((androidx.lifecycle.MutableLiveData<com.taktak.app.viewmodel.RecoveryViewModel.State>)vm.state())
+                                        .setValue(ctor.newInstance(false,R.string.recovery_code_sent,false,false,0));
+                            } catch (Exception failure) { throw new AssertionError(failure); }
+                            assertEquals(View.VISIBLE, active.findViewById(R.id.codeLayout).getVisibility());
+                            assertEquals(View.VISIBLE, active.findViewById(R.id.confirmCode).getVisibility());
+                            active.findViewById(R.id.confirmCode).performClick();
                             assertNotNull(((TextInputLayout)active.findViewById(R.id.codeLayout)).getError());
                         }
                     }

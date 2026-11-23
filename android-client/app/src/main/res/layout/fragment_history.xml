@@ -212,6 +212,7 @@
                 <!-- Memories & Weekly Recap Card -->
                 <com.google.android.material.card.MaterialCardView
                     android:id="@+id/historyMemoriesCard"
+                    android:visibility="gone"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="@dimen/taktak_space_sm"

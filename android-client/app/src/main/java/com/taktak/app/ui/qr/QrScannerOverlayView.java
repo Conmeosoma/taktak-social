@@ -20,6 +20,7 @@ public class QrScannerOverlayView extends View {
     private final Paint cornerPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
     private final Paint laserPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
     private final RectF boxRect = new RectF();
+    private final Path cornerPath = new Path();
     private float laserY = 0f;
     private ValueAnimator laserAnimator;
 
@@ -91,7 +92,8 @@ public class QrScannerOverlayView extends View {
 
         // 3. Draw 4 corner brackets
         float cl = dpToPx(28); // corner line length
-        Path path = new Path();
+        Path path = cornerPath;
+        path.rewind();
 
         // Top-left
         path.moveTo(boxRect.left, boxRect.top + cl);

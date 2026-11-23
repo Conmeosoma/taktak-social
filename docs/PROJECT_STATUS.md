@@ -1,5 +1,44 @@
 # Taktak — Trạng thái dự án
 
+## Nghiệm thu USB — 20/11/2026
+
+Camera kép, Live, QR quang học và bộ chọn ảnh, Outbox qua restart và retry
+đạt trên Xiaomi Android 15. URL tunnel trong APK không phân giải DNS, SSH VPS
+hết thời gian chờ. FCM nền và launcher Xiaomi còn chờ nghiệm thu.
+[Chi tiết và log](QA_USB_FINAL_20261120.md).
+
+## Triển khai bản sửa và bàn giao APK — 18/11/2026
+
+VPS đã chạy JAR sửa Poll, health HTTPS UP và smoke tạo/vote/đóng/từ chối vote
+muộn đạt. Android build debug/release đạt và unit 144/144. APK cài thử đã nằm
+trong Downloads, APK release chờ khóa ký. Xem [kết quả triển khai](QA_FINAL_ROLLOUT_20261118.md).
+
+## Sửa lỗi và nghiệm thu AVD — 16/11/2026
+
+PASS phạm vi local/AVD đã chạy: backend 231/231, Android unit 144/144,
+hồi quy AVD 67/67 (không skip); FCM thật, Worker/widget, Outbox offline/restart,
+QR permission/picker và load local có bằng chứng riêng. Build đạt; lint 0 lỗi,
+114 cảnh báo còn mở. Đã sửa Camera/Live, khóa đồng thời Poll, Preview/system bars,
+format chuỗi và fixture QA. Widget 2×2 đã ghim/gỡ trên Pixel Launcher.
+
+APK: Downloads/Taktak-20261116-qa-fixed.apk. JAR sửa Poll vẫn local, chưa deploy.
+HTTPS VPS health UP khi kiểm tra; tunnel tạm được người dùng chấp nhận, chưa có
+domain. Không commit/push/deploy. AVD và backend QA đã dừng.
+
+Chi tiết file, log, hash, phạm vi và giới hạn: [bàn giao QA](QA_AVD_FIX_ALL_20261116.md).
+Các mục phía dưới là lịch sử; trạng thái Camera timeout và số lint cũ được thay
+bằng kết quả này. Chưa tuyên bố nghiệm thu toàn bộ máy thật/production.
+
+## Khôi phục kết nối VPS và APK — 15/11/2026
+
+PASS phạm vi network/deploy/API smoke/build: DHCP và route Internet đã khôi phục, JAR mới/V8–V9 đã lên VPS, HTTPS hoạt động; backend 230/230, Android 144/144. APK mới trong Downloads/Taktak-20261115-vps-fixed.apk. Quick Tunnel vẫn là URL tạm; QA UI cũ còn mở. Chi tiết [hồ sơ](QA_VPS_CONNECTIVITY_20261115.md). Không commit/push.
+
+
+## Sửa UI review — 15/11/2026
+
+IN PROGRESS: đã triển khai các sửa UI/Poll/Outbox; JVM 144/144, lint 0 lỗi/126 cảnh báo, 11 ca forms/lists và ma trận riêng đạt. Camera/Live trên AVD còn timeout; chưa nghiệm thu toàn bộ. Xem [bàn giao và kiểm thử](QA_UI_REVIEW_FIXES_20261115.md). Không commit/push/deploy.
+
+
 ## Chạm chụp / giữ quay — 14/11/2026
 
 Đã thực hiện yêu cầu dùng chung nút chụp: chạm chụp ảnh; nhấn giữ quay Live,

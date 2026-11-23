@@ -149,7 +149,7 @@
     <string name="moment_downloaded">비공개로 저장했습니다. 나만 볼 수 있습니다.</string>
     <string name="moment_transfer_error">전송 또는 다운로드를 확인하지 못했습니다. 연결을 확인하고 다시 시도하세요. 서버가 수신했지만 응답이 유실되었다면 재전송 시 비공개 사진이 추가될 수 있습니다.</string>
     <string name="widget_4x2_name">Taktak 와이드 순간</string>
-    <string name="widget_4x2_description">넓은 사진(4x2)과 바로 반응하기를 표시합니다.</string>
+    <string name="widget_4x2_description">넓은 위젯(4x2)에 친구의 최신 순간을 표시합니다.</string>
     <string name="widget_reacted">%s 반응을 보냈습니다!</string>
     <string name="memories_title">추억 및 돌아보기</string>
     <string name="memories_subtitle">소중한 순간을 다시 만나세요</string>

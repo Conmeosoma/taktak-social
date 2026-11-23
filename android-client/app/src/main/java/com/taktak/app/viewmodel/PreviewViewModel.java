@@ -31,15 +31,29 @@ public final class PreviewViewModel extends AndroidViewModel {
     private byte[] downloaded;
     private boolean loading, loadingFriends, hasNext, friendsError, sending, retry, all, isLiveVideo;
     private int page, progress, message = R.string.preview_local;
+    private int editRevision;
+    public int editRevision() { return editRevision; }
     private volatile boolean cleared;
     private boolean friendTransfer, frozen;
     private List<String> pendingRecipients;
     private String pendingCaption;
     public boolean friendTransfer() { return friendTransfer; }
-    public boolean selectionLocked() { return frozen || downloaded != null; }
+    public boolean selectionLocked() { return frozen || downloaded != null || loading; }
+    public boolean queued() { return Boolean.TRUE.equals(saved.get("queued")); }
+    public File video() {
+        try { return drafts == null ? null : drafts.videoFile(id); }
+        catch (IOException failure) { return null; }
+    }
+    public void poll(String question, String a, String b) {
+        if (selectionLocked()) return;
+        saved.set("pollJson", question == null ? null : new com.google.gson.Gson().toJson(
+                new com.taktak.app.data.model.PollModels.CreatePollRequest(question, a, b)));
+        saved.remove("idempotencyKey");
+    }
     public PreviewViewModel(Application application, SavedStateHandle saved) {
         super(application); this.saved = saved;
         all = Boolean.TRUE.equals(saved.get("all"));
+        if (queued()) message = R.string.preview_queued;
         ArrayList<String> ids = saved.get("selected"); if (ids != null) { selected.addAll(ids); }
         publish();
     }
@@ -60,7 +74,7 @@ public final class PreviewViewModel extends AndroidViewModel {
             friendRepository = AuthGraph.repository(getApplication()).friends();
             moments = AuthGraph.repository(getApplication()).moments();
         } catch (IOException failure) { invalid(); return; }
-        if (downloaded != null) { publish(); return; }
+        if (downloaded != null || queued()) { publish(); return; }
         loading = true; publish();
         worker.execute(() -> {
             try {
@@ -113,27 +127,60 @@ public final class PreviewViewModel extends AndroidViewModel {
         saved.remove("idempotencyKey");
         publish();
     }
+    public void prepareAndTransfer(android.graphics.Picture overlay, int width, int height, boolean toFriends) {
+        if (loading || sending || selectionLocked() || !current()) return;
+        if (overlay == null) { transfer(toFriends); return; }
+        loading = true; message = R.string.preview_preparing; publish();
+        worker.execute(() -> {
+            android.graphics.Bitmap original = null, composite = null;
+            try {
+                byte[] bytes = drafts.read(id);
+                original = android.graphics.BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
+                if (original == null) throw new IOException("Cannot decode draft");
+                composite = original.copy(android.graphics.Bitmap.Config.ARGB_8888, true);
+                var canvas = new android.graphics.Canvas(composite);
+                canvas.scale((float) composite.getWidth() / Math.max(1, width),
+                        (float) composite.getHeight() / Math.max(1, height));
+                canvas.drawPicture(overlay);
+                var output = new ByteArrayOutputStream();
+                if (!composite.compress(android.graphics.Bitmap.CompressFormat.JPEG, 88, output))
+                    throw new IOException("Cannot encode draft");
+                writeEditedDraft(output.toByteArray());
+                main.post(() -> { if (current()) { editRevision++; loading = false; transfer(toFriends); } });
+            } catch (IOException | RuntimeException failure) {
+                main.post(() -> { if (current()) { loading = false; message = R.string.preview_prepare_error; publish(); } });
+            } finally {
+                if (composite != null) composite.recycle();
+                if (original != null) original.recycle();
+            }
+        });
+    }
+    private void writeEditedDraft(byte[] jpeg) throws IOException {
+        drafts.requireCurrent();
+        if (jpeg.length > MomentRepository.MAX_BYTES) throw new IOException("Edited image too large");
+        var atomic = new android.util.AtomicFile(drafts.file(id));
+        FileOutputStream output = null;
+        try { output = atomic.startWrite(); output.write(jpeg); drafts.requireCurrent(); atomic.finishWrite(output); }
+        catch (IOException failure) { atomic.failWrite(output); throw failure; }
+    }
     public void updateDraftImage(byte[] jpeg, Runnable onComplete) {
         if (drafts == null || id == null || jpeg == null) {
-            if (onComplete != null) onComplete.run();
             return;
         }
         worker.execute(() -> {
             try {
                 File target = drafts.file(id);
-                try (var fos = new FileOutputStream(target)) {
-                    fos.write(jpeg);
-                }
+                writeEditedDraft(jpeg);
                 main.post(() -> {
                     if (current()) {
                         file = target;
                         publish();
+                        if (onComplete != null) onComplete.run();
                     }
-                    if (onComplete != null) onComplete.run();
                 });
             } catch (IOException failure) {
                 main.post(() -> {
-                    if (onComplete != null) onComplete.run();
+                    if (current()) { message = R.string.preview_prepare_error; publish(); }
                 });
             }
         });
@@ -146,12 +193,13 @@ public final class PreviewViewModel extends AndroidViewModel {
         transfer(true);
     }
     private void transfer(boolean toFriends) {
-        if (file == null || loading || sending || downloaded != null || !current()) { return; }
+        if (file == null || loading || sending || downloaded != null || queued() || !current()) { return; }
         if (frozen && toFriends != friendTransfer) { return; }
         if (!frozen && toFriends && ((!all && selected.isEmpty()) || loadingFriends || friendsError || friends.isEmpty())) { return; }
         if (!frozen) {
             friendTransfer = toFriends; pendingCaption = caption();
-            pendingRecipients = toFriends && all ? null : toFriends ? List.copyOf(selected) : List.of();
+            pendingRecipients = toFriends && all ? (hasNext ? null : friends.stream().map(user -> user.id)
+                    .collect(java.util.stream.Collectors.toList())) : toFriends ? List.copyOf(selected) : List.of();
             String key = saved.get("idempotencyKey");
             if (key == null) {
                 key = UUID.randomUUID().toString();
@@ -159,6 +207,7 @@ public final class PreviewViewModel extends AndroidViewModel {
             }
         }
         final String idempotencyKey = saved.get("idempotencyKey");
+        final String pollJson = saved.get("pollJson");
         boolean resolveAll = toFriends && pendingRecipients == null;
         frozen = true;
         sending = true; retry = false; progress = 0; message = R.string.moment_transferring; publish();
@@ -180,6 +229,26 @@ public final class PreviewViewModel extends AndroidViewModel {
                     pendingRecipients = List.copyOf(ids);
                 }
                 if (momentId == null) {
+                    if (toFriends) {
+                        var auth = AuthGraph.repository(getApplication());
+                        File video = drafts.videoFile(id);
+                        byte[] payload = video == null ? drafts.read(id) : java.nio.file.Files.readAllBytes(video.toPath());
+                        var outbox = com.taktak.app.data.outbox.OutboxRepository.getInstance(getApplication());
+                        var task = outbox.enqueue(drafts.generation, auth.currentUserId(), payload,
+                                video == null ? "PHOTO" : "LIVE_VIDEO", video == null ? null : file.getAbsolutePath(),
+                                pendingCaption, pendingRecipients, pollJson, idempotencyKey);
+                        try { drafts.requireCurrent(); }
+                        catch (IOException failure) { outbox.cancel(task.id, drafts.generation); throw failure; }
+                        // Đã xếp hàng bền vững: lỗi dọn cache không được tạo khóa gửi mới.
+                        try { drafts.discard(id); } catch (IOException cleanupFailure) { /* Cache sẽ được dọn lại khi đóng màn. */ }
+                        main.post(() -> {
+                            if (current()) {
+                                saved.set("queued", true); file = null; sending = false;
+                                message = R.string.preview_queued; publish();
+                            }
+                        });
+                        return;
+                    }
                     byte[] jpeg = drafts.read(id); attemptedPost = true;
                     File video = drafts.videoFile(id);
                     if (video != null && video.exists()) {
@@ -212,6 +281,10 @@ public final class PreviewViewModel extends AndroidViewModel {
                         publish();
                     }
                 });
+                if (pollJson != null) {
+                    var poll = new com.google.gson.Gson().fromJson(pollJson, com.taktak.app.data.model.PollModels.CreatePollRequest.class);
+                    AuthGraph.repository(getApplication()).polls().createPoll(momentId, poll.question, poll.optionA, poll.optionB);
+                }
                 byte[] result = moments.download(momentId);
                 drafts.requireCurrent(); drafts.discard(id);
                 main.post(() -> {

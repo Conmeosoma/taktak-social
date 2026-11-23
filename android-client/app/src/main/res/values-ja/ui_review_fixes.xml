@@ -1,0 +1,21 @@
+<resources>
+    <string name="preview_preparing">画像を準備しています…</string>
+    <string name="preview_prepare_error">編集を保存できませんでした。送信されていません。もう一度お試しください。</string>
+    <string name="preview_queued">送信待ちに保存しました。履歴で送信状況の確認と再試行ができます。配信はまだ確認されていません。</string>
+    <string name="preview_done">カメラに戻る</string>
+    <string name="preview_selected_summary">%1$d人の送信先を選択中</string>
+    <string name="preview_poll_required">有効な質問と2つの選択肢を入力してください。</string>
+    <string name="preview_play_live">Live動画を再生</string>
+    <string name="preview_video_error">動画を再生できません。プレビューを開き直してください。</string>
+    <string name="preview_add_sticker">ステッカー%1$sを追加</string>
+    <string name="preview_color_white">白</string>
+    <string name="preview_color_yellow">黄色</string>
+    <string name="preview_color_coral">コーラル</string>
+    <string name="preview_color_mint">ミント</string>
+    <string name="preview_color_purple">紫</string>
+    <string name="preview_color_selected">選択済み</string>
+    <string name="outbox_permanent_error">送信を完了できません。送信先と内容を確認してから再送してください。</string>
+    <string name="outbox_queue_count">送信待ち：%1$d件</string>
+    <string name="outbox_cancel_confirm">この送信を停止しますか？サーバーが受信済みの内容は履歴に残る場合があります。</string>
+    <string name="poll_close_action">投票を終了</string>
+</resources>

@@ -1,0 +1,21 @@
+<resources>
+    <string name="preview_preparing">正在准备图片…</string>
+    <string name="preview_prepare_error">无法保存编辑。尚未发送，请重试。</string>
+    <string name="preview_queued">已保存到发送队列。请在历史记录中查看发送状态并重试；尚未确认送达。</string>
+    <string name="preview_done">返回相机</string>
+    <string name="preview_selected_summary">已选择%1$d位接收者</string>
+    <string name="preview_poll_required">请输入有效的问题和两个选项。</string>
+    <string name="preview_play_live">播放Live短片</string>
+    <string name="preview_video_error">无法播放短片，请重新打开预览。</string>
+    <string name="preview_add_sticker">添加贴纸%1$s</string>
+    <string name="preview_color_white">白色</string>
+    <string name="preview_color_yellow">黄色</string>
+    <string name="preview_color_coral">珊瑚色</string>
+    <string name="preview_color_mint">薄荷色</string>
+    <string name="preview_color_purple">紫色</string>
+    <string name="preview_color_selected">已选择</string>
+    <string name="outbox_permanent_error">无法完成发送。请检查接收者和内容后重新发送。</string>
+    <string name="outbox_queue_count">队列中有%1$d项</string>
+    <string name="outbox_cancel_confirm">停止发送此内容？服务器已收到的内容可能仍保留在历史记录中。</string>
+    <string name="poll_close_action">结束投票</string>
+</resources>

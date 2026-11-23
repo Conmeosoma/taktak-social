@@ -346,7 +346,7 @@
                                     android:layout_height="wrap_content"
                                     android:minWidth="0dp"
                                     android:minHeight="36dp"
-                                    android:text="Đóng bình chọn"
+                                    android:text="@string/poll_close_action"
                                     android:textSize="12sp"
                                     android:visibility="gone" />
                             </LinearLayout>

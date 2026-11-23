@@ -149,7 +149,7 @@
     <string name="moment_downloaded">Foto guardada en privado. Solo tú puedes verla.</string>
     <string name="moment_transfer_error">No se pudo confirmar el envío o descarga. Comprueba la conexión y reintenta. Si el servidor lo recibió pero se perdió la respuesta, reenviar puede crear otra foto privada.</string>
     <string name="widget_4x2_name">Momentos panorámicos Taktak</string>
-    <string name="widget_4x2_description">Muestra fotos panorámicas (4x2) con reacciones directas.</string>
+    <string name="widget_4x2_description">Muestra los últimos momentos de tus amigos en un widget ancho (4x2).</string>
     <string name="widget_reacted">¡Reacción %s!</string>
     <string name="memories_title">Recuerdos y resumen</string>
     <string name="memories_subtitle">Revive tus mejores momentos</string>

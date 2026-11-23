@@ -1,0 +1,21 @@
+<resources>
+    <string name="preview_preparing">तस्वीर तैयार हो रही है…</string>
+    <string name="preview_prepare_error">बदलाव सहेजे नहीं जा सके। कुछ भेजा नहीं गया; फिर कोशिश करें।</string>
+    <string name="preview_queued">भेजने की कतार में सहेजा गया। इतिहास में स्थिति देखें और फिर कोशिश करें; डिलीवरी की पुष्टि अभी नहीं हुई है।</string>
+    <string name="preview_done">कैमरे पर वापस जाएँ</string>
+    <string name="preview_selected_summary">%1$d प्राप्तकर्ता चुने गए</string>
+    <string name="preview_poll_required">सही सवाल और दोनों विकल्प दर्ज करें।</string>
+    <string name="preview_play_live">Live क्लिप चलाएँ</string>
+    <string name="preview_video_error">क्लिप नहीं चल सकी। प्रीव्यू फिर खोलें।</string>
+    <string name="preview_add_sticker">%1$s स्टिकर जोड़ें</string>
+    <string name="preview_color_white">सफेद</string>
+    <string name="preview_color_yellow">पीला</string>
+    <string name="preview_color_coral">कोरल</string>
+    <string name="preview_color_mint">पुदीना हरा</string>
+    <string name="preview_color_purple">बैंगनी</string>
+    <string name="preview_color_selected">चुना गया</string>
+    <string name="outbox_permanent_error">भेजना पूरा नहीं हुआ। दोबारा भेजने से पहले प्राप्तकर्ता और सामग्री जाँचें।</string>
+    <string name="outbox_queue_count">कतार में %1$d आइटम</string>
+    <string name="outbox_cancel_confirm">इसे भेजना रोकें? सर्वर को मिल चुकी सामग्री इतिहास में बनी रह सकती है।</string>
+    <string name="poll_close_action">मतदान बंद करें</string>
+</resources>

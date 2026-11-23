@@ -196,8 +196,8 @@ public final class MomentViewerActivity extends AppCompatActivity {
             binding.btnVoteB.setOnClickListener(v -> submitVote(poll.momentId, "B"));
             binding.viewerPollStatus.setText(getString(R.string.poll_total_votes, poll.totalVotes));
         } else {
-            binding.btnVoteA.setText(poll.optionA + " (" + poll.percentA + "% — " + poll.countA + ")");
-            binding.btnVoteB.setText(poll.optionB + " (" + poll.percentB + "% — " + poll.countB + ")");
+            binding.btnVoteA.setText(getString(R.string.format_poll_result, poll.optionA, poll.percentA, poll.countA));
+            binding.btnVoteB.setText(getString(R.string.format_poll_result, poll.optionB, poll.percentB, poll.countB));
             binding.btnVoteA.setEnabled(false);
             binding.btnVoteB.setEnabled(false);
 
@@ -208,9 +208,9 @@ public final class MomentViewerActivity extends AppCompatActivity {
 
             if (poll.userVotedOption != null) {
                 String chosen = "A".equals(poll.userVotedOption) ? poll.optionA : poll.optionB;
-                binding.viewerPollStatus.setText(getString(R.string.poll_voted, chosen) + " • " + getString(R.string.poll_total_votes, poll.totalVotes));
+                binding.viewerPollStatus.setText(getString(R.string.format_poll_status, getString(R.string.poll_voted, chosen), getString(R.string.poll_total_votes, poll.totalVotes)));
             } else if ("CLOSED".equalsIgnoreCase(poll.status)) {
-                binding.viewerPollStatus.setText(getString(R.string.poll_closed) + " • " + getString(R.string.poll_total_votes, poll.totalVotes));
+                binding.viewerPollStatus.setText(getString(R.string.format_poll_status, getString(R.string.poll_closed), getString(R.string.poll_total_votes, poll.totalVotes)));
             } else {
                 binding.viewerPollStatus.setText(getString(R.string.poll_total_votes, poll.totalVotes));
             }

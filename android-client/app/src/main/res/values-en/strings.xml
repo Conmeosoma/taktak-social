@@ -181,7 +181,7 @@
     <string name="widget_2x2_name">Taktak Moments</string>
     <string name="widget_2x2_description">Displays the latest moments received from friends.</string>
     <string name="widget_4x2_name">Taktak Wide Moments</string>
-    <string name="widget_4x2_description">Displays wide moments (4x2) with direct interactive reactions.</string>
+    <string name="widget_4x2_description">Displays the latest moments from friends in a wide widget (4x2).</string>
     <string name="widget_reacted">Reacted %s!</string>
     <string name="widget_empty_title">No photo yet</string>
     <string name="widget_empty_subtitle">Tap to open Taktak</string>

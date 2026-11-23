@@ -36,6 +36,7 @@ public final class CameraFragment extends Fragment {
     private boolean dualMode = false;
     private boolean liveMode = false;
     private boolean shutterHeld, recordingCancelled, stopRequested;
+    private boolean recordingHasData;
     private boolean liveAudio = false;
     private boolean pipOnLeft = true;
     private int requestId, targetRotation;
@@ -233,14 +234,24 @@ public final class CameraFragment extends Fragment {
         binding.captureButton.setAlpha(liveMode && busy ? 0.65f : 1f);
         binding.btnLiveAudioToggle.setEnabled(ready && !shutterHeld);
         binding.switchCameraButton.setEnabled(ready && canSwitch);
+        binding.switchCameraButton.setText("");
         binding.switchCameraButton.setContentDescription(getString(!canSwitch ? R.string.camera_switch_unavailable
                 : settings.lensFacing() == CameraSelector.LENS_FACING_FRONT ? R.string.camera_front_selected : R.string.camera_back_selected));
         binding.flashButton.setEnabled(ready && hasFlash && !liveMode);
         int flash = !hasFlash ? R.string.camera_flash_unavailable : settings.flashMode() == ImageCapture.FLASH_MODE_OFF
                 ? R.string.camera_flash_off : settings.flashMode() == ImageCapture.FLASH_MODE_AUTO ? R.string.camera_flash_auto : R.string.camera_flash_on;
-        binding.flashButton.setText(flash);
+        binding.flashButton.setText("");
+        binding.flashButton.setContentDescription(getString(flash));
+        binding.flashButton.setAlpha(hasFlash && settings.flashMode() != ImageCapture.FLASH_MODE_OFF ? 1f : .65f);
         binding.dualModeButton.setEnabled(ready && canSwitch && !liveMode);
-        binding.dualModeButton.setText(dualMode ? R.string.camera_mode_dual : R.string.camera_mode_single);
+        binding.dualModeButton.setText("");
+        binding.dualModeButton.setContentDescription(getString(dualMode ? R.string.camera_mode_dual : R.string.camera_mode_single));
+        binding.dualModeButton.setAlpha(dualMode ? 1f : .65f);
+        androidx.appcompat.widget.TooltipCompat.setTooltipText(binding.switchCameraButton, binding.switchCameraButton.getContentDescription());
+        androidx.appcompat.widget.TooltipCompat.setTooltipText(binding.flashButton, binding.flashButton.getContentDescription());
+        androidx.appcompat.widget.TooltipCompat.setTooltipText(binding.dualModeButton, binding.dualModeButton.getContentDescription());
+        androidx.core.view.ViewCompat.setStateDescription(binding.dualModeButton, binding.dualModeButton.getContentDescription());
+        androidx.core.view.ViewCompat.setStateDescription(binding.flashButton, getString(flash));
         binding.cameraPipContainer.setVisibility(dualMode && ready && !liveMode ? View.VISIBLE : View.GONE);
     }
     private void showCameraError(int message) {
@@ -401,12 +412,12 @@ public final class CameraFragment extends Fragment {
 
     private void takeLiveMoment() {
         if (!shutterHeld || videoCapture == null || !model.beginCapture()) { return; }
-        busy = true; recordingCancelled = false; stopRequested = false; updateControls();
+        busy = true; recordingCancelled = false; stopRequested = false; recordingHasData = false; updateControls();
         styleStatus(R.string.camera_status_busy, R.color.m3_secondary_container, R.color.m3_on_secondary_container);
-        binding.momentStatus.setText(R.string.camera_live_recording);
         File tempVideo = new File(requireContext().getCacheDir(), "live_" + java.util.UUID.randomUUID() + ".mp4");
         try {
-            var outputOptions = new androidx.camera.video.FileOutputOptions.Builder(tempVideo).build();
+            var outputOptions = new androidx.camera.video.FileOutputOptions.Builder(tempVideo)
+                    .setDurationLimitMillis(3000).build();
             var pending = videoCapture.getOutput().prepareRecording(requireContext(), outputOptions);
             if (liveAudio && ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED) {
                 pending = pending.withAudioEnabled();
@@ -416,12 +427,20 @@ public final class CameraFragment extends Fragment {
                     var recording = activeRecording;
                     if (binding != null) {
                         binding.getRoot().postDelayed(() -> {
-                            if (activeRecording == recording && recording != null) { endLiveHold(false); }
-                        }, 3000);
+                            // Watchdog khởi tạo: giới hạn clip do Recorder tính theo media, không tính thời gian chờ frame đầu.
+                            if (activeRecording == recording && recording != null && !recordingHasData) { endLiveHold(false); }
+                        }, 15000);
+                    }
+                } else if (event instanceof androidx.camera.video.VideoRecordEvent.Status status) {
+                    if (binding != null && status.getRecordingStats().getRecordedDurationNanos() > 0) {
+                        recordingHasData = true;
+                        binding.momentStatus.setText(R.string.camera_live_recording);
                     }
                 } else if (event instanceof androidx.camera.video.VideoRecordEvent.Finalize finalize) {
                     activeRecording = null; shutterHeld = false; liveMode = false;
-                    if (!finalize.hasError() && !recordingCancelled && pageActive()) {
+                    boolean validFinish = !finalize.hasError()
+                            || finalize.getError() == androidx.camera.video.VideoRecordEvent.Finalize.ERROR_DURATION_LIMIT_REACHED;
+                    if (validFinish && !recordingCancelled && pageActive()) {
                         processLiveVideo(tempVideo);
                     } else {
                         tempVideo.delete(); model.captureFailed();

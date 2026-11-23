@@ -38,6 +38,11 @@ database_restore() {
     PGPASSWORD="$DB_PASSWORD" pg_restore -h "$DB_HOST" -p "$DB_PORT" -U "$DB_USER" -d "$DB_NAME" \
         --clean --if-exists --exit-on-error --single-transaction "$1"
 }
+valid_private_media_path() {
+    local uuid='[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}'
+    local pattern="^(${uuid}\.(jpg|mp4)|avatars/${uuid}\.jpg)$"
+    [[ "$1" =~ $pattern ]]
+}
 lock_operations() {
     if [[ "${TAKTAK_LOCK_HELD:-0}" != 1 ]]; then
         exec 9> "$APP_ROOT/.maintenance.lock"

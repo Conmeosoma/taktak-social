@@ -149,7 +149,7 @@
     <string name="moment_downloaded">写真を非公開で保存しました。自分だけが閲覧できます。</string>
     <string name="moment_transfer_error">送受信の成功を確認できません。接続を確認して再試行してください。サーバーが受信後に応答を失った場合、再送で別の非公開写真が作成される可能性があります。</string>
     <string name="widget_4x2_name">Taktak ワイドな瞬間</string>
-    <string name="widget_4x2_description">横長写真（4x2）とリアクションを表示します。</string>
+    <string name="widget_4x2_description">横長ウィジェット（4x2）に友だちの最新の瞬間を表示します。</string>
     <string name="widget_reacted">%sでリアクションしました！</string>
     <string name="memories_title">思い出と振り返り</string>
     <string name="memories_subtitle">最高の瞬間を振り返りましょう</string>

@@ -82,6 +82,7 @@
 
                     <TextView
                         android:id="@+id/momentExpiryBadge"
+                        android:visibility="gone"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:maxWidth="72dp"
@@ -93,7 +94,6 @@
                         android:paddingHorizontal="6dp"
                         android:paddingVertical="1dp"
                         android:saveEnabled="false"
-                        android:text="@string/ui_expiry_preview"
                         android:textColor="?attr/taktakColorBrandPrimary"
                         android:textSize="11sp"
                         android:textStyle="bold" />

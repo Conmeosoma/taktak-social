@@ -37,7 +37,7 @@
             <com.google.android.material.textview.MaterialTextView
                 android:id="@+id/cameraPlaceholder"
                 android:layout_width="0dp"
-                android:layout_height="0dp"
+                android:layout_height="wrap_content"
                 android:background="?attr/taktakColorSurfaceVariant"
                 android:gravity="center"
                 android:padding="@dimen/taktak_space_xl"
@@ -94,7 +94,7 @@
                         android:paddingVertical="2dp"
                         android:text="@string/camera_dual_swap"
                         android:textColor="@android:color/white"
-                        android:textSize="9sp" />
+                        android:textSize="11sp" />
                 </FrameLayout>
             </com.google.android.material.card.MaterialCardView>
         </androidx.constraintlayout.widget.ConstraintLayout>
@@ -112,14 +112,18 @@
             android:id="@+id/switchCameraButton"
             style="@style/Widget.Taktak.Button.Secondary"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
+            android:layout_height="48dp"
             android:layout_weight="1"
             android:enabled="false"
             android:minHeight="@dimen/taktak_btn_height_medium"
-            android:text="@string/camera_switch"
+            android:contentDescription="@string/camera_switch"
             android:textAppearance="@style/TextAppearance.Taktak.Caption"
             app:icon="@drawable/ic_premium_switch"
             app:iconGravity="textStart"
+            app:iconPadding="0dp"
+            android:paddingHorizontal="12dp"
+            android:paddingVertical="0dp"
+            android:insetTop="0dp" android:insetBottom="0dp"
             app:iconSize="20dp"
             app:iconTint="?attr/taktakColorTextPrimary" />
 
@@ -127,15 +131,19 @@
             android:id="@+id/flashButton"
             style="@style/Widget.Taktak.Button.Secondary"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
+            android:layout_height="48dp"
             android:layout_marginStart="@dimen/taktak_space_sm"
             android:layout_weight="1"
             android:enabled="false"
             android:minHeight="@dimen/taktak_btn_height_medium"
-            android:text="@string/camera_flash_off"
+            android:contentDescription="@string/camera_flash_off"
             android:textAppearance="@style/TextAppearance.Taktak.Caption"
             app:icon="@drawable/ic_premium_flash"
             app:iconGravity="textStart"
+            app:iconPadding="0dp"
+            android:paddingHorizontal="12dp"
+            android:paddingVertical="0dp"
+            android:insetTop="0dp" android:insetBottom="0dp"
             app:iconSize="20dp"
             app:iconTint="?attr/taktakColorTextPrimary" />
 
@@ -143,15 +151,19 @@
             android:id="@+id/dualModeButton"
             style="@style/Widget.Taktak.Button.Secondary"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
+            android:layout_height="48dp"
             android:layout_marginStart="@dimen/taktak_space_sm"
             android:layout_weight="1"
             android:enabled="false"
             android:minHeight="@dimen/taktak_btn_height_medium"
-            android:text="@string/camera_mode_single"
+            android:contentDescription="@string/camera_mode_single"
             android:textAppearance="@style/TextAppearance.Taktak.Caption"
             app:icon="@drawable/ic_dual_cam"
             app:iconGravity="textStart"
+            app:iconPadding="0dp"
+            android:paddingHorizontal="12dp"
+            android:paddingVertical="0dp"
+            android:insetTop="0dp" android:insetBottom="0dp"
             app:iconSize="20dp"
             app:iconTint="?attr/taktakColorTextPrimary" />
     </LinearLayout>
@@ -184,7 +196,8 @@
         android:id="@+id/btnLiveAudioToggle"
         style="@style/Widget.Material3.Button.TextButton"
         android:layout_width="wrap_content"
-        android:layout_height="48dp"
+        android:layout_height="wrap_content"
+        android:minHeight="48dp"
         android:layout_marginStart="@dimen/taktak_space_xs"
         android:paddingHorizontal="10dp"
         android:text="@string/camera_live_audio_off"

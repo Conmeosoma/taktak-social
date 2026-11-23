@@ -1,0 +1,9 @@
+<resources>
+    <string name="format_ai_conversation" translatable="false">%1$s\n%2$s</string>
+    <string name="format_outbox_detail" translatable="false">%1$s · %2$s</string>
+    <string name="format_poll_result" translatable="false">%1$s (%2$d%% — %3$d)</string>
+    <string name="format_poll_status" translatable="false">%1$s • %2$s</string>
+    <string name="symbol_theme" translatable="false">☼</string>
+    <string name="symbol_back" translatable="false">←</string>
+    <string name="symbol_send" translatable="false">↑</string>
+</resources>

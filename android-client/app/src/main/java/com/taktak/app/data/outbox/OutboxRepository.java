@@ -32,8 +32,8 @@ public final class OutboxRepository {
     }
 
     private OutboxRepository(Context context) {
-        this.context = context;
-        this.db = new OutboxDatabaseHelper(context);
+        this.context = context.getApplicationContext();
+        this.db = new OutboxDatabaseHelper(this.context);
         // Purge old completed/cancelled records older than 48 hours
         executor.execute(() -> {
             db.purgeOldCompleted(48 * 60 * 60 * 1000L);
@@ -47,6 +47,9 @@ public final class OutboxRepository {
     public void refreshActiveTasks(long sessionGeneration) {
         executor.execute(() -> {
             List<OutboxRecord> active = db.listActive(sessionGeneration);
+            for (OutboxRecord task : active) {
+                if (task.status == OutboxStatus.PENDING) schedulePersistedTask(task);
+            }
             activeTasksLive.postValue(active);
         });
     }
@@ -59,19 +62,40 @@ public final class OutboxRepository {
         return dir;
     }
 
-    public OutboxRecord enqueue(long sessionGeneration, String ownerUserId, byte[] mediaBytes,
+    public synchronized OutboxRecord enqueue(long sessionGeneration, String ownerUserId, byte[] mediaBytes,
             String mediaType, String thumbnailPath, String caption, List<String> recipientIds,
             String pollJson) throws IOException {
-        String taskId = UUID.randomUUID().toString();
-        String idempotencyKey = UUID.randomUUID().toString();
+        return enqueue(sessionGeneration, ownerUserId, mediaBytes, mediaType, thumbnailPath,
+                caption, recipientIds, pollJson, UUID.randomUUID().toString());
+    }
+
+    public synchronized OutboxRecord enqueue(long sessionGeneration, String ownerUserId, byte[] mediaBytes,
+            String mediaType, String thumbnailPath, String caption, List<String> recipientIds,
+            String pollJson, String idempotencyKey) throws IOException {
+        String taskId = UUID.fromString(idempotencyKey).toString();
+        OutboxRecord existing = db.get(taskId);
+        if (existing != null) {
+            if (existing.sessionGeneration != sessionGeneration || !existing.ownerUserId.equals(ownerUserId))
+                throw new IOException("Outbox owner mismatch");
+            if (existing.status == OutboxStatus.PENDING) schedulePersistedTask(existing);
+            return existing;
+        }
+        if (mediaBytes == null || mediaBytes.length < 3) throw new IOException("Missing payload");
+        boolean live = "LIVE_VIDEO".equals(mediaType);
+        if (live && (thumbnailPath == null || !new File(thumbnailPath).isFile()))
+            throw new IOException("Missing live thumbnail");
         File outboxDir = getOutboxDirectory(sessionGeneration);
         String extension = "LIVE_VIDEO".equals(mediaType) ? ".mp4" : ".jpg";
         File payloadFile = new File(outboxDir, taskId + extension);
 
+        File thumbnailFile = thumbnailPath == null ? null : new File(outboxDir, taskId + "-thumb.jpg");
+        try {
         try (FileOutputStream fos = new FileOutputStream(payloadFile)) {
             fos.write(mediaBytes);
             fos.flush();
+            fos.getFD().sync();
         }
+        if (thumbnailFile != null) Files.copy(new File(thumbnailPath).toPath(), thumbnailFile.toPath());
 
         OutboxRecord record = new OutboxRecord(
                 taskId,
@@ -80,7 +104,7 @@ public final class OutboxRepository {
                 idempotencyKey,
                 mediaType,
                 payloadFile.getAbsolutePath(),
-                thumbnailPath,
+                thumbnailFile == null ? null : thumbnailFile.getAbsolutePath(),
                 caption,
                 recipientIds,
                 pollJson,
@@ -93,12 +117,28 @@ public final class OutboxRepository {
         );
 
         db.insert(record);
+        } catch (IOException | RuntimeException failure) {
+            Files.deleteIfExists(payloadFile.toPath());
+            if (thumbnailFile != null) Files.deleteIfExists(thumbnailFile.toPath());
+            throw failure;
+        }
+        OutboxRecord record = db.get(taskId);
         refreshActiveTasks(sessionGeneration);
-        scheduleWorker(record);
+        schedulePersistedTask(record);
         return record;
     }
 
+    private void schedulePersistedTask(OutboxRecord record) {
+        try { scheduleWorker(record); }
+        catch (RuntimeException unavailable) {
+            // Giữ PENDING trong DB; refresh sau sẽ lên lịch lại với cùng ID/key.
+        }
+    }
+
     public void scheduleWorker(OutboxRecord record) {
+        scheduleWorker(record, ExistingWorkPolicy.KEEP);
+    }
+    private void scheduleWorker(OutboxRecord record, ExistingWorkPolicy policy) {
         Constraints constraints = new Constraints.Builder()
                 .setRequiredNetworkType(NetworkType.CONNECTED)
                 .build();
@@ -118,7 +158,7 @@ public final class OutboxRepository {
 
         WorkManager.getInstance(context).enqueueUniqueWork(
                 "outbox_" + record.id,
-                ExistingWorkPolicy.REPLACE,
+                policy,
                 workRequest
         );
     }
@@ -152,7 +192,7 @@ public final class OutboxRepository {
                     && db.updateStatus(taskId, OutboxStatus.PENDING, null, 0, sessionGeneration)) {
                 OutboxRecord updated = db.get(taskId);
                 if (updated != null) {
-                    scheduleWorker(updated);
+                    scheduleWorker(updated, ExistingWorkPolicy.REPLACE);
                 }
             }
             refreshActiveTasks(sessionGeneration);
@@ -199,6 +239,7 @@ public final class OutboxRepository {
         if (completed && record != null && record.payloadPath != null) {
             try {
                 Files.deleteIfExists(new File(record.payloadPath).toPath());
+                if (record.thumbnailPath != null) Files.deleteIfExists(new File(record.thumbnailPath).toPath());
             } catch (Exception ignored) { }
         }
         refreshActiveTasks(sessionGeneration);

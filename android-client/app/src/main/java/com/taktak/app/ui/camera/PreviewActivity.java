@@ -33,6 +33,7 @@ public final class PreviewActivity extends AppCompatActivity {
     private final RecipientsAdapter adapter = new RecipientsAdapter();
     private boolean authorized, rendering, navigating;
     private Object shownImage;
+    private int editRevision;
     private final androidx.activity.result.ActivityResultLauncher<String> permission = registerForActivityResult(
             new ActivityResultContracts.RequestPermission(), granted -> session.check(granted));
 
@@ -71,7 +72,7 @@ public final class PreviewActivity extends AppCompatActivity {
             var state = model.state().getValue();
             if (state == null) return;
             if (state.retry() && model.friendTransfer()) {
-                commitEditsAndProceed(() -> model.sendFriends());
+                commitEditsAndProceed(true);
                 return;
             }
             if (!state.all() && state.selected().isEmpty()) {
@@ -90,7 +91,7 @@ public final class PreviewActivity extends AppCompatActivity {
                     .setTitle(R.string.preview_confirm_send_title)
                     .setMessage(message)
                     .setNegativeButton(R.string.preview_cancel, null)
-                    .setPositiveButton(R.string.preview_send_now, (dialog, which) -> commitEditsAndProceed(() -> model.sendFriends()))
+                    .setPositiveButton(R.string.preview_send_now, (dialog, which) -> commitEditsAndProceed(true))
                     .show();
         });
         binding.previewLogoutButton.setOnClickListener(view -> session.logout());
@@ -100,10 +101,10 @@ public final class PreviewActivity extends AppCompatActivity {
             else { permission.launch("android.permission.ACCESS_LOCAL_NETWORK"); }
         });
         binding.savePrivateButton.setOnClickListener(view -> {
-            if (model.state().getValue().retry()) { commitEditsAndProceed(() -> model.savePrivate()); return; }
+            if (model.state().getValue().retry()) { commitEditsAndProceed(false); return; }
             new MaterialAlertDialogBuilder(this).setMessage(R.string.preview_private_confirm)
                     .setNegativeButton(R.string.preview_cancel, null)
-                    .setPositiveButton(R.string.preview_confirm, (dialog, which) -> commitEditsAndProceed(() -> model.savePrivate())).show();
+                    .setPositiveButton(R.string.preview_confirm, (dialog, which) -> commitEditsAndProceed(false)).show();
         });
 
         binding.btnAddPoll.setOnClickListener(v -> {
@@ -118,11 +119,30 @@ public final class PreviewActivity extends AppCompatActivity {
             binding.pollCreationCard.setVisibility(View.GONE);
             binding.btnAddPoll.setVisibility(View.VISIBLE);
         });
+        if (saved != null && saved.getBoolean("pollVisible")) {
+            binding.pollCreationCard.setVisibility(View.VISIBLE);
+            binding.btnAddPoll.setVisibility(View.GONE);
+        }
+        binding.previewPlayLive.setOnClickListener(v -> {
+            java.io.File video = model.video();
+            if (video == null) return;
+            binding.previewVideo.setVisibility(View.VISIBLE);
+            binding.previewVideo.setVideoPath(video.getAbsolutePath());
+            var controls = new android.widget.MediaController(this);
+            controls.setAnchorView(binding.previewVideo);
+            binding.previewVideo.setMediaController(controls);
+            binding.previewVideo.setOnCompletionListener(player -> binding.previewVideo.setVisibility(View.GONE));
+            binding.previewVideo.setOnErrorListener((player, what, extra) -> {
+                binding.previewVideo.setVisibility(View.GONE);
+                binding.previewNotice.setText(R.string.preview_video_error); return true;
+            });
+            binding.previewVideo.start();
+        });
 
         setupCreativeTools();
 
         getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
-            @Override public void handleOnBackPressed() { if (!model.state().getValue().sending()) { finish(); } }
+            @Override public void handleOnBackPressed() { if (!model.state().getValue().sending() && !model.state().getValue().loading()) { finish(); } }
         });
         model.state().observe(this, value -> render());
         session.state().observe(this, value -> {
@@ -154,6 +174,10 @@ public final class PreviewActivity extends AppCompatActivity {
     private void render() {
         if (!authorized) { return; }
         var value = model.state().getValue(); rendering = true;
+        binding.previewScroll.setVisibility(model.queued() ? View.GONE : View.VISIBLE);
+        if (editRevision != model.editRevision()) {
+            editRevision = model.editRevision(); binding.doodleOverlay.clearAll(); shownImage = null;
+        }
         if (value.message() == R.string.preview_missing && binding.captionInput.length() > 0) { binding.captionInput.setText(""); }
         binding.previewTitle.setText(value.downloaded() == null ? R.string.preview_title
                 : model.friendTransfer() ? R.string.preview_sent_title : R.string.camera_status_success);
@@ -175,7 +199,11 @@ public final class PreviewActivity extends AppCompatActivity {
             binding.previewProgress.setVisibility(value.loading() || value.loadingFriends() ? View.VISIBLE : View.INVISIBLE);
             binding.previewNotice.setText(value.message());
         }
-        binding.retakeButton.setEnabled(!value.sending());
+        binding.retakeButton.setEnabled(!value.sending() && !value.loading());
+        binding.retakeButton.setText(model.queued() ? R.string.preview_done : R.string.preview_retake);
+        binding.recipientSummary.setText(value.all() ? getString(R.string.preview_all)
+                : value.selected().isEmpty() ? getString(R.string.preview_recipients_needed_title)
+                : getString(R.string.preview_selected_summary, value.selected().size()));
         binding.captionLayout.setEnabled(!model.selectionLocked() && value.file() != null);
         binding.allFriendsCheck.setEnabled(!model.selectionLocked()); binding.allFriendsCheck.setChecked(value.all());
         boolean ready = value.file() != null && !value.loading() && !value.sending() && value.downloaded() == null;
@@ -195,12 +223,23 @@ public final class PreviewActivity extends AppCompatActivity {
         Object image = value.downloaded() != null ? value.downloaded() : value.file();
         binding.previewImage.setContentDescription(getString(value.downloaded() == null ? R.string.preview_image : R.string.moment_server_image));
         binding.previewLiveBadge.setVisibility(value.isLiveVideo() ? View.VISIBLE : View.GONE);
-        if (value.downloaded() != null) {
+        boolean editing = !model.selectionLocked() && !value.sending() && !value.loading();
+        for (View control : new View[]{binding.btnToolDoodle, binding.btnToolSticker, binding.btnToolTag,
+                binding.btnToolUndo, binding.btnToolClear, binding.btnAddPoll, binding.btnRemovePoll,
+                binding.pollQuestionInput, binding.pollOptionAInput, binding.pollOptionBInput}) control.setEnabled(editing);
+        binding.previewPlayLive.setVisibility(value.isLiveVideo() && value.file() != null ? View.VISIBLE : View.GONE);
+        binding.previewPlayLive.setEnabled(editing);
+        if (!editing || value.isLiveVideo()) binding.doodleOverlay.setMode(DoodleOverlayView.Mode.DISABLED);
+        if (!editing) {
+            binding.colorPaletteBar.setVisibility(View.GONE);
+            binding.stickerPaletteBar.setVisibility(View.GONE);
+        }
+        if (value.isLiveVideo() || value.downloaded() != null || model.queued()) {
             binding.creativeToolsBar.setVisibility(View.GONE);
             binding.colorPaletteBar.setVisibility(View.GONE);
             binding.stickerPaletteBar.setVisibility(View.GONE);
             binding.doodleOverlay.setMode(DoodleOverlayView.Mode.DISABLED);
-            binding.previewBottomActions.setVisibility(View.GONE);
+            binding.previewBottomActions.setVisibility(value.downloaded() != null || model.queued() ? View.GONE : View.VISIBLE);
         } else {
             binding.creativeToolsBar.setVisibility(View.VISIBLE);
             binding.previewBottomActions.setVisibility(authorized ? View.VISIBLE : View.GONE);
@@ -211,23 +250,42 @@ public final class PreviewActivity extends AppCompatActivity {
             else { images.load(image).diskCacheStrategy(DiskCacheStrategy.NONE).skipMemoryCache(true).into(binding.previewImage); }
         }
     }
-    private void commitEditsAndProceed(Runnable action) {
-        if (!binding.doodleOverlay.hasEdits()
-                || !(binding.previewImage.getDrawable() instanceof android.graphics.drawable.BitmapDrawable bd)) {
-            action.run();
-            return;
+    private void commitEditsAndProceed(boolean sendingToFriends) {
+        if (!validatePoll()) return;
+        binding.previewVideo.stopPlayback(); binding.previewVideo.setVisibility(View.GONE);
+        if (!binding.doodleOverlay.hasEdits() || model.state().getValue().isLiveVideo() || model.selectionLocked()) { if (sendingToFriends) model.sendFriends(); else model.savePrivate(); return; }
+        // Chụp lệnh vẽ trên UI; giải mã, composite, nén và ghi file chạy trong ViewModel worker.
+        var picture = new android.graphics.Picture();
+        int width = binding.doodleOverlay.getWidth(), height = binding.doodleOverlay.getHeight();
+        binding.doodleOverlay.draw(picture.beginRecording(width, height)); picture.endRecording();
+        model.prepareAndTransfer(picture, width, height, sendingToFriends);
+    }
+    private boolean validatePoll() {
+        if (model.selectionLocked()) return true;
+        if (binding.pollCreationCard.getVisibility() != View.VISIBLE) { model.poll(null, null, null); return true; }
+        android.widget.EditText[] fields = {binding.pollQuestionInput, binding.pollOptionAInput, binding.pollOptionBInput};
+        String[] values = new String[3]; boolean valid = true;
+        for (int i = 0; i < fields.length; i++) {
+            values[i] = fields[i].getText().toString().trim();
+            boolean ok = !values[i].isEmpty() && values[i].codePointCount(0, values[i].length()) <= (i == 0 ? 100 : 40);
+            fields[i].setError(ok ? null : getString(R.string.preview_poll_required));
+            if (!ok && valid) fields[i].requestFocus();
+            valid &= ok;
         }
-        android.graphics.Bitmap original = bd.getBitmap();
-        if (original == null) {
-            action.run();
-            return;
+        if (valid) model.poll(values[0], values[1], values[2]);
+        return valid;
+    }
+    private void selectColor(View chosen, int color) {
+        binding.doodleOverlay.setCurrentColor(color);
+        for (View swatch : new View[]{binding.colorWhite, binding.colorYellow, binding.colorCoral, binding.colorMint, binding.colorPurple}) {
+            boolean selected = swatch == chosen;
+            swatch.setSelected(selected);
+            swatch.setAlpha(selected ? 1f : .65f);
+            ViewCompat.setStateDescription(swatch, selected ? getString(R.string.preview_color_selected) : null);
         }
-        android.graphics.Bitmap composite = binding.doodleOverlay.renderCompositeBitmap(original);
-        java.io.ByteArrayOutputStream baos = new java.io.ByteArrayOutputStream();
-        composite.compress(android.graphics.Bitmap.CompressFormat.JPEG, 88, baos);
-        model.updateDraftImage(baos.toByteArray(), action);
     }
     private void setupCreativeTools() {
+        selectColor(binding.colorWhite, android.graphics.Color.WHITE);
         binding.btnToolDoodle.setOnClickListener(v -> {
             boolean active = binding.doodleOverlay.getMode() == DoodleOverlayView.Mode.DRAW;
             if (active) {
@@ -265,18 +323,20 @@ public final class PreviewActivity extends AppCompatActivity {
         });
         binding.btnToolUndo.setOnClickListener(v -> binding.doodleOverlay.undo());
         binding.btnToolClear.setOnClickListener(v -> binding.doodleOverlay.clearAll());
-        binding.colorWhite.setOnClickListener(v -> binding.doodleOverlay.setCurrentColor(android.graphics.Color.WHITE));
-        binding.colorYellow.setOnClickListener(v -> binding.doodleOverlay.setCurrentColor(android.graphics.Color.parseColor("#FFD600")));
-        binding.colorCoral.setOnClickListener(v -> binding.doodleOverlay.setCurrentColor(android.graphics.Color.parseColor("#FF3B5C")));
-        binding.colorMint.setOnClickListener(v -> binding.doodleOverlay.setCurrentColor(android.graphics.Color.parseColor("#00E676")));
-        binding.colorPurple.setOnClickListener(v -> binding.doodleOverlay.setCurrentColor(android.graphics.Color.parseColor("#7C4DFF")));
+        binding.colorWhite.setOnClickListener(v -> selectColor(v, android.graphics.Color.WHITE));
+        binding.colorYellow.setOnClickListener(v -> selectColor(v, android.graphics.Color.parseColor("#FFD600")));
+        binding.colorCoral.setOnClickListener(v -> selectColor(v, android.graphics.Color.parseColor("#FF3B5C")));
+        binding.colorMint.setOnClickListener(v -> selectColor(v, android.graphics.Color.parseColor("#00E676")));
+        binding.colorPurple.setOnClickListener(v -> selectColor(v, android.graphics.Color.parseColor("#7C4DFF")));
         String[] emojis = {"🔥", "❤️", "✨", "😂", "🎉", "🚀", "📸", "🫶", "☕", "🐱", "🍕", "😴", "🌈", "⚡", "🍀"};
         binding.stickerEmojiContainer.removeAllViews();
         for (String emoji : emojis) {
             android.widget.TextView tv = new android.widget.TextView(this);
             tv.setText(emoji);
             tv.setTextSize(android.util.TypedValue.COMPLEX_UNIT_SP, 24);
-            tv.setPadding(16, 8, 16, 8);
+            int target = Math.round(48 * getResources().getDisplayMetrics().density);
+            tv.setMinWidth(target); tv.setMinHeight(target); tv.setGravity(android.view.Gravity.CENTER);
+            tv.setContentDescription(getString(R.string.preview_add_sticker, emoji));
             tv.setClickable(true);
             tv.setFocusable(true);
             tv.setOnClickListener(ev -> binding.doodleOverlay.addSticker(emoji));
@@ -285,6 +345,11 @@ public final class PreviewActivity extends AppCompatActivity {
     }
     private void clearImage() { images.clear(binding.previewImage); binding.previewImage.setImageDrawable(null); shownImage = null; }
     @Override protected void onStart() { super.onStart(); session.check(networkAllowed()); }
+    @Override protected void onSaveInstanceState(Bundle out) {
+        out.putBoolean("pollVisible", binding.pollCreationCard.getVisibility() == View.VISIBLE);
+        super.onSaveInstanceState(out);
+    }
+    @Override protected void onStop() { binding.previewVideo.stopPlayback(); binding.previewVideo.setVisibility(View.GONE); super.onStop(); }
     @Override protected void onDestroy() { clearImage(); super.onDestroy(); }
     private boolean networkAllowed() {
         return !BuildConfig.DEBUG || Build.VERSION.SDK_INT < 37

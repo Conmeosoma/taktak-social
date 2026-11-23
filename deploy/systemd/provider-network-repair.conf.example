@@ -1,0 +1,7 @@
+# Drop-in cho changip-apply.service, chỉ dùng topology VLAN của VPS này.
+[Service]
+ExecStart=
+ExecStart=/usr/local/sbin/taktak-restore-provider-network
+TimeoutStartSec=90
+Restart=on-failure
+RestartSec=60

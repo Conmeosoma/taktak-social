@@ -22,8 +22,11 @@ final class MediaThemeFixture implements AutoCloseable {
     static final String SECOND = "00000000-0000-4000-8000-000000000022";
     static final String MOMENT = "00000000-0000-4000-8000-000000000033";
     final byte[] jpeg;
+    volatile byte[] uploadedImage;
     final AuthRepository auth;
     final AtomicInteger posts = new AtomicInteger(), deletes = new AtomicInteger();
+    final AtomicInteger pollPosts = new AtomicInteger();
+    volatile com.taktak.app.data.model.PollModels.CreatePollRequest lastPoll;
     final List<String> keys = new CopyOnWriteArrayList<>(), captions = new CopyOnWriteArrayList<>(), recipients = new CopyOnWriteArrayList<>();
     volatile boolean denyImage, failFirstPost;
     volatile boolean mockProfile;
@@ -49,10 +52,11 @@ final class MediaThemeFixture implements AutoCloseable {
         replace(client,"users",UserApi.class);
         replace(client,"friends",FriendApi.class);
         replace(client,"moments",MomentApi.class);
+        replace(client,"poll",PollApi.class);
         replace(client,"devices",DeviceApi.class);
         auth = new AuthRepository(client);
         graph=AuthGraph.class.getDeclaredField("repository"); graph.setAccessible(true);
-        previous=graph.get(null); graph.set(null,auth);
+        synchronized(AuthGraph.class){previous=graph.get(null); graph.set(null,auth);}
     }
     private void replace(ApiClient client,String field,Class<?> api) throws Exception {
         Object proxy = Proxy.newProxyInstance(api.getClassLoader(),new Class<?>[]{api},(object,method,args) -> {
@@ -62,6 +66,14 @@ final class MediaThemeFixture implements AutoCloseable {
         Field target=ApiClient.class.getDeclaredField(field); target.setAccessible(true); target.set(client,proxy);
     }
     private Response<?> response(String api,String method,Object[] args) throws Exception {
+        if (api.equals("poll") && method.equals("createPoll")) {
+            lastPoll = (com.taktak.app.data.model.PollModels.CreatePollRequest) args[1];
+            pollPosts.incrementAndGet();
+            var poll = new com.taktak.app.data.model.PollModels.PollResponse();
+            poll.pollId = SECOND; poll.momentId = (String)args[0]; poll.question = lastPoll.question;
+            poll.optionA = lastPoll.optionA; poll.optionB = lastPoll.optionB; poll.status = "OPEN";
+            return Response.success(poll);
+        }
         if (api.equals("users")) {
             if (!mockProfile) return error(503);
             if (method.equals("me")) {
@@ -112,6 +124,7 @@ final class MediaThemeFixture implements AutoCloseable {
         if (api.equals("moments") && method.equals("uploadToFriends")) {
             int attempt=posts.incrementAndGet(); keys.add((String)args[0]);
             var bytes = new okio.Buffer(); ((MultipartBody.Part)args[1]).body().writeTo(bytes);
+            uploadedImage = bytes.readByteArray();
             var caption = new okio.Buffer(); ((RequestBody)args[3]).writeTo(caption); captions.add(caption.readUtf8());
             var selected = new StringBuilder();
             for(Object value : (List<?>)args[2]) { var buffer=new okio.Buffer(); ((RequestBody)value).writeTo(buffer); selected.append(buffer.readUtf8()); }
@@ -183,7 +196,7 @@ final class MediaThemeFixture implements AutoCloseable {
         });
     }
     @Override public void close() throws Exception {
-        graph.set(null,previous);
+        synchronized(AuthGraph.class){graph.set(null,previous);}
         com.taktak.app.ui.history.HistoryImageCache.remove(MOMENT);
     }
 }

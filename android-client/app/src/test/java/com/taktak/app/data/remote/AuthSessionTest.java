@@ -13,6 +13,21 @@ import org.junit.Test;
 import static org.junit.Assert.*;
 
 public class AuthSessionTest {
+    @Test public void offlineOwnerRequiresValidatedProfileAndCannotCrossSessions() throws Exception {
+        AtomicInteger calls = new AtomicInteger();
+        try (var server = new TestHttpServer(request -> {
+            calls.incrementAndGet(); return new TestHttpServer.Reply(200, profile());
+        })) {
+            ApiClient client = new ApiClient(server.baseUrl(), new MemoryStore()); seed(client);
+            var repository = new AuthRepository(client);
+            assertThrows(ApiFailure.class, repository::currentUserId);
+            String id = repository.profile().id;
+            assertEquals(id, repository.currentUserId()); assertEquals(1, calls.get());
+            seed(client);
+            assertThrows(ApiFailure.class, repository::currentUserId);
+            assertEquals("Reading cached owner must not call the network", 1, calls.get());
+        }
+    }
     private static final Gson JSON = new Gson();
     private String access() { return "eyJhbGciOiJIUzI1NiJ9." + java.util.UUID.randomUUID().toString().replace("-", "") + ".signature"; }
     private TokenResponse tokens() {

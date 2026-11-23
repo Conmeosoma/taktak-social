@@ -149,7 +149,7 @@
     <string name="moment_downloaded">照片已私密保存，仅你可查看。</string>
     <string name="moment_transfer_error">无法确认发送或下载结果，请检查连接后重试。如果服务器已接收但响应丢失，重新发送可能会产生另一张私密照片。</string>
     <string name="widget_4x2_name">Taktak 宽幅瞬间</string>
-    <string name="widget_4x2_description">显示宽幅照片（4x2），支持直接表态。</string>
+    <string name="widget_4x2_description">在宽幅小组件（4x2）中显示好友的最新瞬间。</string>
     <string name="widget_reacted">已回应 %s！</string>
     <string name="memories_title">回忆与回顾</string>
     <string name="memories_subtitle">回顾你最美好的瞬间</string>

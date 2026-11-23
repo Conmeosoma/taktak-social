@@ -86,19 +86,6 @@ public final class WidgetUpdater {
         );
     }
 
-    private static PendingIntent buildReactionIntent(Context context, String emoji, String momentId, int requestCode) {
-        Intent intent = new Intent(context, WidgetReactionReceiver.class);
-        intent.setAction(WidgetReactionReceiver.ACTION_REACT);
-        intent.putExtra(WidgetReactionReceiver.EXTRA_EMOJI, emoji);
-        intent.putExtra(WidgetReactionReceiver.EXTRA_MOMENT_ID, momentId);
-        return PendingIntent.getBroadcast(
-                context,
-                requestCode,
-                intent,
-                PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
-        );
-    }
-
     public static void renderMoment(Context context, MomentItem moment, Bitmap bitmap) {
         AppWidgetManager manager = AppWidgetManager.getInstance(context);
 
@@ -138,13 +125,7 @@ public final class WidgetUpdater {
             views.setViewVisibility(R.id.widget_caption, View.GONE);
         }
 
-        // Attach reaction listeners
-        views.setOnClickPendingIntent(R.id.widget_react_heart,
-                buildReactionIntent(context, "❤️", moment.id, 101));
-        views.setOnClickPendingIntent(R.id.widget_react_fire,
-                buildReactionIntent(context, "🔥", moment.id, 102));
-        views.setOnClickPendingIntent(R.id.widget_react_laugh,
-                buildReactionIntent(context, "😂", moment.id, 103));
+        views.setViewVisibility(R.id.widget_reaction_bar, View.GONE);
 
         manager.updateAppWidget(component, views);
     }

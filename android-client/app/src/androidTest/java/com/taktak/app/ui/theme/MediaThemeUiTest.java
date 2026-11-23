@@ -37,6 +37,7 @@ public class MediaThemeUiTest {
     private byte[] sessionBytes;
     private boolean foreground;
     private final List<String> ownedDrafts = new ArrayList<>();
+    private CaptureDraftRepository ownedDraftStore;
     @Before public void setup() throws Exception {
         assertEquals("Explicit USB QA opt-in","true",InstrumentationRegistry.getArguments().getString("taktak.allowMediaQa"));
         context=InstrumentationRegistry.getInstrumentation().getTargetContext();
@@ -50,13 +51,14 @@ public class MediaThemeUiTest {
         sessionFile=new File(context.getApplicationInfo().dataDir,"shared_prefs/auth_session_v1.xml");
         sessionBytes=sessionFile.exists() ? java.nio.file.Files.readAllBytes(sessionFile.toPath()) : null;
         fixture=new MediaThemeFixture(context);
+        ownedDraftStore=new CaptureDraftRepository(context,fixture.auth.sessionGeneration());
     }
     @After public void cleanup() throws Exception {
         closeScreens();
         if (fixture!=null) {
-            var drafts=new CaptureDraftRepository(context,fixture.auth.sessionGeneration());
-            for(String id:ownedDrafts) drafts.discard(id);
-            fixture.close();
+            try {
+                for(String id:ownedDrafts) ownedDraftStore.discard(id);
+            } finally { fixture.close(); }
         }
         if(original!=null) {
             var editor=context.getSharedPreferences(ThemePreferences.FILE_NAME,Context.MODE_PRIVATE).edit();
@@ -170,48 +172,87 @@ public class MediaThemeUiTest {
         });
         assertEquals(0,fixture.posts.get()); assertEquals(0,fixture.deletes.get());
     }
-    @Test public void previewDraftCaptionSelectionFrozenRetryKeyAndImageSurviveRecreation() throws Exception {
-        for(AppTheme style:AppTheme.values()) {
-            select(style,ColorMode.LIGHT); fixture.posts.set(0); fixture.keys.clear(); fixture.captions.clear(); fixture.recipients.clear(); fixture.failFirstPost=true;
-            var drafts=new CaptureDraftRepository(context,fixture.auth.sessionGeneration());
-            String id=drafts.write(fixture.jpeg); ownedDrafts.add(id); File file=drafts.file(id);
-            Intent intent=new Intent(context,PreviewActivity.class).putExtra(PreviewActivity.DRAFT_ID,id)
-                    .putExtra(PreviewActivity.GENERATION,fixture.auth.sessionGeneration());
-            PreviewActivity activity=launch(PreviewActivity.class,intent); authorize(activity); readyPreview(activity);
-            String caption=new String(Character.toChars(0x1F642)).repeat(50);
+    @Test public void previewQueuesPollAndRetriesWithoutDuplicateMediaOrLostDraft() throws Exception {
+        select(AppTheme.SOFT,ColorMode.LIGHT);
+        fixture.failFirstPost=true;
+        fixture.mockProfile=true; fixture.auth.profile(); fixture.mockProfile=false;
+        var drafts=new CaptureDraftRepository(context,fixture.auth.sessionGeneration());
+        String id=drafts.write(fixture.jpeg); ownedDrafts.add(id); File file=drafts.file(id);
+        Intent intent=new Intent(context,PreviewActivity.class).putExtra(PreviewActivity.DRAFT_ID,id)
+                .putExtra(PreviewActivity.GENERATION,fixture.auth.sessionGeneration());
+        PreviewActivity activity=launch(PreviewActivity.class,intent); authorize(activity); readyPreview(activity);
+        var repo=com.taktak.app.data.outbox.OutboxRepository.getInstance(context);
+        String taskId=null;
+        try {
             main(() -> {
-                ((EditText)activity.findViewById(R.id.captionInput)).setText(caption+caption);
-                assertEquals(caption,preview(activity).caption());
-                preview(activity).selectAll(false); preview(activity).toggle(MediaThemeFixture.FIRST,true);
+                ((EditText)activity.findViewById(R.id.captionInput)).setText("QA queue caption");
+                preview(activity).selectAll(false); preview(activity).toggle(MediaThemeFixture.SECOND,true);
+                activity.findViewById(R.id.btnAddPoll).performClick();
+                ((EditText)activity.findViewById(R.id.pollQuestionInput)).setText("QA question?");
+                ((EditText)activity.findViewById(R.id.pollOptionAInput)).setText("A");
+                ((EditText)activity.findViewById(R.id.pollOptionBInput)).setText("B");
             });
-            capture("preview-"+style.id());
+            capture("review-preview-poll-selected");
+            fixture.mockProfile=true;
             main(() -> activity.findViewById(R.id.sendFriendsButton).performClick());
-            await(() -> previewState(activity).sending(),"Upload starts and locks UI");
-            main(() -> assertFalse(activity.findViewById(R.id.retakeButton).isEnabled()));
-            await(() -> previewState(activity).retry(),"Retry retains payload");
-            String key=fixture.keys.get(0);
-            main(() -> {
-                preview(activity).caption("must not replace frozen caption"); preview(activity).selectAll(true);
-                assertEquals(caption,preview(activity).caption()); assertFalse(previewState(activity).all());
-                assertEquals(Set.of(MediaThemeFixture.FIRST),previewState(activity).selected());
-                assertFalse(activity.findViewById(R.id.savePrivateButton).isEnabled());
-            });
-            capture("retry-"+style.id());
-            assertTrue(file.isFile()); main(activity::recreate);
-            PreviewActivity recreated=awaitActivity(PreviewActivity.class,activity); authorize(recreated); readyPreview(recreated);
-            main(() -> {
-                assertEquals(caption,((EditText)recreated.findViewById(R.id.captionInput)).getText().toString());
-                assertEquals(Set.of(MediaThemeFixture.FIRST),previewState(recreated).selected());
-                assertTrue(preview(recreated).selectionLocked()); assertTrue(previewState(recreated).retry());
-                recreated.findViewById(R.id.sendFriendsButton).performClick();
-            });
-            await(() -> previewState(recreated).downloaded()!=null,"Retry succeeds with fixture bytes");
-            assertEquals(2,fixture.posts.get()); assertEquals(key,fixture.keys.get(1));
-            assertEquals(List.of(caption,caption),fixture.captions);
-            assertEquals(List.of(MediaThemeFixture.FIRST,MediaThemeFixture.FIRST),fixture.recipients);
-            assertArrayEquals(fixture.jpeg,previewState(recreated).downloaded()); assertFalse(file.exists());
-            capture("sent-fixture-"+style.id()); closeScreens();
+            androidx.test.espresso.Espresso.onView(androidx.test.espresso.matcher.ViewMatchers.withText(R.string.preview_send_now))
+                    .inRoot(androidx.test.espresso.matcher.RootMatchers.isDialog()).perform(androidx.test.espresso.action.ViewActions.click());
+            await(() -> previewState(activity).message()==R.string.preview_queued,"Queued locally before server success");
+            assertFalse(file.exists()); assertNull(previewState(activity).downloaded());
+            try(var db=new com.taktak.app.data.outbox.OutboxDatabaseHelper(context)) {
+                var records=db.listAllForSession(0);
+                var task=records.stream().filter(r -> "QA queue caption".equals(r.caption)).findFirst().orElseThrow();
+                taskId=task.id;
+                assertTrue(new File(task.payloadPath).isFile());
+                assertEquals(List.of(MediaThemeFixture.SECOND),task.recipientIds);
+                assertTrue(task.pollJson.contains("QA question?"));
+            }
+            String task=taskId;
+            main(activity::finish);
+            await(() -> repo.get(task).status==com.taktak.app.data.outbox.OutboxStatus.FAILED_RETRYABLE,"Failed upload stays visible and durable");
+            assertTrue(new File(repo.get(task).payloadPath).isFile());
+            String key=repo.get(task).idempotencyKey;
+            repo.retry(task,0);
+            await(() -> repo.get(task).status==com.taktak.app.data.outbox.OutboxStatus.COMPLETED
+                    && !new File(repo.get(task).payloadPath).exists(),"Outbox upload and poll complete, owned payload removed");
+            assertEquals(2,fixture.posts.get()); assertEquals(List.of(key,key),fixture.keys);
+            assertEquals(1,fixture.pollPosts.get()); assertEquals("QA question?",fixture.lastPoll.question);
+            assertFalse(new File(repo.get(task).payloadPath).exists());
+        } finally {
+            if(taskId!=null) {
+                androidx.work.WorkManager.getInstance(context).cancelUniqueWork("outbox_"+taskId).getResult().get();
+                var task=repo.get(taskId);
+                try(var db=new com.taktak.app.data.outbox.OutboxDatabaseHelper(context)) { db.delete(taskId); }
+                if(task!=null) java.nio.file.Files.deleteIfExists(new File(task.payloadPath).toPath());
+            }
         }
+    }
+    @Test public void emptyPollNeverQueuesAndPrivateTransferStillDownloadsWithJwt() throws Exception {
+        var drafts=new CaptureDraftRepository(context,fixture.auth.sessionGeneration());
+        String id=drafts.write(fixture.jpeg); ownedDrafts.add(id);
+        PreviewActivity activity=launch(PreviewActivity.class,new Intent(context,PreviewActivity.class)
+                .putExtra(PreviewActivity.DRAFT_ID,id).putExtra(PreviewActivity.GENERATION,0L));
+        authorize(activity); readyPreview(activity);
+        main(() -> { activity.findViewById(R.id.btnAddPoll).performClick(); activity.findViewById(R.id.savePrivateButton).performClick(); });
+        androidx.test.espresso.Espresso.onView(androidx.test.espresso.matcher.ViewMatchers.withText(R.string.preview_confirm))
+                .inRoot(androidx.test.espresso.matcher.RootMatchers.isDialog()).perform(androidx.test.espresso.action.ViewActions.click());
+        main(() -> assertNotNull(((EditText)activity.findViewById(R.id.pollQuestionInput)).getError()));
+        assertEquals(0,fixture.posts.get());
+        main(() -> {
+            activity.findViewById(R.id.btnRemovePoll).performClick();
+            ((DoodleOverlayView)activity.findViewById(R.id.doodleOverlay)).addSticker("QA");
+            activity.findViewById(R.id.savePrivateButton).performClick();
+        });
+        androidx.test.espresso.Espresso.onView(androidx.test.espresso.matcher.ViewMatchers.withText(R.string.preview_confirm))
+                .inRoot(androidx.test.espresso.matcher.RootMatchers.isDialog()).perform(androidx.test.espresso.action.ViewActions.click());
+        await(() -> previewState(activity).downloaded()!=null,"Private upload and authenticated download remain available");
+        assertArrayEquals(fixture.jpeg,previewState(activity).downloaded());
+        assertEquals(List.of("[]"),fixture.recipients);
+        main(() -> {
+            assertEquals(1, preview(activity).editRevision());
+            assertFalse(((DoodleOverlayView)activity.findViewById(R.id.doodleOverlay)).hasEdits());
+        });
+        assertFalse(Arrays.equals(fixture.jpeg, fixture.uploadedImage));
     }
     @Test public void viewerAllStylesModesDialogAndRevocationKeepPrivatePhotoHidden() throws Exception {
         for(AppTheme style:AppTheme.values()) for(ColorMode mode:new ColorMode[]{ColorMode.LIGHT,ColorMode.DARK}) {
@@ -250,6 +291,16 @@ public class MediaThemeUiTest {
             capture("viewer-denied-"+style.id()+"-"+mode.id()); closeScreens();
         }
         assertEquals(0,fixture.posts.get()); assertEquals(0,fixture.deletes.get());
+    }
+    @Test public void previewSystemBarsContrastActualSurfaceAcrossEightAppearances() throws Exception {
+        for(AppTheme style:AppTheme.values())for(ColorMode mode:new ColorMode[]{ColorMode.LIGHT,ColorMode.DARK}){
+            select(style,mode);
+            String id=ownedDraftStore.write(fixture.jpeg);ownedDrafts.add(id);
+            var intent=new Intent(context,PreviewActivity.class).putExtra(PreviewActivity.DRAFT_ID,id)
+                    .putExtra(PreviewActivity.GENERATION,fixture.auth.sessionGeneration());
+            PreviewActivity activity=launch(PreviewActivity.class,intent);authorize(activity);readyPreview(activity);
+            closeScreens();
+        }
     }
     @Test public void oneApprovedRealCaptureToCacheAndRetakeWithoutUpload() throws Exception {
         assertEquals("User approved one QA capture","true",InstrumentationRegistry.getArguments().getString("taktak.captureQa"));
@@ -323,6 +374,13 @@ public class MediaThemeUiTest {
     }
     private void readyPreview(PreviewActivity activity) throws Exception {
         await(() -> { var state=previewState(activity); return state.file()!=null && !state.loading() && !state.loadingFriends() && state.friends().size()==2; },"Preview draft and fixture recipients ready");
+        main(()->{
+            View root=activity.findViewById(R.id.previewRoot);
+            int surface=((android.graphics.drawable.ColorDrawable)root.getBackground()).getColor();
+            var bars=androidx.core.view.WindowCompat.getInsetsController(activity.getWindow(),root);
+            for(boolean dark:new boolean[]{bars.isAppearanceLightStatusBars(),bars.isAppearanceLightNavigationBars()})
+                assertTrue("System bar icons contrast actual Preview surface",androidx.core.graphics.ColorUtils.calculateContrast(dark?Color.BLACK:Color.WHITE,surface)>=4.5);
+        });
     }
     private boolean enabled(Activity activity,int id) { var result=new AtomicBoolean(); main(() -> { View view=activity.findViewById(id); result.set(view!=null && view.isEnabled()); }); return result.get(); }
     private boolean visible(Activity activity,int id) { var result=new AtomicBoolean(); main(() -> result.set(activity.findViewById(id).isShown())); return result.get(); }

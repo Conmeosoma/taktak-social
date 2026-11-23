@@ -85,4 +85,30 @@ class AdvancedFeaturesQaTest {
         assertThatThrownBy(()->app.getBean(PrivateImageStorage.class).sanitizeVideo(new MockMultipartFile("video","fake.mp4","video/mp4",fake)))
                 .as("MP4 signature alone does not establish decodable video or a 3-second duration").isInstanceOf(Exception.class);
     }
+    @Test void voteWaitsForConcurrentCloseAndCannotCommitAfterClose() throws Exception {
+        UUID owner=account(),voter=account(),id=photo(owner);
+        db.update("insert into moment_recipients(moment_id,user_id,created_at) values(?,?,now())",id,voter);
+        assertThat(create(owner,id).statusCode()).isEqualTo(201);
+        var service=app.getBean(com.taktak.server.moment.PollService.class);
+        var pool=java.util.concurrent.Executors.newFixedThreadPool(2);
+        var closed=new java.util.concurrent.CountDownLatch(1);
+        var commit=new java.util.concurrent.CountDownLatch(1);
+        try {
+            var closing=pool.submit(()->new TransactionTemplate(app.getBean(PlatformTransactionManager.class)).execute(s->{
+                service.closePoll(owner,id);closed.countDown();
+                try { if(!commit.await(5,java.util.concurrent.TimeUnit.SECONDS)) throw new AssertionError("Close commit gate timeout"); }
+                catch(InterruptedException e){Thread.currentThread().interrupt();throw new RuntimeException(e);}
+                return true;
+            }));
+            assertThat(closed.await(5,java.util.concurrent.TimeUnit.SECONDS)).isTrue();
+            var voting=pool.submit(()->service.vote(voter,id,"A"));
+            assertThatThrownBy(()->voting.get(300,java.util.concurrent.TimeUnit.MILLISECONDS))
+                    .as("Vote must serialize behind an uncommitted close")
+                    .isInstanceOf(java.util.concurrent.TimeoutException.class);
+            commit.countDown();closing.get(5,java.util.concurrent.TimeUnit.SECONDS);
+            assertThatThrownBy(()->voting.get(5,java.util.concurrent.TimeUnit.SECONDS))
+                    .hasCauseInstanceOf(com.taktak.server.moment.MomentFailure.class);
+            assertThat(db.queryForObject("select count(*) from moment_poll_votes v join moment_polls p on p.id=v.poll_id where p.moment_id=?",Integer.class,id)).isZero();
+        } finally {commit.countDown();pool.shutdownNow();}
+    }
 }

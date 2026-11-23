@@ -149,7 +149,7 @@
     <string name="moment_downloaded">फ़ोटो निजी रूप से सहेजी गई। केवल आप देख सकते हैं।</string>
     <string name="moment_transfer_error">भेजने या डाउनलोड की पुष्टि नहीं हुई। कनेक्शन जाँचकर फिर कोशिश करें। सर्वर को फ़ोटो मिल गई हो पर उत्तर खो गया हो, तो फिर भेजने से एक और निजी फ़ोटो बन सकती है।</string>
     <string name="widget_4x2_name">Taktak विस्तृत पल</string>
-    <string name="widget_4x2_description">चौड़ी फ़ोटो (4x2) और सीधी प्रतिक्रियाएँ दिखाता है।</string>
+    <string name="widget_4x2_description">चौड़े विजेट (4x2) में दोस्तों के नए पल दिखाता है।</string>
     <string name="widget_reacted">%s प्रतिक्रिया दी!</string>
     <string name="memories_title">यादें और संक्षेप</string>
     <string name="memories_subtitle">अपने सबसे अच्छे पलों को फिर देखें</string>

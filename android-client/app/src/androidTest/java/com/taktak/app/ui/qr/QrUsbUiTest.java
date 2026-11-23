@@ -193,7 +193,13 @@ public class QrUsbUiTest {
     private void main(Runnable action){InstrumentationRegistry.getInstrumentation().runOnMainSync(action);}
     private void await(BooleanSupplier check,String message)throws Exception{long until=android.os.SystemClock.uptimeMillis()+15000;while(android.os.SystemClock.uptimeMillis()<until){if(check.getAsBoolean())return;android.os.SystemClock.sleep(80);}fail(message);}
     private <T extends Activity>T awaitActivity(Class<T> type,Activity previous)throws Exception{
-        var result=new AtomicReference<T>();await(()->{main(()->{for(Activity item:androidx.test.runner.lifecycle.ActivityLifecycleMonitorRegistry.getInstance().getActivitiesInStage(androidx.test.runner.lifecycle.Stage.RESUMED))if(type.isInstance(item)&&item!=previous)result.set(type.cast(item));});return result.get()!=null;},"Foreground "+type.getSimpleName());return result.get();
+        var stages=new ArrayList<androidx.test.runner.lifecycle.Stage>();stages.add(androidx.test.runner.lifecycle.Stage.RESUMED);
+        // Dialog quyền làm QR Activity PAUSED: vẫn cần lấy instance để kiểm tra và thao tác dialog hệ thống.
+        if(type==QrScanActivity.class&&androidx.core.content.ContextCompat.checkSelfPermission(context,android.Manifest.permission.CAMERA)
+                ==android.content.pm.PackageManager.PERMISSION_DENIED){
+            stages.add(androidx.test.runner.lifecycle.Stage.PAUSED);stages.add(androidx.test.runner.lifecycle.Stage.STARTED);
+        }
+        var result=new AtomicReference<T>();await(()->{main(()->{for(var stage:stages)for(Activity item:androidx.test.runner.lifecycle.ActivityLifecycleMonitorRegistry.getInstance().getActivitiesInStage(stage))if(type.isInstance(item)&&item!=previous)result.set(type.cast(item));});return result.get()!=null;},"Foreground "+type.getSimpleName());return result.get();
     }
     private void closeScreens(){main(()->{var monitor=androidx.test.runner.lifecycle.ActivityLifecycleMonitorRegistry.getInstance();for(var stage:androidx.test.runner.lifecycle.Stage.values())for(Activity item:new ArrayList<>(monitor.getActivitiesInStage(stage)))if(item.getPackageName().equals(context.getPackageName()))item.finish();});InstrumentationRegistry.getInstrumentation().waitForIdleSync();}
     private void capture(String name)throws Exception{

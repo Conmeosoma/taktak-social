@@ -79,7 +79,9 @@ public class OutboxUploadWorker extends Worker {
                 }
 
                 MomentRepository moments = auth.moments();
-                if ("LIVE_VIDEO".equalsIgnoreCase(task.mediaType) && task.thumbnailPath != null && new File(task.thumbnailPath).exists()) {
+                if ("LIVE_VIDEO".equalsIgnoreCase(task.mediaType)) {
+                    if (task.thumbnailPath == null || !new File(task.thumbnailPath).isFile())
+                        throw new ApiFailure(ApiFailure.Kind.VALIDATION);
                     var metadata = com.taktak.app.data.repository.LiveVideoMetadata.read(payload);
                     File thumb = new File(task.thumbnailPath);
                     byte[] thumbBytes = new byte[(int) thumb.length()];

@@ -1,0 +1,21 @@
+<resources>
+    <string name="preview_preparing">이미지 준비 중…</string>
+    <string name="preview_prepare_error">수정 내용을 저장하지 못했습니다. 전송되지 않았습니다. 다시 시도하세요.</string>
+    <string name="preview_queued">전송 대기열에 저장했습니다. 기록에서 전송 상태를 확인하고 재시도하세요. 아직 전달이 확인되지 않았습니다.</string>
+    <string name="preview_done">카메라로 돌아가기</string>
+    <string name="preview_selected_summary">받는 사람 %1$d명 선택됨</string>
+    <string name="preview_poll_required">올바른 질문과 두 선택지를 입력하세요.</string>
+    <string name="preview_play_live">Live 클립 재생</string>
+    <string name="preview_video_error">클립을 재생하지 못했습니다. 미리보기를 다시 열어 보세요.</string>
+    <string name="preview_add_sticker">스티커 %1$s 추가</string>
+    <string name="preview_color_white">흰색</string>
+    <string name="preview_color_yellow">노란색</string>
+    <string name="preview_color_coral">코랄</string>
+    <string name="preview_color_mint">민트</string>
+    <string name="preview_color_purple">보라색</string>
+    <string name="preview_color_selected">선택됨</string>
+    <string name="outbox_permanent_error">전송을 완료하지 못했습니다. 받는 사람과 내용을 확인한 후 다시 보내세요.</string>
+    <string name="outbox_queue_count">대기열에 %1$d개 항목</string>
+    <string name="outbox_cancel_confirm">이 전송을 중지할까요? 서버가 이미 받은 내용은 기록에 남아 있을 수 있습니다.</string>
+    <string name="poll_close_action">투표 종료</string>
+</resources>

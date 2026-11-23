@@ -24,7 +24,8 @@ case "$tool" in
         [[ ! -f "$CASE_ROOT/fail_reconcile" ]] || exit 102
         exit 0
     fi
-    printf '%s\n' 11111111-1111-1111-1111-111111111111.jpg avatars/22222222-2222-2222-2222-222222222222.jpg;;
+    [[ "$*" = *'SELECT video_path FROM moments'* ]] || exit 103
+    printf '%s\n' 11111111-1111-1111-1111-111111111111.jpg 11111111-1111-1111-1111-111111111111.mp4 avatars/22222222-2222-2222-2222-222222222222.jpg;;
   systemctl)
     case "$1" in
       show)

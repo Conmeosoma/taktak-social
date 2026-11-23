@@ -15,10 +15,15 @@ apt-get install -y --no-install-recommends \
     certbot \
     python3-certbot-nginx \
     ufw \
+    fail2ban \
+    python3-systemd \
+    ffmpeg \
     curl \
     ca-certificates \
     logrotate
 apt-get install -y openssl util-linux
+
+timedatectl set-timezone Asia/Ho_Chi_Minh
 
 echo "===> [2/8] Tạo user dịch vụ hệ thống không phải root (taktak)..."
 if ! id -u taktak >/dev/null 2>&1; then
@@ -76,6 +81,18 @@ ufw allow 80/tcp comment 'HTTP Nginx & Certbot'
 ufw allow 443/tcp comment 'HTTPS Nginx TLS'
 # Cổng 8080 (Spring Boot) và 5432 (PostgreSQL) TUYỆT ĐỐI không mở ra ngoài
 ufw --force enable
+
+# Dùng journal để theo dõi SSH kể cả trên VPS không có /var/log/auth.log.
+install -d -m 755 /etc/fail2ban/jail.d
+cat > /etc/fail2ban/jail.d/taktak-sshd.local <<EOF
+[sshd]
+enabled = true
+backend = systemd
+port = ${CURRENT_SSH_PORT:-22}
+EOF
+fail2ban-client -t
+systemctl enable fail2ban
+systemctl restart fail2ban
 
 echo "===> [6/8] Cài đặt cấu hình Logrotate..."
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"

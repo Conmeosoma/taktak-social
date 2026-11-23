@@ -49,6 +49,34 @@ public class AdvancedFeaturesDeviceQaTest {
             assertTrue("Wrong generation must not delete payload",payload.exists());
         }finally{db.delete(id);db.close();java.nio.file.Files.deleteIfExists(payload.toPath());}
     }
+    @Test public void queuedLiveOwnsThumbnailAndStableKeyPreventsDuplicate() throws Exception {
+        ChatThemeFixture fixture = new ChatThemeFixture(context);
+        var source = java.io.File.createTempFile("qa-thumb-", ".jpg", context.getCacheDir());
+        java.nio.file.Files.write(source.toPath(), new byte[]{1,2,3});
+        var repo = OutboxRepository.getInstance(context); OutboxRecord task = null;
+        try {
+            String key = UUID.randomUUID().toString();
+            task = repo.enqueue(0, ChatThemeFixture.SELF, new byte[]{4,5,6}, "LIVE_VIDEO",
+                    source.getAbsolutePath(), "QA owned thumbnail", List.of(), null, key);
+            assertNotEquals(source.getAbsolutePath(), task.thumbnailPath);
+            java.nio.file.Files.delete(source.toPath());
+            assertTrue(new java.io.File(task.thumbnailPath).isFile());
+            assertEquals(task.id, repo.enqueue(0, ChatThemeFixture.SELF, new byte[]{4,5,6}, "LIVE_VIDEO",
+                    source.getAbsolutePath(), "QA owned thumbnail", List.of(), null, key).id);
+            androidx.work.WorkManager.getInstance(context).cancelUniqueWork("outbox_"+task.id).getResult().get();
+            repo.markCompleted(task.id, 0);
+            assertFalse(new java.io.File(task.thumbnailPath).exists());
+            assertFalse(new java.io.File(task.payloadPath).exists());
+        } finally {
+            if (task != null) {
+                androidx.work.WorkManager.getInstance(context).cancelUniqueWork("outbox_"+task.id).getResult().get();
+                try (var db = new OutboxDatabaseHelper(context)) { db.delete(task.id); }
+                java.nio.file.Files.deleteIfExists(new java.io.File(task.payloadPath).toPath());
+                java.nio.file.Files.deleteIfExists(new java.io.File(task.thumbnailPath).toPath());
+            }
+            java.nio.file.Files.deleteIfExists(source.toPath()); fixture.close();
+        }
+    }
     @Test public void cancelledTaskCannotBeRevivedByLateProgress()throws Exception{
         String id=UUID.randomUUID().toString();var db=new OutboxDatabaseHelper(context);
         try{db.insert(record(id,"qa-no-file"));assertTrue(db.updateStatus(id,OutboxStatus.CANCELLED,null,0,987654321L));
@@ -128,21 +156,32 @@ public class AdvancedFeaturesDeviceQaTest {
             Thread.sleep(500);main(()->((MutableLiveData<SessionViewModel.State>)new ViewModelProvider(activity).get(SessionViewModel.class).state()).setValue(new SessionViewModel.State(SessionViewModel.Destination.CAMERA,0)));
             await(()->enabled(activity,R.id.captureButton));
             // Cancel không được biến thành một lần chụp ảnh hoặc mở Preview.
-            holdShutter(activity,1800,true);
+            holdRecording(activity,500,true);
             await(()->enabled(activity,R.id.captureButton));
             AtomicBoolean extraPreview=new AtomicBoolean();main(()->extraPreview.set(resumed().stream().anyMatch(a->a instanceof PreviewActivity)));
             assertFalse("Cancelled hold must not open Preview",extraPreview.get());
-            holdShutter(activity,4500,false);PreviewActivity live=preview();opened.add(live);
+            holdShutterUntilAutoStop(activity);PreviewActivity live=preview();opened.add(live);
             String liveId=live.getIntent().getStringExtra(PreviewActivity.DRAFT_ID);drafts.add(liveId);
             var retriever=new android.media.MediaMetadataRetriever();try{retriever.setDataSource(store.videoFile(liveId).getAbsolutePath());long ms=Long.parseLong(retriever.extractMetadata(android.media.MediaMetadataRetriever.METADATA_KEY_DURATION));
                 assertTrue("Live recording must fit server tolerance; actual="+ms,ms>=2000&&ms<=3300);
             }finally{retriever.release();}
             assertFalse(com.taktak.app.data.repository.LiveVideoMetadata.read(store.videoFile(liveId)).hasAudio());
+            main(() -> {
+                assertEquals(android.view.View.GONE, live.findViewById(R.id.creativeToolsBar).getVisibility());
+                assertEquals(android.view.View.VISIBLE, live.findViewById(R.id.previewPlayLive).getVisibility());
+                live.findViewById(R.id.previewPlayLive).performClick();
+            });
+            await(() -> { AtomicBoolean playing = new AtomicBoolean();
+                main(() -> playing.set(((android.widget.VideoView)live.findViewById(R.id.previewVideo)).isPlaying()));
+                return playing.get(); });
+            await(() -> { AtomicBoolean finished = new AtomicBoolean();
+                main(() -> finished.set(live.findViewById(R.id.previewVideo).getVisibility()==android.view.View.GONE));
+                return finished.get(); });
             screenshot("advanced4-live-preview.png");
             main(live::finish);Thread.sleep(500);
             main(()->((MutableLiveData<SessionViewModel.State>)new ViewModelProvider(activity).get(SessionViewModel.class).state()).setValue(new SessionViewModel.State(SessionViewModel.Destination.CAMERA,0)));
             await(()->enabled(activity,R.id.btnLiveAudioToggle));main(()->activity.findViewById(R.id.btnLiveAudioToggle).performClick());
-            await(()->enabled(activity,R.id.captureButton));holdShutter(activity,1800,false);
+            await(()->enabled(activity,R.id.captureButton));holdRecording(activity,800,false);
             PreviewActivity audio=preview();opened.add(audio);String audioId=audio.getIntent().getStringExtra(PreviewActivity.DRAFT_ID);drafts.add(audioId);
             var metadata=com.taktak.app.data.repository.LiveVideoMetadata.read(store.videoFile(audioId));
             assertTrue("Mic-enabled clip must contain an audio track",metadata.hasAudio());
@@ -168,6 +207,43 @@ public class AdvancedFeaturesDeviceQaTest {
                     cancel?android.view.MotionEvent.ACTION_CANCEL:android.view.MotionEvent.ACTION_UP,view.getWidth()/2f,view.getHeight()/2f,0);
             try{view.dispatchTouchEvent(event);}finally{event.recycle();}
         });
+    }
+    private void holdShutterUntilAutoStop(Activity activity)throws Exception{
+        long down=android.os.SystemClock.uptimeMillis();
+        main(()->{
+            var view=activity.findViewById(R.id.captureButton);
+            var event=android.view.MotionEvent.obtain(down,down,android.view.MotionEvent.ACTION_DOWN,view.getWidth()/2f,view.getHeight()/2f,0);
+            try{view.dispatchTouchEvent(event);}finally{event.recycle();}
+        });
+        // Giữ thật tới khi app tự kết thúc clip; thời gian bind camera không tính là thời gian quay.
+        try {
+            await(()->{AtomicBoolean shown=new AtomicBoolean();main(()->shown.set(resumed().stream().anyMatch(a->a instanceof PreviewActivity)));return shown.get();});
+        } finally {
+            main(()->{
+                var view=activity.findViewById(R.id.captureButton);
+                var event=android.view.MotionEvent.obtain(down,android.os.SystemClock.uptimeMillis(),android.view.MotionEvent.ACTION_UP,view.getWidth()/2f,view.getHeight()/2f,0);
+                try{view.dispatchTouchEvent(event);}finally{event.recycle();}
+            });
+        }
+    }
+    private void holdRecording(Activity activity,long duration,boolean cancel)throws Exception{
+        long down=android.os.SystemClock.uptimeMillis();
+        main(()->{
+            var view=activity.findViewById(R.id.captureButton);
+            var event=android.view.MotionEvent.obtain(down,down,android.view.MotionEvent.ACTION_DOWN,view.getWidth()/2f,view.getHeight()/2f,0);
+            try{view.dispatchTouchEvent(event);}finally{event.recycle();}
+        });
+        try {
+            await(()->{AtomicBoolean started=new AtomicBoolean();main(()->started.set(
+                ((android.widget.TextView)activity.findViewById(R.id.momentStatus)).getText().toString().equals(activity.getString(R.string.camera_live_recording))));return started.get();});
+            Thread.sleep(duration);
+        } finally {
+            main(()->{
+                var view=activity.findViewById(R.id.captureButton);
+                var event=android.view.MotionEvent.obtain(down,android.os.SystemClock.uptimeMillis(),cancel?android.view.MotionEvent.ACTION_CANCEL:android.view.MotionEvent.ACTION_UP,view.getWidth()/2f,view.getHeight()/2f,0);
+                try{view.dispatchTouchEvent(event);}finally{event.recycle();}
+            });
+        }
     }
     private List<Activity> resumed(){return new ArrayList<>(androidx.test.runner.lifecycle.ActivityLifecycleMonitorRegistry.getInstance().getActivitiesInStage(androidx.test.runner.lifecycle.Stage.RESUMED));}
     private PreviewActivity preview()throws Exception{

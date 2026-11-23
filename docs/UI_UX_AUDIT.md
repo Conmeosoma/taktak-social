@@ -1,5 +1,26 @@
 # Taktak — Rà soát UI/UX và sửa tài nguyên an toàn (20/10/2026)
 
+## Sửa lỗi và nghiệm thu AVD — 16/11/2026
+
+PASS phạm vi local/AVD đã chạy: backend 231/231, Android unit 144/144,
+hồi quy AVD 67/67 (không skip); FCM thật, Worker/widget, Outbox offline/restart,
+QR permission/picker và load local có bằng chứng riêng. Build đạt; lint 0 lỗi,
+114 cảnh báo còn mở. Đã sửa Camera/Live, khóa đồng thời Poll, Preview/system bars,
+format chuỗi và fixture QA. Widget 2×2 đã ghim/gỡ trên Pixel Launcher.
+
+APK: Downloads/Taktak-20261116-qa-fixed.apk. JAR sửa Poll vẫn local, chưa deploy.
+HTTPS VPS health UP khi kiểm tra; tunnel tạm được người dùng chấp nhận, chưa có
+domain. Không commit/push/deploy. AVD và backend QA đã dừng.
+
+Chi tiết file, log, hash, phạm vi và giới hạn: [bàn giao QA](QA_AVD_FIX_ALL_20261116.md).
+Các mục phía dưới là lịch sử; trạng thái Camera timeout và số lint cũ được thay
+bằng kết quả này. Chưa tuyên bố nghiệm thu toàn bộ máy thật/production.
+
+## Sửa UI review — 15/11/2026
+
+IN PROGRESS: đã triển khai các sửa UI/Poll/Outbox; JVM 144/144, lint 0 lỗi/126 cảnh báo, 11 ca forms/lists và ma trận riêng đạt. Camera/Live trên AVD còn timeout; chưa nghiệm thu toàn bộ. Xem [bàn giao và kiểm thử](QA_UI_REVIEW_FIXES_20261115.md). Không commit/push/deploy.
+
+
 ## Cập nhật 23/10/2026 — QA máy thật
 
 USB Xiaomi Android15 đã chạy28/28 PASS118,724s, APK cài khớp artifact và phiên

@@ -173,41 +173,45 @@
             <!-- Theme Settings Button -->
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/profileThemeButton"
-                style="@style/Widget.Taktak.Button.Secondary"
+                style="@style/Widget.Taktak.Button.Ghost"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/taktak_space_sm"
-                android:minHeight="@dimen/taktak_btn_height_large"
+                android:layout_marginTop="@dimen/taktak_space_xxs"
+                android:minHeight="@dimen/taktak_touch_target_min"
+                android:gravity="start|center_vertical"
                 android:text="@string/theme_open" />
 
             <!-- Language Settings Button -->
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/profileIntroButton"
-                style="@style/Widget.Taktak.Button.Secondary"
+                style="@style/Widget.Taktak.Button.Ghost"
                 android:layout_width="match_parent" android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/taktak_space_sm" android:minHeight="@dimen/taktak_btn_height_large"
+                android:layout_marginTop="@dimen/taktak_space_xxs" android:minHeight="@dimen/taktak_touch_target_min"
+                android:gravity="start|center_vertical"
                 android:text="@string/intro_settings" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/profileLanguageButton"
-                style="@style/Widget.Taktak.Button.Secondary"
+                style="@style/Widget.Taktak.Button.Ghost"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/taktak_space_sm"
-                android:minHeight="@dimen/taktak_btn_height_large"
+                android:layout_marginTop="@dimen/taktak_space_xxs"
+                android:minHeight="@dimen/taktak_touch_target_min"
+                android:gravity="start|center_vertical"
                 android:text="@string/language_settings_title" />
 
             <!-- My QR Code Button -->
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/profileMyQrButton"
-                style="@style/Widget.Taktak.Button.Secondary"
+                style="@style/Widget.Taktak.Button.Ghost"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/taktak_space_sm"
-                android:minHeight="@dimen/taktak_btn_height_large"
+                android:layout_marginTop="@dimen/taktak_space_xxs"
+                android:minHeight="@dimen/taktak_touch_target_min"
                 app:icon="@drawable/ic_qr_code"
                 app:iconGravity="textStart"
                 app:iconTint="?attr/taktakColorBrandPrimary"
+                android:gravity="start|center_vertical"
                 android:text="@string/profile_my_qr" />
 
             <!-- Biometric App Lock Card -->
